@@ -1,13 +1,14 @@
 <template>
     <div id="root-container">
-        <router-view></router-view>
+        홈이욧~
+        <router-link to="/login">로그인</router-link>
     </div>
 </template>
 
 <script setup>
-
+    
 </script>
 
 <style scoped>
-
+    
 </style>

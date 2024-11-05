@@ -13,7 +13,7 @@
         </div>
 
         <div class="login-service">
-            <a href="#" class="sign-up">회원가입</a>
+            <router-link to="/signUp">회원가입</router-link>
             <a href="#" class="find-password">비밀번호를 잊으셨나요?</a>
         </div>
         
