@@ -1,6 +1,7 @@
 <template>
     <div id="root-container">
         <router-view></router-view>
+        테스트
     </div>
 </template>
 
