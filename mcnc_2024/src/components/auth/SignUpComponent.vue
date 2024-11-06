@@ -18,22 +18,6 @@
         <sign-up-step1 :step="step" v-if="step === 1" @nextStep="stepUp"/>
         <sign-up-step2 :step="step" v-if="step === 2" @nextStep="stepUp"/>
         <sign-up-step3 :step="step" v-if="step === 3"/>
-
-
-        <!-- <div class="logo-container">
-            <img src="https://www.mcnc.co.kr/images/custom/favicon.png" class="logo" alt="logo" @click="goToHome">
-        </div>
-
-        <div class="sign-up-container">
-            <form class="form-container" action="#" method="">
-                <input type="text" class="form-item" placeholder="사용자명" v-model="userName">
-                <input type="email" class="form-item" placeholder="아이디(이메일)" autocomplete="userId" v-model="userId">
-                <input type="password" class="form-item" placeholder="비밀번호" autocomplete="new-password" v-model="password">
-                <input type="password" class="form-item" placeholder="비밀번호 확인" autocomplete="new-password">
-
-                <button class="submit-btn" type="submit">회원가입</button>
-            </form>
-        </div> -->
     </div>
 </template>
 
