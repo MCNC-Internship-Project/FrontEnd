@@ -1,7 +1,26 @@
 <template>
     <div id="root-container">
 
-        <div class="logo-container">
+        <div class="header">
+            <div class="back-btn">뒤로가기</div>
+        </div>
+
+        <div class="sign-up-section">
+            <div class="step">
+                단계 {{ step }} / 3
+            </div>
+
+            <div class="guide-text">
+                회원가입을 시작합니다.
+            </div>
+        </div>
+
+        <sign-up-step1 v-if="step === 1"/>
+        <sign-up-step2 v-else-if="step === 2"/>
+        <sign-up-step3 else/>
+
+
+        <!-- <div class="logo-container">
             <img src="https://www.mcnc.co.kr/images/custom/favicon.png" class="logo" alt="logo" @click="goToHome">
         </div>
 
@@ -14,116 +33,53 @@
 
                 <button class="submit-btn" type="submit">회원가입</button>
             </form>
-        </div>
+        </div> -->
     </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
+import SignUpStep1 from './signUpStep/SignUpStep1.vue';
+import SignUpStep2 from './signUpStep/SignUpStep2.vue';
+import SignUpStep3 from './signUpStep/SignUpStep3.vue';
 
-const userName = ref("")
-const userId = ref("")
-const password = ref("")
+const step = ref(1);
+
+// const userName = ref("")
+// const userId = ref("")
+// const password = ref("")
 </script>
 
 <style scoped>
-#root-container {
-    padding : 0;
-    width : 100%;
-    height : 95vh;
+.header {
     display : flex;
-    flex-direction : column;
-    align-items: center;
-    justify-content: center;
-}
-
-.logo-container {
-    width : 100%;
-    margin : 52px 0;
-    display : flex;
-    align-items: center;
-    justify-content: space-around;
-}
-
-.sign-up-container {
-    width : 100%;
-    display : flex;
-    flex-direction : column;
-    align-items: center;
-    justify-content: center;
-}
-
-.form-container {
-    width : 100%;
-    display : flex;
-    flex-direction: column;
     align-items: center;
     justify-content: start;
+    padding : 10px 10px;
+    width : 100%;
 }
 
-.form-item, .submit-btn {
-    box-sizing: border-box;
-    width : 80%;
-    height : 55px;
-    border : solid 2px #1088E3;
-    border-radius: 10px;
-    margin : 8px 0;
-    padding : 0 10px;
+.back-btn {
+    text-indent : -999em;
+    background: url("../../common/back_btn_icon.png") no-repeat;
+    width : 32px;
+    height : 32px;
+    background-size: contain;
 }
 
-.submit-btn {
-    background-color: #1088E3;
-    border : none;
-    color : white;
-    transition : all 0.2s;
+/* 버튼  */
+.sign-up-section {
+    padding : 10px 20px;
 }
 
-.submit-btn:hover {
-    background-color: #0d6db7;
+.step {
+    font-size : 0.75rem;
+    color : #97969C;
 }
 
-/* 데스크탑 최소 너비 1200px */
-@media (min-width: 1200px) {
-    .logo {
-        width : 10%;
-        margin-top : 60px;
-    }
-
-    .form-container {
-        width : 30%;
-    }
-
-    input, .submit-btn {
-        height: 55px;
-        font-size: 0.875rem;
-        padding : 0 20px;
-    }
-}
-
-/* 중형 화면(태블릿) 최대 너비 992px */
-@media (max-width: 992px) {
-    .logo {
-        width : 30%;
-    }
-
-    input, .login-btn {
-        height: 55px;
-        font-size: 0.875rem;
-        padding : 0 20px;
-    }
-}
-
-/* 모바일 최소 너비 480px */
-@media (max-width: 480px) {
-
-    .logo {
-        width : 40%;
-    }
-
-    input, .login-btn {
-        height: 55px;
-        font-size: 0.875rem;
-        padding : 0 20px;
-    }
+.guide-text {
+    margin-top : 8px;
+    font-size : 1.25rem;
+    color : #000000;
 }
 </style>
