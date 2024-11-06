@@ -7,3 +7,15 @@ export function getTodayDate() {
 
     return todayDate;
 }
+
+export function formatDate(date) {
+    if(date === null) {
+        return ""
+    }
+
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // 1부터 시작하는 월
+    const day = String(date.getDate()).padStart(2, '0'); // 일
+
+    return `${year}-${month}-${day}`;
+}

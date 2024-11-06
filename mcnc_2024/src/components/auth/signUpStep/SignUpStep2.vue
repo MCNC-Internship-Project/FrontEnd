@@ -6,25 +6,35 @@
             <input type="password" class="form-item" placeholder="비밀번호" autocomplete="new-password" v-model="password">
             <input type="password" class="form-item" placeholder="비밀번호 확인" autocomplete="new-password">
 
-            <button class="submit-btn" @click="stepTo2">다음</button>
+            <button class="submit-btn" @click="stepTo3">다음</button>
         </div>
 
     </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, defineProps, defineEmits } from 'vue'
 
 const userName = ref("")
 const password = ref("")
+
+const props = defineProps({
+    step : Number,
+})
+
+const emit = defineEmits(["nextStep"])
+
+function stepTo3() {
+    emit("nextStep", props.step + 1)
+}
     
 </script>
 
 <style scoped>
 #root-container {
     width : 100%;
-    height : 95vh;
-    margin-top : 36px;
+    height : 10vh;
+    margin-top : 24px;
     display : flex;
     flex-direction : column;
     align-items: center;

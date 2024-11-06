@@ -1,7 +1,7 @@
 <template>
     <div id="root-container">
         <div class="logo-container">
-            <img src="https://www.mcnc.co.kr/images/custom/favicon.png" class="logo" alt="logo" @click="goToHome">
+            <img src="../../common/crab.png" class="logo" alt="logo" @click="goToHome">
         </div>
 
         <form action="" class="login-container">
@@ -45,9 +45,10 @@ watch([userId, password], () => {
 
 <style scoped>
 #root-container {
+    margin-top : 64px;
     padding : 0;
     width : 100%;
-    height : 95vh;
+    height : 90vh;
     display : flex;
     flex-direction : column;
     align-items : center;

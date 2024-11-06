@@ -11,18 +11,27 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, defineProps, defineEmits } from 'vue'
 
 const userId = ref("")
 
+const props = defineProps({
+    step : Number,
+})
+
+const emit = defineEmits(["nextStep"]);
+
+function stepTo2() {
+    emit("nextStep", props.step + 1)
+}
 
 </script>
 
 <style scoped>
 #root-container {
     width : 100%;
-    height : 95vh;
-    margin-top : 36px;
+    height : 10vh;
+    margin-top : 24px;
     display : flex;
     flex-direction : column;
     align-items: center;
