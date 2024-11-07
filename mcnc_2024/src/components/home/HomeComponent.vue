@@ -133,7 +133,7 @@ import CompletedSurvey from './ChildComponent/CompletedSurvey.vue';
 
 .survey-search {
     position : absolute;
-    right : 32px;
+    right : 40px;
     bottom : 16px;
     text-indent : -999em;
     background: url("../../common/icon_search.png") no-repeat;
