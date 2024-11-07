@@ -3,7 +3,7 @@
 
         <div class="title-section">
             <div class="title">
-                진행중인 설문조사
+                완료된 설문조사
             </div>
 
             <div class="list">
@@ -14,17 +14,26 @@
         <div class="survey-section">
             <!-- li 항목은 v-for로 돌릴 컴포넌트 -->
             <ul>
+                <li class="survey-item">
+                    <div class="survey-item-detail">
+                        <div class="item-title">설문조사 제목</div>
+                        <div class="item-description">설문조사 설명 설문조사 설명 설문조사 설명</div>
+
+                        <div class="footer-container">
+                            <div class="participant">10명 참여</div>
+                            <div class="deadline">2024.11.13</div>
+                        </div>
+                    </div>
+                </li>
                 
                 <li class="survey-item">
                     <div class="survey-item-detail">
                         <div class="item-title">설문조사 제목</div>
-                        <div class="item-description">설문조사내용설문조사내용설문조사내용</div>
-                        <div class="participant">10명 참여</div>
+                        <div class="item-description">설문조사 설명 설문조사 설명 설문조사 설명</div>
 
-                        <progress class="survey-progress" value="50" max="100"></progress>
-                        <div class="deadline-container">
-                            <div class="start">11.06</div>
-                            <div class="end">11.13</div>
+                        <div class="footer-container">
+                            <div class="participant">10명 참여</div>
+                            <div class="deadline">2024.11.13</div>
                         </div>
                     </div>
                 </li>
@@ -32,31 +41,15 @@
                 <li class="survey-item">
                     <div class="survey-item-detail">
                         <div class="item-title">설문조사 제목</div>
-                        <div class="item-description">설문조사내용설문조사내용설문조사내용</div>
-                        <div class="participant">10명 참여</div>
+                        <div class="item-description">설문조사 설명 설문조사 설명 설문조사 설명</div>
 
-                        <progress class="survey-progress" value="50" max="100"></progress>
-                        <div class="deadline-container">
-                            <div class="start">11.06</div>
-                            <div class="end">11.13</div>
+                        <div class="footer-container">
+                            <div class="participant">10명 참여</div>
+                            <div class="deadline">2024.11.13</div>
                         </div>
                     </div>
                 </li>
-
-                <li class="survey-item">
-                    <div class="survey-item-detail">
-                        <div class="item-title">설문조사 제목</div>
-                        <div class="item-description">설문조사내용설문조사내용설문조사내용</div>
-                        <div class="participant">10명 참여</div>
-
-                        <progress class="survey-progress" value="50" max="100"></progress>
-                        <div class="deadline-container">
-                            <div class="start">11.06</div>
-                            <div class="end">11.13</div>
-                        </div>
-                    </div>
-                </li>
-
+                
             </ul>
         </div>
 
@@ -70,7 +63,6 @@
 <style scoped>
 #root-container {
     width : 100%;
-    margin-top : 40px;
 }
 
 .title-section {
@@ -92,12 +84,14 @@
 
 .survey-section {
     width : 100%;
-    overflow-x: scroll;
+    height : 230px;
+    overflow-y: scroll;
     scrollbar-width: none;
 }
 
 ul {
     display : flex;
+    flex-direction: column;
     padding : 0;
     margin : 0;
     flex-wrap: nowrap;
@@ -105,46 +99,42 @@ ul {
 
 .survey-item {
     list-style: none;
-    margin : 16px 0 40px 24px;
-    width : 200px;
-    height : 140px;
+    margin : 16px 24px;
+    width : calc(100%-48px);
+    height : 100px;
     border-radius: 12px;
     box-shadow: 0 4px 4px rgba(0, 0, 0, 0.3);
     flex-shrink: 0;
 }
 
 .survey-item-detail {
-    padding : 20px 20px;
+    padding : 16px 16px;
     display : flex;
     flex-direction: column;
-    align-items: start;
-    justify-content: start;
 }
 
 .item-title {
-    font-weight : bold;
-    font-size : 0.875rem;
+    font-size : 0.8125rem;
+    color : #464748;
 }
 
 .item-description {
-    margin-top : 2px;
-    font-size : 0.75rem;
+    font-size : 0.6875rem;
+    color : #8D8D8D;
+}
+
+.footer-container {
+    margin-top : 24px;
+    display : flex;
+    justify-content: space-between;
 }
 
 .participant {
-    margin-top : 8px;
     font-size : 0.625rem;
     color : #7796E8;
 }
 
-.survey-progress {
-    width : 100%;
-}
-
-.deadline-container {
-    width : 100%;
-    display : flex;
-    justify-content: space-between;
+.deadline {
     font-size : 0.625rem;
     color : #B7B7B7;
 }

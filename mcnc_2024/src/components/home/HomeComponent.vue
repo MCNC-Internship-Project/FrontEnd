@@ -25,12 +25,14 @@
         </div>
 
         <in-progress-survey />
+        <completed-survey />
 
     </div>
 </template>
 
 <script setup>
 import InProgressSurvey from './ChildComponent/InProgressSurvey.vue';
+import CompletedSurvey from './ChildComponent/CompletedSurvey.vue';
     
 </script>
 
@@ -47,6 +49,7 @@ import InProgressSurvey from './ChildComponent/InProgressSurvey.vue';
 .header {
     width : 100%;
     height : 64px;
+    margin : 16px 0;
     display : flex;
     align-items: center;
     justify-content: space-between;
