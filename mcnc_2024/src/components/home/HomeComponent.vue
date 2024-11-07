@@ -24,10 +24,13 @@
             <div class="survey-search">search</div>
         </div>
 
+        <in-progress-survey />
+
     </div>
 </template>
 
 <script setup>
+import InProgressSurvey from './ChildComponent/InProgressSurvey.vue';
     
 </script>
 
