@@ -1,7 +1,10 @@
 <template>
     <div id="root-container">
         <div class="logo-container">
-            <img src="../../common/crab.png" class="logo" alt="logo" @click="goToHome">
+            <img src="../../common/homeLogo.png" class="logo" alt="logo" @click="goToHome">
+            <div class="logo-font">
+                survwey
+            </div>
         </div>
 
         <form action="" class="login-container">
@@ -58,9 +61,24 @@ watch([userId, password], () => {
 .logo-container {
     width : 100%;
     display : flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    margin-bottom : 60px;
+    margin-bottom : 40px;
+}
+
+@font-face {
+    font-family: 'Mont';
+    src: url('../../assets/MontserratAlternates-Bold.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+}
+
+/* 폰트를 사용할 스타일 정의 */
+.logo-font {
+    font-family: 'Mont', sans-serif;
+    font-size : 2.5rem;
+    color : #19C3FF;
 }
 
 .login-container {

@@ -1,3 +1,4 @@
+// 금일 날짜를 YYYY-MM-DD 형태로 반환하는 함수
 export function getTodayDate() {
     const today = new Date();
     const year = today.getFullYear();
@@ -8,6 +9,8 @@ export function getTodayDate() {
     return todayDate;
 }
 
+
+// 기본 DATE 표현식을 YYYY-MM-DD 형태로 반환하는 함수
 export function formatDate(date) {
     if(date === null) {
         return ""

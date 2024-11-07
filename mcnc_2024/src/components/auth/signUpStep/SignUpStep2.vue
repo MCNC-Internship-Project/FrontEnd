@@ -25,7 +25,7 @@ const props = defineProps({
 const emit = defineEmits(["nextStep"])
 
 function stepTo3() {
-    emit("nextStep", props.step + 1)
+    emit("nextStep", {userName: userName.value, password: password.value, step: props.step + 1})
 }
     
 </script>

@@ -13,16 +13,16 @@
 <script setup>
 import { ref, defineProps, defineEmits } from 'vue'
 
-const userId = ref("")
-
 const props = defineProps({
     step : Number,
 })
 
+const userId = ref("")
+
 const emit = defineEmits(["nextStep"]);
 
 function stepTo2() {
-    emit("nextStep", props.step + 1)
+    emit("nextStep", {userId: userId.value, step: props.step + 1})
 }
 
 </script>
@@ -69,18 +69,9 @@ function stepTo2() {
 
 /* 데스크탑 최소 너비 1200px */
 @media (min-width: 1200px) {
-    .logo {
-        width : 10%;
-        margin-top : 60px;
-    }
-
-    .form-container {
-        width : 30%;
-    }
-
     input, .submit-btn {
         height: 55px;
-        font-size: 0.875rem;
+        font-size: 1rem;
         padding : 0 20px;
     }
 }
