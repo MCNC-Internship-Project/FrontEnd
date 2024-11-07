@@ -11,6 +11,11 @@ const HomeRoutes = [
         path : "/notice",
         name : "Notice",
         component : () => import("../../components/home/NoticeList.vue")
+    },
+    {
+        path : "/profile",
+        name : "Profile",
+        component : () => import("../../components/user_profile/UserProfile.vue")
     }
 ]
 
