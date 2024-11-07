@@ -106,8 +106,8 @@ const formattedDate = computed(() => {
 });
 
 const goToSignUp = () => {
-    selectedGender.value = (selectedGender.value === '남성' ? 'M' : 'F');
-    emit("signUp", {birth: birth.value, gender: selectedGender.value})
+    const gender = (selectedGender.value === '남성' ? 'M' : 'F');
+    emit("signUp", {birth: birth.value, gender: gender})
 }
 </script>
 
@@ -133,11 +133,11 @@ const goToSignUp = () => {
 
 .submit-btn {
     height : 56px !important;
-    border : solid 2px #1088E3;
+    border : solid 2px #7796E8;
     border-radius: 10px;
     margin : 8px 0;
     width : 100%;
-    background-color: #1088E3;
+    background-color: #7796E8;
     border : none;
     color : white;
     transition : all 0.2s;
@@ -153,7 +153,7 @@ const goToSignUp = () => {
 
 .outlined-container {
   margin: 0 24px 12px 24px;
-  border: 2px solid #1088E3;
+  border: 2px solid #7796E8;
   padding-left: 16px;
   border-radius: 12px;
   height: 56px;

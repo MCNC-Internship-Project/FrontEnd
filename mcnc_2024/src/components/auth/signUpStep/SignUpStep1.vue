@@ -50,14 +50,14 @@ function stepTo2() {
     box-sizing: border-box;
     width : 90%;
     height : 55px;
-    border : solid 2px #1088E3;
+    border : solid 2px #7796E8;
     border-radius: 10px;
     margin : 8px 0;
     padding : 0 10px;
 }
 
 .submit-btn {
-    background-color: #1088E3;
+    background-color: #7796E8;
     border : none;
     color : white;
     transition : all 0.2s ease;

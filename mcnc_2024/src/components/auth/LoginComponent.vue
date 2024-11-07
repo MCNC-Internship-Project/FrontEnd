@@ -78,7 +78,7 @@ watch([userId, password], () => {
 .logo-font {
     font-family: 'Mont', sans-serif;
     font-size : 2.5rem;
-    color : #19C3FF;
+    color : #7796E8;
 }
 
 .login-container {
@@ -99,12 +99,12 @@ input, .login-btn {
 }
 
 input {
-    border : solid 2px #1088E3;
+    border : solid 2px #7796E8;
 }
 
 .login-btn {
     color : white;
-    background-color : #1088E3;
+    background-color : #7796E8;
     border : none;
     transition : all 0.2s ease;
 }
