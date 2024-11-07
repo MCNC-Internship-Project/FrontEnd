@@ -17,7 +17,7 @@
 
                 <!-- 로그인 창으로 가고싶으면 /profile을 /login으로 변경 -->
                 <!-- 나중에 라우터 가드로 세션 값 없으면 자동으로 /login으로 보낼거임 -->
-                <router-link to="/profile" class="login-btn">로그인</router-link>
+                <router-link to="/login" class="login-btn">로그인</router-link>
             </div>
 
         </div>
@@ -27,8 +27,15 @@
             <div class="survey-search">search</div>
         </div>
 
+        <!-- 진행중인 설문조사 컴포넌트 -->
         <in-progress-survey />
+
+        <!-- 완료된 설문조사 컴포넌트 -->
         <completed-survey />
+
+        <div class="create-survey-conponent">
+            <router-link to="/create-survey" class="create_btn">설문 생성</router-link>
+        </div>
 
     </div>
 </template>
@@ -140,5 +147,18 @@ import CompletedSurvey from './ChildComponent/CompletedSurvey.vue';
     width : 24px;
     height : 24px;
     background-size: contain;
+}
+
+
+.create_btn {
+    position : fixed;
+    background: url("../../common/icon_create_button.png") no-repeat;
+    background-size: contain;
+    width : 60px;
+    height : 60px;
+    right : 24px;
+    bottom : 24px;
+    color : transparent;
+    font-size : 0;
 }
 </style>

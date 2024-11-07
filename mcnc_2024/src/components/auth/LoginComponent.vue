@@ -32,12 +32,15 @@ const password = ref("");
 const isPossible = ref(false);
 
 const login = () => {
-    console.log("로그인 시도 => ID : " + userId.value + ", PW : " + password.value)
-    router.push({name : "Home"});
+
+    const jsonData = {email: userId.value, password: password.value}
+    console.log(JSON.stringify(jsonData));
+
+    router.push("/");
 }
 
 const goToHome = () => {
-    router.push('/')
+    router.push("/")
 }
 
 watch([userId, password], () => {
