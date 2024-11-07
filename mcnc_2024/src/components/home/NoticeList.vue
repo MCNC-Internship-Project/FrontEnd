@@ -9,7 +9,7 @@
             <ul>
                 <li class="notice-list-item">설문0이 종료되었습니다.</li>
                 <li class="notice-list-item">설문0이 종료되었습니다.</li>
-                <li class="notice-list-item">설문0이 종료되었습니다.</li>
+                <li class="notice-list-item">설문0이 종료asdfasdfasdf되었습니다.</li>
                 <li class="notice-list-item">설문0이 종료되었습니다.</li>
                 <li class="notice-list-item">설문0이 종료되었습니다.</li>
                 <li class="notice-list-item">설문0이 종료되었습니다.</li>
@@ -65,15 +65,23 @@
 }
 
 ul {
-    width : calc(100% - 16px);
+    width : 100%;
+    padding : 0;
     display : flex;
     flex-direction: column;
-    align-items: center;
+    align-items: start;
     justify-content: center;
     list-style: none;
 }
 
-.notice-item-list {
-    line-height : 60px;
+.notice-list-item {
+    width: calc(100% - 32px);
+    height : 60px;
+    margin : 4px 16px;
+    padding : 20px 16px;
+    display : flex;
+    align-items: center;
+    border-bottom : solid 2px #D4D6DD;
+    box-sizing: border-box;
 }
 </style>
