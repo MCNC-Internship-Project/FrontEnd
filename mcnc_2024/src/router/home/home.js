@@ -7,6 +7,11 @@ const HomeRoutes = [
         name : "Home",
         component : () => import("../../components/home/HomeComponent.vue")
     },
+    {
+        path : "/notice",
+        name : "Notice",
+        component : () => import("../../components/home/NoticeList.vue")
+    }
 ]
 
 export default HomeRoutes;

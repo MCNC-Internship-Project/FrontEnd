@@ -49,7 +49,66 @@
                         </div>
                     </div>
                 </li>
+
+                <li class="survey-item">
+                    <div class="survey-item-detail">
+                        <div class="item-title">설문조사 제목</div>
+                        <div class="item-description">설문조사 설명 설문조사 설명 설문조사 설명</div>
+
+                        <div class="footer-container">
+                            <div class="participant">10명 참여</div>
+                            <div class="deadline">2024.11.13</div>
+                        </div>
+                    </div>
+                </li>
+
+                <li class="survey-item">
+                    <div class="survey-item-detail">
+                        <div class="item-title">설문조사 제목</div>
+                        <div class="item-description">설문조사 설명 설문조사 설명 설문조사 설명</div>
+
+                        <div class="footer-container">
+                            <div class="participant">10명 참여</div>
+                            <div class="deadline">2024.11.13</div>
+                        </div>
+                    </div>
+                </li>
                 
+                <li class="survey-item">
+                    <div class="survey-item-detail">
+                        <div class="item-title">설문조사 제목</div>
+                        <div class="item-description">설문조사 설명 설문조사 설명 설문조사 설명</div>
+
+                        <div class="footer-container">
+                            <div class="participant">10명 참여</div>
+                            <div class="deadline">2024.11.13</div>
+                        </div>
+                    </div>
+                </li>
+
+                <li class="survey-item">
+                    <div class="survey-item-detail">
+                        <div class="item-title">설문조사 제목</div>
+                        <div class="item-description">설문조사 설명 설문조사 설명 설문조사 설명</div>
+
+                        <div class="footer-container">
+                            <div class="participant">10명 참여</div>
+                            <div class="deadline">2024.11.13</div>
+                        </div>
+                    </div>
+                </li>
+
+                <li class="survey-item">
+                    <div class="survey-item-detail">
+                        <div class="item-title">설문조사 제목</div>
+                        <div class="item-description">설문조사 설명 설문조사 설명 설문조사 설명</div>
+
+                        <div class="footer-container">
+                            <div class="participant">10명 참여</div>
+                            <div class="deadline">2024.11.13</div>
+                        </div>
+                    </div>
+                </li>
             </ul>
         </div>
 
@@ -84,9 +143,6 @@
 
 .survey-section {
     width : 100%;
-    height : 230px;
-    overflow-y: scroll;
-    scrollbar-width: none;
 }
 
 ul {
@@ -103,7 +159,7 @@ ul {
     width : calc(100%-48px);
     height : 100px;
     border-radius: 12px;
-    box-shadow: 0 4px 4px rgba(0, 0, 0, 0.3);
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.3);
     flex-shrink: 0;
 }
 

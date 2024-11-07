@@ -109,7 +109,7 @@ ul {
     width : 200px;
     height : 140px;
     border-radius: 12px;
-    box-shadow: 0 4px 4px rgba(0, 0, 0, 0.3);
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.3);
     flex-shrink: 0;
 }
 
