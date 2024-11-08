@@ -15,7 +15,9 @@
             </div>
         </div>
 
-        <survey-item />
+        <div class="survey-item-section">
+            <survey-item />
+        </div>
 
         <div class="create-btn-container">
             <button class="create-btn">create</button>
@@ -105,6 +107,12 @@ input:hover {
 .survey-description {
     font-size : 1rem;
     color : #C1C3C5;
+}
+
+.survey-item-section {
+    width : calc(100%-40px);
+    background-color: #EFF0F6;
+    border-radius: 10px;
 }
 
 .create-btn-container {

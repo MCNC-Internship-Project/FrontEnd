@@ -9,27 +9,33 @@
 
             <div class="type-select-section">
                 <select name="type" id="type" class="survey-type" v-model="surveyType">
-                    <option class="type-item" value="OBJ">객관식</option>
-                    <option class="type-item" value="SUBJ">주관식</option>
+                    <option class="type-item" value="obj_radio">단일 선택</option>
+                    <option class="type-item" value="obj_check">다중 선택</option>
+                    <option class="type-item" value="subj">주관식</option>
                 </select>
             </div>
         </div>
 
-        <div class="isTypeOBJ" v-if="surveyType === 'OBJ'">
-            여긴 객관식
+        <div class="isTypeSubj" v-if="surveyType === 'subj'">
+            여긴 주관식
         </div>
 
-        <div class="isTypeSUBJ" v-else-if="surveyType === 'SUBJ'">
-            여긴 주관식
+        <div class="isTypeObj" v-else>
+            <obj-component :type="surveyType"/>
         </div>
 
     </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import ObjComponent from './typeComponent/ObjComponent.vue'
+import { ref, watch } from 'vue';
 
-const surveyType = ref("OBJ")
+const surveyType = ref("obj_radio")
+
+watch(surveyType, (newType) => {
+    surveyType.value = newType;
+})
 </script>
 
 <style scoped>
@@ -44,7 +50,7 @@ const surveyType = ref("OBJ")
 .survey-header-section {
     width : calc(100% - 50px);
     height : 60px;
-    margin : 36px 28px;
+    margin : 20px 28px 20px 28px;
     padding : 16px 16px;
     display: flex;
     align-items: center;
@@ -78,6 +84,12 @@ const surveyType = ref("OBJ")
 
 .survey-type {
     outline: none;  /* 포커스 outline 제거 */
+}
+
+.isTypeObj {
+    width : 100%;
+    margin : 0 22px;
+    padding : 0 22px;
 }
 
 </style>
