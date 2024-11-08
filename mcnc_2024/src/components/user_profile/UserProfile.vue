@@ -11,6 +11,34 @@
                 <div class="email">{{ email }}</div>
             </div>
         </div>
+
+        <div class="profile-list-container">
+            <ul>
+                <li class="profile-list-item">
+                    <div class="list-item-container">
+                        <div class="item-title">프로필 수정</div>
+                        <router-link to="/update-profile" class="detail_btn">Go</router-link>
+                    </div>
+                </li>
+                <li class="profile-list-item">
+                    <div class="list-item-container">
+                        <div class="item-title">생성한 설문 보기</div>
+                        <router-link to="/update-profile" class="detail_btn">Go</router-link>
+                    </div>
+                </li>
+                <li class="profile-list-item">
+                    <div class="list-item-container">
+                        <div class="item-title">참여한 설문 보기</div>
+                        <router-link to="/update-profile" class="detail_btn">Go</router-link>
+                    </div>
+                </li>
+                <li class="profile-list-item">
+                    <div class="list-item-container">
+                        <div class="item-title">로그아웃</div>
+                    </div>
+                </li>
+            </ul>
+        </div>
     </div>
 </template>
 
@@ -18,7 +46,7 @@
 import { ref } from 'vue'
 
 const name = ref("username");
-const email = ref("email");
+const email = ref("email@email.com");
 
 </script>
 
@@ -80,5 +108,45 @@ const email = ref("email");
 .email {
     font-size : 0.75rem;
     color : #71727A;
+}
+
+.profile-list-container {
+    width : 100%;
+    margin-top : 16px;
+}
+
+ul {
+    width : 100%;
+    list-style: none;
+    display : flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.profile-list-item {
+    width : calc(100% - 32px);
+    border-bottom : solid 2px #D4D6DD;
+    margin-top : 4px;
+}
+
+.list-item-container {
+    padding : 20px 24px 20px 16px;
+    display : flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.item-title {
+    font-size : 0.875rem;
+}
+
+.detail_btn {
+    color : transparent;
+    font-size : 0;
+    background: url("../../common/icon_right_button.png") no-repeat;
+    background-size: contain;
+    width : 12px;
+    height : 12px;
 }
 </style>

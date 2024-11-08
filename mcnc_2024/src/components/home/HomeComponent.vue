@@ -17,7 +17,7 @@
 
                 <!-- 로그인 창으로 가고싶으면 /profile을 /login으로 변경 -->
                 <!-- 나중에 라우터 가드로 세션 값 없으면 자동으로 /login으로 보낼거임 -->
-                <router-link to="/login" class="login-btn">로그인</router-link>
+                <router-link to="/profile" class="login-btn">로그인</router-link>
             </div>
 
         </div>
