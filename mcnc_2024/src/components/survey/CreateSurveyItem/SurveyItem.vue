@@ -17,7 +17,7 @@
         </div>
 
         <div class="isTypeSubj" v-if="surveyType === 'subj'">
-            여긴 주관식
+            <subj-component />
         </div>
 
         <div class="isTypeObj" v-else>
@@ -29,6 +29,7 @@
 
 <script setup>
 import ObjComponent from './typeComponent/ObjComponent.vue'
+import SubjComponent from './typeComponent/SubjComponent.vue'
 import { ref, watch } from 'vue';
 
 const surveyType = ref("obj_radio")
@@ -90,6 +91,16 @@ watch(surveyType, (newType) => {
 
 .survey-type {
     outline: none;  /* 포커스 outline 제거 */
+}
+
+.survey-type option {
+    text-align : center;
+}
+
+.isTypeSubj {
+    width : 100%;
+    margin : 0 22px;
+    padding : 0 22px;
 }
 
 .isTypeObj {

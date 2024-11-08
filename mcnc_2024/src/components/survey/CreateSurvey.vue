@@ -19,6 +19,9 @@
             <div class="survey-item-container">
                 <div class="survey-item-section" v-for="com in totalComponent" :key="com.id">
                     <survey-item />
+                    <div class="delete-btn-container">
+                        <button @click="removeComponent(com.id)" class="delete-btn">삭</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -44,6 +47,10 @@ const addComponent = () => {
 
     totalComponent.value.push(newObj);
 }
+
+const removeComponent = (id) => {
+    totalComponent.value = totalComponent.value.filter((component) => component.id !== id);
+};
 </script>
 
 <style scoped>
@@ -99,6 +106,20 @@ const addComponent = () => {
 .survey-item-section {
     background-color: #EFF0F6;
     margin-bottom : 12px;
+    display : flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    padding: 0 16px; /* 양쪽 padding 추가 */
+}
+
+.delete-btn {
+    text-indent : -999em;
+    background: url("../../common/icon_trash.png") no-repeat;
+    background-size: contain;
+    width : 24px;
+    height : 24px;
+    
 }
 
 .input-section {
@@ -113,7 +134,6 @@ input {
     height : 44px;
     padding : 0 16px;
     font-weight : bold;
-    border-bottom : solid 1px #D4D6DD;
     border: none;                  /* 기본 테두리 제거 */
     border-bottom: 2px solid gray; /* 밑줄만 추가 */
     outline: none;                 /* 포커스 outline 제거 */
