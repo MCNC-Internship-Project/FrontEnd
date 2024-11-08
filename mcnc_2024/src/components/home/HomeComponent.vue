@@ -23,8 +23,8 @@
         </div>
 
         <div class="input-section">
-            <input class="survey-input" type="text" name="search" id="search" placeholder="설문조사 검색"/>
-            <div class="survey-search">search</div>
+            <input class="survey-input" type="text" name="search" v-model="searchQuery" placeholder="설문조사 검색"/>
+            <div class="survey-search" @click="search">search</div>
         </div>
 
         <!-- 진행중인 설문조사 컴포넌트 -->
@@ -43,7 +43,17 @@
 <script setup>
 import InProgressSurvey from './ChildComponent/InProgressSurvey.vue';
 import CompletedSurvey from './ChildComponent/CompletedSurvey.vue';
-    
+import router from '@/router'
+import { ref } from 'vue';
+
+const searchQuery = ref("");
+
+/**
+ * search 버튼 클릭 or 엔터키 누르면 /surveys?search=searchQuery로 탐색
+ */
+const search = () => {
+    router.push({path : "/surveys", query : {search : searchQuery.value}});
+}
 </script>
 
 <style scoped>

@@ -16,7 +16,12 @@ const HomeRoutes = [
         name : "Notice",
         component : () => import("../../components/home/NoticeList.vue")
     },
-    ...UserProfile
+    {
+        path : "/surveys",
+        name : "Surveys",
+        component : () => import("../../components/home/search/SearchResult.vue")
+    },
+    ...UserProfile,
 ]
 
 export default HomeRoutes;
