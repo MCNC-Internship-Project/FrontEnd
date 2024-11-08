@@ -2,9 +2,10 @@
     <div id="root-container">
         <div class="header">
             <router-link to="/" class="back_btn">back</router-link>
+            <input type="text" :value="searchResult" placeholder="검색어를 입력하세요" />
         </div>
 
-        검색 결과 : {{ searchResult }}
+        
         <div class="search-result-section">
 
         </div>
