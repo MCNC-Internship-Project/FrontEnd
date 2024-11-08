@@ -20,7 +20,7 @@
                 <div class="survey-item-section" v-for="com in totalComponent" :key="com.id">
                     <survey-item />
                     <div class="delete-btn-container">
-                        <button @click="removeComponent(com.id)" class="delete-btn">삭</button>
+                        <button @click="removeComponent(com.id)" class="delete-btn"></button>
                     </div>
                 </div>
             </div>
@@ -42,14 +42,20 @@ const totalComponent = ref([
 ]);
 
 const addComponent = () => {
-    const lastIndex = totalComponent.value.at(-1);
+    const lastIndex = totalComponent.value.length > 0 
+        ? totalComponent.value[totalComponent.value.length - 1].id 
+        : -1;
+
     const newObj = {id: lastIndex+1}
 
     totalComponent.value.push(newObj);
 }
 
 const removeComponent = (id) => {
+    const idx = id;
+    console.log(idx)
     totalComponent.value = totalComponent.value.filter((component) => component.id !== id);
+    console.log(totalComponent.value)
 };
 </script>
 
@@ -63,6 +69,7 @@ const removeComponent = (id) => {
 }
 
 .header {
+    position : sticky;
     width : 100%;
     display : flex;
     align-items: center;
@@ -119,7 +126,7 @@ const removeComponent = (id) => {
     background-size: contain;
     width : 24px;
     height : 24px;
-    
+
 }
 
 .input-section {

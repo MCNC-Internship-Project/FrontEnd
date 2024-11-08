@@ -2,7 +2,7 @@
     <div id="root-container">
 
         <div class="input-container">
-            <input type="text" name="subj" class="subj-input" placeholder="주관식"/>
+            <input type="text" name="subj" class="subj-input" placeholder="주관식" required/>
         </div>
 
     </div>
