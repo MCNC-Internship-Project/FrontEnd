@@ -1,5 +1,6 @@
 <template>
     <div id="root-container">
+
         <div class="header">
             <router-link to="/" class="back_btn">back</router-link>
         </div>
@@ -17,19 +18,19 @@
                 <li class="profile-list-item">
                     <div class="list-item-container">
                         <div class="item-title">프로필 수정</div>
-                        <router-link to="/update-profile" class="detail_btn">Go</router-link>
+                        <router-link to="#" class="detail_btn">Go</router-link>
                     </div>
                 </li>
                 <li class="profile-list-item">
                     <div class="list-item-container">
                         <div class="item-title">생성한 설문 보기</div>
-                        <router-link to="/update-profile" class="detail_btn">Go</router-link>
+                        <router-link to="#" class="detail_btn">Go</router-link>
                     </div>
                 </li>
                 <li class="profile-list-item">
                     <div class="list-item-container">
                         <div class="item-title">참여한 설문 보기</div>
-                        <router-link to="/update-profile" class="detail_btn">Go</router-link>
+                        <router-link to="#" class="detail_btn">Go</router-link>
                     </div>
                 </li>
                 <li class="profile-list-item">
@@ -68,7 +69,7 @@ const email = ref("email@email.com");
     width: 32px;
     height: 32px;
     margin : 16px 16px;
-    background: url('../../common/back_btn_icon.png') no-repeat;
+    background: url('../../../common/back_btn_icon.png') no-repeat;
     background-size: contain;
     color: transparent; /* 텍스트 색상을 투명으로 설정 */
     font-size: 0;       /* 폰트 크기를 0으로 설정하여 텍스트 숨기기 */
@@ -85,7 +86,7 @@ const email = ref("email@email.com");
 
 .proflie {
     text-indent : -999em;
-    background: url("../../common/icon_user_basic_profile.png") no-repeat;
+    background: url("../../../common/icon_user_basic_profile.png") no-repeat;
     width : 80px;
     height : 80px;
     margin : 8px 0 16px 0;
@@ -128,6 +129,7 @@ ul {
     width : calc(100% - 32px);
     border-bottom : solid 2px #D4D6DD;
     margin-top : 4px;
+    height : 60px;
 }
 
 .list-item-container {
@@ -144,7 +146,7 @@ ul {
 .detail_btn {
     color : transparent;
     font-size : 0;
-    background: url("../../common/icon_right_button.png") no-repeat;
+    background: url("../../../common/icon_right_button.png") no-repeat;
     background-size: contain;
     width : 12px;
     height : 12px;

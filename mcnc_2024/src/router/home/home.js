@@ -1,6 +1,10 @@
 /**
  * 홈 화면 전용 라우터
+ * home -> notice
+ * home -> profile
  */
+import UserProfile from "./user_profile/user-profile";
+
 const HomeRoutes = [
     {
         path : "/",
@@ -12,11 +16,7 @@ const HomeRoutes = [
         name : "Notice",
         component : () => import("../../components/home/NoticeList.vue")
     },
-    {
-        path : "/profile",
-        name : "Profile",
-        component : () => import("../../components/user_profile/UserProfile.vue")
-    }
+    ...UserProfile
 ]
 
 export default HomeRoutes;
