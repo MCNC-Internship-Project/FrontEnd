@@ -1,9 +1,9 @@
 <template>
     <div id="root-container">
         <ul class="survey-item-list">
-            <li v-for="item in totalItem" :key="item.id">
+            <li v-for="item in totalItem" :key="item.id" class="list-item">
                 <input :type="componentType" :name="componentType" class="type-input">
-                <input type="text" :value="item.value" />
+                <input type="text" :value="item.value" class="item-input" />
             </li>
         </ul>
 
@@ -27,7 +27,10 @@ const totalItem = ref([
 const componentType = computed(() => (props.type === "obj_radio" ? "radio" : "checkbox"));
 
 const addItem = () => {
-    console.log("클릭")
+    const lastIndex = totalItem.value.at(-1).id;
+    const newObj = {id:lastIndex+1, value:"새로운 항목"};
+
+    totalItem.value.push(newObj);
 }
 </script>
 
@@ -45,11 +48,24 @@ const addItem = () => {
     width : calc(100% - 40px);
 }
 
+.list-item {
+    margin : 12px 0;
+}
+
+.type-input {
+    margin-left : 12px;
+}
+
+.item-input {
+    margin-left : 16px;
+}
+
 .item-add-section {
     width : 100%;
     display : flex;
     align-items: center;
     justify-content: center;
+    margin : 12px 0;
 }
 
 .item-add-btn {

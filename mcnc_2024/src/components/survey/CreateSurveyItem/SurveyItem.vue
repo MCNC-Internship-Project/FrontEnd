@@ -41,6 +41,7 @@ watch(surveyType, (newType) => {
 <style scoped>
 #root-contaienr {
     width : 100%;
+    background-color: #EFF0F6;
     display : flex;
     flex-direction : column;
     align-items : center;
@@ -48,19 +49,19 @@ watch(surveyType, (newType) => {
 }
 
 .survey-header-section {
-    width : calc(100% - 50px);
+    width : calc(100% - 32px);
     height : 60px;
-    margin : 20px 28px 20px 28px;
-    padding : 16px 16px;
+    margin : 20px 28px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding : 0 16px;
+    padding : 0 12px;
     background-color : #D9D9D9;
     border-radius : 10px;
 }
 
 .survey-title {
+    width : 100%;
     height : 100%;
     color : #464748;
     font-size : 1rem;
@@ -75,11 +76,16 @@ watch(surveyType, (newType) => {
     border-bottom-color: blue;     /* 포커스 시 밑줄 색상 변경 */
 }
 
+.input-section {
+    flex : 3;
+}
+
 .type-select-section {
-    width : 100%;
-    display : flex;
-    align-items: center;
-    justify-content: end;
+    flex : 1;
+    display: flex;
+    justify-content: center; /* 가로 중앙 정렬 */
+    align-items: center;     /* 세로 중앙 정렬 */
+    width: 100%;             /* 필요에 따라 섹션의 너비를 조정 */
 }
 
 .survey-type {

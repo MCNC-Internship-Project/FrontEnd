@@ -5,22 +5,26 @@
             <button class="submit-btn">생성</button>
         </div>
 
-        <div class="survey-title-section">
-            <div class="input-section">
-                <input type="text" name="survey-title" class="survey-title" value="설문조사 제목" maxlength="255"/>
+        <div class="survey-section">
+            <div class="survey-title-section">
+                <div class="input-section">
+                    <input type="text" name="survey-title" class="survey-title" value="설문조사 제목" maxlength="255"/>
+                </div>
+                
+                <div class="input-section">
+                    <input type="text" name="survey-description" class="survey-description" value="설문지 설명" maxlength="255">
+                </div>
             </div>
-            
-            <div class="input-section">
-                <input type="text" name="survey-description" class="survey-description" value="설문지 설명" maxlength="255">
-            </div>
-        </div>
 
-        <div class="survey-item-section">
-            <survey-item />
+            <div class="survey-item-container">
+                <div class="survey-item-section" v-for="com in totalComponent" :key="com.id">
+                    <survey-item />
+                </div>
+            </div>
         </div>
 
         <div class="create-btn-container">
-            <button class="create-btn">create</button>
+            <button class="create-btn" @click="addComponent">create</button>
         </div>
 
     </div>
@@ -28,6 +32,18 @@
 
 <script setup>
 import SurveyItem from './CreateSurveyItem/SurveyItem.vue';
+import { ref } from 'vue';
+
+const totalComponent = ref([
+    {id:0},
+]);
+
+const addComponent = () => {
+    const lastIndex = totalComponent.value.at(-1);
+    const newObj = {id: lastIndex+1}
+
+    totalComponent.value.push(newObj);
+}
 </script>
 
 <style scoped>
@@ -67,12 +83,22 @@ import SurveyItem from './CreateSurveyItem/SurveyItem.vue';
     color : white;
 }
 
-.survey-title-section {
+.survey-section {
+    width : 100%;
+    padding : 0 22px;
+}
+
+.survey-item-container {
     width : 100%;
     display : flex;
     flex-direction: column;
-    align-items: center;
+    align-items: stretch;
     justify-content: center;
+}
+
+.survey-item-section {
+    background-color: #EFF0F6;
+    margin-bottom : 12px;
 }
 
 .input-section {
@@ -111,7 +137,6 @@ input:hover {
 
 .survey-item-section {
     width : calc(100%-40px);
-    background-color: #EFF0F6;
     border-radius: 10px;
 }
 
