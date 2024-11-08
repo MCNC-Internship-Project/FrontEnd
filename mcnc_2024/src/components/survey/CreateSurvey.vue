@@ -52,10 +52,7 @@ const addComponent = () => {
 }
 
 const removeComponent = (id) => {
-    const idx = id;
-    console.log(idx)
     totalComponent.value = totalComponent.value.filter((component) => component.id !== id);
-    console.log(totalComponent.value)
 };
 </script>
 
