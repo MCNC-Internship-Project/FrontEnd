@@ -3,7 +3,7 @@
         <ul class="survey-item-list">
             <li v-for="item in totalItem" :key="item.id" class="list-item">
                 <input :type="componentType" :name="componentType" class="type-input">
-                <input type="text" :value="item.value" class="item-input" required/>
+                <input type="text" v-model="item.value" class="item-input" required/>
             </li>
         </ul>
 

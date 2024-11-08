@@ -168,7 +168,7 @@ input:hover {
 }
 
 .create-btn-container {
-    margin-top : 16px;
+    margin : 16px 0;
 }
 
 .create-btn {
