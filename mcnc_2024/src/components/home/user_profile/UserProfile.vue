@@ -66,10 +66,10 @@ const email = ref("email@email.com");
 .back_btn {
     text-decoration: none;
     display: inline-block;
-    width: 32px;
-    height: 32px;
+    width: 20px;
+    height: 20px;
     margin : 16px 16px;
-    background: url('../../../common/back_btn_icon.png') no-repeat;
+    background: url('../../../assets/images/icon_arrow_left.svg') no-repeat;
     background-size: contain;
     color: transparent; /* 텍스트 색상을 투명으로 설정 */
     font-size: 0;       /* 폰트 크기를 0으로 설정하여 텍스트 숨기기 */
@@ -86,7 +86,7 @@ const email = ref("email@email.com");
 
 .proflie {
     text-indent : -999em;
-    background: url("../../../common/icon_user_basic_profile.png") no-repeat;
+    background: url("../../../assets/images/icon_profile_default.svg") no-repeat;
     width : 80px;
     height : 80px;
     margin : 8px 0 16px 0;
@@ -146,7 +146,7 @@ ul {
 .detail_btn {
     color : transparent;
     font-size : 0;
-    background: url("../../../common/icon_right_button.png") no-repeat;
+    background: url("../../../assets/images/icon_arrow_right.svg") no-repeat;
     background-size: contain;
     width : 12px;
     height : 12px;

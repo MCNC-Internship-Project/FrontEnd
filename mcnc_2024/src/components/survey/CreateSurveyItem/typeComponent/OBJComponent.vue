@@ -90,7 +90,7 @@ const deleteItem = (id) => {
 
 .list-delete-btn {
     text-indent : -999em;
-    background: url("../../../../common/icon_x.png") no-repeat;
+    background: url("../../../../assets/images/icon_x.svg") no-repeat;
     background-size: contain;
     width : 20px;
     height : 20px;

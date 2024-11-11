@@ -76,10 +76,10 @@ const removeComponent = (id) => {
 
 .back-btn {
     text-indent : -999em;
-    background: url("../../common/back_btn_icon.png") no-repeat;
+    background: url("../../assets/images/icon_arrow_left.svg") no-repeat;
     background-size : contain;
-    width : 32px;
-    height : 32px;
+    width : 20px;
+    height : 20px;
 }
 
 .submit-btn {
@@ -127,7 +127,7 @@ const removeComponent = (id) => {
 
 .delete-btn {
     text-indent : -999em;
-    background: url("../../common/icon_trash.png") no-repeat;
+    background: url("../../assets/images/icon_trash.svg") no-repeat;
     background-size: contain;
     width : 24px;
     height : 24px;
@@ -178,7 +178,7 @@ input:hover {
 
 .create-btn {
     text-indent : -999em;
-    background: url("../../common/icon_create_button.png");
+    background: url("../../assets/images/icon_add.svg");
     background-size: contain;
     width : 60px;
     height : 60px;

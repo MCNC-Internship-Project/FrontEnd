@@ -46,7 +46,7 @@
     width: 32px;
     height: 32px;
     margin : 16px 16px;
-    background: url('../../common/back_btn_icon.png') no-repeat;
+    background: url('../../assets/images/icon_arrow_left.svg') no-repeat;
     background-size: contain;
     color: transparent; /* 텍스트 색상을 투명으로 설정 */
     font-size: 0;       /* 폰트 크기를 0으로 설정하여 텍스트 숨기기 */

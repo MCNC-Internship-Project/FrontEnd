@@ -5,7 +5,7 @@
             <div class="outlined-container" id="birth" @click="showDatePicker = true">
                 <span class="placeholder-text" v-if="!selectedDate">생년월일</span>
                 <span class="text">{{ formattedDate }}</span>
-                <img src="../../../assets/icon_calendar.svg" class="icon" alt="calendar icon" />
+                <img src="../../../assets/images/icon_calendar.svg" class="icon" alt="calendar icon" />
             </div>
 
             <!-- 성별 입력란 -->
@@ -18,7 +18,7 @@
                     <div class="outlined-container" id="gender" v-bind="props">
                     <span class="placeholder-text" v-if="!selectedGender">성별</span>
                     <span class="text">{{ selectedGender || '' }}</span>
-                    <img src="../../../assets/icon_dropdown.svg" class="icon" alt="dropdown icon" />
+                    <img src="../../../assets/images/icon_dropdown.svg" class="icon" alt="dropdown icon" />
                     </div>
                 </template>
 

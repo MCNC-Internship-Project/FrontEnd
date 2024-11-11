@@ -12,9 +12,9 @@ const HomeRoutes = [
         component : () => import("../../components/home/HomeComponent.vue")
     },
     {
-        path : "/notice",
-        name : "Notice",
-        component : () => import("../../components/home/NoticeList.vue")
+        path : "/noti",
+        name : "Noti",
+        component : () => import("../../components/home/NotiList.vue")
     },
     {
         path : "/surveys",

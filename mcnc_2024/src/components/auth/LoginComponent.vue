@@ -1,7 +1,7 @@
 <template>
     <div id="root-container">
         <div class="logo-container">
-            <img src="../../common/homeLogo.png" class="logo" alt="logo" @click="goToHome">
+            <img src="../../assets/images/icon_logo.svg" class="logo" alt="logo" @click="goToHome">
             <div class="logo-font">
                 survwey
             </div>
@@ -72,7 +72,7 @@ watch([userId, password], () => {
 
 @font-face {
     font-family: 'Mont';
-    src: url('../../assets/MontserratAlternates-Bold.ttf') format('truetype');
+    src: url('../../assets/fonts/MontserratAlternates-Bold.ttf') format('truetype');
     font-weight: bold;
     font-style: normal;
 }

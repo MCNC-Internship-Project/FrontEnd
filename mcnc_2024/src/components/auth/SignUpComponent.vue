@@ -79,15 +79,15 @@ const postSignUpRequest = (data) => {
     display : flex;
     align-items: center;
     justify-content: start;
-    padding : 10px 10px;
+    padding : 24px 24px;
     width : 100%;
 }
 
 .back-btn {
     text-indent : -999em;
-    background: url("../../common/back_btn_icon.png") no-repeat;
-    width : 32px;
-    height : 32px;
+    background: url("../../assets/images/icon_arrow_left.svg") no-repeat;
+    width : 20px;
+    height : 20px;
     background-size: contain;
 }
 
@@ -130,10 +130,10 @@ const postSignUpRequest = (data) => {
 
     .back-btn {
         text-indent : -999em;
-        background: url("../../common/back_btn_icon.png") no-repeat;
+        background: url("../../assets/images/icon_arrow_left.svg") no-repeat;
         margin-left : 20px;
-        width : 32px;
-        height : 32px;
+        width : 20px;
+        height : 20px;
         background-size: contain;
     }
 

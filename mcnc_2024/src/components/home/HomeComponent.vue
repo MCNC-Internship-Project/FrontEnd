@@ -2,26 +2,26 @@
     <div id="root-container">
         <header class="toolbar">
             <div class="logo-container">
-                <img class="logo" src="../../common/homeLogo.png" alt="logo">
+                <img class="logo" src="../../assets/images/icon_logo.svg" alt="logo">
                 <div class="title">Survwey</div>
             </div>
 
             <div class="menu-container">
-                <router-link to="/notice">
-                    <img class="noti-icon" src="../../common/icon_alarm.png" alt="noti icon" />
+                <router-link to="/noti">
+                    <img class="noti-icon" src="../../assets/images/icon_noti.svg" alt="noti icon" />
                 </router-link>
 
                 <!-- 로그인 창으로 가고싶으면 /profile을 /login으로 변경 -->
                 <!-- 나중에 라우터 가드로 세션 값 없으면 자동으로 /login으로 보낼거임 -->
                 <router-link to="/profile">
-                    <img class="profile-icon" src="../../common/icon_account.png" alt="profile icon" />
+                    <img class="profile-icon" src="../../assets/images/icon_profile_none.svg" alt="profile icon" />
                 </router-link>
             </div>
         </header>
 
         <div class="search-container" @click="search">
             <span class="search-text">설문조사 검색</span>
-            <img class="search-icon" src="../../assets/icon_search.svg" alt="dropdown icon" />
+            <img class="search-icon" src="../../assets/images/icon_search.svg" alt="dropdown icon" />
         </div>
 
 
@@ -59,7 +59,7 @@ const search = () => {
 <style scoped>
 @font-face {
     font-family: 'Mont';
-    src: url('../../assets/MontserratAlternates-Bold.ttf') format('truetype');
+    src: url('../../assets/fonts/MontserratAlternates-Bold.ttf') format('truetype');
     font-weight: bold;
     font-style: normal;
 }
