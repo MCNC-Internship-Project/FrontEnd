@@ -29,7 +29,7 @@
         <in-progress-survey />
 
         <!-- 완료된 설문조사 컴포넌트 -->
-        <completed-survey />
+        <my-participantion-survey />
 
         <div class="create-survey-conponent">
             <router-link to="/create-survey" class="create_btn">
@@ -42,7 +42,7 @@
 
 <script setup>
 import InProgressSurvey from './ChildComponent/InProgressSurvey.vue';
-import CompletedSurvey from './ChildComponent/CompletedSurvey.vue';
+import MyParticipantionSurvey from './ChildComponent/MyParticipationSurvey.vue';
 // import router from '@/router'
 // import { ref } from 'vue';
 
@@ -65,7 +65,6 @@ const search = () => {
 }
 
 .root-container {
-    position: relative;
     height: 100vh;
     width : 100%;
 }

@@ -3,7 +3,7 @@
 
         <div class="title-section">
             <div class="title">
-                완료된 설문조사
+                참여한 설문조사
             </div>
 
             <div class="list">
