@@ -14,7 +14,7 @@
         </form>
 
         <div class="login-service">
-            <router-link to="/signUp" class="sign-up">회원가입</router-link>
+            <router-link to="/sign-up" class="sign-up">회원가입</router-link>
             <a href="#" class="find-password">비밀번호를 잊으셨나요?</a>
         </div>
         

@@ -44,11 +44,10 @@ const userGender = ref("");
 const step = ref(1);
 
 const stepBack = () => {
-    step.value -= 1
-
-    if (step.value <= 0) {
+    if (step.value > 1)
+        step.value--;
+    else
         router.push('/');
-    }
 }
 
 const stepUpTo2 = (data) => {
