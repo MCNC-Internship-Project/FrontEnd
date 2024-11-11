@@ -1,14 +1,11 @@
 <template>
-    <div id="root-container">
-        
-        <div class="sign-up-container">
-            <input type="text" class="form-item" placeholder="사용자명" v-model="userName">
-            <input type="password" class="form-item" placeholder="비밀번호" autocomplete="new-password" v-model="password">
-            <input type="password" class="form-item" placeholder="비밀번호 확인" autocomplete="new-password">
-
-            <button class="submit-btn" @click="stepTo3">다음</button>
+    <div class="root-container">
+        <div class="form-container">
+            <input type="text" class="form-input" placeholder="사용자명" v-model="userName">
+            <input type="password" class="form-input" placeholder="비밀번호" autocomplete="new-password" v-model="password">
+            <input type="password" class="form-input" placeholder="비밀번호 확인" autocomplete="new-password">
+            <button class="form-btn" @click="stepTo3">다음</button>
         </div>
-
     </div>
 </template>
 
@@ -31,42 +28,43 @@ function stepTo3() {
 </script>
 
 <style scoped>
-#root-container {
-    width : 100%;
-    height : 10vh;
-    margin-top : 24px;
-    display : flex;
-    flex-direction : column;
-    align-items: center;
-    justify-content: start;
+.root-container {
+    width: 100%;
 }
 
-.sign-up-container {
-    width : 100%;
-    display : flex;
-    flex-direction : column;
-    align-items: center;
-    justify-content: center;
+.form-container {
+    padding: 0 24px;
 }
 
-.form-item, .submit-btn {
-    box-sizing: border-box;
-    width : 90%;
-    height : 55px;
-    border : solid 2px #7796E8;
-    border-radius: 10px;
-    margin : 8px 0;
-    padding : 0 10px;
+.form-input,
+.form-btn {
+    width: 100%;
+    height: 56px;
+    margin-bottom: 20px;
+    padding: 0 16px;
+    border: solid 2px #7796E8;
+    border-radius: 12px;
+    outline: none;
+    font-size: 0.875rem;
 }
 
-.submit-btn {
+.form-input {
+    margin-bottom: 12px;
+}
+
+.form-input::placeholder {
+    color: #C6C6C6;
+}
+
+.form-btn {
     background-color: #7796E8;
-    border : none;
-    color : white;
-    transition : all 0.2s;
+    border: none;
+    color: white;
+    transition: all 0.2s ease;
+    margin-top: 8px;
 }
 
-.submit-btn:hover {
-    background-color: #7796E8;
+.form-btn:hover {
+    background-color: #0d6db7;
 }
 </style>

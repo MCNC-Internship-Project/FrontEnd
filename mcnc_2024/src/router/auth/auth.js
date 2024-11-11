@@ -8,7 +8,7 @@ const authRoutes = [
         component : () => import("../../components/auth/LoginComponent.vue")
     },
     {
-        path : "/signUp",
+        path : "/sign-up",
         name : "SignUp",
         component : () => import("../../components/auth/SignUpComponent.vue")
     },

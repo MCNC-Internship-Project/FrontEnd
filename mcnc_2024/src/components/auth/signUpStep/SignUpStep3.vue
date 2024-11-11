@@ -1,65 +1,58 @@
 <template>
-    <div id="root-container">
-        <v-container>
-            <!-- 생년월일 입력란 -->
-            <div class="outlined-container" id="birth" @click="showDatePicker = true">
-                <span class="placeholder-text" v-if="!selectedDate">생년월일</span>
-                <span class="text">{{ formattedDate }}</span>
-                <img src="../../../assets/images/icon_calendar.svg" class="icon" alt="calendar icon" />
+  <div class="root-container">
+    <v-container>
+      <!-- 생년월일 입력란 -->
+      <div class="form-input" id="birth" @click="showDatePicker = true">
+        <div class="text-container">
+          <span class="placeholder-text" v-if="!selectedDate">생년월일</span>
+          <span class="text">{{ formattedDate }}</span>
+        </div>
+        <div class="img-container">
+          <img src="../../../assets/images/icon_calendar.svg" class="icon" alt="calendar icon" />
+        </div>
+      </div>
+
+      <!-- 성별 입력란 -->
+      <v-menu v-model="showGenderMenu" :location="'bottom'" offset-y>
+        <template v-slot:activator="{ props }">
+          <div class="form-input" id="gender" v-bind="props">
+            <div class="text-container">
+              <span class="placeholder-text" v-if="!selectedGender">성별</span>
+              <span class="text">{{ selectedGender || '' }}</span>
             </div>
+            <div class="img-container">
+              <img src="../../../assets/images/icon_dropdown.svg" class="icon" alt="dropdown icon" />
+            </div>
+          </div>
+        </template>
 
-            <!-- 성별 입력란 -->
-            <v-menu
-            v-model="showGenderMenu"
-            :location="'bottom'"
-            offset-y
-            >
-                <template v-slot:activator="{ props }">
-                    <div class="outlined-container" id="gender" v-bind="props">
-                    <span class="placeholder-text" v-if="!selectedGender">성별</span>
-                    <span class="text">{{ selectedGender || '' }}</span>
-                    <img src="../../../assets/images/icon_dropdown.svg" class="icon" alt="dropdown icon" />
-                    </div>
-                </template>
+        <!-- 드롭다운 목록 -->
+        <v-list v-model="selectedGender">
+          <v-list-item v-for="(option, index) in genderOptions" :key="index" @click="selectGender(option)">
+            <v-list-item-title>{{ option }}</v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-menu>
 
-                <!-- 드롭다운 목록 -->
-                <v-list v-model="selectedGender">
-                    <v-list-item
-                    v-for="(option, index) in genderOptions"
-                    :key="index"
-                    @click="selectGender(option)"
-                    >
-                    <v-list-item-title>{{ option }}</v-list-item-title>
-                    </v-list-item>
-                </v-list>
-            </v-menu>
-        </v-container>
+      <button class="form-btn" @click="goToSignUp">회원가입</button>
+    </v-container>
 
-        <!-- 모달 형식의 DatePicker -->
-        <div v-if="showDatePicker" class="modal-overlay" @click.self="closeDatePicker">
-            <v-container>
-                <v-row justify="center">
-                    <v-date-picker
-                    hide-header
-                    v-model="selectedDate"
-                    elevation="24"
-                    @update:model-value="onDateSelected"
-                    color="#1088E3"
-                    :max="new Date()"
-                    ></v-date-picker>
-                </v-row>
-            </v-container>
-        </div>
-
-        <div class="btn-container">
-            <button class="submit-btn" @click="goToSignUp">회원가입</button>
-        </div>
+    <!-- 모달 형식의 DatePicker -->
+    <div v-if="showDatePicker" class="modal-overlay" @click.self="closeDatePicker">
+      <v-container>
+        <v-row justify="center">
+          <v-date-picker hide-header v-model="selectedDate" elevation="24" @update:model-value="onDateSelected"
+            color="#1088E3" :max="new Date()"></v-date-picker>
+        </v-row>
+      </v-container>
     </div>
+
+  </div>
 </template>
 
 <script setup>
 import { formatDate } from '@/utils/dateCalculator'
-import { ref, watch, defineEmits,computed } from 'vue'
+import { ref, watch, defineEmits, computed } from 'vue'
 
 const emit = defineEmits(["signUp"]);
 
@@ -73,8 +66,8 @@ const genderOptions = ['남성', '여성'];
 const birth = ref(null);
 
 watch(selectedDate, (newDate) => {
-    console.log(newDate)
-    birth.value = formatDate(newDate);
+  console.log(newDate)
+  birth.value = formatDate(newDate);
 })
 
 // 날짜 선택 시 호출되는 함수
@@ -106,92 +99,87 @@ const formattedDate = computed(() => {
 });
 
 const goToSignUp = () => {
-    const gender = (selectedGender.value === '남성' ? 'M' : 'F');
-    emit("signUp", {birth: birth.value, gender: gender})
+  const gender = (selectedGender.value === '남성' ? 'M' : 'F');
+  emit("signUp", { birth: birth.value, gender: gender })
 }
 </script>
 
 <style scoped>
-#root-container {
-    width : 100%;
-    height : 10vh;
-    margin-top : 24px;
-    display : flex;
-    flex-direction : column;
-    align-items: center;
-    justify-content: start;
-}
-
-.btn-container {
-    width : 100%;
-    padding: 0 24px 12px 24px;
-    display : flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-}
-
-.submit-btn {
-    height : 56px !important;
-    border : solid 2px #7796E8;
-    border-radius: 10px;
-    margin : 8px 0;
-    width : 100%;
-    background-color: #7796E8;
-    border : none;
-    color : white;
-    transition : all 0.2s;
-}
-
-.submit-btn:hover {
-    background-color: #0d6db7;
+.root-container {
+    width: 100%;
 }
 
 .v-container {
-  padding: 0;
+    padding: 0 24px;
+    max-width: 100%;
 }
 
-.outlined-container {
-  margin: 0 24px 12px 24px;
-  border: 2px solid #7796E8;
-  padding-left: 16px;
-  border-radius: 12px;
-  height: 56px;
-  display: flex;
-  align-items: center;
-  position: relative;
-  cursor: pointer;
-  font-size: 0.75rem;
+.form-input,
+.form-btn {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 56px;
+    margin-bottom: 12px;
+    padding: 0 16px;
+    border: solid 2px #7796E8;
+    border-radius: 12px;
+    outline: none;
+    font-size: 0.875rem;
+}
+
+.form-btn {
+    display: flex;
+    justify-content: center;
+    background-color: #7796E8;
+    border: none;
+    color: white;
+    margin-top: 20px;
+    transition: all 0.2s ease;
+}
+
+.form-btn:hover {
+    background-color: #0d6db7;
+}
+
+.text-container {
+    display: flex;
+    align-items: center;
 }
 
 .placeholder-text {
-  color: #C6C6C6;
-  position: absolute;
+    color: #C6C6C6;
 }
 
 .text {
-  color: #757575;
-  position: absolute;
+    color: #757575;
+}
+
+.img-container {
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    right: 12px;
 }
 
 .icon {
-  position: absolute;
-  right: 12px;
-  width: 20px;
-  height: 20px;
+    width: 20px;
+    height: 20px;
 }
 
 /* 모달 배경 */
 .modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
+    position: fixed;
+    top: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
 }
 </style>
