@@ -99,6 +99,14 @@ const removeComponent = (id) => {
     padding : 0 22px;
 }
 
+.survey-title-section {
+    background-color: #EFF0F6;
+    border-radius: 15px;
+    margin-bottom : 48px;
+    padding : 8px 8px;
+    box-sizing: border-box;
+}
+
 .survey-item-container {
     width : 100%;
     display : flex;
@@ -138,8 +146,6 @@ input {
     height : 44px;
     padding : 0 16px;
     font-weight : bold;
-    border: none;                  /* 기본 테두리 제거 */
-    border-bottom: 2px solid gray; /* 밑줄만 추가 */
     outline: none;                 /* 포커스 outline 제거 */
     padding: 8px 0;                /* 위아래 여백 추가 */
     transition: all 0.3s; /* 포커스 시 애니메이션 */
@@ -150,6 +156,8 @@ input:hover {
 }
 
 .survey-title {
+    border: none;                  /* 기본 테두리 제거 */
+    border-bottom: 2px solid gray; /* 밑줄만 추가 */
     font-size : 1.25rem;
     color : #464748;
 }
