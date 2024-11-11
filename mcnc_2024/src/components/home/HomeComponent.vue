@@ -1,31 +1,29 @@
 <template>
     <div id="root-container">
-
-        <div class="header">
-
+        <header class="toolbar">
             <div class="logo-container">
-                <div class="logo">
-                    <img src="../../common/homeLogo.png" width="42px" height="32px" class="logo" alt="logo">
-                    <div class="logo-font">
-                        survwey
-                    </div>
-                </div>
+                <img class="logo" src="../../common/homeLogo.png" alt="logo">
+                <div class="title">Survwey</div>
             </div>
 
             <div class="menu-container">
-                <router-link to="/notice" class="alarm-btn">알림</router-link>
+                <router-link to="/notice">
+                    <img class="noti-icon" src="../../common/icon_alarm.png" alt="noti icon" />
+                </router-link>
 
                 <!-- 로그인 창으로 가고싶으면 /profile을 /login으로 변경 -->
                 <!-- 나중에 라우터 가드로 세션 값 없으면 자동으로 /login으로 보낼거임 -->
-                <router-link to="/profile" class="login-btn">로그인</router-link>
+                <router-link to="/profile">
+                    <img class="profile-icon" src="../../common/icon_account.png" alt="profile icon" />
+                </router-link>
             </div>
+        </header>
 
+        <div class="search-container" @click="search">
+            <span class="search-text">설문조사 검색</span>
+            <img class="search-icon" src="../../assets/icon_search.svg" alt="dropdown icon" />
         </div>
 
-        <div class="input-section">
-            <input class="survey-input" type="text" name="search" v-model="searchQuery" placeholder="설문조사 검색"/>
-            <div class="survey-search" @click="search">search</div>
-        </div>
 
         <!-- 진행중인 설문조사 컴포넌트 -->
         <in-progress-survey />
@@ -33,62 +31,27 @@
         <!-- 완료된 설문조사 컴포넌트 -->
         <completed-survey />
 
-        <div class="create-survey-conponent">
-            <router-link to="/create-survey" class="create_btn">설문 생성</router-link>
-        </div>
-
+        <v-fab icon="mdi-plus" color="#7796E8" size="48" absolute></v-fab>
     </div>
 </template>
 
 <script setup>
 import InProgressSurvey from './ChildComponent/InProgressSurvey.vue';
 import CompletedSurvey from './ChildComponent/CompletedSurvey.vue';
-import router from '@/router'
-import { ref } from 'vue';
+// import router from '@/router'
+// import { ref } from 'vue';
 
-const searchQuery = ref("");
+// const searchQuery = ref("");
 
 /**
  * search 버튼 클릭 or 엔터키 누르면 /surveys?search=searchQuery로 탐색
  */
 const search = () => {
-    router.push({path : "/surveys", query : {search : searchQuery.value}});
+    // router.push({path : "/surveys", query : {search : searchQuery.value}});
 }
 </script>
 
 <style scoped>
-#root-container {
-    width : 100%;
-    height : 100vh;
-    display : flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: start;
-}
-
-.header {
-    width : 100%;
-    height : 64px;
-    margin : 16px 0;
-    display : flex;
-    align-items: center;
-    justify-content: space-between;
-    padding : 0 24px;
-}
-
-.logo-container {
-    width : 100%;
-    display : flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.logo {
-    display : flex;
-    align-items: center;
-    justify-content: center;
-}
-
 @font-face {
     font-family: 'Mont';
     src: url('../../assets/MontserratAlternates-Bold.ttf') format('truetype');
@@ -96,79 +59,87 @@ const search = () => {
     font-style: normal;
 }
 
-/* 폰트를 사용할 스타일 정의 */
-.logo-font {
-    font-family: 'Mont', sans-serif;
-    font-size : 1.25rem;
-    color : #7796E8;
-    padding-left : 3px;
+.root-container {
+    position: relative;
+    height: 100vh;
+    width : 100%;
+}
+
+.toolbar {
+    position: relative;
+    left: 0;
+    top: 0;
+    right: 0;
+    width: 100%;
+    height: 64px;
+    display: flex;
+    align-items: center;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    padding-left: 24px;
+}
+
+.logo {
+    width: 42px;
+}
+
+.title {
+    padding-left: 4px;
+    font-family: 'Mont';
+    font-size: 1.25rem;
+    color: #7796E8;
 }
 
 .menu-container {
     display : flex;
-    gap : 16px;
+    align-items: center;
+    position: absolute;
+    right: 0;
+    padding-right: 24px;
 }
 
-.login-btn {
-    text-decoration: none;
-    display: inline-block;
+.noti-icon {
     width: 24px;
     height: 24px;
-    background: url('../../common/icon_account.png') no-repeat;
-    background-size: contain;
-    color: transparent; /* 텍스트 색상을 투명으로 설정 */
-    font-size: 0;       /* 폰트 크기를 0으로 설정하여 텍스트 숨기기 */
-    line-height: 64px;
+    margin-right: 16px;
 }
 
-.alarm-btn {
-    text-decoration: none;
-    display: inline-block;
+.profile-icon {
     width: 24px;
     height: 24px;
-    background: url('../../common/icon_alarm.png') no-repeat;
-    background-size: contain;
-    color: transparent; /* 텍스트 색상을 투명으로 설정 */
-    font-size: 0;       /* 폰트 크기를 0으로 설정하여 텍스트 숨기기 */
-    line-height: 64px;
 }
 
-.input-section {
-    width : 100%;
-    position : relative;
+.search-container {
+    position: relative;
+    margin: 32px 24px 0;
+    height: 56px;
+    border-radius: 12px;
+    background: #F3F3F3;
+    display: flex;
+    align-items: center;
 }
 
-.survey-input {
-    width : calc(100% - 48px);
-    height : 56px;
-    border-radius : 12px;
-    margin : 32px 24px 0 24px;
-    padding-left : 16px;
-    padding-right : 40px;
-    background-color: #F3F3F3;
+.search-text {
+    position: absolute;
+    left: 16px;
+    font-size: 1rem;
+    color: #C6C6C6;
 }
 
-.survey-search {
-    position : absolute;
-    right : 40px;
-    bottom : 16px;
-    text-indent : -999em;
-    background: url("../../common/icon_search.png") no-repeat;
-    width : 24px;
-    height : 24px;
-    background-size: contain;
+.search-icon {
+    position: absolute;
+    right: 16px;
+    width: 24px;
+    height: 24px;
 }
 
-
-.create_btn {
-    position : fixed;
-    background: url("../../common/icon_create_button.png") no-repeat;
-    background-size: contain;
-    width : 60px;
-    height : 60px;
-    right : 24px;
-    bottom : 24px;
-    color : transparent;
-    font-size : 0;
+.v-fab {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 1000;
 }
 </style>
