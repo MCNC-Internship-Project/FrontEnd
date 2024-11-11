@@ -28,7 +28,7 @@
 </template>
 
 <script setup>
-import ObjComponent from './typeComponent/ObjComponent.vue'
+import ObjComponent from './typeComponent/ObjComponent2.vue'
 import SubjComponent from './typeComponent/SubjComponent.vue'
 import { ref, watch } from 'vue';
 
