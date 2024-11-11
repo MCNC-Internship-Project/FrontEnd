@@ -96,7 +96,7 @@ const removeComponent = (id) => {
 
 .survey-section {
     width : 100%;
-    padding : 0 22px;
+    padding : 0 16px;
 }
 
 .survey-title-section {
@@ -131,7 +131,7 @@ const removeComponent = (id) => {
     background-size: contain;
     width : 24px;
     height : 24px;
-
+    margin-right : 12px;
 }
 
 .input-section {
