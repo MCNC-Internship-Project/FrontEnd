@@ -31,7 +31,12 @@
         <!-- 완료된 설문조사 컴포넌트 -->
         <completed-survey />
 
-        <v-fab icon="mdi-plus" color="#7796E8" size="48" absolute></v-fab>
+        <div class="create-survey-conponent">
+            <router-link to="/create-survey" class="create_btn">
+                <v-fab icon="mdi-plus" color="#7796E8" size="48" absolute></v-fab>
+            </router-link>
+        </div>
+        
     </div>
 </template>
 
