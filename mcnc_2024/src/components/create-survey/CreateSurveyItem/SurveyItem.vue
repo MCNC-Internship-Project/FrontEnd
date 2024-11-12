@@ -9,13 +9,13 @@
 
         <div class="type-select-section">
             <select name="type" id="type" class="survey-type" v-model="surveyType">
-                <option class="type-item" value="obj_radio">단일 선택</option>
-                <option class="type-item" value="obj_check">다중 선택</option>
-                <option class="type-item" value="subj">주관식</option>
+                <option class="type-item" value="OBJ_SINGLE">단일 선택</option>
+                <option class="type-item" value="OBJ_MULTI">다중 선택</option>
+                <option class="type-item" value="SUBJECTIVE">주관식</option>
             </select>
         </div>
 
-        <div class="isTypeSubj" v-if="surveyType === 'subj'">
+        <div class="isTypeSubj" v-if="surveyType === 'SUBJECTIVE'">
             <subj-component />
         </div>
 
@@ -31,7 +31,7 @@ import ObjComponent from './typeComponent/ObjComponent.vue'
 import SubjComponent from './typeComponent/SubjComponent.vue'
 import { ref, watch } from 'vue';
 
-const surveyType = ref("obj_radio")
+const surveyType = ref("OBJ_SINGLE")
 
 watch(surveyType, (newType) => {
     surveyType.value = newType;
