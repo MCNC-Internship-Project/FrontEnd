@@ -2,7 +2,7 @@
     <div id="root-container">
 
         <div class="input-container">
-            <input type="text" name="subj" class="subj-input" placeholder="주관식 답안" disabled/>
+             <textarea name="subj" id="subj" class="subj-textarea" placeholder="답변을 입력해주세요." disabled></textarea>
         </div>
 
     </div>
@@ -19,15 +19,18 @@
 
 .input-container {
     width : 100%;
-    margin : 8px 0;
+    height : 64px;
+    margin : 12px 0;
 }
 
-.subj-input {
+.subj-textarea {
     width : 100%;
-    height : 44px;  
-    border: none;
-    border-bottom: 2px solid gray;
-    outline: none;
-    padding: 0;
+    height : 100%;
+    box-sizing : border-box;
+    resize : none;
+    border : solid 2px #D9D9D9;
+    border-radius : 10px;
+    padding : 4px 8px;
+    background-color: #FFF;
 }
 </style>
