@@ -87,6 +87,7 @@ const deleteItem = (id) => {
     display : flex;
     align-items: center;
     justify-content: center;
+    padding-left : 36px;
     margin : 12px 0;
 }
 

@@ -197,6 +197,7 @@ const initDeadline = () => {
     margin-bottom : 20px;
     padding : 8px 8px;
     box-sizing: border-box;
+    box-shadow : 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .select-deadline-section {
@@ -236,7 +237,7 @@ const initDeadline = () => {
     margin-bottom : 12px;
     display : flex;
     flex-direction: row;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     padding: 0;
     border : solid 1px #eff0f6;
@@ -250,6 +251,7 @@ const initDeadline = () => {
     background-size: contain;
     width : 24px;
     height : 24px;
+    margin-top : 36px;
     margin-right : 12px;
 }
 
