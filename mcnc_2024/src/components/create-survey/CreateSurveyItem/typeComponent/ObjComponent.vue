@@ -3,7 +3,7 @@
         <ul class="survey-item-list">
             <li v-for="item in totalItem" :key="item.id" class="list-item">
                 <input :type="componentType" :name="componentType" class="type-input">
-                <input type="text" v-model="item.value" class="item-input" required/>
+                <input type="text" v-model="item.value" class="item-input" required/> <!-- 이녀석이 문제네 -->
                 <button class="list-delete-btn" @click="deleteItem(item.id)">항목 삭제</button>
             </li>
         </ul>
@@ -75,6 +75,7 @@ const deleteItem = (id) => {
 }
 
 .item-input {
+    width : 100%;
     margin-left : 8px;
     outline : none;
 }
