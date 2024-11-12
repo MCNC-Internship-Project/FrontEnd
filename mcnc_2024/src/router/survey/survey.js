@@ -5,7 +5,7 @@ const SurveyRoutes = [
     {
         path : "/create-survey",
         name : "create-survey",
-        component : () => import("../../components/survey/CreateSurvey.vue")
+        component : () => import("../../components/create-survey/CreateSurvey.vue")
     }
 ]
 

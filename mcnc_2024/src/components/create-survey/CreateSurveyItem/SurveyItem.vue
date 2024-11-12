@@ -41,6 +41,7 @@ watch(surveyType, (newType) => {
 <style scoped>
 #root-contaienr {
     width : 100%;
+    padding : 0 20px;
     background-color: #EFF0F6;
     display : flex;
     flex-direction : column;
@@ -73,16 +74,7 @@ watch(surveyType, (newType) => {
     transition: all 0.3s; /* 포커스 시 애니메이션 */
 }
 
-.survey-title:focus {
-    border-bottom-color: blue;     /* 포커스 시 밑줄 색상 변경 */
-}
-
-.input-section {
-    flex : 3;
-}
-
 .type-select-section {
-    flex : 1;
     display: flex;
     justify-content: start;
     padding : 0 16px;
