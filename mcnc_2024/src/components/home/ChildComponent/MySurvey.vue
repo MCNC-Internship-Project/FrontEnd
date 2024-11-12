@@ -116,7 +116,7 @@ function formatDate(dateStr) {
 
 ul {
     margin: 0;
-    padding: 20px 8px 40px 24px;
+    padding: 16px 8px 40px 24px;
     overflow-x: scroll;
     list-style: none;
     white-space: nowrap;

@@ -29,7 +29,7 @@
         <my-survey />
 
         <!-- 완료된 설문조사 컴포넌트 -->
-        <my-participantion-survey />
+        <my-participated-survey />
 
         <div class="create-survey-conponent">
             <router-link to="/create-survey" class="create_btn">
@@ -42,7 +42,7 @@
 
 <script setup>
 import MySurvey from './ChildComponent/MySurvey.vue';
-import MyParticipantionSurvey from './ChildComponent/MyParticipationSurvey.vue';
+import MyParticipatedSurvey from './ChildComponent/MyParticipatedSurvey.vue';
 import router from '@/router'
 
 const search = () => {
@@ -52,8 +52,9 @@ const search = () => {
 
 <style scoped>
 .root-container {
-    height: 100vh;
-    width : 100%;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
 }
 
 .toolbar {
@@ -105,7 +106,7 @@ const search = () => {
 
 .search-container {
     position: relative;
-    margin: 32px 24px 40px 24px;
+    margin: 16px 24px 40px 24px;
     height: 56px;
     border-radius: 12px;
     background: #F3F3F3;
