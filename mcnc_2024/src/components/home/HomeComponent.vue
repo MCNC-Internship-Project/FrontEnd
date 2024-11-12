@@ -25,8 +25,8 @@
         </div>
 
 
-        <!-- 진행중인 설문조사 컴포넌트 -->
-        <in-progress-survey />
+        <!-- 내 설문조사 컴포넌트 -->
+        <my-survey />
 
         <!-- 완료된 설문조사 컴포넌트 -->
         <my-participantion-survey />
@@ -41,7 +41,7 @@
 </template>
 
 <script setup>
-import InProgressSurvey from './ChildComponent/InProgressSurvey.vue';
+import MySurvey from './ChildComponent/MySurvey.vue';
 import MyParticipantionSurvey from './ChildComponent/MyParticipationSurvey.vue';
 // import router from '@/router'
 // import { ref } from 'vue';
@@ -118,7 +118,7 @@ const search = () => {
 
 .search-container {
     position: relative;
-    margin: 32px 24px 0;
+    margin: 32px 24px 40px 24px;
     height: 56px;
     border-radius: 12px;
     background: #F3F3F3;
