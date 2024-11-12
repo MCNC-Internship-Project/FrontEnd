@@ -16,9 +16,9 @@
                     <div class="item-container">
                         <div class="item-title">{{ survey.title }}</div>
                         <div class="item-description">{{ survey.description }}</div>
-                        <div class="item-participated">{{ survey.participated }}명 참여</div>
 
-                        <div class="item-date-container">
+                        <div class="item-footer-container">
+                            <div class="item-participated">{{ survey.participated }}명 참여</div>
                             <v-progress-linear class="survey-progress" bg-color="#D9D9D9" bg-opacity="1" color="#7796E8"
                                 rounded rounded-bar height="4"
                                 :model-value="calculateProgress(survey.startDate, survey.endDate)"></v-progress-linear>
@@ -169,11 +169,11 @@ ul {
 .item-participated {
     font-size: 0.625rem;
     color: #7796E8;
-    margin-top: 8px;
+    margin-bottom: 4px;
     text-align: right;
 }
 
-.item-date-container {
+.item-footer-container {
     position: absolute;
     bottom: 12px;
     left: 20px;
