@@ -2,18 +2,17 @@
     <div id="root-container">
 
         <div class="survey-header-section">
-
             <div class="input-section">
                 <input type="text" name="title" id="title" class="survey-title" value="질문 제목"/>
             </div>
+        </div>
 
-            <div class="type-select-section">
-                <select name="type" id="type" class="survey-type" v-model="surveyType">
-                    <option class="type-item" value="obj_radio">단일 선택</option>
-                    <option class="type-item" value="obj_check">다중 선택</option>
-                    <option class="type-item" value="subj">주관식</option>
-                </select>
-            </div>
+        <div class="type-select-section">
+            <select name="type" id="type" class="survey-type" v-model="surveyType">
+                <option class="type-item" value="obj_radio">단일 선택</option>
+                <option class="type-item" value="obj_check">다중 선택</option>
+                <option class="type-item" value="subj">주관식</option>
+            </select>
         </div>
 
         <div class="isTypeSubj" v-if="surveyType === 'subj'">
@@ -59,17 +58,18 @@ watch(surveyType, (newType) => {
     padding : 0 12px;
     background-color : #D9D9D9;
     border-radius : 10px;
+    background-color: #fff;
 }
 
 .survey-title {
     width : 100%;
     height : 100%;
-    color : #464748;
+    color : #8c8c8c;
     font-size : 1rem;
+    font-weight : bold;
     border: none;                  /* 기본 테두리 제거 */
-    border-bottom: 2px solid gray; /* 밑줄만 추가 */
     outline: none;                 /* 포커스 outline 제거 */
-    padding: 8px 0;                /* 위아래 여백 추가 */
+    padding: 8px 8px;                /* 위아래 여백 추가 */
     transition: all 0.3s; /* 포커스 시 애니메이션 */
 }
 
@@ -84,29 +84,30 @@ watch(surveyType, (newType) => {
 .type-select-section {
     flex : 1;
     display: flex;
-    justify-content: center; /* 가로 중앙 정렬 */
-    align-items: center;     /* 세로 중앙 정렬 */
-    width: 100%;             /* 필요에 따라 섹션의 너비를 조정 */
+    justify-content: start;
+    padding : 0 16px;
+    width: 100%;
 }
 
 .survey-type {
+    background-color: #fff;
+    width : 100%;
+    height : 36px;
+    padding : 0 32px;
+    border : solid 1px #D9D9D9;
     outline: none;  /* 포커스 outline 제거 */
-}
-
-.survey-type option {
-    text-align : center;
 }
 
 .isTypeSubj {
     width : 100%;
-    margin : 0 22px;
-    padding : 0 22px;
+    margin : 0;
+    padding : 0 16px;
 }
 
 .isTypeObj {
     width : 100%;
-    margin : 0 22px;
-    padding : 0 22px;
+    margin : 0;
+    padding : 0 16px;
 }
 
 </style>

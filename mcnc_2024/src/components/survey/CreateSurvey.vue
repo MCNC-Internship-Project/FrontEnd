@@ -1,9 +1,17 @@
 <template>
     <div id="root-container">
-        <div class="header">
-            <router-link to="/" class="back-btn">back</router-link>
-            <button class="submit-btn">생성</button>
-        </div>
+
+        <header class="toolbar">
+            <div class="back-container">
+                <img class="back" src="../../assets/images/icon_arrow_left.svg" alt="back" @click="stepBack">
+            </div>
+
+            <div class="menu-container">
+                <button class="submit-btn">생성</button>
+            </div>
+
+            
+        </header>
 
         <div class="survey-section">
             <div class="survey-title-section">
@@ -27,7 +35,14 @@
         </div>
 
         <div class="create-btn-container">
-            <button class="create-btn" @click="addComponent">create</button>
+             <div class="create-btn-section" @click="addComponent">
+                <div class="add-icon-container">
+                    <div class="add-icon">
+                        add
+                    </div>
+                </div>
+                질문 추가하기
+             </div>
         </div>
 
     </div>
@@ -36,6 +51,7 @@
 <script setup>
 import SurveyItem from './CreateSurveyItem/SurveyItem.vue';
 import { ref } from 'vue';
+import router from '@/router';
 
 const totalComponent = ref([
     {id:0},
@@ -54,6 +70,10 @@ const addComponent = () => {
 const removeComponent = (id) => {
     totalComponent.value = totalComponent.value.filter((component) => component.id !== id);
 };
+
+const stepBack = () =>{
+    router.push("/")
+}
 </script>
 
 <style scoped>
@@ -65,21 +85,30 @@ const removeComponent = (id) => {
     justify-content: center;
 }
 
-.header {
-    position : sticky;
-    width : 100%;
-    display : flex;
+.toolbar {
+    position: relative;
+    display: flex;
     align-items: center;
     justify-content: space-between;
-    padding : 16px 16px;
+    left: 0;
+    top: 0;
+    right: 0;
+    width: 100%;
+    height: 64px;
 }
 
-.back-btn {
-    text-indent : -999em;
-    background: url("../../assets/images/icon_arrow_left.svg") no-repeat;
-    background-size : contain;
-    width : 20px;
-    height : 20px;
+.back-container {
+    display: flex;
+    align-items: center;
+    padding-left: 24px;
+}
+
+.menu-container {
+    display : flex;
+    align-items: center;
+    position: absolute;
+    right: 0;
+    padding-right: 24px;
 }
 
 .submit-btn {
@@ -96,13 +125,13 @@ const removeComponent = (id) => {
 
 .survey-section {
     width : 100%;
-    padding : 0 16px;
+    padding : 0 24px;
 }
 
 .survey-title-section {
     background-color: #EFF0F6;
     border-radius: 15px;
-    margin-bottom : 48px;
+    margin-bottom : 20px;
     padding : 8px 8px;
     box-sizing: border-box;
 }
@@ -116,13 +145,16 @@ const removeComponent = (id) => {
 }
 
 .survey-item-section {
-    background-color: #EFF0F6;
+    background-color: #FAF8F8;
     margin-bottom : 12px;
     display : flex;
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    padding: 0 16px; /* 양쪽 padding 추가 */
+    padding: 0;
+    border : solid 1px #eff0f6;
+    border-radius : 15px;
+    box-shadow : 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .delete-btn {
@@ -142,45 +174,58 @@ const removeComponent = (id) => {
 
 input {
     width : 100%;
-    margin : 0 16px 12px 16px;
+    margin : 0 16px;
     height : 44px;
     padding : 0 16px;
-    font-weight : bold;
     outline: none;                 /* 포커스 outline 제거 */
     padding: 8px 0;                /* 위아래 여백 추가 */
     transition: all 0.3s; /* 포커스 시 애니메이션 */
 }
 
-input:hover {
-    border-bottom-color: blue;     /* 포커스 시 밑줄 색상 변경 */
-}
-
 .survey-title {
     border: none;                  /* 기본 테두리 제거 */
-    border-bottom: 2px solid gray; /* 밑줄만 추가 */
-    font-size : 1.25rem;
+    font-size : 1rem;
+    font-weight : bold;
     color : #464748;
 }
 
 .survey-description {
-    font-size : 1rem;
+    font-size : 0.875rem;
     color : #C1C3C5;
 }
 
-.survey-item-section {
-    width : calc(100%-40px);
-    border-radius: 10px;
-}
-
 .create-btn-container {
+    width : 100%;
+    padding : 0 24px;
     margin : 16px 0;
 }
 
-.create-btn {
+.create-btn-section {
+    position : relative;
+    background-color: #fff;
+    height : 60px;
+    display : flex;
+    align-items: center;
+    justify-content: center;
+    border : solid 1px #EFF0F6;
+    border-radius: 15px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    font-weight : bold;
+    font-size : 1rem;
+    color : #8C8C8C;
+}
+
+.add-icon-container {
+    position : absolute;
+    top : 18px;
+    left : 24px;
+}
+
+.add-icon {
     text-indent : -999em;
     background: url("../../assets/images/icon_add.svg");
     background-size: contain;
-    width : 60px;
-    height : 60px;
+    width : 24px;
+    height : 24px;
 }
 </style>

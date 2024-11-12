@@ -63,6 +63,7 @@ const deleteItem = (id) => {
 
 .survey-item-list {
     list-style: none;
+    padding : 0 8px;
 }
 
 .list-item {
@@ -70,6 +71,7 @@ const deleteItem = (id) => {
     align-items: center;
     justify-content: start;
     margin : 12px 0;
+    box-sizing: border-box;
 }
 
 .item-input {
@@ -94,13 +96,5 @@ const deleteItem = (id) => {
     background-size: contain;
     width : 20px;
     height : 20px;
-}
-
-/* 화면이 작아졌을 때에도 한 줄로 유지 */
-@media (max-width: 400px) {
-    .survey-item-list {
-        flex-direction: row; /* 여전히 가로로 정렬 */
-        flex-wrap: nowrap; /* 줄바꿈 방지 */
-    }
 }
 </style>
