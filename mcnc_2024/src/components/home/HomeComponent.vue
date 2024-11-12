@@ -43,27 +43,14 @@
 <script setup>
 import MySurvey from './ChildComponent/MySurvey.vue';
 import MyParticipantionSurvey from './ChildComponent/MyParticipationSurvey.vue';
-// import router from '@/router'
-// import { ref } from 'vue';
+import router from '@/router'
 
-// const searchQuery = ref("");
-
-/**
- * search 버튼 클릭 or 엔터키 누르면 /surveys?search=searchQuery로 탐색
- */
 const search = () => {
-    // router.push({path : "/surveys", query : {search : searchQuery.value}});
+    router.push({path : "/surveys"});
 }
 </script>
 
 <style scoped>
-@font-face {
-    font-family: 'Mont';
-    src: url('../../assets/fonts/MontserratAlternates-Bold.ttf') format('truetype');
-    font-weight: bold;
-    font-style: normal;
-}
-
 .root-container {
     height: 100vh;
     width : 100%;
@@ -92,9 +79,9 @@ const search = () => {
 
 .title {
     padding-left: 4px;
-    font-family: 'Mont';
+    font-family: var(--font-mont);
     font-size: 1.25rem;
-    color: #7796E8;
+    color: var(--primary);
 }
 
 .menu-container {

@@ -70,16 +70,9 @@ watch([userId, password], () => {
     margin-bottom : 40px;
 }
 
-@font-face {
-    font-family: 'Mont';
-    src: url('../../assets/fonts/MontserratAlternates-Bold.ttf') format('truetype');
-    font-weight: bold;
-    font-style: normal;
-}
-
 /* 폰트를 사용할 스타일 정의 */
 .logo-font {
-    font-family: 'Mont', sans-serif;
+    font-family: var(--font-mont);
     font-size : 2.5rem;
     color : #7796E8;
 }

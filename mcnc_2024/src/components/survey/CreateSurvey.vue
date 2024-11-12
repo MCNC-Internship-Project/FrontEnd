@@ -181,7 +181,7 @@ const initDeadline = () => {
     border : none;
     border-radius: 8px;
     text-align : center;
-    background-color: #7796E8;
+    background-color: var(--primary);
     font-size : 0.8125rem;
     color : white;
 }
@@ -387,7 +387,7 @@ input {
 }
 
 .modal-submit-btn {
-    background-color: #7796E8;
+    background-color: var(--primary);
     color : #fff;
 }
 </style>

@@ -39,7 +39,7 @@ function stepTo2() {
     height: 56px;
     margin-bottom: 20px;
     padding: 0 16px;
-    border: solid 2px #7796E8;
+    border: solid 2px var(--primary);
     border-radius: 12px;
     outline: none;
     font-size: 0.875rem;
@@ -50,7 +50,7 @@ function stepTo2() {
 }
 
 .form-btn {
-    background-color: #7796E8;
+    background-color: var(--primary);
     border: none;
     color: white;
     transition: all 0.2s ease;

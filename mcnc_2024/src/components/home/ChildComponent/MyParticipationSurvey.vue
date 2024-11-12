@@ -187,7 +187,7 @@ ul {
 
 .participant {
     font-size : 0.625rem;
-    color : #7796E8;
+    color : var(--primary);
 }
 
 .deadline {

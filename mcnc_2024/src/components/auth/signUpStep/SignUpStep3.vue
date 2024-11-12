@@ -123,7 +123,7 @@ const goToSignUp = () => {
     height: 56px;
     margin-bottom: 12px;
     padding: 0 16px;
-    border: solid 2px #7796E8;
+    border: solid 2px var(--primary);
     border-radius: 12px;
     outline: none;
     font-size: 0.875rem;
@@ -132,7 +132,7 @@ const goToSignUp = () => {
 .form-btn {
     display: flex;
     justify-content: center;
-    background-color: #7796E8;
+    background-color: var(--primary);
     border: none;
     color: white;
     margin-top: 20px;

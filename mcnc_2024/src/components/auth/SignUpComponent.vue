@@ -110,14 +110,12 @@ const postSignUpRequest = (data) => {
 }
 
 .step-text {
-    font-family: 'Noto Sans', sans-serif;
     font-size: 0.75rem;
     color: #97969C;
 }
 
 .guide-text {
     margin-top: 8px;
-    font-family: 'Noto Sans', sans-serif;
     font-size: 1rem;
     font-weight: bold;
     color: #464748;
