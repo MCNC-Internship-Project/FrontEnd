@@ -100,14 +100,14 @@ function formatDate(dateStr) {
 .title-text {
     color: #464748;
     font-weight: bold;
-    font-size: 1rem;
+    font-size: 1.25rem;
 }
 
 .show-all-text {
-    font-size: 0.875rem;
-    color: #B4B4B4;
     position: absolute;
     right: 24px;
+    font-size: 1rem;
+    color: #B4B4B4;
 }
 
 .list-container {
@@ -125,8 +125,8 @@ ul {
 }
 
 .item-list {
-    width: 200px;
-    height: 140px;
+    width: 240px;
+    height: 168px;
     margin-right: 16px;
     border-radius: 12px;
     box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
@@ -144,7 +144,7 @@ ul {
     width: 100%;
     color: #414141;
     font-weight: bold;
-    font-size: 0.875rem;
+    font-size: 1rem;
     text-overflow: ellipsis;
     overflow: hidden;
     word-break: break-word;
@@ -153,9 +153,9 @@ ul {
 
 .item-description {
     width: 100%;
+    margin-top: 4px;
+    font-size: 0.875rem;
     color: #8D8D8D;
-    margin-top: 2px;
-    font-size: 0.75rem;
     text-overflow: ellipsis;
     overflow: hidden;
     word-break: break-word;
@@ -167,9 +167,9 @@ ul {
 }
 
 .item-participated {
-    font-size: 0.625rem;
-    color: var(--primary);
     margin-bottom: 4px;
+    font-size: 0.8125rem;
+    color: var(--primary);
     text-align: right;
 }
 
@@ -183,7 +183,7 @@ ul {
 .date-container {
     display: flex;
     justify-content: space-between;
-    font-size: 0.625rem;
+    font-size: 0.8125rem;
     color: #B7B7B7;
 }
 </style>
