@@ -3,7 +3,7 @@
         <ul class="survey-item-list">
             <li v-for="item in totalItem" :key="item.id" class="list-item">
                 <input :type="componentType" :name="componentType" class="type-input">
-                <input type="text" v-model="item.value" class="item-input" required/> <!-- 이녀석이 문제네 -->
+                <input type="text" v-model="item.value" class="item-input" required/>
                 <button class="list-delete-btn" @click="deleteItem(item.id)">항목 삭제</button>
             </li>
         </ul>
@@ -28,7 +28,7 @@ const totalItem = ref([
 ]);
 
 // 부모 컴포넌트로부터 select 항목 선택에 따라 computed로 자식 컴포넌트의 타입 재계산 후 적용
-const componentType = computed(() => (props.type === "obj_radio" ? "radio" : "checkbox"));
+const componentType = computed(() => (props.type === "OBJ_SINGLE" ? "radio" : "checkbox"));
 
 /**
  *  현재 저장된 totalItem의 마지막 id++값을 id로 갖는 객체를 삽입
@@ -62,11 +62,13 @@ const deleteItem = (id) => {
 }
 
 .survey-item-list {
+    width : 100%;
     list-style: none;
     padding : 0 8px;
 }
 
 .list-item {
+    width : 100%;
     display : flex;
     align-items: center;
     justify-content: start;
