@@ -75,7 +75,8 @@ const deleteItem = (id) => {
 }
 
 .item-input {
-    margin-left : 12px;
+    margin-left : 8px;
+    outline : none;
 }
 
 .item-add-section {

@@ -22,6 +22,20 @@
                 <div class="input-section">
                     <input type="text" name="survey-description" class="survey-description" value="설문지 설명" maxlength="255">
                 </div>
+
+                <div class="select-deadline-section">
+                    <div class="deadline">
+                        설문 기간
+                    </div>
+
+                    <div class="select-deadline">
+                        {{ selectDate === "" && selectTime === "" ? "미설정" : selectDate + "-" + selectTime }}
+                    </div>
+
+                    <div class="calender-container">
+                        calender
+                    </div>
+                </div>
             </div>
 
             <div class="survey-item-container">
@@ -56,6 +70,9 @@ import router from '@/router';
 const totalComponent = ref([
     {id:0},
 ]);
+
+const selectDate = ref("");
+const selectTime = ref("");
 
 const addComponent = () => {
     const lastIndex = totalComponent.value.length > 0 
@@ -134,6 +151,30 @@ const stepBack = () =>{
     margin-bottom : 20px;
     padding : 8px 8px;
     box-sizing: border-box;
+}
+
+.select-deadline-section {
+    margin : 16px 16px 0 16px;
+    height : 32px;
+    display : flex;
+    align-items: center;
+    font-weight : bold;
+    font-size : 0.8175rem;
+    color : #757575;
+}
+
+.select-deadline {
+    color : #ABABB6;
+    margin : 0 8px;
+    font-size : 0.8175rem;
+}
+
+.calender-container {
+    text-indent : -999em;
+    background: url("../../assets/images/icon_calendar.svg") no-repeat;
+    background-size: contain;
+    width : 20px;
+    height : 20px;
 }
 
 .survey-item-container {
