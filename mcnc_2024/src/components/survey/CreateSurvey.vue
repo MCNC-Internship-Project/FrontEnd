@@ -65,7 +65,17 @@
                 <div class="modal-section">
 
                     <div class="modal-content-container">
-                        모달창이욧 -> 데이트, 타임피커
+
+                        <div class="modal-content-title">
+                            종료 날짜 설정
+                        </div>
+
+                        <div class="modal-datepicker-section">
+                            <VueDatePicker v-model="selectDeadline" :min-date="new Date()" locale="ko" cancelText="취소" selectText="확인"/>
+                        </div>
+                        
+
+
                     </div>
 
                     <div class="modal-btn-container">
@@ -89,12 +99,13 @@
 import SurveyItem from './CreateSurveyItem/SurveyItem.vue';
 import { ref } from 'vue';
 import router from '@/router';
-import { formatDate } from '@/utils/dateCalculator'
+import { formatDateAndTime } from '@/utils/dateCalculator'
 
 const totalComponent = ref([
     {id:0},
 ]);
 
+const selectDeadline = ref("")
 const selectDate = ref("");
 const selectTime = ref("");
 const isShowModal = ref(false);
@@ -119,8 +130,11 @@ const stepBack = () =>{
 }
 
 const initDeadline = () => {
-    selectDate.value = formatDate(new Date());
-    selectTime.value = "15 : 00"
+    if(selectDeadline.value === "") {
+        isShowModal.value = false;
+        return;
+    }
+    [selectDate.value, selectTime.value] = formatDateAndTime(selectDeadline.value);
     isShowModal.value = false;
 }
 </script>
@@ -323,12 +337,28 @@ input {
 .modal-section {
     background-color: #fff;  /* 모달 창의 배경을 흰색으로 */
     padding: 20px;
+    margin-bottom: 200px;      /* 모달 창 위쪽으로 올리기 */
     border-radius: 10px;
     width: 300px;
     display : flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+}
+
+.modal-content-container {
+    width : 100%;
+    display : flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content-title {
+    margin-bottom : 12px;
+    font-size : 1rem;
+    font-weight : bold;
+    color : #757576;
 }
 
 .modal-btn-container {
