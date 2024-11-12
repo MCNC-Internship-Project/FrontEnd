@@ -62,11 +62,13 @@ const deleteItem = (id) => {
 }
 
 .survey-item-list {
+    width : 100%;
     list-style: none;
     padding : 0 8px;
 }
 
 .list-item {
+    width : 100%;
     display : flex;
     align-items: center;
     justify-content: start;
