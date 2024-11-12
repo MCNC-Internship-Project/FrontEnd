@@ -29,10 +29,10 @@
                     </div>
 
                     <div class="select-deadline">
-                        {{ selectDate === "" && selectTime === "" ? "미설정" : selectDate + "-" + selectTime }}
+                        {{ selectDate === "" && selectTime === "" ? "미설정" : selectDate + " - " + selectTime }}
                     </div>
 
-                    <div class="calender-container">
+                    <div class="calender-container" @click="isShowModal = true">
                         calender
                     </div>
                 </div>
@@ -59,6 +59,29 @@
              </div>
         </div>
 
+
+        <div class="calender-modal" v-if="isShowModal">
+            <div class="modal-background">
+                <div class="modal-section">
+
+                    <div class="modal-content-container">
+                        모달창이욧 -> 데이트, 타임피커
+                    </div>
+
+                    <div class="modal-btn-container">
+
+                        <div class="modal-btn-section modal-cancle-btn" @click="isShowModal = false">
+                            취소
+                        </div>
+                        <div class="modal-btn-section modal-submit-btn" @click="initDeadline">
+                            확인
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -66,6 +89,7 @@
 import SurveyItem from './CreateSurveyItem/SurveyItem.vue';
 import { ref } from 'vue';
 import router from '@/router';
+import { formatDate } from '@/utils/dateCalculator'
 
 const totalComponent = ref([
     {id:0},
@@ -73,6 +97,8 @@ const totalComponent = ref([
 
 const selectDate = ref("");
 const selectTime = ref("");
+const isShowModal = ref(false);
+
 
 const addComponent = () => {
     const lastIndex = totalComponent.value.length > 0 
@@ -90,6 +116,12 @@ const removeComponent = (id) => {
 
 const stepBack = () =>{
     router.push("/")
+}
+
+const initDeadline = () => {
+    selectDate.value = formatDate(new Date());
+    selectTime.value = "15 : 00"
+    isShowModal.value = false;
 }
 </script>
 
@@ -268,5 +300,64 @@ input {
     background-size: contain;
     width : 24px;
     height : 24px;
+}
+
+.calender-modal {
+    position: fixed;  /* 모달을 고정 */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1000;  /* 다른 요소들 위에 위치 */
+}
+
+.modal-background {
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);  /* 배경을 반투명 회색으로 설정 */
+    display: flex;
+    justify-content: center;
+    align-items: center; 
+}
+
+.modal-section {
+    background-color: #fff;  /* 모달 창의 배경을 흰색으로 */
+    padding: 20px;
+    border-radius: 10px;
+    width: 300px;
+    display : flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-btn-container {
+    width : 100%;
+    margin-top : 24px;
+    display : flex;
+    align-items: center;
+    justify-content: space-around;
+}
+
+.modal-btn-section {
+    width : 120px;
+    height : 40px;
+    font-size : 1rem;
+    font-weight : bold;
+    border-radius: 15px;
+    border : solid 1px #757575;
+    display : flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-cancle-btn {
+    background-color: #fff;
+    color : #757575;
+}
+
+.modal-submit-btn {
+    background-color: #7796E8;
+    color : #fff;
 }
 </style>
