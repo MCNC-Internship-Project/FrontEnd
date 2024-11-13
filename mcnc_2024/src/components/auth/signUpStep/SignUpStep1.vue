@@ -33,8 +33,7 @@ function stepTo2() {
     padding: 0 24px;
 }
 
-.form-input,
-.form-btn {
+.form-input {
     width: 100%;
     height: 56px;
     margin-bottom: 20px;
@@ -50,13 +49,17 @@ function stepTo2() {
 }
 
 .form-btn {
+    width: 100%;
+    height: 56px;
+    border-radius: 12px;
+    font-size: 0.875rem;
     background-color: var(--primary);
-    border: none;
     color: white;
+    cursor: pointer;
     transition: all 0.2s ease;
 }
 
 .form-btn:hover {
-    background-color: #0d6db7;
+    background-color: var(--secondary);
 }
 </style>
