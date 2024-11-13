@@ -7,7 +7,7 @@
             </div>
 
             <div class="menu-container">
-                <button class="submit-btn" @click="handleSubmit">저장</button>
+                <button class="submit-btn" @click="isShowSaveModal = true">저장</button>
             </div>
 
             
@@ -126,6 +126,32 @@
                 </div>
             </div>
         </div>
+
+
+        <div class="save-modal" v-if="isShowSaveModal">
+            <div class="modal-background">
+                <div class="save-modal-section">
+
+                    <div class="modal-content-container">
+
+                        <div class="modal-content-title">
+                            저장하시겠습니까?
+                        </div>
+
+                    <div class="modal-btn-container">
+                        <div class="modal-btn-section modal-cancle-btn" @click="isShowSaveModal = false">
+                            취소
+                        </div>
+                        <div class="modal-btn-section modal-submit-btn" @click="handleSubmit">
+                            확인
+                        </div>
+
+                    </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -146,6 +172,7 @@ const selectDate = ref(null);
 const selectDateFormat = ref("");
 const selectTime = ref(null);
 const isShowModal = ref(false);
+const isShowSaveModal = ref(false);
 
 const showDatePicker = ref(false)  // 날짜 선택 모달 상태
 const showTimePicker = ref(false)  // 시간 선택 모달 상태
@@ -191,9 +218,6 @@ const handleSubmit = () => {
   const title = surveyTitle.value;
   const description = survetDescription.value;
   const values = surveyItems.value.map((item) => item.getValue()); // getValue()는 각 survey-item에서 필요한 값을 반환하는 메서드로 가정
-
-  console.log(selectDateFormat.value)
-  console.log(selectTime.value)
 
   const dateStr = selectDateFormat.value + " " + selectTime.value;
   const date = dateStr.replace(" ", "T") + ":00";
@@ -381,6 +405,26 @@ input {
     background-size: contain;
     width : 24px;
     height : 24px;
+}
+
+.save-modal {
+    position: fixed;  /* 모달을 고정 */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1000;  /* 다른 요소들 위에 위치 */
+}
+
+.save-modal-section {
+    background-color: #fff;  /* 모달 창의 배경을 흰색으로 */
+    padding: 20px;
+    border-radius: 10px;
+    width: 300px;
+    display : flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
 .calender-modal {
