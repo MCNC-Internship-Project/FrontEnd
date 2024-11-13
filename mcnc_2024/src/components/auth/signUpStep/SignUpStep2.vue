@@ -36,11 +36,10 @@ function stepTo3() {
     padding: 0 24px;
 }
 
-.form-input,
-.form-btn {
+.form-input {
     width: 100%;
     height: 56px;
-    margin-bottom: 20px;
+    margin-bottom: 12px;
     padding: 0 16px;
     border: solid 2px var(--primary);
     border-radius: 12px;
@@ -48,20 +47,20 @@ function stepTo3() {
     font-size: 0.875rem;
 }
 
-.form-input {
-    margin-bottom: 12px;
-}
-
 .form-input::placeholder {
     color: #C6C6C6;
 }
 
 .form-btn {
-    background-color: var(--primary);
-    border: none;
-    color: white;
-    transition: all 0.2s ease;
+    width: 100%;
+    height: 56px;
     margin-top: 8px;
+    border-radius: 12px;
+    font-size: 0.875rem;
+    background-color: var(--primary);
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
 }
 
 .form-btn:hover {

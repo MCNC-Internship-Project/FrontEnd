@@ -78,14 +78,14 @@ function formatDate(dateStr) {
 .title-text {
     color: #464748;
     font-weight: bold;
-    font-size: 1rem;
+    font-size: 1.25rem;
 }
 
 .show-all-text {
-    font-size: 0.875rem;
-    color: #B4B4B4;
     position: absolute;
     right: 24px;
+    font-size: 1rem;
+    color: #B4B4B4;
 }
 
 .list-container {
@@ -95,16 +95,16 @@ function formatDate(dateStr) {
 ul {
     margin: 0;
     padding: 16px 24px 8px 24px;
-    list-style: none;
+    display: flex;
     flex-direction: column;
     flex-wrap: nowrap;
+    list-style: none;
     scrollbar-width: none;
-    display: flex;
 }
 
 .item-list {
     width: 100%;
-    height: 100px;
+    height: 108px;
     margin-bottom: 16px;
     border-radius: 12px;
     box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15);

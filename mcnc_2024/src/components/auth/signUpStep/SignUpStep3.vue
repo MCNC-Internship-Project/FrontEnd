@@ -56,8 +56,6 @@ import { ref, watch, defineEmits, computed } from 'vue'
 
 const emit = defineEmits(["signUp"]);
 
-
-
 const showDatePicker = ref(false);
 const selectedDate = ref(null);
 const showGenderMenu = ref(false);
@@ -114,8 +112,7 @@ const goToSignUp = () => {
     max-width: 100%;
 }
 
-.form-input,
-.form-btn {
+.form-input {
     position: relative;
     display: flex;
     align-items: center;
@@ -125,15 +122,20 @@ const goToSignUp = () => {
     padding: 0 16px;
     border: solid 2px var(--primary);
     border-radius: 12px;
-    outline: none;
     font-size: 0.875rem;
 }
 
 .form-btn {
+    position: relative;
     display: flex;
+    align-items: center;
     justify-content: center;
+    width: 100%;
+    height: 56px;
+    margin-top: 8px;
+    border-radius: 12px;
+    font-size: 0.875rem;
     background-color: var(--primary);
-    border: none;
     color: white;
     margin-top: 20px;
     transition: all 0.2s ease;
@@ -169,7 +171,6 @@ const goToSignUp = () => {
     height: 20px;
 }
 
-/* 모달 배경 */
 .modal-overlay {
     position: fixed;
     top: 0;
