@@ -16,11 +16,11 @@
         <div class="survey-section">
             <div class="survey-title-section">
                 <div class="input-section">
-                    <input type="text" name="survey-title" class="survey-title" v-model="surveyTitle" maxlength="255"/>
+                    <input type="text" name="survey-title" class="survey-title" v-model="surveyTitle" placeholder="설문조사 제목" maxlength="255"/>
                 </div>
                 
                 <div class="input-section">
-                    <input type="text" name="survey-description" class="survey-description" v-model="survetDescription" maxlength="255">
+                    <input type="text" name="survey-description" class="survey-description" v-model="survetDescription" placeholder="설문지 설명" maxlength="255">
                 </div>
 
                 <div class="select-deadline-section">
@@ -140,8 +140,8 @@ const totalComponent = ref([
 ]);
 const surveyItems = ref([]);
 
-const surveyTitle = ref("설문조사 제목");
-const survetDescription = ref("설문지 설명")
+const surveyTitle = ref("");
+const survetDescription = ref("")
 const selectDate = ref(null);
 const selectDateFormat = ref("");
 const selectTime = ref(null);

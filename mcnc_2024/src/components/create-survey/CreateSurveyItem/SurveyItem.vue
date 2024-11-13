@@ -3,7 +3,7 @@
 
         <div class="survey-header-section">
             <div class="input-section">
-                <input type="text" name="title" id="title" class="survey-title" v-model="surveyItemTitle"/>
+                <input type="text" name="title" id="title" class="survey-title" v-model="surveyItemTitle" placeholder="질문 내용"/>
             </div>
         </div>
 
@@ -31,7 +31,7 @@ import ObjComponent from './typeComponent/ObjComponent.vue'
 import SubjComponent from './typeComponent/SubjComponent.vue'
 import { ref, watch, defineExpose } from 'vue';
 
-const surveyItemTitle = ref("질문 제목");
+const surveyItemTitle = ref("");
 const surveyType = ref("OBJ_SINGLE");
 
 const subjComponentRef = ref(null);       // subj-component에 대한 ref
@@ -49,7 +49,7 @@ const getValue = () => {
         values = [...subjData] ;
     } else {
         const objData = objComponentRef.value.getValue();   // obj-component에서 값 가져오기
-        values = objData.map(item => ({ body: item.value }));
+        values = objData.map(item => ({ body: item.value, isEtc: item.id === "etcId" ? true : false }));
     }
 
     return {body : surveyItemTitle.value, questionType : surveyType.value, selectionList : values}; // 자식 컴포넌트에서 필요한 값을 반환

@@ -3,7 +3,7 @@
         <ul class="survey-item-list">
             <li v-for="item in totalItem" :key="item.id" class="list-item">
                 <input :type="componentType" :name="componentType" class="type-input" :disabled="item.id === 'etcId'">
-                <input type="text" v-model="item.value" class="item-input" required :disabled="item.id === 'etcId'"/>
+                <input type="text" v-model="item.value" placeholder="새로운 항목" class="item-input" required :disabled="item.id === 'etcId'"/>
                 <button class="list-delete-btn" @click="deleteItem(item.id)" v-if="totalItem.length !== 1">항목 삭제</button>
             </li>
         </ul>
@@ -24,7 +24,7 @@ const props = defineProps({
 })
 
 const totalItem = ref([
-    {id:0, value: "새로운 항목"},
+    {id:0, value: ""},
 ]);
 
 const isExistEtc = ref(false);
@@ -46,7 +46,7 @@ const addItem = () => {
         ? totalItem.value[totalItem.value.length - 1].id 
         : -1;
 
-    const newObj = {id:lastIndex+1, value:"새로운 항목"};
+    const newObj = {id:lastIndex+1, value:""};
 
     totalItem.value.push(newObj);
 }
