@@ -85,7 +85,7 @@ watch(surveyType, (newType) => {
     background-color: #fff;
     width : 100%;
     height : 36px;
-    padding : 0 32px;
+    padding : 0 12px;
     border : solid 1px #D9D9D9;
     outline: none;  /* 포커스 outline 제거 */
 }

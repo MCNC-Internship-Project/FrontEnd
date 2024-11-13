@@ -29,7 +29,7 @@
                     </div>
 
                     <div class="select-deadline">
-                        {{ selectDate === "" && selectTime === "" ? "미설정" : selectDate + " - " + selectTime }}
+                        {{ selectDate === null && selectTime === null ? "미설정" : selectDateFormat + " - " + selectTime }}
                     </div>
 
                     <div class="calender-container" @click="isShowModal = true">
@@ -70,10 +70,44 @@
                             종료 날짜 설정
                         </div>
 
-                        <div class="modal-datepicker-section">
-                            <VueDatePicker v-model="selectDeadline" :min-date="new Date()" locale="ko" cancelText="취소" selectText="확인"/>
+                        <!-- 날짜 선택 영역 -->
+                        <div class="modal-datepicker-section" @click="showDatePicker = true" :style="{ width: '252px', height: '60px' }">
+                            <div>{{ selectDateFormat || '날짜 선택' }}</div>
                         </div>
-                        
+
+                        <!-- 시간 선택 영역 -->
+                        <div class="modal-timepicker-section" @click="showTimePicker = true" :style="{ width: '252px', height: '60px' }">
+                            <div>{{ selectTime || '시간 선택' }}</div>
+                        </div>
+
+                        <v-dialog v-model="showDatePicker" max-width="350px" width="100%" persistent>
+                            <v-card>
+                                <v-date-picker 
+                                    v-model="selectDate" 
+                                    :min="new Date()" 
+                                    locale="ko" 
+                                    cancel-text="취소" 
+                                    ok-text="확인" 
+                                    hide-header
+                                    width="300px"
+                                />
+                                <v-btn text @click="closeDatePicker">닫기</v-btn>
+                            </v-card>
+                            </v-dialog>
+
+                            <!-- 시간 선택 모달 -->
+                            <v-dialog v-model="showTimePicker" max-width="350px" width="100%" persistent>
+                            <v-card>
+                                <v-time-picker
+                                    v-model="selectTime" 
+                                    cancel-text="취소" 
+                                    ok-text="확인" 
+                                    title="시간 선택"
+                                    :style="{ width: '100%' }"
+                                />
+                                <v-btn text @click="showTimePicker = false">닫기</v-btn>
+                            </v-card>
+                            </v-dialog>
 
 
                     </div>
@@ -99,16 +133,19 @@
 import SurveyItem from './CreateSurveyItem/SurveyItem.vue';
 import { ref } from 'vue';
 import router from '@/router';
-import { formatDateAndTime } from '@/utils/dateCalculator'
+import { formatDate } from '@/utils/dateCalculator';
 
 const totalComponent = ref([
     {id:0},
 ]);
 
-const selectDeadline = ref("")
-const selectDate = ref("");
-const selectTime = ref("");
+const selectDate = ref(null);
+const selectDateFormat = ref("");
+const selectTime = ref(null);
 const isShowModal = ref(false);
+
+const showDatePicker = ref(false)  // 날짜 선택 모달 상태
+const showTimePicker = ref(false)  // 시간 선택 모달 상태
 
 
 const addComponent = () => {
@@ -130,12 +167,15 @@ const stepBack = () =>{
 }
 
 const initDeadline = () => {
-    if(selectDeadline.value === "") {
-        isShowModal.value = false;
-        return;
-    }
-    [selectDate.value, selectTime.value] = formatDateAndTime(selectDeadline.value);
+
     isShowModal.value = false;
+}
+
+const closeDatePicker = () => {
+    if (selectDate.value) {
+        selectDateFormat.value = formatDate(selectDate.value)
+      }
+      showDatePicker.value = false;
 }
 </script>
 
@@ -391,5 +431,41 @@ input {
 .modal-submit-btn {
     background-color: var(--primary);
     color : #fff;
+}
+
+.modal-datepicker-section, .modal-timepicker-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.modal-datepicker-section:hover, .modal-timepicker-section:hover {
+  background-color: #f0f0f0;
+}
+
+.v-dialog {
+  max-width: 90vw; /* Limit to 90% of the viewport width */
+  width: 100%; /* Ensure dialog takes up the full width */
+}
+
+.v-card {
+  width: 100%; /* Ensure card takes up the full width of dialog */
+}
+
+.v-dialog__content {
+  display: flex;
+  justify-content: center; /* Center the dialog content */
+  align-items: center; /* Vertically center the content */
+}
+
+
+.v-date-picker, .v-time-picker {
+  max-width: 100%;
+  min-width: 200px; /* Ensure it's not too small on mobile */
+  width: 100%; /* Ensure full width of its container */
+  margin: 0 auto; /* Center the content inside */
 }
 </style>
