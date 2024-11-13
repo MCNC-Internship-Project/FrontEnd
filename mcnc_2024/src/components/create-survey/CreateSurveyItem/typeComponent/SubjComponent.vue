@@ -9,7 +9,15 @@
 </template>
 
 <script setup>
+import { defineExpose } from 'vue';
 
+const getValue = () => {
+  return []
+};
+
+defineExpose({
+    getValue,
+})
 </script>
 
 <style scoped>

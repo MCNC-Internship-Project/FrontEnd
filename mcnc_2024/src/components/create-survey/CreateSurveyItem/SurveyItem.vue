@@ -3,7 +3,7 @@
 
         <div class="survey-header-section">
             <div class="input-section">
-                <input type="text" name="title" id="title" class="survey-title" value="질문 제목"/>
+                <input type="text" name="title" id="title" class="survey-title" v-model="surveyItemTitle"/>
             </div>
         </div>
 
@@ -16,11 +16,11 @@
         </div>
 
         <div class="isTypeSubj" v-if="surveyType === 'SUBJECTIVE'">
-            <subj-component />
+            <subj-component ref="subjComponentRef"/>
         </div>
 
         <div class="isTypeObj" v-else>
-            <obj-component :type="surveyType"/>
+            <obj-component :type="surveyType" ref="objComponentRef"/>
         </div>
 
     </div>
@@ -29,12 +29,34 @@
 <script setup>
 import ObjComponent from './typeComponent/ObjComponent.vue'
 import SubjComponent from './typeComponent/SubjComponent.vue'
-import { ref, watch } from 'vue';
+import { ref, watch, defineExpose } from 'vue';
 
-const surveyType = ref("OBJ_SINGLE")
+const surveyItemTitle = ref("질문 제목");
+const surveyType = ref("OBJ_SINGLE");
+
+const subjComponentRef = ref(null);       // subj-component에 대한 ref
+const objComponentRef = ref(null);        // obj-component에 대한 ref
 
 watch(surveyType, (newType) => {
     surveyType.value = newType;
+})
+
+const getValue = () => {
+    let values = {};
+
+    if (surveyType.value === 'SUBJECTIVE') {
+        const subjData = subjComponentRef.value.getValue();  // subj-component에서 값 가져오기
+        values = [...subjData] ;
+    } else {
+        const objData = objComponentRef.value.getValue();   // obj-component에서 값 가져오기
+        values = objData.map(item => ({ body: item.value }));
+    }
+
+    return {body : surveyItemTitle.value, questionType : surveyType.value, selectionList : values}; // 자식 컴포넌트에서 필요한 값을 반환
+};
+
+defineExpose({
+    getValue,
 })
 </script>
 

@@ -7,7 +7,7 @@
             </div>
 
             <div class="menu-container">
-                <button class="submit-btn">생성</button>
+                <button class="submit-btn" @click="handleSubmit">저장</button>
             </div>
 
             
@@ -16,11 +16,11 @@
         <div class="survey-section">
             <div class="survey-title-section">
                 <div class="input-section">
-                    <input type="text" name="survey-title" class="survey-title" value="설문조사 제목" maxlength="255"/>
+                    <input type="text" name="survey-title" class="survey-title" v-model="surveyTitle" maxlength="255"/>
                 </div>
                 
                 <div class="input-section">
-                    <input type="text" name="survey-description" class="survey-description" value="설문지 설명" maxlength="255">
+                    <input type="text" name="survey-description" class="survey-description" v-model="survetDescription" maxlength="255">
                 </div>
 
                 <div class="select-deadline-section">
@@ -40,7 +40,7 @@
 
             <div class="survey-item-container">
                 <div class="survey-item-section" v-for="com in totalComponent" :key="com.id">
-                    <survey-item />
+                    <survey-item ref="surveyItems"/>
                     <div class="delete-btn-container">
                         <button @click="removeComponent(com.id)" class="delete-btn"></button>
                     </div>
@@ -131,14 +131,17 @@
 
 <script setup>
 import SurveyItem from './CreateSurveyItem/SurveyItem.vue';
-import { ref } from 'vue';
+import { ref, nextTick } from 'vue';
 import router from '@/router';
 import { formatDate } from '@/utils/dateCalculator';
 
 const totalComponent = ref([
     {id:0},
 ]);
+const surveyItems = ref([]);
 
+const surveyTitle = ref("설문조사 제목");
+const survetDescription = ref("설문지 설명")
 const selectDate = ref(null);
 const selectDateFormat = ref("");
 const selectTime = ref(null);
@@ -156,6 +159,11 @@ const addComponent = () => {
     const newObj = {id: lastIndex+1}
 
     totalComponent.value.push(newObj);
+
+    // nextTick으로 DOM 업데이트 후에 ref 배열이 최신 상태로 반영되도록 함
+    nextTick(() => {
+    surveyItems.value = surveyItems.value.slice(); // 새로운 참조로 배열을 갱신
+  });
 }
 
 const removeComponent = (id) => {
@@ -177,6 +185,23 @@ const closeDatePicker = () => {
       }
       showDatePicker.value = false;
 }
+
+const handleSubmit = () => {
+  // survey-item의 모든 값을 가져오기
+  const title = surveyTitle.value;
+  const description = survetDescription.value;
+  const values = surveyItems.value.map((item) => item.getValue()); // getValue()는 각 survey-item에서 필요한 값을 반환하는 메서드로 가정
+
+  console.log(selectDateFormat.value)
+  console.log(selectTime.value)
+
+  const dateStr = selectDateFormat.value + " " + selectTime.value;
+  const date = dateStr.replace(" ", "T") + ":00";
+
+  const jsonData = {title : title, description : description, expireDate: date, questionList : values}
+
+  console.log(JSON.stringify(jsonData))
+};
 </script>
 
 <style scoped>
@@ -216,8 +241,8 @@ const closeDatePicker = () => {
 
 .submit-btn {
     display : inline-block;
-    width : 36px;
-    height : 36px;
+    width : 56px;
+    height : 32px;
     border : none;
     border-radius: 8px;
     text-align : center;

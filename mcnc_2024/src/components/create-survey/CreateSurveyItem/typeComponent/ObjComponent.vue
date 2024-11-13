@@ -16,7 +16,7 @@
 </template>
 
 <script setup>
-import { ref, defineProps, computed } from 'vue';
+import { ref, defineProps, computed, defineExpose } from 'vue';
 
 // 부모 컴포넌트인 SurveyItem의 type 데이터를 전달받는 곳
 const props = defineProps({
@@ -86,6 +86,14 @@ const addEtcItem = () => {
     isExistEtc.value = !isExistEtc.value;
     totalItem.value.push({id:"etcId", value:"기타"})
 }
+
+const getValue = () => {
+  return totalItem.value
+};
+
+defineExpose({
+    getValue,
+})
 </script>
 
 <style scoped>
