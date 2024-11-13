@@ -24,13 +24,17 @@
     --font-mont: "Mont";
     --normal: #464748;
     --primary: #7796E8;
+    --secondary: #0D6DB7;
+    --accent: #F77D7D;
 }
 
 html, body {
     font-family: var(--font-noto-sans);
     color: var(--normal);
+    margin: 0;
+    padding: 0;
 }
 
-::-webkit-scrollbar {
+*::-webkit-scrollbar {
     display: none;
 }
