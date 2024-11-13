@@ -1,87 +1,148 @@
 <template>
-    <div id="root-container">
-        <div class="header">
-            <router-link to="/" class="back_btn">back</router-link>
-            <div class="title">알림</div>
-        </div>
+    <div class="root-container">
+        <header class="toolbar">
+            <img class="back" src="@/assets/images/icon_arrow_left.svg" alt="back" @click="goBack">
+        </header>
 
-        <div class="notice-list-section">
-            <ul>
-                <li class="notice-list-item">설문0이 종료되었습니다.</li>
-                <li class="notice-list-item">설문0이 종료되었습니다.</li>
-                <li class="notice-list-item">설문0이 종료asdfasdfasdf되었습니다.</li>
-                <li class="notice-list-item">설문0이 종료되었습니다.</li>
-                <li class="notice-list-item">설문0이 종료되었습니다.</li>
-                <li class="notice-list-item">설문0이 종료되었습니다.</li>
-                <li class="notice-list-item">설문0이 종료되었습니다.</li>
-                <li class="notice-list-item">설문0이 종료되었습니다.</li>
-                <li class="notice-list-item">설문0이 종료되었습니다.</li>
-                <li class="notice-list-item">설문0이 종료되었습니다.</li>
-                <li class="notice-list-item">설문0이 종료되었습니다.</li>
-                <li class="notice-list-item">설문0이 종료되었습니다.</li>
-            </ul>
+        <div class="list-container">
+            <v-list lines="two">
+                <template v-for="(item, index) in items" :key="index">
+                    <v-list-item>
+                        <template v-slot:prepend>
+                            <v-avatar>
+                                <img :src="getIcon(item.type)" alt="아이콘" class="item-icon">
+                            </v-avatar>
+                        </template>
+                        <template v-slot:title>
+                            <span class="item-title">{{ item.title }}</span>
+                        </template>
+                        <template v-slot:subtitle>
+                            <span class="item-subtitle">{{ item.subtitle }}</span>
+                        </template>
+                    </v-list-item>
+                    <v-divider v-if="index < items.length - 1" inset></v-divider>
+                </template>
+            </v-list>
         </div>
     </div>
 </template>
 
 <script setup>
-    
+import { ref } from 'vue';
+import router from '@/router';
+
+const goBack = () => {
+    router.push('/');
+}
+
+const items = ref([
+    {
+        type: 'closed',
+        title: '설문 종료',
+        subtitle: '<설문제목> 설문이 종료되었습니다.'
+    },
+    {
+        type: 'completed',
+        title: '설문 완료',
+        subtitle: '<사용자명>님이 <설문제목> 설문을 완료했습니다.'
+    },
+    {
+        type: 'completed',
+        title: '설문 완료',
+        subtitle: '<사용자명>님이 <설문제목> 설문을 완료했습니다.'
+    },
+    {
+        type: 'closed',
+        title: '설문 종료',
+        subtitle: '<설문제목> 설문이 종료되었습니다.'
+    },
+    {
+        type: 'completed',
+        title: '설문 완료',
+        subtitle: '<사용자명>님이 <설문제목> 설문을 완료했습니다.'
+    },
+    {
+        type: 'completed',
+        title: '설문 완료',
+        subtitle: '<사용자명>님이 <설문제목> 설문을 완료했습니다.'
+    },
+    {
+        type: 'closed',
+        title: '설문 종료',
+        subtitle: '<설문제목> 설문이 종료되었습니다.'
+    },
+    {
+        type: 'completed',
+        title: '설문 완료',
+        subtitle: '<사용자명>님이 <설문제목> 설문을 완료했습니다.'
+    },
+    {
+        type: 'completed',
+        title: '설문 완료',
+        subtitle: '<사용자명>님이 <설문제목> 설문을 완료했습니다.'
+    }
+]);
+
+const getIcon = (type) => {
+    switch (type) {
+        case 'closed':
+            return require('@/assets/images/icon_time.svg');
+        case 'completed':
+            return require('@/assets/images/icon_check.svg');
+        default:
+            return '';
+    }
+};
 </script>
 
 <style scoped>
-#root-container {
-    width : 100%;
-}
-
-.header {
-    width : 100%;
-    height : 64px;
-    display : flex;
-    align-items: center;
-}
-
-.back_btn {
-    text-decoration: none;
-    display: inline-block;
-    width: 32px;
-    height: 32px;
-    margin : 16px 16px;
-    background: url('../../assets/images/icon_arrow_left.svg') no-repeat;
-    background-size: contain;
-    color: transparent; /* 텍스트 색상을 투명으로 설정 */
-    font-size: 0;       /* 폰트 크기를 0으로 설정하여 텍스트 숨기기 */
-    line-height: 64px;
-}
-
-.title {
-    font-weight : bold;
-    font-size : 1.25rem;
-}
-
-.notice-list-section {
-    display : flex;
-    align-items: center;
-    justify-content: center;
-}
-
-ul {
-    width : 100%;
-    padding : 0;
-    display : flex;
+.root-container {
+    display: flex;
     flex-direction: column;
-    align-items: start;
-    justify-content: center;
-    list-style: none;
+    height: calc(var(--vh, 1vh) * 100);
 }
 
-.notice-list-item {
-    width: calc(100% - 32px);
-    height : 60px;
-    margin : 4px 16px;
-    padding : 20px 16px;
-    display : flex;
+.toolbar {
+    position: fixed;
+    display: flex;
     align-items: center;
-    border-bottom : solid 2px #D4D6DD;
-    box-sizing: border-box;
+    background-color: white;
+    left: 0;
+    top: 0;
+    right: 0;
+    width: 100%;
+    height: 64px;
+    z-index: 1000;
+}
+
+.back {
+    padding-left: 24px;
+    cursor: pointer;
+}
+
+.list-container {
+    margin-top: 64px;
+    padding: 0px 20px 24px 4px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.v-list {
+    padding: 0;
+}
+
+.item-icon {
+    width: 24px;
+    height: 24px;
+}
+
+.item-title {
+    font-size: 1rem;
+}
+
+.item-subtitle {
+    font-size: 0.875rem;
+    color: #575757;
+    line-height: 1.2;
 }
 </style>
