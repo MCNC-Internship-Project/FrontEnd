@@ -1,9 +1,16 @@
 <template>
     <div id="root-container">
         <ul class="survey-item-list">
-            <li v-for="item in totalItem" :key="item.id" class="list-item">
+            <li v-for="(item, index) in totalItem" :key="item.id" class="list-item">
                 <input :type="componentType" :name="componentType" class="type-input" :disabled="item.id === 'etcId'">
-                <input type="text" v-model="item.value" placeholder="새로운 항목" class="item-input" required :disabled="item.id === 'etcId'"/>
+                <input
+                    type="text"
+                    v-model="item.value"
+                    placeholder="새로운 항목"
+                    class="item-input"
+                    :disabled="item.id === 'etcId'"
+                    :ref="el => itemInputs[index] = el"
+                />
                 <button class="list-delete-btn" @click="deleteItem(item.id)" v-if="totalItem.length !== 1">항목 삭제</button>
             </li>
         </ul>
@@ -16,7 +23,7 @@
 </template>
 
 <script setup>
-import { ref, defineProps, computed, defineExpose } from 'vue';
+import { ref, watchEffect, defineProps, computed, defineExpose } from 'vue';
 
 // 부모 컴포넌트인 SurveyItem의 type 데이터를 전달받는 곳
 const props = defineProps({
@@ -26,6 +33,12 @@ const props = defineProps({
 const totalItem = ref([
     {id:0, value: ""},
 ]);
+
+const itemInputs = ref([]);
+
+watchEffect(() => {
+  itemInputs.value = Array(totalItem.value.length).fill(null);
+});
 
 const isExistEtc = ref(false);
 
@@ -88,7 +101,24 @@ const addEtcItem = () => {
 }
 
 const getValue = () => {
-  return totalItem.value
+
+    const checkEmptyValueArray = totalItem.value.map((item) => item.value.trim());
+
+    if(checkEmptyValueArray.includes("")) {
+        const emptyIdx = checkEmptyValueArray.findIndex((value) => value === "");
+        /**
+         * alert("입력되지 않은 항목이 존재합니다.")
+         * 알럿말고 itemInputs.value[emptyIdx] 부분에 빨간색 ㄱㄱ
+         */
+
+        if (emptyIdx !== -1 && itemInputs.value[emptyIdx]) {
+            itemInputs.value[emptyIdx].focus(); 
+        }
+
+        return [];
+    }
+
+    return totalItem.value
 };
 
 defineExpose({

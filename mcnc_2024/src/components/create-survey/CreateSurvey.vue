@@ -259,6 +259,9 @@ const handleSubmit = () => {
     const dateStr = selectDateFormat.value + " " + selectTime.value;
     let date = dateStr.replace(" ", "T") + ":00";
 
+    /**
+     * 마감 기한을 설정하지 않으면, expireDate에 null 값으로 무기한 표시
+     */
     if(selectDate.value === null || selectTime.value === null) {
         date = null;
         isShowSaveModal.value = false;
@@ -271,7 +274,9 @@ const handleSubmit = () => {
     const emptyPath = checkEmptyValues(jsonData);
 
     if (emptyPath) {
-        alert(`"${emptyPath}" 부분에 값을 입력하세요.`);
+        if(emptyPath !== "expireDate") {
+            alert(`"${emptyPath}"에 값을 입력하세요.`);
+        }
         isShowSaveModal.value = false;
     } else {
         // 빈값이 없으면 DB에 저장 진행
