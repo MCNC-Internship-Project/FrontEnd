@@ -99,6 +99,7 @@ const getIcon = (type) => {
 .root-container {
     display: flex;
     flex-direction: column;
+    width: 100%;
     height: calc(var(--vh, 1vh) * 100);
 }
 
@@ -106,12 +107,12 @@ const getIcon = (type) => {
     position: fixed;
     display: flex;
     align-items: center;
-    background-color: white;
     left: 0;
     top: 0;
     right: 0;
     width: 100%;
     height: 64px;
+    background-color: white;
     z-index: 1000;
 }
 
@@ -121,10 +122,10 @@ const getIcon = (type) => {
 }
 
 .list-container {
-    margin-top: 64px;
-    padding: 0px 20px 24px 4px;
-    overflow-y: auto;
     flex: 1;
+    margin-top: 64px;
+    padding: 0 20px 24px 4px;
+    overflow-y: auto;
 }
 
 .v-list {
