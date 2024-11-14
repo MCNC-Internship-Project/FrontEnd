@@ -20,7 +20,7 @@
                 </div>
                 
                 <div class="input-section">
-                    <input type="text" name="survey-description" class="survey-description" v-model="survetDescription" placeholder="설문지 설명" maxlength="255">
+                    <input type="text" name="survey-description" class="survey-description" v-model="surveyDescription" placeholder="설문지 설명" maxlength="255">
                 </div>
 
                 <div class="select-deadline-section">
@@ -179,7 +179,7 @@ const totalComponent = ref([
 const surveyItems = ref([]);
 
 const surveyTitle = ref("");
-const survetDescription = ref("")
+const surveyDescription = ref("")
 const selectDate = ref(null);
 const selectDateFormat = ref("");
 const selectTime = ref(null);
@@ -253,7 +253,7 @@ const deleteTimeValue = () => {
 const handleSubmit = () => {
     // survey-item의 모든 값을 가져오기
     const title = surveyTitle.value;
-    const description = survetDescription.value;
+    const description = surveyDescription.value;
     const values = surveyItems.value.map((item) => item.getValue()); // getValue()는 각 survey-item에서 필요한 값을 반환하는 메서드로 가정
 
     const dateStr = selectDateFormat.value + " " + selectTime.value;
@@ -269,25 +269,18 @@ const handleSubmit = () => {
 
     const jsonData = {title : title, description : description, expireDate: date, questionList : values}
 
-    console.log(JSON.stringify(jsonData))
-
     const emptyPath = checkEmptyValues(jsonData);
 
     if (emptyPath) {
         if(emptyPath !== "expireDate") {
             alert(`"${emptyPath}"에 값을 입력하세요.`);
         }
-        isShowSaveModal.value = false;
+        
     } else {
-        // 빈값이 없으면 DB에 저장 진행
-        saveToDatabase(jsonData);
+        console.log(JSON.stringify(jsonData))
     }
 };
 
-function saveToDatabase(data) {
-    // DB 저장 요청 로직 -> 나중에 api 유틸로 전환
-    console.log(data);
-}
 </script>
 
 <style scoped>

@@ -1,9 +1,16 @@
 <template>
     <div id="root-container">
-
-        <div class="survey-header-section">
+        <div class="survey-header-section" :class="{ 'error': titleError }">
             <div class="input-section">
-                <input type="text" name="title" id="title" class="survey-title" v-model="surveyItemTitle" placeholder="질문 내용"/>
+                <input 
+                    type="text" 
+                    name="title" 
+                    id="title" 
+                    class="survey-title" 
+                    v-model="surveyItemTitle" 
+                    placeholder="질문 내용"
+                    @input="clearTitleError"
+                />
             </div>
         </div>
 
@@ -22,37 +29,63 @@
         <div class="isTypeObj" v-else>
             <obj-component :type="surveyType" ref="objComponentRef"/>
         </div>
-
     </div>
 </template>
 
 <script setup>
 import ObjComponent from './typeComponent/ObjComponent.vue'
 import SubjComponent from './typeComponent/SubjComponent.vue'
-import { ref, watch, defineExpose } from 'vue';
+import { ref, defineExpose } from 'vue';
 
 const surveyItemTitle = ref("");
 const surveyType = ref("OBJ_SINGLE");
+const titleError = ref(false);
+const hasError = ref(false);
 
-const subjComponentRef = ref(null);       // subj-component에 대한 ref
-const objComponentRef = ref(null);        // obj-component에 대한 ref
+const subjComponentRef = ref(null);
+const objComponentRef = ref(null);
 
-watch(surveyType, (newType) => {
-    surveyType.value = newType;
-})
+const clearTitleError = () => {
+    titleError.value = false;
+    hasError.value = false;
+};
 
 const getValue = () => {
+    let isValid = true;
     let values = {};
 
+    // 제목 검사
+    if (!surveyItemTitle.value.trim()) {
+        titleError.value = true;
+        hasError.value = true;
+        isValid = false;
+    }
+
+    // 컴포넌트 타입에 따른 검증 및 데이터 수집
     if (surveyType.value === 'SUBJECTIVE') {
-        const subjData = subjComponentRef.value.getValue();  // subj-component에서 값 가져오기
-        values = [...subjData] ;
+        const subjData = subjComponentRef.value.getValue();
+        if (!subjData || subjData.length === 0) {
+            isValid = false;
+        }
+        values = [...subjData];
     } else {
-        const objData = objComponentRef.value.getValue();   // obj-component에서 값 가져오기
+        const objData = objComponentRef.value.getValue();
+        if (!objData || objData.length === 0) {
+            isValid = false;
+        }
         values = objData.map(item => ({ body: item.value, isEtc: item.id === "etcId" ? true : false }));
     }
 
-    return {body : surveyItemTitle.value, questionType : surveyType.value, selectionList : values}; // 자식 컴포넌트에서 필요한 값을 반환
+    // 유효성 검사 실패시 null 반환
+    if (!isValid) {
+        return null;
+    }
+
+    return {
+        body: surveyItemTitle.value,
+        questionType: surveyType.value,
+        selectionList: values
+    };
 };
 
 defineExpose({
@@ -82,6 +115,16 @@ defineExpose({
     background-color : #D9D9D9;
     border-radius : 10px;
     background-color: #fff;
+}
+
+.survey-header-section.error {
+    border: 1px solid #ff0000;
+    border-radius: 4px;
+    box-shadow: 0 0 0 1px #ff0000;
+}
+
+.survey-header-section.error input {
+    border-color: transparent;
 }
 
 .survey-title {
@@ -132,4 +175,8 @@ defineExpose({
     padding : 0 16px;
 }
 
+.error {
+    border: 1px solid #ff0000;
+    box-shadow: 0 0 0 1px #ff0000;
+}
 </style>
