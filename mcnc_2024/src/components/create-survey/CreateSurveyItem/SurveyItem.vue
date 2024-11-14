@@ -96,6 +96,14 @@ defineExpose({
     transition: all 0.3s; /* 포커스 시 애니메이션 */
 }
 
+.survey-title::placeholder {
+    color : #8c8c8c;
+}
+
+.survey-title:focus::placeholder {
+    color : transparent;
+}
+
 .type-select-section {
     display: flex;
     justify-content: start;

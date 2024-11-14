@@ -115,7 +115,7 @@ defineExpose({
     width : 100%;
     display : flex;
     align-items: center;
-    justify-content: start;
+    justify-content: center;
     margin : 12px 0;
     box-sizing: border-box;
 }
@@ -124,6 +124,14 @@ defineExpose({
     width : 100%;
     margin-left : 8px;
     outline : none;
+}
+
+.item-input::placeholder {
+    color : #dcdcdc;
+}
+
+.item-input:focus::placeholder {
+    color : transparent;
 }
 
 .etc-input {

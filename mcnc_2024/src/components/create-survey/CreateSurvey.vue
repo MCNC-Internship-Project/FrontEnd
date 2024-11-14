@@ -60,7 +60,7 @@
         </div>
 
 
-        <div class="calender-modal" v-if="isShowModal">
+        <div class="modal-container" v-if="isShowModal">
             <div class="modal-background">
                 <div class="modal-section">
 
@@ -114,7 +114,7 @@
 
                     <div class="modal-btn-container">
 
-                        <div class="modal-btn-section modal-cancle-btn" @click="isShowModal = false">
+                        <div class="modal-btn-section modal-cancle-btn" @click="cancleDeadline">
                             취소
                         </div>
                         <div class="modal-btn-section modal-submit-btn" @click="initDeadline">
@@ -128,9 +128,9 @@
         </div>
 
 
-        <div class="save-modal" v-if="isShowSaveModal">
+        <div class="modal-container" v-if="isShowSaveModal">
             <div class="modal-background">
-                <div class="save-modal-section">
+                <div class="modal-section">
 
                     <div class="modal-content-container">
 
@@ -160,6 +160,7 @@ import SurveyItem from './CreateSurveyItem/SurveyItem.vue';
 import { ref, nextTick } from 'vue';
 import router from '@/router';
 import { formatDate } from '@/utils/dateCalculator';
+import { checkEmptyValues } from '@/utils/checkEmptyValues';
 
 const totalComponent = ref([
     {id:0},
@@ -201,31 +202,65 @@ const stepBack = () =>{
     router.push("/")
 }
 
-const initDeadline = () => {
+const cancleDeadline = () => {
+    if(selectDate.value === null && selectTime.value !== null) {
+        selectTime.value = null;
+    }
+    isShowModal.value = false;
+}
 
+const initDeadline = () => {
+    if(selectDate.value === null && selectTime.value !== null) {
+        alert("날짜를 선택해주세요.");
+        return;
+    }
+
+    if(selectDate.value !== null && selectTime.value === null) {
+        selectTime.value = "23:59:59";
+    }
     isShowModal.value = false;
 }
 
 const closeDatePicker = () => {
     if (selectDate.value) {
         selectDateFormat.value = formatDate(selectDate.value)
-      }
-      showDatePicker.value = false;
+    }
+    showDatePicker.value = false;
 }
 
 const handleSubmit = () => {
-  // survey-item의 모든 값을 가져오기
-  const title = surveyTitle.value;
-  const description = survetDescription.value;
-  const values = surveyItems.value.map((item) => item.getValue()); // getValue()는 각 survey-item에서 필요한 값을 반환하는 메서드로 가정
+    // survey-item의 모든 값을 가져오기
+    const title = surveyTitle.value;
+    const description = survetDescription.value;
+    const values = surveyItems.value.map((item) => item.getValue()); // getValue()는 각 survey-item에서 필요한 값을 반환하는 메서드로 가정
 
-  const dateStr = selectDateFormat.value + " " + selectTime.value;
-  const date = dateStr.replace(" ", "T") + ":00";
+    const dateStr = selectDateFormat.value + " " + selectTime.value;
+    let date = dateStr.replace(" ", "T") + ":00";
 
-  const jsonData = {title : title, description : description, expireDate: date, questionList : values}
+    if(selectDate.value === null || selectTime.value === null) {
+        date = null;
+        isShowSaveModal.value = false;
+    }
 
-  console.log(JSON.stringify(jsonData))
+    const jsonData = {title : title, description : description, expireDate: date, questionList : values}
+
+    console.log(JSON.stringify(jsonData))
+
+    const emptyPath = checkEmptyValues(jsonData);
+
+    if (emptyPath) {
+        alert(`"${emptyPath}" 부분에 값을 입력하세요.`);
+        isShowSaveModal.value = false;
+    } else {
+        // 빈값이 없으면 DB에 저장 진행
+        saveToDatabase(jsonData);
+    }
 };
+
+function saveToDatabase(data) {
+    // DB 저장 요청 로직 -> 나중에 api 유틸로 전환
+    console.log(data);
+}
 </script>
 
 <style scoped>
@@ -287,6 +322,22 @@ const handleSubmit = () => {
     padding : 8px 8px;
     box-sizing: border-box;
     box-shadow : 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.survey-title::placeholder {
+    color : #464748;
+}
+
+.survey-title:focus::placeholder {
+    color : transparent;
+}
+
+.survey-description::placeholder {
+    color : #C1C3C5;
+}
+
+.survey-description:focus::placeholder {
+    color : transparent;
 }
 
 .select-deadline-section {
@@ -407,27 +458,7 @@ input {
     height : 24px;
 }
 
-.save-modal {
-    position: fixed;  /* 모달을 고정 */
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 1000;  /* 다른 요소들 위에 위치 */
-}
-
-.save-modal-section {
-    background-color: #fff;  /* 모달 창의 배경을 흰색으로 */
-    padding: 20px;
-    border-radius: 10px;
-    width: 300px;
-    display : flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-
-.calender-modal {
+.modal-container {
     position: fixed;  /* 모달을 고정 */
     top: 0;
     left: 0;
@@ -448,7 +479,6 @@ input {
 .modal-section {
     background-color: #fff;  /* 모달 창의 배경을 흰색으로 */
     padding: 20px;
-    margin-bottom: 200px;      /* 모달 창 위쪽으로 올리기 */
     border-radius: 10px;
     width: 300px;
     display : flex;
@@ -503,16 +533,15 @@ input {
 }
 
 .modal-datepicker-section, .modal-timepicker-section {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-.modal-datepicker-section:hover, .modal-timepicker-section:hover {
-  background-color: #f0f0f0;
+    width : 250px;
+    height : 60px;
+    margin : 4px 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    border: 1px solid #ccc;
+    border-radius: 15px;
 }
 
 .v-dialog {
