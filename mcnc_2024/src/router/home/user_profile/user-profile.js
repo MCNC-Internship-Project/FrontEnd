@@ -9,10 +9,15 @@ const profileRoutes = [
     {
         path : "/profile",
         name : "Profile",
-        component : () => import("../../../components/home/user_profile/UserProfile.vue"),
+        component : () => import("@/components/home/user_profile/UserProfile.vue"),
         children : [
         ]
     },
+    {
+        path : "/profile/update",
+        name : "UpdateProfile",
+        component : () => import("@/components/home/user_profile/profile_list/UpdateProfile.vue"),
+    }
 ]
 
 export default profileRoutes;

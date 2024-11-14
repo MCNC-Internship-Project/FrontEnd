@@ -48,7 +48,7 @@ const items = ref([
 const onItemClick = (item) => {
     switch (item.title) {
         case '프로필 수정':
-            console.log('프로필 수정');
+            router.push({path : "/profile/update"});
             break;
         case '생성한 설문 보기':
             console.log('생성한 설문 보기');
