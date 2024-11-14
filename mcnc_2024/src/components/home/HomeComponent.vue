@@ -7,23 +7,15 @@
             </div>
 
             <div class="menu-container">
-                <router-link to="/noti">
-                    <img class="noti-icon" src="../../assets/images/icon_noti.svg" alt="noti icon" />
-                </router-link>
-
-                <!-- 로그인 창으로 가고싶으면 /profile을 /login으로 변경 -->
-                <!-- 나중에 라우터 가드로 세션 값 없으면 자동으로 /login으로 보낼거임 -->
-                <router-link to="/profile">
-                    <img class="profile-icon" src="../../assets/images/icon_profile_none.svg" alt="profile icon" />
-                </router-link>
+                <img class="noti-icon" src="../../assets/images/icon_noti.svg" alt="noti icon" @click="routeNoti" />
+                <img class="profile-icon" src="../../assets/images/icon_profile_none.svg" alt="profile icon" @click="routeProfile" />
             </div>
         </header>
 
-        <div class="search-container" @click="search">
+        <div class="search-container" @click="routeSearch" v-ripple>
             <span class="search-text">설문조사 검색</span>
             <img class="search-icon" src="../../assets/images/icon_search.svg" alt="dropdown icon" />
         </div>
-
 
         <!-- 내 설문조사 컴포넌트 -->
         <my-survey />
@@ -32,11 +24,8 @@
         <my-participated-survey />
 
         <div class="create-survey-conponent">
-            <router-link to="/create-survey" class="create_btn">
-                <v-fab icon="mdi-plus" color="#7796E8" size="48" absolute></v-fab>
-            </router-link>
+            <v-fab icon="mdi-plus" color="#7796E8" size="48" absolute @click="routeCreateSurvey" />
         </div>
-        
     </div>
 </template>
 
@@ -45,8 +34,20 @@ import MySurvey from './ChildComponent/MySurvey.vue';
 import MyParticipatedSurvey from './ChildComponent/MyParticipatedSurvey.vue';
 import router from '@/router'
 
-const search = () => {
+const routeSearch = () => {
     router.push({path : "/surveys"});
+}
+
+const routeNoti = () => {
+    router.push({path : "/noti"});
+}
+
+const routeProfile = () => {
+    router.push({path : "/profile"});
+}
+
+const routeCreateSurvey = () => {
+    router.push({path : "/create-survey"});
 }
 </script>
 
@@ -97,11 +98,13 @@ const search = () => {
     width: 24px;
     height: 24px;
     margin-right: 16px;
+    cursor: pointer;
 }
 
 .profile-icon {
     width: 24px;
     height: 24px;
+    cursor: pointer;
 }
 
 .search-container {
@@ -112,6 +115,7 @@ const search = () => {
     background: #F3F3F3;
     display: flex;
     align-items: center;
+    cursor: pointer;
 }
 
 .search-text {
@@ -126,6 +130,10 @@ const search = () => {
     right: 16px;
     width: 24px;
     height: 24px;
+}
+
+img > a {
+    font-size: 0;
 }
 
 .v-fab {
