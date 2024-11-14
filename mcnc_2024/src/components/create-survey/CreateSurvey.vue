@@ -273,7 +273,7 @@ function saveToDatabase(data) {
 }
 
 .toolbar {
-    position: relative;
+    position: fixed;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -282,6 +282,8 @@ function saveToDatabase(data) {
     right: 0;
     width: 100%;
     height: 64px;
+    background-color: #fff;
+    z-index : 500;
 }
 
 .back-container {
@@ -313,6 +315,7 @@ function saveToDatabase(data) {
 .survey-section {
     width : 100%;
     padding : 0 24px;
+    margin-top : 64px;
 }
 
 .survey-title-section {
