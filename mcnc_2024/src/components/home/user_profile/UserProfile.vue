@@ -1,154 +1,133 @@
 <template>
-    <div id="root-container">
-
-        <div class="header">
-            <router-link to="/" class="back_btn">back</router-link>
-        </div>
+    <div class="root-container">
+        <header class="toolbar">
+            <img class="back" src="@/assets/images/icon_arrow_left.svg" alt="back" @click="goBack">
+        </header>
 
         <div class="profile-container">
-            <div class="proflie">User Profile</div>
-            <div class="user-container">
-                <div class="username">{{ name }}</div>
-                <div class="email">{{ email }}</div>
-            </div>
+            <img class="proflie-image" src="@/assets/images/icon_profile_default.svg" alt="프로필 사진">
+            <div class="username">{{ name }}</div>
+            <div class="email">{{ email }}</div>
         </div>
 
-        <div class="profile-list-container">
-            <ul>
-                <li class="profile-list-item">
-                    <div class="list-item-container">
-                        <div class="item-title">프로필 수정</div>
-                        <router-link to="#" class="detail_btn">Go</router-link>
-                    </div>
-                </li>
-                <li class="profile-list-item">
-                    <div class="list-item-container">
-                        <div class="item-title">생성한 설문 보기</div>
-                        <router-link to="#" class="detail_btn">Go</router-link>
-                    </div>
-                </li>
-                <li class="profile-list-item">
-                    <div class="list-item-container">
-                        <div class="item-title">참여한 설문 보기</div>
-                        <router-link to="#" class="detail_btn">Go</router-link>
-                    </div>
-                </li>
-                <li class="profile-list-item">
-                    <div class="list-item-container">
-                        <div class="item-title">로그아웃</div>
-                    </div>
-                </li>
-            </ul>
+        <div class="list-container">
+            <v-list>
+                <template v-for="(item, index) in items" :key="index">
+                    <v-list-item @click="onItemClick(item)">
+                        <template v-slot:title>
+                            <span class="item-title">{{ item.title }}</span>
+                        </template>
+                        <template v-slot:append>
+                            <v-icon v-if="item.title !== '로그아웃'">mdi-chevron-right</v-icon>
+                        </template>
+                    </v-list-item>
+                    <v-divider v-if="index < items.length - 1"></v-divider>
+                </template>
+            </v-list>
         </div>
     </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
+import router from '@/router';
+
+const goBack = () => {
+    router.push('/');
+}
 
 const name = ref("username");
 const email = ref("email@email.com");
+const items = ref([
+    { title: '프로필 수정' },
+    { title: '생성한 설문 보기' },
+    { title: '참여한 설문 보기' },
+    { title: '로그아웃' }
+]);
 
+const onItemClick = (item) => {
+    switch (item.title) {
+        case '프로필 수정':
+            console.log('프로필 수정');
+            break;
+        case '생성한 설문 보기':
+            console.log('생성한 설문 보기');
+            break;
+        case '참여한 설문 보기':
+            console.log('참여한 설문 보기');
+            break;
+        case '로그아웃':
+            console.log('로그아웃');
+            break;
+    }
+};
 </script>
 
 <style scoped>
-#root-container {
-    width : 100%;
+.root-container {
+    position: relative;
+    width: 100%;
+    height: calc(var(--vh, 1vh) * 100);
 }
 
-.header {
-    width : 100%;
-    height : 64px;
-    display : flex;
+.toolbar {
+    position: relative;
+    display: flex;
     align-items: center;
+    left: 0;
+    top: 0;
+    right: 0;
+    width: 100%;
+    height: 64px;
 }
 
-.back_btn {
-    text-decoration: none;
-    display: inline-block;
-    width: 20px;
-    height: 20px;
-    margin : 16px 16px;
-    background: url('../../../assets/images/icon_arrow_left.svg') no-repeat;
-    background-size: contain;
-    color: transparent; /* 텍스트 색상을 투명으로 설정 */
-    font-size: 0;       /* 폰트 크기를 0으로 설정하여 텍스트 숨기기 */
-    line-height: 64px;
+.back {
+    padding-left: 24px;
+    cursor: pointer;
 }
 
 .profile-container {
-    width : 100%;
-    display : flex;
-    flex-direction : column;
-    align-items: center;
-    justify-content: center;
-}
-
-.proflie {
-    text-indent : -999em;
-    background: url("../../../assets/images/icon_profile_default.svg") no-repeat;
-    width : 80px;
-    height : 80px;
-    margin : 8px 0 16px 0;
-    background-size: contain;
-}
-
-.user-container {
-    display : flex;
+    width: 100%;
+    display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    text-align: center;
+    padding: 20px 0;
+}
+
+.proflie-image {
+    width: 80px;
+    height: 80px;
 }
 
 .username {
-    font-weight : bold;
-    font-size : 1rem;
-    color : #1F2024;
+    margin-top: 16px;
+    font-weight: bold;
+    font-size: 1.25rem;
+    color: #1F2024;
 }
 
 .email {
-    font-size : 0.75rem;
-    color : #71727A;
+    margin-top: 4px;
+    font-size: 1rem;
+    color: #71727A;
 }
 
-.profile-list-container {
-    width : 100%;
-    margin-top : 16px;
+.list-container {
+    padding: 24px 16px 48px 16px;
 }
 
-ul {
-    width : 100%;
-    list-style: none;
-    display : flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+.v-list {
+    padding: 0;
 }
 
-.profile-list-item {
-    width : calc(100% - 32px);
-    border-bottom : solid 2px #D4D6DD;
-    margin-top : 4px;
-    height : 60px;
-}
-
-.list-item-container {
-    padding : 20px 24px 20px 16px;
-    display : flex;
-    align-items: center;
-    justify-content: space-between;
+.v-list-item {
+    min-height: 60px;
 }
 
 .item-title {
-    font-size : 0.875rem;
-}
-
-.detail_btn {
-    color : transparent;
-    font-size : 0;
-    background: url("../../../assets/images/icon_arrow_right.svg") no-repeat;
-    background-size: contain;
-    width : 12px;
-    height : 12px;
+    font-size: 1rem;
+    color: #1F2024;
 }
 </style>
