@@ -71,13 +71,24 @@
                         </div>
 
                         <!-- 날짜 선택 영역 -->
-                        <div class="modal-datepicker-section" @click="showDatePicker = true" :style="{ width: '252px', height: '60px' }">
+                        <div class="modal-datepicker-section" @click="showDatePicker = true">
                             <div>{{ selectDateFormat || '날짜 선택' }}</div>
+                            <!--
+                                이 영역에는 클릭 이벤트가 2중으로 설정,
+                                icon-x-section에서 클릭을 누르면, 부모인 .modal-datepicker-section 까지 클릭 이벤트가 전파
+                                자식 영역 이벤트에 .stop을 붙임으로써 이벤트 버블링 방지
+                            -->
+                            <div class="icon-x-container" @click.stop="deleteDateValue">
+                                x
+                            </div>
                         </div>
 
                         <!-- 시간 선택 영역 -->
-                        <div class="modal-timepicker-section" @click="showTimePicker = true" :style="{ width: '252px', height: '60px' }">
+                        <div class="modal-timepicker-section" @click="showTimePicker = true">
                             <div>{{ selectTime || '시간 선택' }}</div>
+                            <div class="icon-x-container" @click.stop="deleteTimeValue">
+                                x
+                            </div>
                         </div>
 
                         <v-dialog v-model="showDatePicker" max-width="350px" width="100%" persistent>
@@ -228,6 +239,17 @@ const closeDatePicker = () => {
     showDatePicker.value = false;
 }
 
+const deleteDateValue = () => {
+    selectDate.value = null;
+    selectDateFormat.value = "";
+    return;
+}
+
+const deleteTimeValue = () => {
+    selectTime.value = null;
+    return;
+}
+
 const handleSubmit = () => {
     // survey-item의 모든 값을 가져오기
     const title = surveyTitle.value;
@@ -283,7 +305,7 @@ function saveToDatabase(data) {
     width: 100%;
     height: 64px;
     background-color: #fff;
-    z-index : 500;
+    z-index : 50;
 }
 
 .back-container {
@@ -467,7 +489,7 @@ input {
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: 1000;  /* 다른 요소들 위에 위치 */
+    z-index: 100;  /* 다른 요소들 위에 위치 */
 }
 
 .modal-background {
@@ -536,15 +558,30 @@ input {
 }
 
 .modal-datepicker-section, .modal-timepicker-section {
+    position : relative;
     width : 250px;
     height : 60px;
-    margin : 4px 8px;
+    margin : 8px 8px;
     display: flex;
     justify-content: center;
     align-items: center;
     cursor: pointer;
     border: 1px solid #ccc;
     border-radius: 15px;
+}
+
+.icon-x-container {
+    position : absolute;
+    display : flex;
+    align-items: center;
+    justify-content: center;
+    top : 19px;
+    right : 20px;
+    text-indent : -999em;
+    background: url("../../assets/images/icon_x.svg") no-repeat;
+    background-size: contain;
+    width : 20px;
+    height : 20px;
 }
 
 .v-dialog {
