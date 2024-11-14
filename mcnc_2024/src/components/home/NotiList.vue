@@ -7,10 +7,10 @@
         <div class="list-container">
             <v-list lines="two">
                 <template v-for="(item, index) in items" :key="index">
-                    <v-list-item>
+                    <v-list-item @click="onItemClick(item)">
                         <template v-slot:prepend>
                             <v-avatar>
-                                <img :src="getIcon(item.type)" alt="아이콘" class="item-icon">
+                                <v-icon :icon="getIcon(item.type)" color="#464748" class="item-icon"></v-icon>
                             </v-avatar>
                         </template>
                         <template v-slot:title>
@@ -37,46 +37,55 @@ const goBack = () => {
 
 const items = ref([
     {
+        surveyId: 1,
         type: 'closed',
         title: '설문 종료',
         subtitle: '<설문제목> 설문이 종료되었습니다.'
     },
     {
+        surveyId: 2,
         type: 'completed',
         title: '설문 완료',
         subtitle: '<사용자명>님이 <설문제목> 설문을 완료했습니다.'
     },
     {
+        surveyId: 3,
         type: 'completed',
         title: '설문 완료',
         subtitle: '<사용자명>님이 <설문제목> 설문을 완료했습니다.'
     },
     {
+        surveyId: 4,
         type: 'closed',
         title: '설문 종료',
         subtitle: '<설문제목> 설문이 종료되었습니다.'
     },
     {
+        surveyId: 5,
         type: 'completed',
         title: '설문 완료',
         subtitle: '<사용자명>님이 <설문제목> 설문을 완료했습니다.'
     },
     {
+        surveyId: 6,
         type: 'completed',
         title: '설문 완료',
         subtitle: '<사용자명>님이 <설문제목> 설문을 완료했습니다.'
     },
     {
+        surveyId: 7,
         type: 'closed',
         title: '설문 종료',
         subtitle: '<설문제목> 설문이 종료되었습니다.'
     },
     {
+        surveyId: 8,
         type: 'completed',
         title: '설문 완료',
         subtitle: '<사용자명>님이 <설문제목> 설문을 완료했습니다.'
     },
     {
+        surveyId: 9,
         type: 'completed',
         title: '설문 완료',
         subtitle: '<사용자명>님이 <설문제목> 설문을 완료했습니다.'
@@ -86,12 +95,16 @@ const items = ref([
 const getIcon = (type) => {
     switch (type) {
         case 'closed':
-            return require('@/assets/images/icon_time.svg');
+            return 'mdi-clock-alert-outline';
         case 'completed':
-            return require('@/assets/images/icon_check.svg');
+            return 'mdi-check-circle-outline';
         default:
             return '';
     }
+};
+
+const onItemClick = (item) => {
+    console.log(item.surveyId);
 };
 </script>
 
@@ -124,7 +137,7 @@ const getIcon = (type) => {
 .list-container {
     flex: 1;
     margin-top: 64px;
-    padding: 0 20px 24px 4px;
+    padding: 0 0 24px 0;
     overflow-y: auto;
 }
 
