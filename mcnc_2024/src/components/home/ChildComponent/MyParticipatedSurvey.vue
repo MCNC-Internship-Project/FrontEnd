@@ -13,7 +13,7 @@
             </div>
             <div class="list-container">
                 <ul>
-                    <li v-for="(survey, index) in surveys" :key="index" class="item-list">
+                    <li v-for="(survey, index) in surveys" :key="index" class="item-list"  @click="onItemClick(survey)" v-ripple>
                         <div class="item-container">
                             <div class="item-title">{{ survey.title }}</div>
                             <div class="item-description">{{ survey.description }}</div>
@@ -36,6 +36,7 @@ import { ref } from 'vue'
 
 const surveys = ref([
     {
+        surveyId: 1,
         title: '설문조사 제목 1 설문조사 제목 1 설문조사 제목 1',
         description: '설문조사 설명 설문조사 설명 설문조사설명 설문조사 설명 설문조사 설명',
         participated: 10,
@@ -43,6 +44,7 @@ const surveys = ref([
         endDate: '2024-11-13'
     },
     {
+        surveyId: 2,
         title: '설문조사 제목 2',
         description: '설문조사 설명',
         participated: 15,
@@ -50,6 +52,7 @@ const surveys = ref([
         endDate: '2024-11-25'
     },
     {
+        surveyId: 3,
         title: '설문조사 제목 3',
         description: '설문조사 설명',
         participated: 5,
@@ -57,6 +60,10 @@ const surveys = ref([
         endDate: '2024-11-30'
     },
 ])
+
+const onItemClick = (survey) => {
+    console.log(`surveyId: ${survey.surveyId} 클릭`);
+};
 
 function formatDate(dateStr) {
     return dateStr.replaceAll('-', '.');
