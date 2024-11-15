@@ -118,9 +118,8 @@ defineExpose({
 }
 
 .survey-header-section.error {
-    border: 1px solid #ff0000;
-    border-radius: 4px;
-    box-shadow: 0 0 0 1px #ff0000;
+    border-radius: 12px;
+    box-shadow: 0 0 0 1px #F77D7D;
 }
 
 .survey-header-section.error input {

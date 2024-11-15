@@ -15,21 +15,22 @@
 
         <div class="survey-section">
             <div class="survey-title-section">
-                <div class="input-section">
-                    <input type="text" name="survey-title" class="survey-title" v-model="surveyTitle" placeholder="설문조사 제목" maxlength="255"/>
+                <div class="input-section" :class="{'error': titleError}">
+                    <input type="text" name="survey-title" class="survey-title" v-model="surveyTitle" placeholder="설문조사 제목"
+                    maxlength="255" @input="titleError = false"/>
                 </div>
                 
                 <div class="input-section">
                     <input type="text" name="survey-description" class="survey-description" v-model="surveyDescription" placeholder="설문지 설명" maxlength="255">
                 </div>
 
-                <div class="select-deadline-section">
+                <div class="select-deadline-section" :class="{'date-error': dateError}">
                     <div class="deadline">
                         설문 기간
                     </div>
 
-                    <div class="select-deadline">
-                        {{ selectDate === null && selectTime === null ? "미설정" : selectDateFormat + " - " + selectTime }}
+                    <div class="select-deadline" @click="isShowModal = true">
+                        <span v-html="selectDate === null && selectTime === null ? '미설정' : ` ~&nbsp;${selectDateFormat}&nbsp;&nbsp;&nbsp;${selectTime}`"></span>
                     </div>
 
                     <div class="calender-container" @click="isShowModal = true">
@@ -168,7 +169,7 @@
 
 <script setup>
 import SurveyItem from './CreateSurveyItem/SurveyItem.vue';
-import { ref, nextTick } from 'vue';
+import { ref, nextTick, watch } from 'vue';
 import router from '@/router';
 import { formatDate } from '@/utils/dateCalculator';
 import { checkEmptyValues } from '@/utils/checkEmptyValues';
@@ -179,8 +180,19 @@ const totalComponent = ref([
 const surveyItems = ref([]);
 
 const surveyTitle = ref("");
+const titleError = ref(false);
+
 const surveyDescription = ref("")
+
 const selectDate = ref(null);
+const dateError = ref(false);
+
+watch(selectDate, (newValue) => {
+    if (newValue) {
+        dateError.value = false;
+    }
+});
+
 const selectDateFormat = ref("");
 const selectTime = ref(null);
 const isShowModal = ref(false);
@@ -226,8 +238,21 @@ const initDeadline = () => {
         return;
     }
 
+    // 날짜가 선택되었고 시간이 선택되지 않은 경우
     if(selectDate.value !== null && selectTime.value === null) {
-        selectTime.value = "23:59:59";
+        const selectedDate = new Date(selectDate.value); // 선택된 날짜 객체로 변환
+
+        // 선택된 날짜의 하루를 더함 (다음 날로 설정)
+        selectedDate.setDate(selectedDate.getDate() + 1); // 하루 더함
+
+        selectDate.value = selectedDate;
+        selectDateFormat.value = formatDate(selectDate.value)
+
+        // 선택된 날짜의 시간을 00:00:00으로 설정
+        selectedDate.setHours(0, 0, 0, 0);
+
+        // 새로 수정된 날짜를 00:00 형식으로 selectTime에 반영
+        selectTime.value = selectedDate.toLocaleTimeString('en-GB',  { hour12: false, hour: '2-digit', minute: '2-digit' });
     }
     isShowModal.value = false;
 }
@@ -252,31 +277,59 @@ const deleteTimeValue = () => {
 
 const handleSubmit = () => {
     // survey-item의 모든 값을 가져오기
-    const title = surveyTitle.value;
-    const description = surveyDescription.value;
-    const values = surveyItems.value.map((item) => item.getValue()); // getValue()는 각 survey-item에서 필요한 값을 반환하는 메서드로 가정
+    const title = surveyTitle.value.trim();
+    const description = surveyDescription.value.trim();
+    let valid = true;
 
-    const dateStr = selectDateFormat.value + " " + selectTime.value;
-    let date = dateStr.replace(" ", "T") + ":00";
-
-    /**
-     * 마감 기한을 설정하지 않으면, expireDate에 null 값으로 무기한 표시
-     */
-    if(selectDate.value === null || selectTime.value === null) {
-        date = null;
+    if(!title) {
+        titleError.value = true
+        valid = false;
+        alert("설문조사 제목을 입력해주세요.")
         isShowSaveModal.value = false;
     }
 
+    if(!selectDate.value) {
+        dateError.value = true
+        valid = false;
+        alert("설문 마감 기한을 설정해주세요.")
+        isShowSaveModal.value = false;
+    }
+
+    const dateStr = selectDateFormat.value + " " + selectTime.value;
+
+    // date 값 넘길때는 서버 타입에 맞춰 변환
+    let date = dateStr.replace(" ", "T").replaceAll(".", "-") + ":00";
+
+    const values = surveyItems.value.map((item) => item.getValue()); // getValue()는 각 survey-item에서 필요한 값을 반환하는 메서드로 가정
+
     const jsonData = {title : title, description : description, expireDate: date, questionList : values}
+
 
     const emptyPath = checkEmptyValues(jsonData);
 
-    if (emptyPath) {
-        if(emptyPath !== "expireDate") {
-            alert(`"${emptyPath}"에 값을 입력하세요.`);
-        }
-        
+    const isExistQuestionList = emptyPath.filter((path) => path.includes("questionList"))
+
+    /**
+     * 비어있는 경로가 questionList 안에서 발견되는 것이 아니면 통과
+     * 
+     */
+    if (isExistQuestionList.length > 0) {
+        alert("입력되지 않은 항목이 있습니다.");
+        isShowSaveModal.value = false;
+        return;
     } else {
+        /**
+         * 제목이나 날짜 입력이 안됐으면,
+         * 질문 항목들 중에 빈 값이 있나 확인하고 스타일 적용 및 경고창 준 뒤에 바로 리턴
+         * jsonData는 보내지 않음
+         */
+        if(!valid) {
+            isShowSaveModal.value = false;
+            return;
+        }
+
+        // 서버로 데이터 생성 로직 추가
+        isShowSaveModal.value = false;
         console.log(JSON.stringify(jsonData))
     }
 };
@@ -364,7 +417,8 @@ const handleSubmit = () => {
 }
 
 .select-deadline-section {
-    margin : 16px 16px 0 16px;
+    margin : 16px 12px 0 12px;
+    padding : 0 4px;
     height : 32px;
     display : flex;
     align-items: center;
@@ -439,6 +493,16 @@ input {
     font-size : 1rem;
     font-weight : bold;
     color : #464748;
+}
+
+.error{
+    border-radius : 12px;
+    box-shadow: 0 0 0 2px #F77D7D;
+}
+
+.date-error{
+    border-radius : 8px;
+    box-shadow: 0 0 0 2px #F77D7D;
 }
 
 .survey-description {

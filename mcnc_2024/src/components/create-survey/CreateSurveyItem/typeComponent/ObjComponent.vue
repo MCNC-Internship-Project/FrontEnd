@@ -161,9 +161,10 @@ defineExpose({
     width : 100%;
     display : flex;
     align-items: center;
-    padding : 0 8px;
-    margin : 12px 0;
+    padding : 0 4px;
+    margin : 8px 0;
     box-sizing: border-box;
+    line-height : 32px;
 }
 
 .item-input {
@@ -182,17 +183,17 @@ defineExpose({
 }
 
 .list-item.error {
-  border-color: #ff0000;
-  border-radius : 4px;
+  border-color: #F77D7D;
+  border-radius : 8px;
   outline: none;
-  box-shadow: 0 0 0 1px #ff0000;
+  box-shadow: 0 0 0 1px #F77D7D;
 }
 
 /* 포커스 상태일 때도 에러 스타일 유지 */
 .list-item.error:focus {
-  border-color: #ff0000;
+  border-color: #F77D7D;
   outline: none;
-  box-shadow: 0 0 0 1px #ff0000;
+  box-shadow: 0 0 0 1px #F77D7D;
 }
 
 .etc-input {
