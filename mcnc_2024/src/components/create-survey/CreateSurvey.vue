@@ -343,9 +343,18 @@ const handleSubmit = () => {
         return;
     } else {
 
-        // 서버로 데이터 생성 로직 추가
+        // const apiUrl = process.env.VUE_APP_API_URL;
+
         isShowSaveModal.value = false;
         console.log(JSON.stringify(jsonData))
+
+        // axios.post(`${apiUrl}/survey/manage/create`, JSON.stringify(jsonData))
+        //     .then(response => {
+        //         console.log(response.data);
+        //     })
+        //     .catch(error => {
+        //         console.error(error);
+        //     })
     }
 };
 
