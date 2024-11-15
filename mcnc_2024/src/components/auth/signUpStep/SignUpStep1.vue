@@ -71,7 +71,7 @@ const stepTo2 = () => {
         return;
     }
 
-    emit("nextStep", { userId: userId.value, step: props.step + 1 })
+    emit("nextStep", { userId: userId.value, email: email.value, step: props.step + 1 })
 }
 
 </script>
