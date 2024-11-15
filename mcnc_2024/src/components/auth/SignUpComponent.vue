@@ -17,10 +17,11 @@
         </div>
 
         <div class="form-container">
-            <sign-up-step1 :step="step" v-show="step === 1" :userInfo="userId" @nextStep="stepUpTo2" />
-            <sign-up-step2 :step="step" v-show="step === 2" :userInfo="{ userName: userName, password: password }"
+            <sign-up-step1 :step="step" v-show="step === 1" :userInfo="{ userId: userId, email: email }"
+                @nextStep="stepUpTo2" />
+            <sign-up-step2 :step="step" v-show="step === 2" :userInfo="{ name: name, password: password }"
                 @nextStep="stepUpTo3" />
-            <sign-up-step3 :step="step" v-show="step === 3" :userInfo="{ birth: userBirth, gender: userGender }"
+            <sign-up-step3 :step="step" v-show="step === 3" :userInfo="{ birth: birth, gender: gender }"
                 @signUp="postSignUpRequest" />
         </div>
     </div>
@@ -28,16 +29,22 @@
 
 <script setup>
 import { ref } from 'vue'
+import axios from 'axios';
 import SignUpStep1 from './signUpStep/SignUpStep1.vue';
 import SignUpStep2 from './signUpStep/SignUpStep2.vue';
 import SignUpStep3 from './signUpStep/SignUpStep3.vue';
 import router from '@/router';
 
+const baseUrl = process.env.VUE_APP_API_URL;
+
+console.log(baseUrl);
+
 const userId = ref("");
-const userName = ref("");
+const email = ref("");
 const password = ref("");
-const userBirth = ref("");
-const userGender = ref("");
+const birth = ref("");
+const gender = ref("");
+const name = ref("");
 
 const step = ref(1);
 
@@ -50,28 +57,40 @@ const stepBack = () => {
 
 const stepUpTo2 = (data) => {
     userId.value = data.userId;
+    email.value = data.email;
     step.value += 1;
 }
 
 const stepUpTo3 = (data) => {
-    userName.value = data.userName;
+    name.value = data.userName;
     password.value = data.password;
     step.value += 1;
 }
 
-
 const postSignUpRequest = (data) => {
-    userBirth.value = data.birth;
-    userGender.value = data.gender;
+    birth.value = data.birth;
+    gender.value = data.gender;
 
     const jsonData = {
-        email: userId.value,
+        userId: userId.value,
+        email: email.value,
         password: password.value,
-        gender: userGender.value,
-        birth: userBirth.value,
-        name: userName.value,
+        gender: gender.value,
+        birth: birth.value,
+        name: name.value
     }
-    console.log(JSON.stringify(jsonData));
+
+    axios.post(`${baseUrl}/auth/join`, JSON.stringify(jsonData), {
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+        .then((response) => {
+            console.log(response);
+        })
+        .catch((error) => {
+            console.log(error);
+        });
 }
 </script>
 
