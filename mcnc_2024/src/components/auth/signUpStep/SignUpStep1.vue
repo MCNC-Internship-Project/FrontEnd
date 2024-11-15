@@ -5,7 +5,7 @@
                 @input="isUserIdError = false">
             <input type="email" class="form-input" :class="{ 'error': isEmailError }" placeholder="이메일"
                 autocomplete="userEmail" v-model="email" @input="isEmailError = false">
-            <button class="form-btn" @click="stepTo2">다음</button>
+            <button class="form-btn" v-ripple @click="stepTo2">다음</button>
         </div>
 
         <v-dialog v-model="showDialog" max-width="400">
@@ -67,7 +67,7 @@ const stepTo2 = () => {
 
     if (!email.value.match(/^[_A-Za-z0-9-+]+(\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\.[A-Za-z0-9]+)*(\.[A-Za-z]{2,})$/)) {
         isEmailError.value = true;
-        showErrorDialog('올바른 이메일 형식이 아닙니다.');
+        showErrorDialog('이메일 형식이 올바르지 않습니다.');
         return;
     }
 
@@ -108,12 +108,6 @@ const stepTo2 = () => {
     font-size: 0.875rem;
     background-color: var(--primary);
     color: white;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.form-btn:hover {
-    background-color: var(--secondary);
 }
 
 .error {

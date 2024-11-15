@@ -7,7 +7,7 @@
                 autocomplete="new-password" v-model="password" @input="isPasswordError = false">
             <input type="password" class="form-input" :class="{ 'error': isPasswordConfirmError }" placeholder="비밀번호 확인"
                 autocomplete="new-password" v-model="passwordConfirm" @input="isPasswordConfirmError = false">
-            <button class="form-btn" @click="stepTo3">다음</button>
+            <button class="form-btn" v-ripple @click="stepTo3">다음</button>
         </div>
 
         <v-dialog v-model="showDialog" max-width="400">
@@ -118,12 +118,6 @@ const stepTo3 = () => {
     font-size: 0.875rem;
     background-color: var(--primary);
     color: white;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.form-btn:hover {
-    background-color: #0d6db7;
 }
 
 .error {

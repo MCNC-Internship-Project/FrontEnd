@@ -35,7 +35,7 @@
         </v-list>
       </v-menu>
 
-      <button class="form-btn" @click="goToSignUp">회원가입</button>
+      <button class="form-btn" v-ripple @click="goToSignUp">회원가입</button>
     </v-container>
 
     <v-dialog v-model="showDatePicker" width="340" max-width="400">
@@ -149,11 +149,6 @@ const goToSignUp = () => {
   background-color: var(--primary);
   color: white;
   margin-top: 20px;
-  transition: all 0.2s ease;
-}
-
-.form-btn:hover {
-  background-color: #0d6db7;
 }
 
 .text-container {
