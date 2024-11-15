@@ -17,10 +17,10 @@
         </div>
 
         <div class="form-container">
-            <sign-up-step1 :step="step" v-if="step === 1" :userInfo="userId" @nextStep="stepUpTo2" />
-            <sign-up-step2 :step="step" v-if="step === 2" :userInfo="{ userName: userName, password: password }"
+            <sign-up-step1 :step="step" v-show="step === 1" :userInfo="userId" @nextStep="stepUpTo2" />
+            <sign-up-step2 :step="step" v-show="step === 2" :userInfo="{ userName: userName, password: password }"
                 @nextStep="stepUpTo3" />
-            <sign-up-step3 :step="step" v-if="step === 3" :userInfo="{ birth: userBirth, gender: userGender }"
+            <sign-up-step3 :step="step" v-show="step === 3" :userInfo="{ birth: userBirth, gender: userGender }"
                 @signUp="postSignUpRequest" />
         </div>
     </div>
