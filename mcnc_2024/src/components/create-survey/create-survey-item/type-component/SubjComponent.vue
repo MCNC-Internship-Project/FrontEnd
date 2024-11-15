@@ -2,7 +2,7 @@
     <div id="root-container">
 
         <div class="input-container">
-             <textarea name="subj" id="subj" class="subj-textarea" placeholder="답변을 입력해주세요." disabled></textarea>
+             <textarea name="subj" id="subj" class="subj-textarea" disabled>답변을 입력해주세요.</textarea>
         </div>
 
     </div>
@@ -12,7 +12,7 @@
 import { defineExpose } from 'vue';
 
 const getValue = () => {
-  return []
+    return []
 };
 
 defineExpose({
@@ -37,6 +37,7 @@ defineExpose({
     box-sizing : border-box;
     resize : none;
     border : solid 2px #D9D9D9;
+    color : #A9A9A9;
     border-radius : 10px;
     padding : 4px 8px;
     background-color: #FFF;
