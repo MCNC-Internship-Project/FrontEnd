@@ -168,7 +168,7 @@
 </template>
 
 <script setup>
-import SurveyItem from './CreateSurveyItem/SurveyItem.vue';
+import SurveyItem from './create-survey-item/SurveyItem.vue';
 import { ref, nextTick, watch } from 'vue';
 import router from '@/router';
 import { formatDate } from '@/utils/dateCalculator';

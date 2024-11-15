@@ -33,8 +33,8 @@
 </template>
 
 <script setup>
-import ObjComponent from './typeComponent/ObjComponent.vue'
-import SubjComponent from './typeComponent/SubjComponent.vue'
+import ObjComponent from './type-component/ObjComponent.vue'
+import SubjComponent from './type-component/SubjComponent.vue'
 import { ref, defineExpose } from 'vue';
 
 const surveyItemTitle = ref("");
