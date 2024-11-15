@@ -30,7 +30,7 @@
                     </div>
 
                     <div class="select-deadline" @click="isShowModal = true">
-                        <span v-html="selectDate === null && selectTime === null ? '미설정' : ` ~&nbsp;${selectDateFormat}&nbsp;&nbsp;&nbsp;${selectTime}`"></span>
+                        <span v-html="selectDate === null && selectTime === null ? '미설정' : ` ~&nbsp;${selectDateFormat}&nbsp;&nbsp;&nbsp;${selectTime ? selectTime : ''}`"></span>
                     </div>
 
                     <div class="calender-container" @click="isShowModal = true">
@@ -165,6 +165,28 @@
             </div>
         </div>
     </div>
+
+    <v-dialog v-model="invalidValueDialog" max-width="300">
+        <template v-slot:default>
+            <v-card class="custom-dialog-card">
+            <v-card-text class="custom-dialog-card-text">
+                입력되지 않은 항목이 있습니다.
+            </v-card-text>
+
+            <v-card-actions class="custom-card-actions">
+                <v-spacer></v-spacer>
+
+                <div class="v-btn-container">
+                    <v-btn
+                    text="확인"
+                    class="custom-btn"
+                    @click="invalidValueDialog = false"
+                    ></v-btn>
+                </div>
+            </v-card-actions>
+            </v-card>
+        </template>
+    </v-dialog>
 </template>
 
 <script setup>
@@ -200,6 +222,8 @@ const isShowSaveModal = ref(false);
 
 const showDatePicker = ref(false)  // 날짜 선택 모달 상태
 const showTimePicker = ref(false)  // 시간 선택 모달 상태
+
+const invalidValueDialog = ref(false)
 
 
 const addComponent = () => {
@@ -284,14 +308,12 @@ const handleSubmit = () => {
     if(!title) {
         titleError.value = true
         valid = false;
-        alert("설문조사 제목을 입력해주세요.")
         isShowSaveModal.value = false;
     }
 
     if(!selectDate.value) {
         dateError.value = true
         valid = false;
-        alert("설문 마감 기한을 설정해주세요.")
         isShowSaveModal.value = false;
     }
 
@@ -311,22 +333,16 @@ const handleSubmit = () => {
 
     /**
      * 비어있는 경로가 questionList 안에서 발견되는 것이 아니면 통과
+     * 제목이나 날짜 입력이 안됐으면,
+     * 질문 항목들 중에 빈 값이 있나 확인하고 스타일 적용 및 경고창 준 뒤에 바로 리턴
+     * jsonData는 보내지 않음
      * 
      */
-    if (isExistQuestionList.length > 0) {
-        alert("입력되지 않은 항목이 있습니다.");
+    if (isExistQuestionList.length > 0 || !valid) {
+        invalidValueDialog.value = true;
         isShowSaveModal.value = false;
         return;
     } else {
-        /**
-         * 제목이나 날짜 입력이 안됐으면,
-         * 질문 항목들 중에 빈 값이 있나 확인하고 스타일 적용 및 경고창 준 뒤에 바로 리턴
-         * jsonData는 보내지 않음
-         */
-        if(!valid) {
-            isShowSaveModal.value = false;
-            return;
-        }
 
         // 서버로 데이터 생성 로직 추가
         isShowSaveModal.value = false;
@@ -387,6 +403,7 @@ const handleSubmit = () => {
 
 .survey-section {
     width : 100%;
+    max-width: 800px;
     padding : 0 24px;
     margin-top : 64px;
 }
@@ -512,6 +529,7 @@ input {
 
 .create-btn-container {
     width : 100%;
+    max-width: 800px;
     padding : 0 24px;
     margin : 16px 0;
 }
@@ -647,25 +665,57 @@ input {
 }
 
 .v-dialog {
-  max-width: 90vw; /* Limit to 90% of the viewport width */
-  width: 100%; /* Ensure dialog takes up the full width */
+  max-width: 90vw;
+  width: 100%;
 }
 
 .v-card {
-  width: 100%; /* Ensure card takes up the full width of dialog */
+  width: 100%;
 }
 
 .v-dialog__content {
   display: flex;
-  justify-content: center; /* Center the dialog content */
-  align-items: center; /* Vertically center the content */
+  justify-content: center;
+  align-items: center;
 }
 
 
 .v-date-picker, .v-time-picker {
   max-width: 100%;
-  min-width: 200px; /* Ensure it's not too small on mobile */
-  width: 100%; /* Ensure full width of its container */
-  margin: 0 auto; /* Center the content inside */
+  min-width: 200px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.custom-dialog-card {
+    border: 1px solid #EFF0F6;
+    padding: 12px 0;
+    border-radius: 12px !important;
+    text-align: center;
+}
+
+.custom-dialog-card-text {
+    padding : 16px 8px !important
+}
+
+.v-btn-container {
+    width : 100%;
+    padding : 0 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.custom-btn {
+  width: 100%;
+  padding: 0;
+  border-radius: 10px;
+  color : #fff;
+  background-color: var(--primary);
+}
+
+
+.custom-card-actions {
+  padding: 0;
 }
 </style>
