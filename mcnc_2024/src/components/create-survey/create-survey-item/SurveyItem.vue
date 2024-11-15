@@ -63,11 +63,7 @@ const getValue = () => {
 
     // 컴포넌트 타입에 따른 검증 및 데이터 수집
     if (surveyType.value === 'SUBJECTIVE') {
-        const subjData = subjComponentRef.value.getValue();
-        if (!subjData || subjData.length === 0) {
-            isValid = false;
-        }
-        values = [...subjData];
+        values = [];
     } else {
         const objData = objComponentRef.value.getValue();
         if (!objData || objData.length === 0) {

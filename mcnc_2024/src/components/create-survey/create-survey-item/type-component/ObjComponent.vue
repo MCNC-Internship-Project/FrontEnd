@@ -13,14 +13,14 @@
                     @input="clearError(index)"
                 />
                 <div class="delete-btn-container">
-                    <button class="list-delete-btn" @click="deleteItem(item.id)" v-if="totalItem.length !== 1">항목 삭제</button>
+                    <button class="list-delete-btn" @click="deleteItem(item.id)" v-if="totalItem.length !== 1" v-ripple>항목 삭제</button>
                 </div>
             </li>
         </ul>
 
         <div class="item-add-section">
-            <button class="item-add-btn" @click="addItem" v-if="!isExistEtc">항목 추가</button>
-            <button class="etc-add-btn" @click="addEtcItem" v-if="!isExistEtc">기타 추가</button>
+            <button class="item-add-btn" @click="addItem" v-if="!isExistEtc" v-ripple>항목 추가</button>
+            <button class="etc-add-btn" @click="addEtcItem" v-if="!isExistEtc" v-ripple>기타 추가</button>
         </div>
     </div>
 </template>
@@ -154,7 +154,8 @@ defineExpose({
 .survey-item-list {
     width : 100%;
     list-style: none;
-    padding : 0 8px;
+    padding : 0;
+    margin-top : 8px;
 }
 
 .list-item {
@@ -214,10 +215,16 @@ defineExpose({
 
 .item-add-btn {
     color : #1080E3;
+    border-radius: 8px;
+    width : 80px;
+    height : 32px
 }
 
 .etc-add-btn {
-    margin-top : 8px;
+    margin-top : 4px;
+    border-radius: 8px;
+    width : 80px;
+    height : 32px
 }
 
 .delete-btn-container {
@@ -228,6 +235,7 @@ defineExpose({
 }
 
 .list-delete-btn {
+    border-radius: 8px;
     text-indent : -999em;
     background: url("../../../../assets/images/icon_x.svg") no-repeat;
     background-size: contain;

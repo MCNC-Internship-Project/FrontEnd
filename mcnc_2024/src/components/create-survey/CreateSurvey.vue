@@ -7,10 +7,8 @@
             </div>
 
             <div class="menu-container">
-                <button class="submit-btn" @click="isShowSaveModal = true">저장</button>
+                <button class="submit-btn" @click="isShowSaveModal = true" v-ripple>저장</button>
             </div>
-
-            
         </header>
 
         <div class="survey-section">
@@ -29,11 +27,11 @@
                         설문 기간
                     </div>
 
-                    <div class="select-deadline" @click="isShowModal = true">
+                    <div class="select-deadline" @click="isShowModal = true" v-ripple>
                         <span v-html="selectDate === null && selectTime === null ? '미설정' : ` ~&nbsp;${selectDateFormat}&nbsp;&nbsp;&nbsp;${selectTime ? selectTime : ''}`"></span>
                     </div>
 
-                    <div class="calender-container" @click="isShowModal = true">
+                    <div class="calender-container" @click="isShowModal = true" v-ripple>
                         calender
                     </div>
                 </div>
@@ -42,7 +40,7 @@
             <div class="survey-item-container">
                 <div class="survey-item-section" v-for="com in totalComponent" :key="com.id">
                     <survey-item ref="surveyItems"/>
-                    <div class="delete-btn-container">
+                    <div class="delete-btn-container" :class="{'isVisible' : totalComponent.length === 1}">
                         <button @click="removeComponent(com.id)" class="delete-btn"></button>
                     </div>
                 </div>
@@ -50,7 +48,7 @@
         </div>
 
         <div class="create-btn-container">
-             <div class="create-btn-section" @click="addComponent">
+             <div class="create-btn-section" @click="addComponent" v-ripple>
                 <div class="add-icon-container">
                     <div class="add-icon">
                         add
@@ -92,34 +90,33 @@
                             </div>
                         </div>
 
-                        <v-dialog v-model="showDatePicker" max-width="350px" width="100%" persistent>
+                        <v-dialog v-model="showDatePicker" max-width="350px" width="100%">
                             <v-card>
-                                <v-date-picker 
-                                    v-model="selectDate" 
+                                <v-date-picker
                                     :min="new Date()" 
                                     locale="ko" 
                                     cancel-text="취소" 
                                     ok-text="확인" 
                                     hide-header
                                     width="300px"
+                                    @update:model-value="onDateSelected"
                                 />
-                                <v-btn text @click="closeDatePicker">닫기</v-btn>
                             </v-card>
-                            </v-dialog>
+                        </v-dialog>
 
-                            <!-- 시간 선택 모달 -->
-                            <v-dialog v-model="showTimePicker" max-width="350px" width="100%" persistent>
-                            <v-card>
-                                <v-time-picker
-                                    v-model="selectTime" 
-                                    cancel-text="취소" 
-                                    ok-text="확인" 
-                                    title="시간 선택"
-                                    :style="{ width: '100%' }"
-                                />
-                                <v-btn text @click="showTimePicker = false">닫기</v-btn>
-                            </v-card>
-                            </v-dialog>
+                        <!-- 시간 선택 모달 -->
+                        <v-dialog v-model="showTimePicker" max-width="350px" width="100%">
+                        <v-card>
+                            <v-time-picker
+                                v-model="selectTime" 
+                                cancel-text="취소" 
+                                ok-text="확인" 
+                                title="시간 선택"
+                                :style="{ width: '100%' }"
+                            />
+                            <v-btn text @click="showTimePicker = false">닫기</v-btn>
+                        </v-card>
+                        </v-dialog>
 
 
                     </div>
@@ -246,7 +243,7 @@ const removeComponent = (id) => {
 };
 
 const stepBack = () =>{
-    router.push("/")
+    router.back()
 }
 
 const cancleDeadline = () => {
@@ -281,10 +278,13 @@ const initDeadline = () => {
     isShowModal.value = false;
 }
 
-const closeDatePicker = () => {
+// 날짜 선택 시 호출되는 함수
+function onDateSelected(date) {
+    selectDate.value = new Date(date);
     if (selectDate.value) {
         selectDateFormat.value = formatDate(selectDate.value)
     }
+    showDatePicker.value = false;
     showDatePicker.value = false;
 }
 
@@ -325,7 +325,6 @@ const handleSubmit = () => {
     const values = surveyItems.value.map((item) => item.getValue()); // getValue()는 각 survey-item에서 필요한 값을 반환하는 메서드로 가정
 
     const jsonData = {title : title, description : description, expireDate: date, questionList : values}
-
 
     const emptyPath = checkEmptyValues(jsonData);
 
@@ -480,6 +479,7 @@ const handleSubmit = () => {
 }
 
 .delete-btn {
+    border-radius: 8px;
     text-indent : -999em;
     background: url("../../assets/images/icon_trash.svg") no-repeat;
     background-size: contain;
@@ -487,6 +487,10 @@ const handleSubmit = () => {
     height : 24px;
     margin-top : 36px;
     margin-right : 12px;
+}
+
+.isVisible {
+    visibility: hidden;
 }
 
 .input-section {
