@@ -11,6 +11,7 @@
     "@mdi/font": "^7.4.47",
     "@vuepic/vue-datepicker": "^10.0.0",
     "core-js": "^3.8.3",
+    "dayjs": "^1.11.13",
     "vue": "^3.2.13",
     "vue-router": "^4.4.5",
     "vuetify": "^3.7.3"
