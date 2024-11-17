@@ -2,11 +2,11 @@
     <div class="root-container">
         <div class="form-container">
             <input type="text" class="form-input" :class="{ 'error': isUserNameError }" placeholder="사용자명"
-                v-model="userName" @input="isUserNameError = false">
+                v-model="userName" @focus="isUserNameError = false">
             <input type="password" class="form-input" :class="{ 'error': isPasswordError }" placeholder="비밀번호"
-                autocomplete="new-password" v-model="password" @input="isPasswordError = false">
+                autocomplete="new-password" v-model="password" @focus="isPasswordError = false">
             <input type="password" class="form-input" :class="{ 'error': isPasswordConfirmError }" placeholder="비밀번호 확인"
-                autocomplete="new-password" v-model="passwordConfirm" @input="isPasswordConfirmError = false">
+                autocomplete="new-password" v-model="passwordConfirm" @focus="isPasswordConfirmError = false">
             <button class="form-btn" v-ripple @click="stepTo3">다음</button>
         </div>
 

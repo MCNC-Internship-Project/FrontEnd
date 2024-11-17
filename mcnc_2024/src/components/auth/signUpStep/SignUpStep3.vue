@@ -2,7 +2,7 @@
   <div class="root-container">
     <v-container>
       <!-- 생년월일 입력란 -->
-      <div class="form-input" :class="{ 'error': isBirthError }" @click="showDatePicker = true">
+      <div class="form-input" :class="{ 'error': isBirthError }" @click="showDatePicker = true; isBirthError = false;">
         <div class="text-container">
           <span class="placeholder-text" v-if="!birth">생년월일</span>
             <span class="text" v-if="birth">{{ dayjs(birth).format('YYYY년 MM월 DD일') }}</span>
@@ -15,7 +15,7 @@
       <!-- 성별 입력란 -->
       <v-menu v-model="showGenderMenu" :location="'bottom'" offset-y>
         <template v-slot:activator="{ props }">
-          <div class="form-input" :class="{ 'error': isGenderError }" v-bind="props">
+          <div class="form-input" :class="{ 'error': isGenderError }" v-bind="props" @click="isGenderError = false;">
             <div class="text-container">
               <span class="placeholder-text" v-if="!gender">성별</span>
               <span class="text">{{ gender }}</span>

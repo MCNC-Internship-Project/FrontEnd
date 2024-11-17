@@ -2,9 +2,9 @@
     <div class="root-container">
         <div class="form-container">
             <input type="text" class="form-input" :class="{ 'error': isUserIdError }" placeholder="아이디" v-model="userId"
-                @input="isUserIdError = false">
+                @focus="isUserIdError = false">
             <input type="email" class="form-input" :class="{ 'error': isEmailError }" placeholder="이메일"
-                autocomplete="userEmail" v-model="email" @input="isEmailError = false">
+                autocomplete="userEmail" v-model="email" @focus="isEmailError = false">
             <button class="form-btn" v-ripple @click="stepTo2">다음</button>
         </div>
 

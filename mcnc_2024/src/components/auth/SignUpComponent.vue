@@ -37,8 +37,6 @@ import router from '@/router';
 
 const baseUrl = process.env.VUE_APP_API_URL;
 
-console.log(baseUrl);
-
 const userId = ref("");
 const email = ref("");
 const password = ref("");
