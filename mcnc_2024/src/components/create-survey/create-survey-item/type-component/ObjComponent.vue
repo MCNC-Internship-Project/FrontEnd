@@ -79,13 +79,31 @@ const addItem = () => {
 }
 
 const deleteItem = (id) => {
-    if(totalItem.value.length === 1) {
+    /**
+     * 질문 항목이 일반 항목, 기타 항목 1개씩 있을 때는 기타 항목만 삭제 가능
+     */
+     if(totalItem.value.length === 2 && totalItem.value.some((item) => item.id === "etcId")) {
+        if(id === "etcId") {
+            isExistEtc.value = false;
+            totalItem.value = totalItem.value.filter((item) => item.id !== id);
+        }
         return;
     }
 
-    if(id === "etcId") {
-        isExistEtc.value = false;
+    /**
+     * 질문 항목에 기타 항목이 있지만, length가 2 이상일때(일반 항목이 여러 개)는 선택한 항목이 뭐든 삭제 가능
+     */
+    if(totalItem.value.length > 2 && totalItem.value.some((item) => item.id === "etcId")) {
+        if(id === "etcId") {
+            isExistEtc.value = false;
+            totalItem.value = totalItem.value.filter((item) => item.id !== id);
+        }
+        totalItem.value = totalItem.value.filter((item) => item.id !== id);
+        return;
     }
+
+    // 항목이 아예 사라지면 화면 뒤틀리는 김에 항목이 1개 이하로는 삭제 안되는 로직
+    if(totalItem.value.length === 1) {return;}
     
     totalItem.value = totalItem.value.filter((item) => item.id !== id);
 }
