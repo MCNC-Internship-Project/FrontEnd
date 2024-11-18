@@ -1,7 +1,7 @@
 <template>
     <div id="root-container">
         <ul class="survey-item-list">
-            <li v-for="(item, index) in totalItem" :key="item.id" class="list-item" :class="{ 'error': item.hasError }">
+            <li v-for="(item, index) in displayItems" :key="item.id" class="list-item" :class="{ 'error': item.hasError }">
                 <input :type="componentType" :name="componentType" class="type-input" :disabled="item.id === 'etcId'">
                 <input
                     type="text"
@@ -19,7 +19,7 @@
         </ul>
 
         <div class="item-add-section">
-            <button class="item-add-btn" @click="addItem" v-if="!isExistEtc" v-ripple>항목 추가</button>
+            <button class="item-add-btn" @click="addItem" v-ripple>항목 추가</button>
             <button class="etc-add-btn" @click="addEtcItem" v-if="!isExistEtc" v-ripple>기타 추가</button>
         </div>
     </div>
@@ -28,7 +28,6 @@
 <script setup>
 import { ref, watchEffect, defineProps, computed, defineExpose } from 'vue';
 
-// 부모 컴포넌트인 SurveyItem의 type 데이터를 전달받는 곳
 const props = defineProps({
     type : String,
 })
@@ -45,86 +44,77 @@ watchEffect(() => {
 
 const isExistEtc = ref(false);
 
-// 부모 컴포넌트로부터 select 항목 선택에 따라 computed로 자식 컴포넌트의 타입 재계산 후 적용
 const componentType = computed(() => (props.type === "OBJ_SINGLE" ? "radio" : "checkbox"));
 
-/**
- *  현재 저장된 totalItem의 마지막 id++값을 id로 갖는 객체를 삽입
- *  deletItem에서 막아두긴 했지만 혹시나 id 자체가 없으면 lastIndex에 -1을 주고, +1한 값을 삽입
- */
-const addItem = () => {
+// 표시될 항목들을 계산하는 computed 속성 추가
+const displayItems = computed(() => {
+    const regularItems = totalItem.value.filter(item => item.id !== 'etcId');
+    const etcItem = totalItem.value.find(item => item.id === 'etcId');
     
+    if (etcItem) {
+        return [...regularItems, etcItem];
+    }
+    return regularItems;
+});
+
+const addItem = () => {
     if(totalItem.value.length >= 15) {
         return;
     }
 
-    const lastIndex = totalItem.value.length > 0 
-        ? totalItem.value[totalItem.value.length - 1].id 
+    const regularItems = totalItem.value.filter(item => item.id !== 'etcId');
+    const lastIndex = regularItems.length > 0 
+        ? regularItems[regularItems.length - 1].id 
         : -1;
 
-    const newObj = {id:lastIndex+1, value:""};
-
-    totalItem.value.push(newObj);
+    const newObj = {id: lastIndex + 1, value: ""};
+    
+    if (isExistEtc.value) {
+        // 기타 항목을 찾아서 임시로 제거
+        const etcItem = totalItem.value.find(item => item.id === 'etcId');
+        totalItem.value = [...regularItems, newObj, etcItem];
+    } else {
+        totalItem.value.push(newObj);
+    }
 }
 
 const deleteItem = (id) => {
-
-    /**
-     * 질문 항목이 일반 항목, 기타 항목 1개씩 있을 때는 기타 항목만 삭제 가능
-     */
-    if(totalItem.value.length === 2 && totalItem.value.some((item) => item.id === "etcId")) {
-        if(id === "etcId") {
-            isExistEtc.value = !isExistEtc.value;
-            totalItem.value = totalItem.value.filter((item) => item.id !== id);
-        }
+    if(totalItem.value.length === 1) {
         return;
     }
 
-    /**
-     * 질문 항목에 기타 항목이 있지만, length가 2 이상일때(일반 항목이 여러 개)는 선택한 항목이 뭐든 삭제 가능
-     */
-    if(totalItem.value.length > 2 && totalItem.value.some((item) => item.id === "etcId")) {
-        if(id === "etcId") {
-            isExistEtc.value = !isExistEtc.value;
-            totalItem.value = totalItem.value.filter((item) => item.id !== id);
-        }
-        totalItem.value = totalItem.value.filter((item) => item.id !== id);
-        return;
+    if(id === "etcId") {
+        isExistEtc.value = false;
     }
-
-    // 항목이 아예 사라지면 화면 뒤틀리는 김에 항목이 1개 이하로는 삭제 안되는 로직
-    if(totalItem.value.length === 1) {return;}
     
     totalItem.value = totalItem.value.filter((item) => item.id !== id);
 }
 
 const addEtcItem = () => {
-    isExistEtc.value = !isExistEtc.value;
-    totalItem.value.push({id:"etcId", value:"기타"})
+    if (!isExistEtc.value) {
+        isExistEtc.value = true;
+        totalItem.value.push({id:"etcId", value:"기타"});
+    }
 }
 
 const getValue = () => {
-  // 모든 에러 상태 초기화
   totalItem.value.forEach(item => item.hasError = false);
 
   const checkEmptyValueArray = totalItem.value.map((item) => item.value.trim());
   let hasEmptyFields = false;
-  let firstEmptyIndex = -1;  // 첫 번째 빈 필드의 인덱스를 저장
+  let firstEmptyIndex = -1;
 
-  // 빈 값이 있는 모든 항목에 에러 표시
   checkEmptyValueArray.forEach((value, index) => {
     if (value === "") {
       totalItem.value[index].hasError = true;
       hasEmptyFields = true;
       
-      // 첫 번째 빈 필드의 인덱스를 저장
       if (firstEmptyIndex === -1) {
         firstEmptyIndex = index;
       }
     }
   });
 
-  // 빈 필드가 있으면 첫 번째 빈 필드에 포커스
   if (hasEmptyFields && firstEmptyIndex !== -1 && itemInputs.value[firstEmptyIndex]) {
     itemInputs.value[firstEmptyIndex].focus();
     return [];
