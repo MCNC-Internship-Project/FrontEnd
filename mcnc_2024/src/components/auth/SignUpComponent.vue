@@ -30,9 +30,9 @@
 <script setup>
 import { ref } from 'vue'
 import axios from 'axios';
-import SignUpStep1 from './signUpStep/SignUpStep1.vue';
-import SignUpStep2 from './signUpStep/SignUpStep2.vue';
-import SignUpStep3 from './signUpStep/SignUpStep3.vue';
+import SignUpStep1 from './sign-up-step/SignUpStep1.vue';
+import SignUpStep2 from './sign-up-step/SignUpStep2.vue';
+import SignUpStep3 from './sign-up-step/SignUpStep3.vue';
 import router from '@/router';
 
 const baseUrl = process.env.VUE_APP_API_URL;
