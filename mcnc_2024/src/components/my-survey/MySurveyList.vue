@@ -14,8 +14,8 @@
             </div>
 
             <!-- 설문 목록이 있을 때와 없을 때를 조건부 렌더링 -->
-            <div class="survey-list" v-if="surveys.length > 0">
-                <div v-for="survey in surveys" :key="survey.id" class="survey-card">
+            <div class="survey-list" v-if="sortedSurveys.length > 0">
+                <div v-for="survey in sortedSurveys" :key="survey.id" class="survey-card">
                     <div class="survey-header">
                         <p class="survey-title">{{ survey.title }}</p>
                         <p :class="['status', survey.status === '진행중' ? 'status-active' : 'status-ended']">
@@ -37,32 +37,42 @@
 
 <script setup>
 import { useRouter } from 'vue-router';
+import { mockSurveys } from '@/components/my-survey/mock/Surveys';
+import { computed } from 'vue';
 
 const router = useRouter();
 
-const surveys = [
-    {
-        id: 1,
-        title: "설문조사 제목",
-        description: "설문지 설명",
-        status: "진행중",
-        dateRange: "2024.01.01 - 2024.12.31",
-    },
-    {
-        id: 2,
-        title: "설문조사 제목",
-        description: "설문지 설명",
-        status: "종료",
-        dateRange: "2024.01.01 - 2024.12.31",
-    },
-    {
-        id: 3,
-        title: "설문조사 제목",
-        description: "설문지 설명",
-        status: "종료",
-        dateRange: "2024.01.01 - 2024.12.31",
-    },
-];
+// 설문지 mock데이터 연결 -> api 연동시 수정
+const surveys = mockSurveys.map(survey => ({
+    id: survey.surveyId,
+    title: survey.title,
+    description: survey.description,
+    status: new Date(survey.expireDate) > new Date() ? "진행중" : "종료",
+    createDate: new Date(survey.createDate),
+    expireDate: new Date(survey.expireDate),
+    dateRange: `${survey.createDate.split('T')[0]} - ${survey.expireDate.split('T')[0]}`,
+}));
+
+// 설문지 목록 정렬
+const sortedSurveys = computed(() => {
+    return [...surveys].sort((a, b) => {
+        // 상태 정렬 ("진행중" 우선)
+        if (a.status === "진행중" && b.status === "종료") return -1;
+        if (a.status === "종료" && b.status === "진행중") return 1;
+
+        // "진행중" 상태 내에서 생성 날짜 기준 내림차순
+        if (a.status === "진행중" && b.status === "진행중") {
+            return b.createDate - a.createDate; // 생성 날짜 내림차순
+        }
+
+        // "종료" 상태 내에서 마감 날짜 기준 내림차순
+        if (a.status === "종료" && b.status === "종료") {
+            return b.expireDate - a.expireDate; // 마감 날짜 내림차순
+        }
+
+        return 0;
+    });
+});
 
 function goBack() {
     router.back();
@@ -79,15 +89,16 @@ function goSearch() {
 
 <style scoped>
 .root-container {
+    width: 100%;
     background-image: url('../../assets/images/background.svg');
     background-size: auto;
-    width: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
 }
-
 .toolbar {
+    width: 100%;
+    height: 64px;
     position: fixed;
     display: flex;
     align-items: center;
@@ -95,72 +106,72 @@ function goSearch() {
     left: 0;
     top: 0;
     right: 0;
-    width: 100%;
-    height: 64px;
 }
-
 .back-container {
     display: flex;
     align-items: center;
     padding-left: 24px;
 }
-
 .back {
     cursor: pointer;
 }
 
 .survey-container {
     width: 100%;
+    height: calc(100vh - 64px); 
     display: flex;
     flex-direction: column;
     align-items: center;
     margin-top: 64px;
+    overflow: hidden; /* survey-list 외부 요소는 스크롤되지 않도록 설정 */
 }
 
 .header {
     width: 90%;
     display: flex;
     align-items: center;
+    z-index: 1;
+    position: sticky;
+    top: 0; 
 }
-
 .list-icon {
     width: 24px;
     height: 24px;
     margin: 0 12px 0 12px;
 }
-
 .title {
     font-family: var(--font-noto-sans);
+    color: #464748;
     font-size: 1.5rem;
     font-weight: bold;
-    color: #464748;
 }
-
 .search-btn {
+    width: 24px;
+    height: 24px;
     text-indent: -999em;
     background: url("../../assets/images/icon_search_btn.svg") no-repeat center center;
     background-size: contain;
-    width: 24px;
-    height: 24px;
     cursor: pointer;
     margin-left: auto;
 }
 
 .survey-list {
-    height: 100%;
     width: 100%;
-    padding: 24px;
+    height: 100%;
+    flex: 1; 
     display: flex;
+    overflow-y: auto; 
+    margin: 24px;
+    padding: 0 24px;
     flex-direction: column;
     gap: 12px;
 }
-
 .survey-card {
+    width: 100%;
     background-color: #fff;
     padding: 16px;
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    width: 100%;
 }
 .survey-header {
     display: flex;
@@ -172,37 +183,37 @@ function goSearch() {
     font-weight: bold;
 }
 .status-active {
+    color: #7796E8;
     font-size: 1rem;
     font-weight: bold;
-    color: #7796E8; 
 }
 .status-ended {
-    font-size: 1rem;
-    font-weight: bold;
     color: #757575;
-}
-.description{
+    font-weight: bold;
     font-size: 1rem;
+}
+.description {
     margin-bottom: 20px;
-}
-.date-range{
+    font-family: var(--font-mont);
     font-size: 1rem;
 }
+.date-range {
+    font-size: 0.75rem;
+}
+
 .survey-none {
     height: 80vh;
-    color: #A2A2A3;
-    font-size: 1rem;
-    font-weight: bold;
-    text-align: center;
     display: flex;
     justify-content: center;
     align-items: center;
+    text-align: center;
+    color: #A2A2A3;
+    font-size: 1rem;
+    font-weight: bold;
 }
-
 .v-fab {
     position: fixed;
     bottom: 24px;
     right: 24px;
-    /* z-index: 1000; */
 }
 </style>
