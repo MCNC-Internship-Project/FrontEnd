@@ -26,12 +26,12 @@ const SurveyRoutes = [
       },      
     {
         path : "/my-survey",
-        name : "my-survey",
+        name : "MySurvey",
         component : () => import("../../components/my-survey/MySurveyList.vue")
     },
     {
-        path: "/my-survey-search",
-        name: "my-survey-search",
+        path: "/my-survey/search",
+        name: "MySurveySearch",
         component : () => import("../../components/my-survey/MySurveySearch.vue")
     }
 ]

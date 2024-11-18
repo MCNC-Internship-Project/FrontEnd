@@ -109,8 +109,8 @@ function goBack() {
 <style scoped>
 .root-container {
     width: 100%;
-    background-image: url('../../assets/images/background.svg');
-    background-size: auto;
+    background-image: url('../../assets/images/background_sky.svg');
+    background-repeat: repeat-x;
     display: flex;
     align-items: center;
     justify-content: center;
