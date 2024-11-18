@@ -16,7 +16,7 @@
             </h1>
             <p class="survey-description">{{ survey.description }}</p>
           </div>
-          <p class="survey-period">2024.11.13 ~ 2024.11.16</p>
+          <p class="survey-period">2024.11.13 ~ 2024.11.21</p>
         </div>
   
         <div class="survey-item-container">
@@ -134,7 +134,7 @@
   
   const submitSurvey = () => {
     const currentDate = new Date();
-    const endDate = new Date('2024-11-16'); // 예시로 끝나는 날짜를 설정
+    const endDate = new Date('2024-11-21'); // 예시로 끝나는 날짜를 설정
 
     if (currentDate > endDate) {
       router.push('/survey-expired');
@@ -176,9 +176,11 @@
   
   <style scoped>
   #survey-participation {
+    width: 100%;
     display: flex;
     flex-direction: column;
-    justify-content: space-between; /* 추가된 스타일로 버튼을 하단에 위치 */
+    justify-content: center; 
+    align-items: center;
     min-height: 100vh; /* 화면 높이에 맞게 */
   }
   
@@ -198,8 +200,11 @@
   }
   
   .menu-container {
+    width: 100%;
+    max-width: 800px;
     display: flex;
-    justify-content: flex-end;
+    align-items: center;
+    justify-content: end;
     padding-right: 24px;
     margin-top: auto;
     margin-bottom: 12px;
@@ -218,6 +223,7 @@
   
   .survey-section {
     width: 100%;
+    max-width: 800x;
     padding: 0 24px;
     flex-grow: 1; /* 설문 내용이 화면을 차지하게 */
     display: flex;
@@ -226,7 +232,7 @@
   }
   
   .survey-title-section {
-    background-color: #EFF0F6;
+    background-color: #F8FBFF;
     border-radius: 15px;
     margin-bottom: 20px;
     padding: 16px;
