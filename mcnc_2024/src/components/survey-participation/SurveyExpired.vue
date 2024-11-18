@@ -47,7 +47,7 @@
   }
   
   .survey-section {
-    background-color: #EFF0F6;
+    background-color: #F8FBFF;
     padding: 16px;
     border-radius: 15px;
     margin-bottom: 20px;
