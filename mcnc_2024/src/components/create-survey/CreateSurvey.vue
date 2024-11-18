@@ -7,32 +7,31 @@
             </div>
 
             <div class="menu-container">
-                <button class="submit-btn" @click="isShowSaveModal = true">저장</button>
+                <button class="submit-btn" @click="isShowSaveModal = true" v-ripple>저장</button>
             </div>
-
-            
         </header>
 
         <div class="survey-section">
             <div class="survey-title-section">
-                <div class="input-section">
-                    <input type="text" name="survey-title" class="survey-title" v-model="surveyTitle" placeholder="설문조사 제목" maxlength="255"/>
+                <div class="input-section" :class="{'error': titleError}">
+                    <input type="text" name="survey-title" class="survey-title" v-model="surveyTitle" placeholder="설문조사 제목"
+                    maxlength="255" @input="titleError = false"/>
                 </div>
                 
                 <div class="input-section">
-                    <input type="text" name="survey-description" class="survey-description" v-model="survetDescription" placeholder="설문지 설명" maxlength="255">
+                    <input type="text" name="survey-description" class="survey-description" v-model="surveyDescription" placeholder="설문지 설명" maxlength="255">
                 </div>
 
-                <div class="select-deadline-section">
+                <div class="select-deadline-section" :class="{'date-error': dateError}">
                     <div class="deadline">
                         설문 기간
                     </div>
 
-                    <div class="select-deadline">
-                        {{ selectDate === null && selectTime === null ? "미설정" : selectDateFormat + " - " + selectTime }}
+                    <div class="select-deadline" @click="isShowModal = true" v-ripple>
+                        <span v-html="selectDate === null && selectTime === null ? '미설정' : ` ~&nbsp;${selectDateFormat}&nbsp;&nbsp;&nbsp;${selectTime ? selectTime : ''}`"></span>
                     </div>
 
-                    <div class="calender-container" @click="isShowModal = true">
+                    <div class="calender-container" @click="isShowModal = true" v-ripple>
                         calender
                     </div>
                 </div>
@@ -41,7 +40,7 @@
             <div class="survey-item-container">
                 <div class="survey-item-section" v-for="com in totalComponent" :key="com.id">
                     <survey-item ref="surveyItems"/>
-                    <div class="delete-btn-container">
+                    <div class="delete-btn-container" :class="{'isVisible' : totalComponent.length === 1}">
                         <button @click="removeComponent(com.id)" class="delete-btn"></button>
                     </div>
                 </div>
@@ -49,7 +48,7 @@
         </div>
 
         <div class="create-btn-container">
-             <div class="create-btn-section" @click="addComponent">
+             <div class="create-btn-section" @click="addComponent" v-ripple>
                 <div class="add-icon-container">
                     <div class="add-icon">
                         add
@@ -91,34 +90,33 @@
                             </div>
                         </div>
 
-                        <v-dialog v-model="showDatePicker" max-width="350px" width="100%" persistent>
+                        <v-dialog v-model="showDatePicker" max-width="350px" width="100%">
                             <v-card>
-                                <v-date-picker 
-                                    v-model="selectDate" 
+                                <v-date-picker
                                     :min="new Date()" 
                                     locale="ko" 
                                     cancel-text="취소" 
                                     ok-text="확인" 
                                     hide-header
                                     width="300px"
+                                    @update:model-value="onDateSelected"
                                 />
-                                <v-btn text @click="closeDatePicker">닫기</v-btn>
                             </v-card>
-                            </v-dialog>
+                        </v-dialog>
 
-                            <!-- 시간 선택 모달 -->
-                            <v-dialog v-model="showTimePicker" max-width="350px" width="100%" persistent>
-                            <v-card>
-                                <v-time-picker
-                                    v-model="selectTime" 
-                                    cancel-text="취소" 
-                                    ok-text="확인" 
-                                    title="시간 선택"
-                                    :style="{ width: '100%' }"
-                                />
-                                <v-btn text @click="showTimePicker = false">닫기</v-btn>
-                            </v-card>
-                            </v-dialog>
+                        <!-- 시간 선택 모달 -->
+                        <v-dialog v-model="showTimePicker" max-width="350px" width="100%">
+                        <v-card>
+                            <v-time-picker
+                                v-model="selectTime" 
+                                cancel-text="취소" 
+                                ok-text="확인" 
+                                title="시간 선택"
+                                :style="{ width: '100%' }"
+                            />
+                            <v-btn text @click="showTimePicker = false">닫기</v-btn>
+                        </v-card>
+                        </v-dialog>
 
 
                     </div>
@@ -164,11 +162,33 @@
             </div>
         </div>
     </div>
+
+    <v-dialog v-model="invalidValueDialog" max-width="300">
+        <template v-slot:default>
+            <v-card class="custom-dialog-card">
+            <v-card-text class="custom-dialog-card-text">
+                입력되지 않은 항목이 있습니다.
+            </v-card-text>
+
+            <v-card-actions class="custom-card-actions">
+                <v-spacer></v-spacer>
+
+                <div class="v-btn-container">
+                    <v-btn
+                    text="확인"
+                    class="custom-btn"
+                    @click="invalidValueDialog = false"
+                    ></v-btn>
+                </div>
+            </v-card-actions>
+            </v-card>
+        </template>
+    </v-dialog>
 </template>
 
 <script setup>
-import SurveyItem from './CreateSurveyItem/SurveyItem.vue';
-import { ref, nextTick } from 'vue';
+import SurveyItem from './create-survey-item/SurveyItem.vue';
+import { ref, nextTick, watch } from 'vue';
 import router from '@/router';
 import { formatDate } from '@/utils/dateCalculator';
 import { checkEmptyValues } from '@/utils/checkEmptyValues';
@@ -179,8 +199,19 @@ const totalComponent = ref([
 const surveyItems = ref([]);
 
 const surveyTitle = ref("");
-const survetDescription = ref("")
+const titleError = ref(false);
+
+const surveyDescription = ref("")
+
 const selectDate = ref(null);
+const dateError = ref(false);
+
+watch(selectDate, (newValue) => {
+    if (newValue) {
+        dateError.value = false;
+    }
+});
+
 const selectDateFormat = ref("");
 const selectTime = ref(null);
 const isShowModal = ref(false);
@@ -188,6 +219,8 @@ const isShowSaveModal = ref(false);
 
 const showDatePicker = ref(false)  // 날짜 선택 모달 상태
 const showTimePicker = ref(false)  // 시간 선택 모달 상태
+
+const invalidValueDialog = ref(false)
 
 
 const addComponent = () => {
@@ -210,7 +243,7 @@ const removeComponent = (id) => {
 };
 
 const stepBack = () =>{
-    router.push("/")
+    router.back()
 }
 
 const cancleDeadline = () => {
@@ -226,16 +259,32 @@ const initDeadline = () => {
         return;
     }
 
+    // 날짜가 선택되었고 시간이 선택되지 않은 경우
     if(selectDate.value !== null && selectTime.value === null) {
-        selectTime.value = "23:59:59";
+        const selectedDate = new Date(selectDate.value); // 선택된 날짜 객체로 변환
+
+        // 선택된 날짜의 하루를 더함 (다음 날로 설정)
+        selectedDate.setDate(selectedDate.getDate() + 1); // 하루 더함
+
+        selectDate.value = selectedDate;
+        selectDateFormat.value = formatDate(selectDate.value)
+
+        // 선택된 날짜의 시간을 00:00:00으로 설정
+        selectedDate.setHours(0, 0, 0, 0);
+
+        // 새로 수정된 날짜를 00:00 형식으로 selectTime에 반영
+        selectTime.value = selectedDate.toLocaleTimeString('en-GB',  { hour12: false, hour: '2-digit', minute: '2-digit' });
     }
     isShowModal.value = false;
 }
 
-const closeDatePicker = () => {
+// 날짜 선택 시 호출되는 함수
+function onDateSelected(date) {
+    selectDate.value = new Date(date);
     if (selectDate.value) {
         selectDateFormat.value = formatDate(selectDate.value)
     }
+    showDatePicker.value = false;
     showDatePicker.value = false;
 }
 
@@ -252,42 +301,63 @@ const deleteTimeValue = () => {
 
 const handleSubmit = () => {
     // survey-item의 모든 값을 가져오기
-    const title = surveyTitle.value;
-    const description = survetDescription.value;
-    const values = surveyItems.value.map((item) => item.getValue()); // getValue()는 각 survey-item에서 필요한 값을 반환하는 메서드로 가정
+    const title = surveyTitle.value.trim();
+    const description = surveyDescription.value.trim();
+    let valid = true;
 
-    const dateStr = selectDateFormat.value + " " + selectTime.value;
-    let date = dateStr.replace(" ", "T") + ":00";
-
-    /**
-     * 마감 기한을 설정하지 않으면, expireDate에 null 값으로 무기한 표시
-     */
-    if(selectDate.value === null || selectTime.value === null) {
-        date = null;
+    if(!title) {
+        titleError.value = true
+        valid = false;
         isShowSaveModal.value = false;
     }
+
+    if(!selectDate.value) {
+        dateError.value = true
+        valid = false;
+        isShowSaveModal.value = false;
+    }
+
+    const dateStr = selectDateFormat.value + " " + selectTime.value;
+
+    // date 값 넘길때는 서버 타입에 맞춰 변환
+    let date = dateStr.replace(" ", "T").replaceAll(".", "-") + ":00";
+
+    const values = surveyItems.value.map((item) => item.getValue()); // getValue()는 각 survey-item에서 필요한 값을 반환하는 메서드로 가정
 
     const jsonData = {title : title, description : description, expireDate: date, questionList : values}
 
-    console.log(JSON.stringify(jsonData))
-
     const emptyPath = checkEmptyValues(jsonData);
 
-    if (emptyPath) {
-        if(emptyPath !== "expireDate") {
-            alert(`"${emptyPath}"에 값을 입력하세요.`);
-        }
+    const isExistQuestionList = emptyPath.filter((path) => path.includes("questionList"))
+
+    /**
+     * 비어있는 경로가 questionList 안에서 발견되는 것이 아니면 통과
+     * 제목이나 날짜 입력이 안됐으면,
+     * 질문 항목들 중에 빈 값이 있나 확인하고 스타일 적용 및 경고창 준 뒤에 바로 리턴
+     * jsonData는 보내지 않음
+     * 
+     */
+    if (isExistQuestionList.length > 0 || !valid) {
+        invalidValueDialog.value = true;
         isShowSaveModal.value = false;
+        return;
     } else {
-        // 빈값이 없으면 DB에 저장 진행
-        saveToDatabase(jsonData);
+
+        // const apiUrl = process.env.VUE_APP_API_URL;
+
+        isShowSaveModal.value = false;
+        console.log(JSON.stringify(jsonData))
+
+        // axios.post(`${apiUrl}/survey/manage/create`, JSON.stringify(jsonData))
+        //     .then(response => {
+        //         console.log(response.data);
+        //     })
+        //     .catch(error => {
+        //         console.error(error);
+        //     })
     }
 };
 
-function saveToDatabase(data) {
-    // DB 저장 요청 로직 -> 나중에 api 유틸로 전환
-    console.log(data);
-}
 </script>
 
 <style scoped>
@@ -341,6 +411,7 @@ function saveToDatabase(data) {
 
 .survey-section {
     width : 100%;
+    max-width: 800px;
     padding : 0 24px;
     margin-top : 64px;
 }
@@ -371,7 +442,8 @@ function saveToDatabase(data) {
 }
 
 .select-deadline-section {
-    margin : 16px 16px 0 16px;
+    margin : 16px 12px 0 12px;
+    padding : 0 4px;
     height : 32px;
     display : flex;
     align-items: center;
@@ -416,6 +488,7 @@ function saveToDatabase(data) {
 }
 
 .delete-btn {
+    border-radius: 8px;
     text-indent : -999em;
     background: url("../../assets/images/icon_trash.svg") no-repeat;
     background-size: contain;
@@ -423,6 +496,10 @@ function saveToDatabase(data) {
     height : 24px;
     margin-top : 36px;
     margin-right : 12px;
+}
+
+.isVisible {
+    visibility: hidden;
 }
 
 .input-section {
@@ -448,6 +525,16 @@ input {
     color : #464748;
 }
 
+.error{
+    border-radius : 12px;
+    box-shadow: 0 0 0 2px #F77D7D;
+}
+
+.date-error{
+    border-radius : 8px;
+    box-shadow: 0 0 0 2px #F77D7D;
+}
+
 .survey-description {
     font-size : 0.875rem;
     color : #C1C3C5;
@@ -455,6 +542,7 @@ input {
 
 .create-btn-container {
     width : 100%;
+    max-width: 800px;
     padding : 0 24px;
     margin : 16px 0;
 }
@@ -590,25 +678,57 @@ input {
 }
 
 .v-dialog {
-  max-width: 90vw; /* Limit to 90% of the viewport width */
-  width: 100%; /* Ensure dialog takes up the full width */
+  max-width: 90vw;
+  width: 100%;
 }
 
 .v-card {
-  width: 100%; /* Ensure card takes up the full width of dialog */
+  width: 100%;
 }
 
 .v-dialog__content {
   display: flex;
-  justify-content: center; /* Center the dialog content */
-  align-items: center; /* Vertically center the content */
+  justify-content: center;
+  align-items: center;
 }
 
 
 .v-date-picker, .v-time-picker {
   max-width: 100%;
-  min-width: 200px; /* Ensure it's not too small on mobile */
-  width: 100%; /* Ensure full width of its container */
-  margin: 0 auto; /* Center the content inside */
+  min-width: 200px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.custom-dialog-card {
+    border: 1px solid #EFF0F6;
+    padding: 12px 0;
+    border-radius: 12px !important;
+    text-align: center;
+}
+
+.custom-dialog-card-text {
+    padding : 16px 8px !important
+}
+
+.v-btn-container {
+    width : 100%;
+    padding : 0 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.custom-btn {
+  width: 100%;
+  padding: 0;
+  border-radius: 10px;
+  color : #fff;
+  background-color: var(--primary);
+}
+
+
+.custom-card-actions {
+  padding: 0;
 }
 </style>

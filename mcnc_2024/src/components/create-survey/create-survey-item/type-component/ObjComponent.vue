@@ -1,7 +1,7 @@
 <template>
     <div id="root-container">
         <ul class="survey-item-list">
-            <li v-for="(item, index) in totalItem" :key="item.id" class="list-item">
+            <li v-for="(item, index) in totalItem" :key="item.id" class="list-item" :class="{ 'error': item.hasError }">
                 <input :type="componentType" :name="componentType" class="type-input" :disabled="item.id === 'etcId'">
                 <input
                     type="text"
@@ -10,14 +10,17 @@
                     class="item-input"
                     :disabled="item.id === 'etcId'"
                     :ref="el => itemInputs[index] = el"
+                    @input="clearError(index)"
                 />
-                <button class="list-delete-btn" @click="deleteItem(item.id)" v-if="totalItem.length !== 1">항목 삭제</button>
+                <div class="delete-btn-container">
+                    <button class="list-delete-btn" @click="deleteItem(item.id)" v-if="totalItem.length !== 1" v-ripple>항목 삭제</button>
+                </div>
             </li>
         </ul>
 
         <div class="item-add-section">
-            <button class="item-add-btn" @click="addItem" v-if="!isExistEtc">항목 추가</button>
-            <button class="etc-add-btn" @click="addEtcItem" v-if="!isExistEtc">기타 추가</button>
+            <button class="item-add-btn" @click="addItem" v-if="!isExistEtc" v-ripple>항목 추가</button>
+            <button class="etc-add-btn" @click="addEtcItem" v-if="!isExistEtc" v-ripple>기타 추가</button>
         </div>
     </div>
 </template>
@@ -101,24 +104,37 @@ const addEtcItem = () => {
 }
 
 const getValue = () => {
+  // 모든 에러 상태 초기화
+  totalItem.value.forEach(item => item.hasError = false);
 
-    const checkEmptyValueArray = totalItem.value.map((item) => item.value.trim());
+  const checkEmptyValueArray = totalItem.value.map((item) => item.value.trim());
+  let hasEmptyFields = false;
+  let firstEmptyIndex = -1;  // 첫 번째 빈 필드의 인덱스를 저장
 
-    if(checkEmptyValueArray.includes("")) {
-        const emptyIdx = checkEmptyValueArray.findIndex((value) => value === "");
-        /**
-         * alert("입력되지 않은 항목이 존재합니다.")
-         * 알럿말고 itemInputs.value[emptyIdx] 부분에 빨간색 ㄱㄱ
-         */
-
-        if (emptyIdx !== -1 && itemInputs.value[emptyIdx]) {
-            itemInputs.value[emptyIdx].focus(); 
-        }
-
-        return [];
+  // 빈 값이 있는 모든 항목에 에러 표시
+  checkEmptyValueArray.forEach((value, index) => {
+    if (value === "") {
+      totalItem.value[index].hasError = true;
+      hasEmptyFields = true;
+      
+      // 첫 번째 빈 필드의 인덱스를 저장
+      if (firstEmptyIndex === -1) {
+        firstEmptyIndex = index;
+      }
     }
+  });
 
-    return totalItem.value
+  // 빈 필드가 있으면 첫 번째 빈 필드에 포커스
+  if (hasEmptyFields && firstEmptyIndex !== -1 && itemInputs.value[firstEmptyIndex]) {
+    itemInputs.value[firstEmptyIndex].focus();
+    return [];
+  }
+
+  return totalItem.value;
+};
+
+const clearError = (index) => {
+  totalItem.value[index].hasError = false;
 };
 
 defineExpose({
@@ -138,21 +154,24 @@ defineExpose({
 .survey-item-list {
     width : 100%;
     list-style: none;
-    padding : 0 8px;
+    padding : 0;
+    margin-top : 8px;
 }
 
 .list-item {
     width : 100%;
     display : flex;
     align-items: center;
-    justify-content: center;
-    margin : 12px 0;
+    padding : 0 4px;
+    margin : 8px 0;
     box-sizing: border-box;
+    line-height : 32px;
 }
 
 .item-input {
     width : 100%;
-    margin-left : 8px;
+    margin-left : 4px;
+    padding-left : 8px;
     outline : none;
 }
 
@@ -162,6 +181,20 @@ defineExpose({
 
 .item-input:focus::placeholder {
     color : transparent;
+}
+
+.list-item.error {
+  border-color: #F77D7D;
+  border-radius : 8px;
+  outline: none;
+  box-shadow: 0 0 0 1px #F77D7D;
+}
+
+/* 포커스 상태일 때도 에러 스타일 유지 */
+.list-item.error:focus {
+  border-color: #F77D7D;
+  outline: none;
+  box-shadow: 0 0 0 1px #F77D7D;
 }
 
 .etc-input {
@@ -182,13 +215,27 @@ defineExpose({
 
 .item-add-btn {
     color : #1080E3;
+    border-radius: 8px;
+    width : 80px;
+    height : 32px
 }
 
 .etc-add-btn {
-    margin-top : 8px;
+    margin-top : 4px;
+    border-radius: 8px;
+    width : 80px;
+    height : 32px
+}
+
+.delete-btn-container {
+    width : 100%;
+    display : flex;
+    align-items: center;
+    justify-content: end;
 }
 
 .list-delete-btn {
+    border-radius: 8px;
     text-indent : -999em;
     background: url("../../../../assets/images/icon_x.svg") no-repeat;
     background-size: contain;
