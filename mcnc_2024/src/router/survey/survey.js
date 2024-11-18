@@ -24,6 +24,17 @@ const SurveyRoutes = [
         name: 'SurveyExpired',
         component: () => import('@/components/survey-participation/SurveyExpired.vue')
       },      
+    {
+        path : "/my-survey",
+        name : "my-survey",
+        component : () => import("../../components/my-survey/MySurveyList.vue")
+    },
+    {
+        path: "/my-survey-search",
+        name: "my-survey-search",
+        component : () => import("../../components/my-survey/MySurveySearch.vue")
+    }
 ]
+
 
 export default SurveyRoutes;
