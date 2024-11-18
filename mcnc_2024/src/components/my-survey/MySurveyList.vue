@@ -83,15 +83,15 @@ function goCreateSurvey() {
 }
 
 function goSearch() {
-    router.push("/my-survey-search");
+    router.push("/my-survey/search");
 }
 </script>
 
 <style scoped>
 .root-container {
     width: 100%;
-    background-image: url('../../assets/images/background.svg');
-    background-size: auto;
+    background-image: url('../../assets/images/background_sky.svg');
+    background-repeat: repeat-x;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -162,7 +162,7 @@ function goSearch() {
     display: flex;
     overflow-y: auto; 
     margin: 24px;
-    padding: 0 24px;
+    padding: 4px 24px;
     flex-direction: column;
     gap: 12px;
 }
