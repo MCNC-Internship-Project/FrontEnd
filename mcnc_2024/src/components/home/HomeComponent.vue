@@ -2,19 +2,19 @@
     <div id="root-container">
         <header class="toolbar">
             <div class="logo-container">
-                <img class="logo" src="../../assets/images/icon_logo.svg" alt="logo">
+                <img class="logo" src="@/assets/images/icon_logo.svg" alt="logo">
                 <div class="title">Survwey</div>
             </div>
 
             <div class="menu-container">
-                <img class="noti-icon" src="../../assets/images/icon_noti.svg" alt="noti icon" @click="routeNoti" />
-                <img class="profile-icon" src="../../assets/images/icon_profile_none.svg" alt="profile icon" @click="routeProfile" />
+                <img class="noti-icon" src="@/assets/images/icon_noti.svg" alt="noti icon" @click="routeNoti" />
+                <img class="profile-icon" src="@/assets/images/icon_profile_none.svg" alt="profile icon" @click="routeProfile" />
             </div>
         </header>
 
         <div class="search-container" @click="routeSearch" v-ripple>
             <span class="search-text">설문조사 검색</span>
-            <img class="search-icon" src="../../assets/images/icon_search.svg" alt="dropdown icon" />
+            <img class="search-icon" src="@/assets/images/icon_search.svg" alt="dropdown icon" />
         </div>
 
         <!-- 내 설문조사 컴포넌트 -->
@@ -30,8 +30,8 @@
 </template>
 
 <script setup>
-import MySurvey from './ChildComponent/MySurvey.vue';
-import MyParticipatedSurvey from './ChildComponent/MyParticipatedSurvey.vue';
+import MySurvey from './survey-list/MySurvey.vue';
+import MyParticipatedSurvey from './survey-list/MyParticipatedSurvey.vue';
 import router from '@/router'
 
 const routeSearch = () => {
