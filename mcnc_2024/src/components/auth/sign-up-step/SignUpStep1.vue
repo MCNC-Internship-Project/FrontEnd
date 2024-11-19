@@ -10,9 +10,9 @@
 
         <v-dialog v-model="showDialog" max-width="400">
             <v-card>
-                <v-card-text>
-                    {{ dialogMessage }}
-                </v-card-text>
+                <div class="dialog-container">
+                    <div class="dialog-error-message">{{ dialogMessage }}</div>
+                </div>
                 <v-card-actions>
                     <v-btn color="primary" text @click="showDialog = false">
                         확인
@@ -24,7 +24,10 @@
 </template>
 
 <script setup>
+import axios from 'axios';
 import { ref, defineProps, defineEmits } from 'vue'
+
+const baseUrl = process.env.VUE_APP_API_URL;
 
 const userId = ref("")
 const email = ref("")
@@ -71,7 +74,37 @@ const stepTo2 = () => {
         return;
     }
 
-    emit("nextStep", { userId: userId.value, email: email.value, step: props.step + 1 })
+    const jsonData = {
+        userId: userId.value,
+        email: email.value
+    }
+
+    axios.post(`${baseUrl}/auth/join/check`, JSON.stringify(jsonData), {
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+        .then((response) => {
+            if (response.data.id == true && response.data.email == true) {
+                showErrorDialog('아이디와 이메일이 이미 사용 중입니다.');
+                return;
+            }
+
+            if (response.data.id == true) {
+                showErrorDialog('아이디가 이미 사용 중입니다.');
+                return;
+            }
+
+            if (response.data.email == true) {
+                showErrorDialog('이메일이 이미 사용 중입니다.');
+                return;
+            }
+
+            emit("nextStep", { userId: userId.value, email: email.value, step: props.step + 1 })
+        })
+        .catch((error) => {
+            console.log(error);
+        });
 }
 
 </script>
@@ -115,15 +148,32 @@ const stepTo2 = () => {
 }
 
 .v-card {
-    background-color: #FAF8F8;
+    padding: 0;
     border-radius: 16px !important;
-    border: 1px solid #EFF0F6;
-    padding: 16px 12px 12px 12px;
 }
 
-.v-card-text {
-    font-size: 1rem !important;
+.dialog-background {
+    background-color: #FAF8F8;
+    border: 1px solid #EFF0F6;
+}
+
+.dialog-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 32px 20px 32px;
+}
+
+.dialog-error-message {
+    margin: 32px 0 16px 0;
+    font-size: 1.125rem;
+    font-weight: bold;
     color: #757576;
+}
+
+.v-card-actions {
+    padding: 20px;
 }
 
 .v-btn {

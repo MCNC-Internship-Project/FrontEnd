@@ -12,9 +12,9 @@
 
         <v-dialog v-model="showDialog" max-width="400">
             <v-card>
-                <v-card-text>
-                    {{ dialogMessage }}
-                </v-card-text>
+                <div class="dialog-container">
+                    <div class="dialog-error-message">{{ dialogMessage }}</div>
+                </div>
                 <v-card-actions>
                     <v-btn color="primary" text @click="showDialog = false">
                         확인
@@ -125,15 +125,32 @@ const stepTo3 = () => {
 }
 
 .v-card {
-    background-color: #FAF8F8;
+    padding: 0;
     border-radius: 16px !important;
-    border: 1px solid #EFF0F6;
-    padding: 16px 12px 12px 12px;
 }
 
-.v-card-text {
-    font-size: 1rem !important;
+.dialog-background {
+    background-color: #FAF8F8;
+    border: 1px solid #EFF0F6;
+}
+
+.dialog-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 32px 20px 32px;
+}
+
+.dialog-error-message {
+    margin: 32px 0 16px 0;
+    font-size: 1.125rem;
+    font-weight: bold;
     color: #757576;
+}
+
+.v-card-actions {
+    padding: 20px;
 }
 
 .v-btn {

@@ -1,5 +1,5 @@
 <template>
-    <div id="root-container">
+    <div class="root-container">
 
         <header class="toolbar">
             <div class="back-container">
@@ -13,34 +13,38 @@
 
         <div class="survey-section">
             <div class="survey-title-section">
-                <div class="input-section" :class="{'error': titleError}">
-                    <input type="text" name="survey-title" class="survey-title" v-model="surveyTitle" placeholder="설문조사 제목"
-                    maxlength="255" @input="titleError = false"/>
-                </div>
-                
-                <div class="input-section">
-                    <input type="text" name="survey-description" class="survey-description" v-model="surveyDescription" placeholder="설문지 설명" maxlength="255">
+                <div class="input-section" :class="{ 'error': titleError }">
+                    <input type="text" name="survey-title" class="survey-title" v-model="surveyTitle"
+                        placeholder="설문조사 제목" maxlength="255" @focus="titleError = false" />
                 </div>
 
-                <div class="select-deadline-section" :class="{'date-error': dateError}">
+                <div class="input-section">
+                    <input type="text" name="survey-description" class="survey-description" v-model="surveyDescription"
+                        placeholder="설문지 설명" maxlength="255">
+                </div>
+
+                <div class="select-deadline-section" :class="{ 'date-error': dateError }">
                     <div class="deadline">
                         설문 기간
                     </div>
 
-                    <div class="select-deadline" @click="isShowModal = true" v-ripple>
-                        <span v-html="selectDate === null && selectTime === null ? '미설정' : ` ~&nbsp;${selectDateFormat}&nbsp;&nbsp;&nbsp;${selectTime ? selectTime : ''}`"></span>
+                    <div class="datetime-container" @click="showDialog = true; dateError = false">
+                        <div class="select-deadline">
+                            <span
+                                v-html="date === null && time === null ? '미설정' : ` ~&nbsp;${dayjs(date).format('YYYY.MM.DD')}&nbsp;&nbsp;${time}`"></span>
+                        </div>
+                        <div class="calender-container">
+                            calender
+                        </div>
                     </div>
 
-                    <div class="calender-container" @click="isShowModal = true" v-ripple>
-                        calender
-                    </div>
                 </div>
             </div>
 
             <div class="survey-item-container">
                 <div class="survey-item-section" v-for="com in totalComponent" :key="com.id">
-                    <survey-item ref="surveyItems"/>
-                    <div class="delete-btn-container" :class="{'isVisible' : totalComponent.length === 1}">
+                    <survey-item ref="surveyItems" />
+                    <div class="delete-btn-container" :class="{ 'isVisible': totalComponent.length === 1 }">
                         <button @click="removeComponent(com.id)" class="delete-btn"></button>
                     </div>
                 </div>
@@ -48,153 +52,143 @@
         </div>
 
         <div class="create-btn-container">
-             <div class="create-btn-section" @click="addComponent" v-ripple>
+            <div class="create-btn-section" @click="addComponent" v-ripple>
                 <div class="add-icon-container">
                     <div class="add-icon">
                         add
                     </div>
                 </div>
                 질문 추가하기
-             </div>
+            </div>
         </div>
 
+        <v-dialog v-model="showDialog" max-width="400" persistent>
+            <v-card class="dialog-background">
+                <div class="dialog-container">
+                    <div class="dialog-title">종료 날짜 설정</div>
 
-        <div class="modal-container" v-if="isShowModal">
-            <div class="modal-background">
-                <div class="modal-section">
-
-                    <div class="modal-content-container">
-
-                        <div class="modal-content-title">
-                            종료 날짜 설정
-                        </div>
-
-                        <!-- 날짜 선택 영역 -->
-                        <div class="modal-datepicker-section" @click="showDatePicker = true">
-                            <div>{{ selectDateFormat || '날짜 선택' }}</div>
-                            <!--
-                                이 영역에는 클릭 이벤트가 2중으로 설정,
-                                icon-x-section에서 클릭을 누르면, 부모인 .modal-datepicker-section 까지 클릭 이벤트가 전파
-                                자식 영역 이벤트에 .stop을 붙임으로써 이벤트 버블링 방지
-                            -->
-                            <div class="icon-x-container" @click.stop="deleteDateValue">
-                                x
-                            </div>
-                        </div>
-
-                        <!-- 시간 선택 영역 -->
-                        <div class="modal-timepicker-section" @click="showTimePicker = true">
-                            <div>{{ selectTime || '시간 선택' }}</div>
-                            <div class="icon-x-container" @click.stop="deleteTimeValue">
-                                x
-                            </div>
-                        </div>
-
-                        <v-dialog v-model="showDatePicker" max-width="350px" width="100%">
-                            <v-card>
-                                <v-date-picker
-                                    :min="new Date()" 
-                                    locale="ko" 
-                                    cancel-text="취소" 
-                                    ok-text="확인" 
-                                    hide-header
-                                    width="300px"
-                                    @update:model-value="onDateSelected"
-                                />
+                    <v-menu v-model="isDateMenuOpen" :close-on-content-click="false" location="bottom center"
+                        :offset="5">
+                        <template v-slot:activator="{ props }">
+                            <v-card class="dialog-item" v-bind="props" :class="{ 'error': isDateError }">
+                                <div class="dialog-item-container">
+                                    <img src="@/assets/images/icon_calendar.svg" class="dialog-item-icon"
+                                        alt="calendar icon" />
+                                    <div class="dialog-item-text" :class="{ 'selected': selectedDate }"
+                                        v-if="selectedDate">
+                                        {{ dayjs(selectedDate).format('YYYY.MM.DD') }}
+                                    </div>
+                                    <div class="dialog-item-text" v-else>날짜 선택</div>
+                                    <img src="@/assets/images/icon_x.svg" alt="delete icon" class="dialog-item-icon"
+                                        :class="{ 'hidden': !selectedDate }"
+                                        @click.stop="selectedDate = null; isDateMenuOpen = false" />
+                                </div>
                             </v-card>
-                        </v-dialog>
+                        </template>
 
-                        <!-- 시간 선택 모달 -->
-                        <v-dialog v-model="showTimePicker" max-width="350px" width="100%">
-                        <v-card>
-                            <v-time-picker
-                                v-model="selectTime" 
-                                cancel-text="취소" 
-                                ok-text="확인" 
-                                title="시간 선택"
-                                :style="{ width: '100%' }"
-                            />
-                            <v-btn text @click="showTimePicker = false">닫기</v-btn>
-                        </v-card>
-                        </v-dialog>
+                        <template v-slot:default>
+                            <v-card>
+                                <v-date-picker hide-header v-model="selectedDate" width="100%" min-width="256"
+                                    max-width="336" @update:model-value="isDateMenuOpen = false" color="#1088E3"
+                                    :min="new Date().toISOString().slice(0, 10)"></v-date-picker>
+                            </v-card>
+                        </template>
+                    </v-menu>
 
+                    <v-menu v-model="isTimeMenuOpen" :close-on-content-click="false" location="bottom center"
+                        :offset="5" @update:model-value="onTimePickerClose">
+                        <template v-slot:activator="{ props }">
+                            <v-card class="dialog-item" v-bind="props" :class="{ 'error': isTimeError }">
+                                <div class="dialog-item-container">
+                                    <img src="@/assets/images/icon_clock.svg" class="dialog-item-icon"
+                                        alt="calendar icon" />
+                                    <div class="dialog-item-text" :class="{ 'selected': selectedTime }"
+                                        v-if="selectedTime">
+                                        {{ selectedTime }}
+                                    </div>
+                                    <div class="dialog-item-text" v-else>시간 선택</div>
+                                    <img src="@/assets/images/icon_x.svg" alt="delete icon" class="dialog-item-icon"
+                                        :class="{ 'hidden': !selectedTime }"
+                                        @click.stop="selectedTime = null; selectedAmPm = '오전'; selectedHour = 12; selectedMinute = 0; isTimeMenuOpen = false" />
+                                </div>
+                            </v-card>
+                        </template>
 
-                    </div>
+                        <template v-slot:default>
+                            <v-card>
+                                <div class="picker-container">
+                                    <div class="highlight"></div>
+                                    <time-picker-component :items="ampmList" v-model:value="selectedAmPm"
+                                        :initial-value="selectedAmPm" />
+                                    <time-picker-component :items="hourList" v-model:value="selectedHour"
+                                        :initial-value="selectedHour" />
+                                    <img src="@/assets/images/icon_colon.svg" alt=":" class="time-separator" />
+                                    <time-picker-component :items="minuteList" v-model:value="selectedMinute"
+                                        :initial-value="selectedMinute" />
+                                </div>
+                            </v-card>
+                        </template>
+                    </v-menu>
 
-                    <div class="modal-btn-container">
+                    <div class="error-text" v-if="isTimeBeforeNowError">*종료 시간은 현재보다 이전으로 설정할 수 없습니다.</div>
 
-                        <div class="modal-btn-section modal-cancle-btn" @click="cancleDeadline">
-                            취소
-                        </div>
-                        <div class="modal-btn-section modal-submit-btn" @click="initDeadline">
-                            확인
-                        </div>
-
-                    </div>
-
-                </div>
-            </div>
-        </div>
-
-
-        <div class="modal-container" v-if="isShowSaveModal">
-            <div class="modal-background">
-                <div class="modal-section">
-
-                    <div class="modal-content-container">
-
-                        <div class="modal-content-title">
-                            저장하시겠습니까?
-                        </div>
-
-                    <div class="modal-btn-container">
-                        <div class="modal-btn-section modal-cancle-btn" @click="isShowSaveModal = false">
-                            취소
-                        </div>
-                        <div class="modal-btn-section modal-submit-btn" @click="handleSubmit">
-                            확인
-                        </div>
-
-                    </div>
-
+                    <div class="dialog-actions">
+                        <v-btn class="dialog-cancel-btn" @click="cancel">취소</v-btn>
+                        <v-btn class="dialog-confirm-btn" color="#7796E8" @click="confirm">확인</v-btn>
                     </div>
                 </div>
-            </div>
-        </div>
+            </v-card>
+        </v-dialog>
+
+
+        <v-dialog v-model="isShowSaveModal" max-width="400">
+            <v-card class="dialog-background">
+                <div class="dialog-container">
+                    <div class="dialog-message">저장하시겠습니까?</div>
+
+                    <div class="dialog-actions">
+                        <v-btn class="dialog-cancel-btn" @click="isShowSaveModal = false">취소</v-btn>
+                        <v-btn class="dialog-confirm-btn" color="#7796E8" @click="handleSubmit">확인</v-btn>
+                    </div>
+                </div>
+            </v-card>
+        </v-dialog>
     </div>
 
-    <v-dialog v-model="invalidValueDialog" max-width="300">
-        <template v-slot:default>
-            <v-card class="custom-dialog-card">
-            <v-card-text class="custom-dialog-card-text">
-                입력되지 않은 항목이 있습니다.
-            </v-card-text>
+    <v-dialog v-model="showInvalidDateDialog" max-width="400">
+        <v-card class="dialog-background">
+            <div class="dialog-container">
+                <div class="dialog-error-message">{{ dialogMessage }}</div>
+            </div>
 
-            <v-card-actions class="custom-card-actions">
-                <v-spacer></v-spacer>
-
-                <div class="v-btn-container">
-                    <v-btn
-                    text="확인"
-                    class="custom-btn"
-                    @click="invalidValueDialog = false"
-                    ></v-btn>
-                </div>
+            <v-card-actions>
+                <v-btn class="dialog-close-btn" @click="showInvalidDateDialog = false">
+                    확인
+                </v-btn>
             </v-card-actions>
-            </v-card>
-        </template>
+        </v-card>
     </v-dialog>
 </template>
 
 <script setup>
-import SurveyItem from './create-survey-item/SurveyItem.vue';
-import { ref, nextTick, watch } from 'vue';
 import router from '@/router';
-import { formatDate } from '@/utils/dateCalculator';
+import { ref, nextTick, watch } from 'vue';
+// import axios from 'axios';
+
+import dayjs from 'dayjs'
+import customParseFormat from "dayjs/plugin/customParseFormat";
+dayjs.extend(customParseFormat);
+require('dayjs/locale/ko');
+
 import { checkEmptyValues } from '@/utils/checkEmptyValues';
 
+import SurveyItem from './create-survey-item/SurveyItem.vue';
+import TimePickerComponent from './create-survey-item/component/TimePickerComponent.vue';
+
+// const baseUrl = process.env.VUE_APP_API_URL;
+
 const totalComponent = ref([
-    {id:0},
+    { id: 0 },
 ]);
 const surveyItems = ref([]);
 
@@ -203,100 +197,161 @@ const titleError = ref(false);
 
 const surveyDescription = ref("")
 
-const selectDate = ref(null);
 const dateError = ref(false);
+const isDateError = ref(false);
+const isTimeError = ref(false);
+const isTimeBeforeNowError = ref(false);
 
-watch(selectDate, (newValue) => {
-    if (newValue) {
-        dateError.value = false;
+const showInvalidDateDialog = ref(false);
+const isShowSaveModal = ref(false);
+const showDialog = ref(false);
+const isDateMenuOpen = ref(false);
+const isTimeMenuOpen = ref(false);
+const dialogMessage = ref("");
+
+const ampmList = ref(['오전', '오후']);
+const hourList = ref(['12', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11']);
+const minuteList = ref(['00', '05', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55']);
+
+const selectedDate = ref(null);
+const selectedTime = ref(null);
+const selectedAmPm = ref('오전');
+const selectedHour = ref('12');
+const selectedMinute = ref('00');
+
+const date = ref(null);
+const time = ref(null);
+
+const cancel = () => {
+    showDialog.value = false;
+
+    if (selectedDate.value === null) {
+        selectedDate.value = null;
+    }
+
+    if (selectedTime.value === null) {
+        selectedTime.value = null;
+        selectedAmPm.value = '오전';
+        selectedHour.value = '12';
+        selectedMinute.value = '00';
+    }
+};
+
+const confirm = () => {
+    if (selectedDate.value === null) {
+        isDateError.value = true;
+    }
+
+    if (selectedTime.value === null) {
+        isTimeError.value = true;
+    }
+
+    if (selectedDate.value !== null && selectedTime.value !== null) {
+        const [ampm, timeString] = selectedTime.value.split(' ');
+        const [hour, minute] = timeString.split(':');
+        let hours24 = parseInt(hour);
+
+        if (ampm === '오후' && hours24 !== 12) {
+            hours24 += 12;
+        } else if (ampm === '오전' && hours24 === 12) {
+            hours24 = 0;
+        }
+
+        const selectedDateTime = dayjs(selectedDate.value).hour(hours24).minute(parseInt(minute));
+        const now = dayjs();
+
+        if (selectedDateTime.isBefore(now)) {
+            isTimeBeforeNowError.value = true;
+            return;
+        } else {
+            isTimeBeforeNowError.value = false;
+        }
+    }
+
+    if (selectedDate.value !== null && selectedTime.value !== null) {
+        date.value = selectedDate.value;
+        time.value = selectedTime.value;
+
+        showDialog.value = false;
+    }
+};
+
+const onTimePickerClose = (value) => {
+    if (!value) {
+        selectedTime.value = `${selectedAmPm.value} ${String(selectedHour.value).padStart(2, '0')}:${String(selectedMinute.value).padStart(2, '0')}`;
+    }
+};
+
+watch(showDialog, (show) => {
+    if (show) {
+        if (date.value) {
+            selectedDate.value = date.value;
+        }
+
+        if (time.value) {
+            selectedTime.value = time.value;
+
+            const [ampm, timeValue] = time.value.split(' ');
+            const [hour, minute] = timeValue.split(':');
+
+            selectedAmPm.value = ampm;
+            selectedHour.value = hour;
+            selectedMinute.value = minute;
+        }
     }
 });
 
-const selectDateFormat = ref("");
-const selectTime = ref(null);
-const isShowModal = ref(false);
-const isShowSaveModal = ref(false);
+watch(isDateMenuOpen, (isOpen) => {
+    if (isOpen) {
+        isDateError.value = false;
 
-const showDatePicker = ref(false)  // 날짜 선택 모달 상태
-const showTimePicker = ref(false)  // 시간 선택 모달 상태
+        isTimeBeforeNowError.value = false;
+    }
+});
 
-const invalidValueDialog = ref(false)
-
+watch(isTimeMenuOpen, (isOpen) => {
+    if (isOpen) {
+        isTimeError.value = false;
+        isTimeBeforeNowError.value = false;
+    }
+});
 
 const addComponent = () => {
-    const lastIndex = totalComponent.value.length > 0 
-        ? totalComponent.value[totalComponent.value.length - 1].id 
+    const lastIndex = totalComponent.value.length > 0
+        ? totalComponent.value[totalComponent.value.length - 1].id
         : -1;
 
-    const newObj = {id: lastIndex+1}
+    const newObj = { id: lastIndex + 1 }
 
     totalComponent.value.push(newObj);
 
     // nextTick으로 DOM 업데이트 후에 ref 배열이 최신 상태로 반영되도록 함
     nextTick(() => {
-    surveyItems.value = surveyItems.value.slice(); // 새로운 참조로 배열을 갱신
-  });
+        surveyItems.value = surveyItems.value.slice(); // 새로운 참조로 배열을 갱신
+    });
 }
 
 const removeComponent = (id) => {
     totalComponent.value = totalComponent.value.filter((component) => component.id !== id);
 };
 
-const stepBack = () =>{
+const stepBack = () => {
     router.back()
 }
 
-const cancleDeadline = () => {
-    if(selectDate.value === null && selectTime.value !== null) {
-        selectTime.value = null;
+const parseTime = (timeStr) => {
+    if (!timeStr) return null;
+    const [ampm, time] = timeStr.split(' ');
+    const [hours, minutes] = time.split(':');
+    let hour = parseInt(hours);
+
+    if (ampm === '오후' && hour !== 12) {
+        hour += 12;
+    } else if (ampm === '오전' && hour === 12) {
+        hour = 0;
     }
-    isShowModal.value = false;
-}
 
-const initDeadline = () => {
-    if(selectDate.value === null && selectTime.value !== null) {
-        alert("날짜를 선택해주세요.");
-        return;
-    }
-
-    // 날짜가 선택되었고 시간이 선택되지 않은 경우
-    if(selectDate.value !== null && selectTime.value === null) {
-        const selectedDate = new Date(selectDate.value); // 선택된 날짜 객체로 변환
-
-        // 선택된 날짜의 하루를 더함 (다음 날로 설정)
-        selectedDate.setDate(selectedDate.getDate() + 1); // 하루 더함
-
-        selectDate.value = selectedDate;
-        selectDateFormat.value = formatDate(selectDate.value)
-
-        // 선택된 날짜의 시간을 00:00:00으로 설정
-        selectedDate.setHours(0, 0, 0, 0);
-
-        // 새로 수정된 날짜를 00:00 형식으로 selectTime에 반영
-        selectTime.value = selectedDate.toLocaleTimeString('en-GB',  { hour12: false, hour: '2-digit', minute: '2-digit' });
-    }
-    isShowModal.value = false;
-}
-
-// 날짜 선택 시 호출되는 함수
-function onDateSelected(date) {
-    selectDate.value = new Date(date);
-    if (selectDate.value) {
-        selectDateFormat.value = formatDate(selectDate.value)
-    }
-    showDatePicker.value = false;
-    showDatePicker.value = false;
-}
-
-const deleteDateValue = () => {
-    selectDate.value = null;
-    selectDateFormat.value = "";
-    return;
-}
-
-const deleteTimeValue = () => {
-    selectTime.value = null;
-    return;
+    return dayjs().hour(hour).minute(parseInt(minutes));
 }
 
 const handleSubmit = () => {
@@ -305,26 +360,21 @@ const handleSubmit = () => {
     const description = surveyDescription.value.trim();
     let valid = true;
 
-    if(!title) {
+    if (!title) {
         titleError.value = true
         valid = false;
         isShowSaveModal.value = false;
     }
 
-    if(!selectDate.value) {
+    if (!date.value || !time.value) {
         dateError.value = true
         valid = false;
         isShowSaveModal.value = false;
     }
 
-    const dateStr = selectDateFormat.value + " " + selectTime.value;
-
-    // date 값 넘길때는 서버 타입에 맞춰 변환
-    let date = dateStr.replace(" ", "T").replaceAll(".", "-") + ":00";
-
     const values = surveyItems.value.map((item) => item.getValue()); // getValue()는 각 survey-item에서 필요한 값을 반환하는 메서드로 가정
 
-    const jsonData = {title : title, description : description, expireDate: date, questionList : values}
+    const jsonData = { title: title, description: description, questionList: values }
 
     const emptyPath = checkEmptyValues(jsonData);
 
@@ -338,19 +388,36 @@ const handleSubmit = () => {
      * 
      */
     if (isExistQuestionList.length > 0 || !valid) {
-        invalidValueDialog.value = true;
         isShowSaveModal.value = false;
+        showErrorDialog('입력되지 않은 항목이 있습니다.');
         return;
     } else {
-
-        // const apiUrl = process.env.VUE_APP_API_URL;
-
         isShowSaveModal.value = false;
-        console.log(JSON.stringify(jsonData))
 
-        // axios.post(`${apiUrl}/survey/manage/create`, JSON.stringify(jsonData))
+        const dateFormatted = dayjs(date.value).format('YYYY-MM-DD');
+        const timeFormatted = parseTime(time.value).format('hh:mm:00');
+
+        const dateTime = `${dateFormatted}T${timeFormatted}`;
+
+        const currentDateTime = dayjs();
+        const selectedDateTime = dayjs(dateTime);
+
+        if (selectedDateTime.isBefore(currentDateTime)) {
+            dateError.value = true;
+            showErrorDialog('종료 시간은 현재보다 이전으로 설정할 수 없습니다.');
+            return;
+        }
+
+        jsonData.expireDate = dateTime;
+
+        // axios.post(`${baseUrl}/survey/manage/create`, JSON.stringify(jsonData), {
+        //     withCredentials: true,
+        //     headers: {
+        //         'Content-Type': 'application/json'
+        //     }
+        // })
         //     .then(response => {
-        //         console.log(response.data);
+        //         console.log(response);
         //     })
         //     .catch(error => {
         //         console.error(error);
@@ -358,12 +425,16 @@ const handleSubmit = () => {
     }
 };
 
+const showErrorDialog = (message) => {
+    dialogMessage.value = message
+    showInvalidDateDialog.value = true
+}
 </script>
 
 <style scoped>
-#root-container {
-    width : 100%;
-    display : flex;
+.root-container {
+    width: 100%;
+    display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
@@ -380,7 +451,7 @@ const handleSubmit = () => {
     width: 100%;
     height: 64px;
     background-color: #fff;
-    z-index : 50;
+    z-index: 50;
 }
 
 .back-container {
@@ -390,7 +461,7 @@ const handleSubmit = () => {
 }
 
 .menu-container {
-    display : flex;
+    display: flex;
     align-items: center;
     position: absolute;
     right: 0;
@@ -398,77 +469,83 @@ const handleSubmit = () => {
 }
 
 .submit-btn {
-    display : inline-block;
-    width : 56px;
-    height : 32px;
-    border : none;
+    display: inline-block;
+    width: 56px;
+    height: 32px;
+    border: none;
     border-radius: 8px;
-    text-align : center;
+    text-align: center;
     background-color: var(--primary);
-    font-size : 0.8125rem;
-    color : white;
+    font-size: 0.8125rem;
+    color: white;
 }
 
 .survey-section {
-    width : 100%;
+    width: 100%;
     max-width: 800px;
-    padding : 0 24px;
-    margin-top : 64px;
+    padding: 0 24px;
+    margin-top: 64px;
 }
 
 .survey-title-section {
-    background-color: #EFF0F6;
+    background-color: #F8FBFF;
+    border : solid 1px #EFF0F6;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
     border-radius: 15px;
-    margin-bottom : 20px;
-    padding : 8px 8px;
+    margin-bottom: 20px;
+    padding: 8px 8px;
     box-sizing: border-box;
-    box-shadow : 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .survey-title::placeholder {
-    color : #464748;
+    color: #464748;
 }
 
 .survey-title:focus::placeholder {
-    color : transparent;
+    color: transparent;
 }
 
 .survey-description::placeholder {
-    color : #C1C3C5;
+    color: #C1C3C5;
 }
 
 .survey-description:focus::placeholder {
-    color : transparent;
+    color: transparent;
 }
 
 .select-deadline-section {
-    margin : 16px 12px 0 12px;
-    padding : 0 4px;
-    height : 32px;
-    display : flex;
+    margin: 16px 12px 0 12px;
+    padding: 0 4px;
+    height: 32px;
+    display: flex;
     align-items: center;
-    font-weight : bold;
-    font-size : 0.8175rem;
-    color : #757575;
+    font-weight: bold;
+    font-size: 0.8175rem;
+    color: #757575;
+}
+
+.datetime-container {
+    display: flex;
+    cursor: pointer;
 }
 
 .select-deadline {
-    color : #ABABB6;
-    margin : 0 8px;
-    font-size : 0.8175rem;
+    color: #ABABB6;
+    margin: 0 4px 0 8px;
+    font-size: 0.8175rem;
 }
 
 .calender-container {
-    text-indent : -999em;
+    text-indent: -999em;
     background: url("../../assets/images/icon_calendar.svg") no-repeat;
     background-size: contain;
-    width : 20px;
-    height : 20px;
+    width: 20px;
+    height: 20px;
 }
 
 .survey-item-container {
-    width : 100%;
-    display : flex;
+    width: 100%;
+    display: flex;
     flex-direction: column;
     align-items: stretch;
     justify-content: center;
@@ -476,26 +553,26 @@ const handleSubmit = () => {
 
 .survey-item-section {
     background-color: #FAF8F8;
-    margin-bottom : 12px;
-    display : flex;
+    margin-bottom: 16px;
+    display: flex;
     flex-direction: row;
     align-items: flex-start;
     justify-content: center;
     padding: 0;
-    border : solid 1px #eff0f6;
-    border-radius : 15px;
-    box-shadow : 0 2px 4px rgba(0, 0, 0, 0.3);
+    border: solid 1px #eff0f6;
+    border-radius: 15px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .delete-btn {
     border-radius: 8px;
-    text-indent : -999em;
+    text-indent: -999em;
     background: url("../../assets/images/icon_trash.svg") no-repeat;
     background-size: contain;
-    width : 24px;
-    height : 24px;
-    margin-top : 36px;
-    margin-right : 12px;
+    width: 24px;
+    height: 24px;
+    margin-top: 36px;
+    margin-right: 12px;
 }
 
 .isVisible {
@@ -503,232 +580,277 @@ const handleSubmit = () => {
 }
 
 .input-section {
-    width : 100%;
-    display : flex;
+    width: 100%;
+    display: flex;
     justify-content: start;
 }
 
 input {
-    width : 100%;
-    margin : 0 16px;
-    height : 44px;
-    padding : 0 16px;
-    outline: none;                 /* 포커스 outline 제거 */
-    padding: 8px 0;                /* 위아래 여백 추가 */
-    transition: all 0.3s; /* 포커스 시 애니메이션 */
+    width: 100%;
+    margin: 0 16px;
+    height: 44px;
+    padding: 0 16px;
+    outline: none;
+    /* 포커스 outline 제거 */
+    padding: 8px 0;
+    /* 위아래 여백 추가 */
+    transition: all 0.3s;
+    /* 포커스 시 애니메이션 */
 }
 
 .survey-title {
-    border: none;                  /* 기본 테두리 제거 */
-    font-size : 1rem;
-    font-weight : bold;
-    color : #464748;
+    border: none;
+    /* 기본 테두리 제거 */
+    font-size: 1rem;
+    font-weight: bold;
+    color: #464748;
 }
 
-.error{
-    border-radius : 12px;
+.error {
+    border-radius: 12px;
     box-shadow: 0 0 0 2px #F77D7D;
 }
 
-.date-error{
-    border-radius : 8px;
+.date-error {
+    border-radius: 8px;
     box-shadow: 0 0 0 2px #F77D7D;
 }
 
 .survey-description {
-    font-size : 0.875rem;
-    color : #C1C3C5;
+    font-size: 0.875rem;
+    color: #C1C3C5;
 }
 
 .create-btn-container {
-    width : 100%;
+    width: 100%;
     max-width: 800px;
-    padding : 0 24px;
-    margin : 16px 0;
+    padding: 0 24px;
+    margin: 16px 0;
+    cursor: pointer;
 }
 
 .create-btn-section {
-    position : relative;
+    position: relative;
     background-color: #fff;
-    height : 60px;
-    display : flex;
+    height: 60px;
+    display: flex;
     align-items: center;
     justify-content: center;
-    border : solid 1px #EFF0F6;
+    border: solid 1px #EFF0F6;
     border-radius: 15px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-    font-weight : bold;
-    font-size : 1rem;
-    color : #8C8C8C;
+    box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.2);
+    font-weight: bold;
+    font-size: 1rem;
+    color: #8C8C8C;
 }
 
 .add-icon-container {
-    position : absolute;
-    top : 18px;
-    left : 24px;
+    position: absolute;
+    top: 18px;
+    left: 24px;
 }
 
 .add-icon {
-    text-indent : -999em;
+    text-indent: -999em;
     background: url("../../assets/images/icon_add.svg");
     background-size: contain;
-    width : 24px;
-    height : 24px;
-}
-
-.modal-container {
-    position: fixed;  /* 모달을 고정 */
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 100;  /* 다른 요소들 위에 위치 */
-}
-
-.modal-background {
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);  /* 배경을 반투명 회색으로 설정 */
-    display: flex;
-    justify-content: center;
-    align-items: center; 
-}
-
-.modal-section {
-    background-color: #fff;  /* 모달 창의 배경을 흰색으로 */
-    padding: 20px;
-    border-radius: 10px;
-    width: 300px;
-    display : flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-
-.modal-content-container {
-    width : 100%;
-    display : flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-
-.modal-content-title {
-    margin-bottom : 12px;
-    font-size : 1rem;
-    font-weight : bold;
-    color : #757576;
-}
-
-.modal-btn-container {
-    width : 100%;
-    margin-top : 24px;
-    display : flex;
-    align-items: center;
-    justify-content: space-around;
-}
-
-.modal-btn-section {
-    width : 120px;
-    height : 40px;
-    font-size : 1rem;
-    font-weight : bold;
-    border-radius: 15px;
-    border : solid 1px #757575;
-    display : flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.modal-cancle-btn {
-    background-color: #fff;
-    color : #757575;
-}
-
-.modal-submit-btn {
-    background-color: var(--primary);
-    color : #fff;
-}
-
-.modal-datepicker-section, .modal-timepicker-section {
-    position : relative;
-    width : 250px;
-    height : 60px;
-    margin : 8px 8px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    border: 1px solid #ccc;
-    border-radius: 15px;
-}
-
-.icon-x-container {
-    position : absolute;
-    display : flex;
-    align-items: center;
-    justify-content: center;
-    top : 19px;
-    right : 20px;
-    text-indent : -999em;
-    background: url("../../assets/images/icon_x.svg") no-repeat;
-    background-size: contain;
-    width : 20px;
-    height : 20px;
-}
-
-.v-dialog {
-  max-width: 90vw;
-  width: 100%;
+    width: 24px;
+    height: 24px;
 }
 
 .v-card {
-  width: 100%;
+    padding: 0;
+    border-radius: 16px !important;
 }
 
-.v-dialog__content {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-
-.v-date-picker, .v-time-picker {
-  max-width: 100%;
-  min-width: 200px;
-  width: 100%;
-  margin: 0 auto;
-}
-
-.custom-dialog-card {
-    border: 1px solid #EFF0F6;
-    padding: 12px 0;
-    border-radius: 12px !important;
-    text-align: center;
-}
-
-.custom-dialog-card-text {
-    padding : 16px 8px !important
-}
-
-.v-btn-container {
-    width : 100%;
-    padding : 0 40px;
+.picker-container {
     display: flex;
     align-items: center;
     justify-content: center;
+    position: relative;
+    height: 120px;
+    padding: 4px 24px;
 }
 
-.custom-btn {
-  width: 100%;
-  padding: 0;
-  border-radius: 10px;
-  color : #fff;
-  background-color: var(--primary);
+.scroll-container {
+    display: flex;
+    position: relative;
+    height: 120px;
+    overflow-y: auto;
+    scrollbar-width: none;
 }
 
+.time-picker-container {
+    display: flex;
+    position: relative;
+    height: 120px;
+    overflow-y: auto;
+    scrollbar-width: none;
+}
 
-.custom-card-actions {
-  padding: 0;
+.time-separator {
+    width: 20px;
+    height: 20px;
+    z-index: 1000;
+}
+
+.highlight {
+    position: absolute;
+    top: 50%;
+    left: 20px;
+    right: 20px;
+    width: calc(100% - 40px);
+    height: 40px;
+    background-color: #F3F3F3;
+    border-radius: 8px;
+    transform: translateY(-50%);
+}
+
+.dialog-background {
+    background-color: #FAF8F8;
+    background-color: #FAF8F8;
+    border: 1px solid #EFF0F6;
+}
+
+.dialog-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 32px 20px 32px;
+}
+
+.dialog-title {
+    font-size: 1rem;
+    font-weight: bold;
+    color: #757576;
+    margin-bottom: 16px;
+}
+
+.dialog-item {
+    width: 100%;
+    height: 60px;
+    margin-bottom: 4px;
+    background: #FFFFFF;
+    border: 1px solid #EFF0F7;
+    box-shadow: 0px 5px 16px rgba(8, 15, 52, 0.06);
+}
+
+.dialog-item-container {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    padding: 0 16px;
+}
+
+.dialog-item-icon {
+    width: 20px;
+    height: 20px;
+    z-index: 1000;
+}
+
+.hidden {
+    visibility: hidden;
+}
+
+.dialog-item-text {
+    font-size: 1rem;
+    font-weight: bold;
+    color: #ABABB6;
+    margin: auto;
+}
+
+.selected {
+    color: #757576;
+}
+
+.error-text {
+    font-size: 0.875rem;
+    line-height: 20px;
+    color: #F77D7D;
+}
+
+.dialog-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    margin: 16px 8px 0 8px;
+}
+
+.v-dialog .v-btn {
+    height: 44px;
+    flex-grow: 1;
+    font-size: 1rem;
+    font-weight: bold;
+    border-radius: 16px;
+    border: 1px solid #EFF0F7;
+    box-shadow: 0px 5px 16px rgba(8, 15, 52, 0.06);
+}
+
+.dialog-cancel-btn {
+    background: #FFFFFF;
+    color: #757576;
+}
+
+.dialog-confirm-btn {
+    color: #FFFFFF;
+}
+
+.error {
+    border-width: 2px;
+    border-color: #F77D7D;
+}
+
+.v-date-picker {
+    margin: 0 auto;
+}
+
+/* 년, 월 */
+.v-date-picker :deep(.v-date-picker-controls .v-btn__content) {
+    font-size: 0.875rem;
+}
+
+/* 요일 */
+.v-date-picker :deep(.v-date-picker-month__day) {
+    width: 32px;
+    height: 32px;
+    font-size: 0.875rem;
+    margin-bottom: 4px;
+}
+
+/* 날짜 */
+.v-date-picker :deep(.v-date-picker-month__day button) {
+    width: 32px;
+    height: 32px;
+}
+
+.dialog-message {
+    margin: 32px 0 16px 0;
+    font-size: 1.125rem;
+    font-weight: bold;
+    color: #757576;
+}
+
+.dialog-error-message {
+    margin: 32px 0 0 0;
+    font-size: 1.125rem;
+    font-weight: bold;
+    color: #757576;
+}
+
+.v-card-actions {
+    padding: 20px;
+}
+
+.dialog-close-btn {
+    width: 100%;
+    margin: 0;
+    color: #FFFFFF !important;
+    background-color: var(--primary);
+    border-radius: 16px;
+    height: 48px;
+    font-size: 0.875rem;
 }
 </style>
