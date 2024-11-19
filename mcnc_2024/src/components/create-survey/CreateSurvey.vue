@@ -488,12 +488,13 @@ const showErrorDialog = (message) => {
 }
 
 .survey-title-section {
-    background-color: #EFF0F6;
+    background-color: #F8FBFF;
+    border : solid 1px #EFF0F6;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
     border-radius: 15px;
     margin-bottom: 20px;
     padding: 8px 8px;
     box-sizing: border-box;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .survey-title::placeholder {
@@ -552,7 +553,7 @@ const showErrorDialog = (message) => {
 
 .survey-item-section {
     background-color: #FAF8F8;
-    margin-bottom: 12px;
+    margin-bottom: 16px;
     display: flex;
     flex-direction: row;
     align-items: flex-start;
@@ -560,7 +561,7 @@ const showErrorDialog = (message) => {
     padding: 0;
     border: solid 1px #eff0f6;
     border-radius: 15px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .delete-btn {
@@ -637,7 +638,7 @@ input {
     justify-content: center;
     border: solid 1px #EFF0F6;
     border-radius: 15px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.2);
     font-weight: bold;
     font-size: 1rem;
     color: #8C8C8C;
