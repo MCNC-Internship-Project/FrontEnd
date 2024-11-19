@@ -62,7 +62,7 @@ const login = () => {
             'Content-Type': 'application/json'
         }
     })
-        .then((response) => {
+        .then(() => {
             router.push("/");
         })
         .catch((error) => {
