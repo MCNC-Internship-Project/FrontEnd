@@ -3,7 +3,7 @@
  * home -> notice
  * home -> profile
  */
-import UserProfile from "./user_profile/user-profile";
+import UserProfile from "./user-profile/user-profile";
 
 const HomeRoutes = [
     {

@@ -5,7 +5,7 @@
       <div class="form-input" :class="{ 'error': isBirthError }" @click="showDatePicker = true; isBirthError = false;">
         <div class="text-container">
           <span class="placeholder-text" v-if="!birth">생년월일</span>
-            <span class="text" v-if="birth">{{ dayjs(birth).format('YYYY년 MM월 DD일') }}</span>
+          <span class="text" v-if="birth">{{ dayjs(birth).format('YYYY년 MM월 DD일') }}</span>
         </div>
         <div class="img-container">
           <img src="../../../assets/images/icon_calendar.svg" class="icon" alt="calendar icon" />
@@ -28,8 +28,7 @@
 
         <!-- 드롭다운 목록 -->
         <v-list>
-          <v-list-item v-for="(option, index) in genderOptions" :key="index"
-            @click="selectGender(option)">
+          <v-list-item v-for="(option, index) in genderOptions" :key="index" @click="selectGender(option)">
             <v-list-item-title>{{ option }}</v-list-item-title>
           </v-list-item>
         </v-list>
@@ -50,9 +49,9 @@
 
     <v-dialog v-model="showDialog" max-width="400">
       <v-card>
-        <v-card-text>
-          {{ dialogMessage }}
-        </v-card-text>
+        <div class="dialog-container">
+          <div class="dialog-error-message">{{ dialogMessage }}</div>
+        </div>
         <v-card-actions>
           <v-btn color="primary" text @click="showDialog = false">
             확인
@@ -186,24 +185,41 @@ const goToSignUp = () => {
 }
 
 .v-card {
-  background-color: #FAF8F8;
-  border-radius: 16px !important;
-  border: 1px solid #EFF0F6;
-  padding: 16px 12px 12px 12px;
+    padding: 0;
+    border-radius: 16px !important;
 }
 
-.v-card-text {
-  font-size: 1rem !important;
-  color: #757576;
+.dialog-background {
+    background-color: #FAF8F8;
+    border: 1px solid #EFF0F6;
+}
+
+.dialog-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 32px 20px 32px;
+}
+
+.dialog-error-message {
+    margin: 32px 0 16px 0;
+    font-size: 1.125rem;
+    font-weight: bold;
+    color: #757576;
+}
+
+.v-card-actions {
+    padding: 20px;
 }
 
 .v-btn {
-  width: 100%;
-  margin: 0;
-  color: #FFFFFF !important;
-  background-color: var(--primary);
-  border-radius: 16px;
-  height: 48px;
-  font-size: 0.875rem;
+    width: 100%;
+    margin: 0;
+    color: #FFFFFF !important;
+    background-color: var(--primary);
+    border-radius: 16px;
+    height: 48px;
+    font-size: 0.875rem;
 }
 </style>
