@@ -42,12 +42,19 @@
             </div>
 
             <div class="survey-item-container">
-                <div class="survey-item-section" v-for="com in totalComponent" :key="com.id">
-                    <survey-item ref="surveyItems" />
-                    <div class="delete-btn-container" :class="{ 'isVisible': totalComponent.length === 1 }">
-                        <button @click="removeComponent(com.id)" class="delete-btn"></button>
+                <transition-group name="survey-delete" tag="div" class="survey-items-wrapper">
+                    <div class="survey-item-section" v-for="com in totalComponent" :key="com.id">
+                        <survey-item ref="surveyItems" />
+                        <div class="delete-btn-container" :class="{ 'isVisible': totalComponent.length === 1 }">
+                            <button 
+                                @click="removeComponent(com.id)" 
+                                class="delete-btn"
+                                :disabled="isDeleting"
+                                :class="{ 'disabled': isDeleting }"
+                            ></button>
+                        </div>
                     </div>
-                </div>
+                </transition-group>
             </div>
         </div>
 
@@ -198,6 +205,7 @@ const titleError = ref(false);
 const surveyDescription = ref("")
 
 const dateError = ref(false);
+const isDeleting = ref(false);
 const isDateError = ref(false);
 const isTimeError = ref(false);
 const isTimeBeforeNowError = ref(false);
@@ -331,8 +339,28 @@ const addComponent = () => {
     });
 }
 
+// const removeComponent = (id) => {
+//     totalComponent.value = totalComponent.value.filter((component) => component.id !== id);
+// };
+
 const removeComponent = (id) => {
-    totalComponent.value = totalComponent.value.filter((component) => component.id !== id);
+    if (isDeleting.value) return; // 이미 삭제 중이면 추가 삭제 방지
+    
+    isDeleting.value = true; // 삭제 시작
+    
+    // Find the index of the component to be removed
+    const index = totalComponent.value.findIndex(component => component.id === id);
+    if (index !== -1) {
+        // Add a class to trigger the animation
+        const elementToRemove = document.querySelectorAll('.survey-item-section')[index];
+        elementToRemove.classList.add('survey-delete-leave-active');
+        
+        // Remove the component after animation
+        setTimeout(() => {
+            totalComponent.value = totalComponent.value.filter((component) => component.id !== id);
+            isDeleting.value = false; // 삭제 완료 후 상태 초기화
+        }, 300); // Match this with animation duration
+    }
 };
 
 const stepBack = () => {
@@ -484,13 +512,13 @@ const showErrorDialog = (message) => {
     width: 100%;
     max-width: 800px;
     padding: 0 24px;
-    margin-top: 64px;
+    margin-top: 68px;
 }
 
 .survey-title-section {
     background-color: #F8FBFF;
     border : solid 1px #EFF0F6;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 1px 3px 1px rgba(0, 0, 0, 0.15);
     border-radius: 15px;
     margin-bottom: 20px;
     padding: 8px 8px;
@@ -561,7 +589,7 @@ const showErrorDialog = (message) => {
     padding: 0;
     border: solid 1px #eff0f6;
     border-radius: 15px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 1px 3px 1px rgba(0, 0, 0, 0.15);
 }
 
 .delete-btn {
@@ -573,6 +601,12 @@ const showErrorDialog = (message) => {
     height: 24px;
     margin-top: 36px;
     margin-right: 12px;
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+}
+
+.delete-btn.disabled {  
+    cursor: not-allowed;
 }
 
 .isVisible {
@@ -591,16 +625,12 @@ input {
     height: 44px;
     padding: 0 16px;
     outline: none;
-    /* 포커스 outline 제거 */
     padding: 8px 0;
-    /* 위아래 여백 추가 */
     transition: all 0.3s;
-    /* 포커스 시 애니메이션 */
 }
 
 .survey-title {
     border: none;
-    /* 기본 테두리 제거 */
     font-size: 1rem;
     font-weight: bold;
     color: #464748;
@@ -625,7 +655,7 @@ input {
     width: 100%;
     max-width: 800px;
     padding: 0 24px;
-    margin: 16px 0;
+    margin: 0 0 40px 0;
     cursor: pointer;
 }
 
@@ -638,7 +668,7 @@ input {
     justify-content: center;
     border: solid 1px #EFF0F6;
     border-radius: 15px;
-    box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 1px 3px 1px rgba(0, 0, 0, 0.15);
     font-weight: bold;
     font-size: 1rem;
     color: #8C8C8C;
@@ -852,5 +882,43 @@ input {
     border-radius: 16px;
     height: 48px;
     font-size: 0.875rem;
+}
+
+.survey-items-wrapper {
+    width: 100%;
+}
+
+.survey-delete-move {
+    transition: transform 0.1s ease;
+}
+
+.survey-delete-enter-active {
+    transition: all 0.2s ease;
+}
+
+.survey-delete-leave-active {
+    transition: all 0.2s ease;
+    animation: slide-fade-out 0.2s ease forwards;
+}
+
+.survey-delete-enter-from,
+.survey-delete-leave-to {
+    opacity: 0;
+    transform: translateX(30px);
+}
+
+@keyframes slide-fade-out {
+    0% {
+        opacity: 1;
+        transform: translateX(0);
+        max-height: 500px;
+        margin-bottom: 16px;
+    }
+    100% {
+        opacity: 0;
+        transform: translateX(-30px);
+        max-height: 0;
+        margin-bottom: 0;
+    }
 }
 </style>
