@@ -24,7 +24,10 @@
 </template>
 
 <script setup>
+import axios from 'axios';
 import { ref, defineProps, defineEmits } from 'vue'
+
+const baseUrl = process.env.VUE_APP_API_URL;
 
 const userId = ref("")
 const email = ref("")
@@ -71,7 +74,37 @@ const stepTo2 = () => {
         return;
     }
 
-    emit("nextStep", { userId: userId.value, email: email.value, step: props.step + 1 })
+    const jsonData = {
+        userId: userId.value,
+        email: email.value
+    }
+
+    axios.post(`${baseUrl}/auth/join/check`, JSON.stringify(jsonData), {
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+        .then((response) => {
+            if (response.data.id == true && response.data.email == true) {
+                showErrorDialog('아이디와 이메일이 이미 사용 중입니다.');
+                return;
+            }
+
+            if (response.data.id == true) {
+                showErrorDialog('아이디가 이미 사용 중입니다.');
+                return;
+            }
+
+            if (response.data.email == true) {
+                showErrorDialog('이메일이 이미 사용 중입니다.');
+                return;
+            }
+
+            emit("nextStep", { userId: userId.value, email: email.value, step: props.step + 1 })
+        })
+        .catch((error) => {
+            console.log(error);
+        });
 }
 
 </script>
