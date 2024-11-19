@@ -21,7 +21,11 @@ const props = defineProps({
         required: true,
         validator: (value) => value.length > 0
     },
-    defaultValue: {
+    value: {
+        type: [String, Number],
+        default: null
+    },
+    initialValue: {
         type: [String, Number],
         default: null
     }
@@ -33,7 +37,7 @@ const ITEM_HEIGHT = 40;
 const centerOffset = computed(() => ITEM_HEIGHT);
 
 const offset = ref(0);
-const selectedValue = ref(props.defaultValue ?? props.items[0]);
+const selectedValue = ref(props.value ?? props.items[0]);
 const touchStartY = ref(0);
 const startOffset = ref(0);
 let isScrolling = false;
@@ -107,10 +111,12 @@ const snapToClosestItem = () => {
 };
 
 onMounted(() => {
-    if (props.defaultValue) {
-        const index = props.items.indexOf(props.defaultValue);
+    const initialVal = props.value ?? props.initialValue;
+    if (initialVal) {
+        const index = props.items.indexOf(initialVal);
         if (index !== -1) {
             offset.value = -index * ITEM_HEIGHT;
+            updateCenterItem();
         }
     }
 

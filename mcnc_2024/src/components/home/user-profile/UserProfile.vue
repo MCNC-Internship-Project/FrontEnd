@@ -51,7 +51,7 @@ const onItemClick = (item) => {
             router.push({path : "/profile/update"});
             break;
         case '생성한 설문 보기':
-            console.log('생성한 설문 보기');
+            router.push({path : "/my-survey"});
             break;
         case '참여한 설문 보기':
             console.log('참여한 설문 보기');

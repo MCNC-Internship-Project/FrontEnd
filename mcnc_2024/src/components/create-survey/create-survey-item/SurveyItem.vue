@@ -1,5 +1,5 @@
 <template>
-    <div id="root-container">
+    <div class="root-container">
         <div class="survey-header-section" :class="{ 'error': titleError }">
             <div class="input-section">
                 <input 
@@ -9,7 +9,7 @@
                     class="survey-title" 
                     v-model="surveyItemTitle" 
                     placeholder="질문 내용"
-                    @input="clearTitleError"
+                    @focus="clearTitleError"
                 />
             </div>
         </div>
@@ -90,7 +90,7 @@ defineExpose({
 </script>
 
 <style scoped>
-#root-contaienr {
+.root-contaienr {
     width : 100%;
     padding : 0 20px;
     background-color: #EFF0F6;
