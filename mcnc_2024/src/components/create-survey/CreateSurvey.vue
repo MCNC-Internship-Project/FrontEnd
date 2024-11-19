@@ -492,8 +492,7 @@ const showErrorDialog = (message) => {
     display: flex;
     align-items: center;
     position: absolute;
-    right: 0;
-    padding-right: 24px;
+    right: 24px;
 }
 
 .submit-btn {
@@ -904,7 +903,6 @@ input {
 .survey-delete-enter-from,
 .survey-delete-leave-to {
     opacity: 0;
-    transform: translateX(30px);
 }
 
 @keyframes slide-fade-out {
@@ -918,7 +916,9 @@ input {
         opacity: 0;
         transform: translateX(-30px);
         max-height: 0;
-        margin-bottom: 0;
+        margin-bottom: -2px;
     }
 }
+
+/* Rest of the styles remain the same */
 </style>
