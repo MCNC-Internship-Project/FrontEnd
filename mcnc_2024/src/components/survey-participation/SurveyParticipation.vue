@@ -319,10 +319,19 @@
   }
   
   .answer-options label {
-    display: block;
-    margin-bottom: 7px; 
+    display: flex; 
+    align-items: center;
+    margin-bottom: 7px;
     padding-left: 12px;
     padding-right: 12px;
+  }
+
+  .answer-options input[type="radio"],
+  .answer-options input[type="checkbox"] {
+    margin-top: 2px; 
+    margin-right: 8px; 
+    line-height: 1; 
+    vertical-align: baseline; 
   }
   
   textarea {
