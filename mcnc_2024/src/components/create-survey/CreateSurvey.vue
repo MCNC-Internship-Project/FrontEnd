@@ -514,12 +514,26 @@ const showErrorDialog = (message) => {
     box-sizing: border-box;
 }
 
+.survey-title {
+    margin-top : 12px;
+    border: none;
+    font-size: 1rem;
+    font-weight: bold;
+    color: #464748;
+}
+
 .survey-title::placeholder {
     color: #464748;
 }
 
 .survey-title:focus::placeholder {
     color: transparent;
+}
+
+.survey-description {
+    margin-top : 12px;
+    font-size: 0.875rem;
+    color: #C1C3C5;
 }
 
 .survey-description::placeholder {
@@ -531,7 +545,7 @@ const showErrorDialog = (message) => {
 }
 
 .select-deadline-section {
-    margin: 16px 12px 0 12px;
+    margin: 32px 12px 0 12px;
     padding: 0 4px;
     height: 32px;
     display: flex;
@@ -588,18 +602,8 @@ const showErrorDialog = (message) => {
 input {
     width: 100%;
     margin: 0 16px;
-    height: 44px;
-    padding: 0 16px;
     outline: none;
-    padding: 8px 0;
     transition: all 0.3s;
-}
-
-.survey-title {
-    border: none;
-    font-size: 1rem;
-    font-weight: bold;
-    color: #464748;
 }
 
 .error {
@@ -610,11 +614,6 @@ input {
 .date-error {
     border-radius: 8px;
     box-shadow: 0 0 0 2px #F77D7D;
-}
-
-.survey-description {
-    font-size: 0.875rem;
-    color: #C1C3C5;
 }
 
 .create-btn-container {
