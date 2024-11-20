@@ -5,7 +5,7 @@
         <div class="survey-container">
             <div class="search-box">
                 <input type="text" placeholder="설문 제목을 검색해보세요." v-model="searchQuery" @keyup.enter="searchSurvey" />
-                <button @click="searchSurvey">
+                <button class="search-btn-section" @click="searchSurvey">
                     <img class="search-btn" src="../../assets/images/icon_search_btn.svg" alt="search icon" />
                 </button>
             </div>
@@ -112,6 +112,11 @@ function goBack() {
     background-color: #f2f6fc;
     border-radius: 8px;
     padding: 8px 12px;
+}
+.search-btn-section{
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 .search-btn {
     text-indent: -999em;
