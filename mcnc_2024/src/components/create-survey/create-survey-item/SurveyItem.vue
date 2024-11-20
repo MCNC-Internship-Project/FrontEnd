@@ -1,41 +1,10 @@
 <template>
     <div class="root-container">
-        <!-- <div class="survey-header-section" :class="{ 'error': titleError }">
-            <div class="input-section">
-                <input 
-                    type="text" 
-                    name="title" 
-                    id="title" 
-                    class="survey-title" 
-                    v-model="surveyTitle" 
-                    placeholder="질문 내용"
-                    @focus="clearTitleError"
-                />
-            </div>
-        </div>
-
-        <div class="type-select-section">
-            <select name="type" id="type" class="survey-type" v-model="surveyType">
-                <option class="type-item" value="OBJ_SINGLE">단일 선택</option>
-                <option class="type-item" value="OBJ_MULTI">다중 선택</option>
-                <option class="type-item" value="SUBJECTIVE">주관식</option>
-            </select>
-        </div>
-
-        <div class="isTypeSubj" v-if="surveyType === 'SUBJECTIVE'">
-            <subj-component ref="subjComponentRef"/>
-        </div>
-
-        <div class="isTypeObj" v-else>
-            <obj-component :type="surveyType" ref="objComponentRef"/>
-        </div> -->
-
-
         <div class="header-container">
             <input type="text" v-model="surveyTitle" class="header-input" :class="{ 'error': titleError }"
-                :placeholder="`질문`" @focus="clearTitleError" />
-            <img class="header-icon" :class="{ 'disabled': isSingle, 'hidden': isSingle }" src="@/assets/images/icon_trash.svg"
-                alt="trash icon" @click="deleteItem" />
+                :placeholder="`질문 ${itemNumber}`" @focus="clearTitleError" />
+            <img class="header-icon" :class="{ 'disabled': isSingle, 'hidden': isSingle }"
+                src="@/assets/images/icon_trash.svg" alt="trash icon" @click="deleteItem" />
         </div>
         <div class="body-container">
             <div class="type-select-container">
@@ -158,6 +127,10 @@ const props = defineProps({
     isSingle: {
         type: Boolean,
         default: false
+    },
+    itemNumber: {
+        type: Number,
+        required: true
     }
 });
 

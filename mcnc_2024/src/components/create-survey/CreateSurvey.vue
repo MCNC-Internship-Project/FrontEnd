@@ -1,6 +1,5 @@
 <template>
     <div class="root-container">
-
         <header class="toolbar">
             <div class="back-container">
                 <img class="back" src="../../assets/images/icon_arrow_left.svg" alt="back" @click="stepBack">
@@ -20,7 +19,7 @@
 
                 <div class="input-section">
                     <input type="text" name="survey-description" class="survey-description" v-model="surveyDescription"
-                        placeholder="설문지 설명" maxlength="255">
+                        placeholder="설문조사 설명" maxlength="255">
                 </div>
 
                 <div class="select-deadline-section" :class="{ 'date-error': dateError }">
@@ -41,27 +40,11 @@
                 </div>
             </div>
 
-            <!-- <div class="survey-item-container">
-                <transition-group name="survey-delete" tag="div" class="survey-items-wrapper">
-                    <div class="survey-item-section" v-for="com in totalComponent" :key="com.id">
-                        <survey-item ref="surveyItems" />
-                        <div class="delete-btn-container" :class="{ 'isVisible': totalComponent.length === 1 }">
-                            <button 
-                                @click="removeComponent(com.id)" 
-                                class="delete-btn"
-                                :disabled="isDeleting"
-                                :class="{ 'disabled': isDeleting }"
-                            ></button>
-                        </div>
-                    </div>
-                </transition-group>
-            </div> -->
-
             <div>
                 <transition-group name="survey-delete" tag="div" class="survey-items-wrapper">
-                    <div class="survey-item-container" v-for="com in totalComponent" :key="com.id">
+                    <div class="survey-item-container" v-for="(com, index) in totalComponent" :key="com.id">
                         <survey-item ref="surveyItems" @delete-item="removeComponent(com.id)"
-                            :is-single="totalComponent.length === 1" />
+                            :is-single="totalComponent.length === 1" :item-number="index + 1" />
                     </div>
                 </transition-group>
             </div>
@@ -155,7 +138,6 @@
                 </div>
             </v-card>
         </v-dialog>
-
 
         <v-dialog v-model="isShowSaveModal" max-width="400">
             <v-card class="dialog-background">
@@ -358,7 +340,7 @@ const addComponent = () => {
 }
 
 const removeComponent = (id) => {
-    if (totalComponent.value.length === 1) 
+    if (totalComponent.value.length === 1)
         return;
     totalComponent.value = totalComponent.value.filter(item => item.id !== id);
 };
