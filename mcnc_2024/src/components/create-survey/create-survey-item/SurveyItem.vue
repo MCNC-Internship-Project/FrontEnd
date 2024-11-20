@@ -1,13 +1,13 @@
 <template>
     <div class="root-container">
-        <div class="survey-header-section" :class="{ 'error': titleError }">
+        <!-- <div class="survey-header-section" :class="{ 'error': titleError }">
             <div class="input-section">
                 <input 
                     type="text" 
                     name="title" 
                     id="title" 
                     class="survey-title" 
-                    v-model="surveyItemTitle" 
+                    v-model="surveyTitle" 
                     placeholder="질문 내용"
                     @focus="clearTitleError"
                 />
@@ -28,22 +28,92 @@
 
         <div class="isTypeObj" v-else>
             <obj-component :type="surveyType" ref="objComponentRef"/>
+        </div> -->
+
+
+        <div class="header-container">
+            <input type="text" v-model="surveyTitle" class="header-input" :class="{ 'error': titleError }"
+                :placeholder="`질문`" @focus="clearTitleError" />
+            <img class="header-icon" :class="{ 'disabled': isSingle, 'hidden': isSingle }" src="@/assets/images/icon_trash.svg"
+                alt="trash icon" @click="deleteItem" />
+        </div>
+        <div class="body-container">
+            <div class="type-select-container">
+                <v-menu v-model="showTypeMenu" class="type-select-menu" :location="'bottom'" offset-y>
+                    <template v-slot:activator="{ props }">
+                        <div class="type-select-selector-container" v-bind="props">
+                            <img class="type-select-selector-type-icon" :src="surveyTypeIcon" alt="type icon" />
+                            <div class="type-select-selector-text">{{ surveyTypeText }}</div>
+                            <img class="type-select-selector-dropdown-icon" src="@/assets/images/icon_dropdown2.svg"
+                                alt="dropdown icon" />
+                        </div>
+                    </template>
+
+                    <v-list>
+                        <v-list-item v-for="(option, index) in surveyTypeMenuOptions" :key="index"
+                            @click="surveyTypeText = option.text; showTypeMenu = false;">
+                            <div class="type-select-menu-item">
+                                <img class="type-select-selector-type-icon" :src="option.icon" alt="type icon" />
+                                <div class="type-select-selector-text">{{ option.text }}</div>
+                            </div>
+                        </v-list-item>
+                    </v-list>
+                </v-menu>
+            </div>
+        </div>
+        <div class="footer-container">
+            <subj-component v-if="surveyType === 'SUBJECTIVE'" ref="subjComponentRef" />
+            <obj-component v-else :survey-type="surveyType" ref="objComponentRef" />
         </div>
     </div>
 </template>
 
 <script setup>
+import { ref, watch, defineExpose, defineEmits, defineProps } from 'vue';
+
 import ObjComponent from './type-component/ObjComponent.vue'
 import SubjComponent from './type-component/SubjComponent.vue'
-import { ref, defineExpose } from 'vue';
 
-const surveyItemTitle = ref("");
-const surveyType = ref("OBJ_SINGLE");
-const titleError = ref(false);
-const hasError = ref(false);
+import iconSingle from '@/assets/images/icon_single.svg';
+import iconMulti from '@/assets/images/icon_multi.svg';
+import iconSubj from '@/assets/images/icon_subj.svg';
 
 const subjComponentRef = ref(null);
 const objComponentRef = ref(null);
+
+const surveyTitle = ref("");
+const surveyTypes = ["OBJ_SINGLE", "OBJ_MULTI", "SUBJECTIVE"];
+const surveyTypeTexts = ["단일 선택", "다중 선택", "주관식"];
+const surveyType = ref(surveyTypes[0]);
+const surveyTypeText = ref(surveyTypeTexts[0]);
+const surveyTypeIcon = ref(iconSingle);
+const surveyTypeMenuOptions = [
+    { text: surveyTypeTexts[0], icon: iconSingle },
+    { text: surveyTypeTexts[1], icon: iconMulti },
+    { text: surveyTypeTexts[2], icon: iconSubj },
+]
+
+const showTypeMenu = ref(false);
+
+const titleError = ref(false);
+const hasError = ref(false);
+
+watch(surveyTypeText, (type) => {
+    switch (type) {
+        case surveyTypeTexts[0]:
+            surveyType.value = surveyTypes[0];
+            surveyTypeIcon.value = iconSingle;
+            break;
+        case surveyTypeTexts[1]:
+            surveyType.value = surveyTypes[1];
+            surveyTypeIcon.value = iconMulti;
+            break;
+        case surveyTypeTexts[2]:
+            surveyType.value = surveyTypes[2];
+            surveyTypeIcon.value = iconSubj;
+            break;
+    }
+});
 
 const clearTitleError = () => {
     titleError.value = false;
@@ -55,7 +125,7 @@ const getValue = () => {
     let values = {};
 
     // 제목 검사
-    if (!surveyItemTitle.value.trim()) {
+    if (!surveyTitle.value.trim()) {
         titleError.value = true;
         hasError.value = true;
         isValid = false;
@@ -78,11 +148,26 @@ const getValue = () => {
     }
 
     return {
-        body: surveyItemTitle.value,
+        body: surveyTitle.value,
         questionType: surveyType.value,
         selectionList: values
     };
 };
+
+const props = defineProps({
+    isSingle: {
+        type: Boolean,
+        default: false
+    }
+});
+
+const emit = defineEmits(['delete-item']);
+
+const deleteItem = () => {
+    if (!props.isSingle) {
+        emit('delete-item');
+    }
+}
 
 defineExpose({
     getValue,
@@ -91,87 +176,132 @@ defineExpose({
 
 <style scoped>
 .root-contaienr {
-    width : 100%;
-    padding : 0 20px;
-    background-color: #EFF0F6;
-    display : flex;
-    flex-direction : column;
-    align-items : center;
-    justify-content: center;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
-.survey-header-section {
-    width : calc(100% - 32px);
-    height : 60px;
-    margin : 20px 28px;
+.header-container {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding : 0 12px;
-    background-color : #D9D9D9;
-    border-radius : 10px;
-    background-color: #fff;
+    width: 100%;
+    height: 52px;
 }
 
-.survey-header-section.error {
+.header-input {
+    width: 100%;
+    height: 100%;
+    margin: auto;
+    font-size: 1rem;
+    font-weight: bold;
+    background-color: #FFF;
+    border-radius: 12px;
+    padding: 0 20px;
+    outline: none;
+}
+
+.header-input::placeholder {
+    color: #8C8C8C;
+}
+
+.header-input.error {
     border-radius: 12px;
     box-shadow: 0 0 0 1px #F77D7D;
 }
 
-.survey-header-section.error input {
+.header-input.error input {
     border-color: transparent;
 }
 
-.survey-title {
-    width : 100%;
-    height : 100%;
-    color : #8c8c8c;
-    font-size : 1rem;
-    font-weight : bold;
-    border: none;                  /* 기본 테두리 제거 */
-    outline: none;                 /* 포커스 outline 제거 */
-    padding: 8px 8px;                /* 위아래 여백 추가 */
-    transition: all 0.3s; /* 포커스 시 애니메이션 */
+.header-input:focus::placeholder {
+    color: transparent;
 }
 
-.survey-title::placeholder {
-    color : #8c8c8c;
+.header-icon {
+    width: 24px;
+    height: 24px;
+    margin-left: 16px;
+    cursor: pointer;
 }
 
-.survey-title:focus::placeholder {
-    color : transparent;
-}
-
-.type-select-section {
+.body-container {
+    width: 100%;
+    height: 100%;
     display: flex;
-    justify-content: start;
-    padding : 0 16px;
+    flex-direction: column;
+    padding: 8px 0;
+}
+
+.type-select-container {
+    width: 100%;
+    height: 36px;
+    display: flex;
+    padding: 0 48px 0 8px;
+}
+
+.type-select-icon {
+    width: 20px;
+    height: 20px;
+    margin-right: 12px;
+}
+
+.type-select-selector-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    border: solid 1px #D9D9D9;
+    background-color: #fff;
+    display: flex;
+    padding: 0 12px 0 8px;
+    cursor: pointer;
+}
+
+.type-select-selector-type-icon {
+    width: 16px;
+    height: 16px;
+}
+
+.type-select-selector-text {
+    width: 100%;
+    font-size: 1rem;
+    margin: auto;
+    text-align: left;
+    margin-left: 12px;
+}
+
+.type-select-selector-dropdown-icon {
+    width: 12px;
+    height: 12px;
+}
+
+.v-list {
+    padding: 0;
+}
+
+.v-list-item {
+    padding: 0 !important;
+    min-height: 0 !important;
+}
+
+.type-select-menu-item {
+    width: 100%;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    padding: 0 8px;
+}
+
+.footer-container {
     width: 100%;
 }
 
-.survey-type {
-    background-color: #fff;
-    width : 100%;
-    height : 36px;
-    padding : 0 12px;
-    border : solid 1px #D9D9D9;
-    outline: none;  /* 포커스 outline 제거 */
-}
-
-.isTypeSubj {
-    width : 100%;
-    margin : 0;
-    padding : 0 16px;
-}
-
-.isTypeObj {
-    width : 100%;
-    margin : 0;
-    padding : 0 16px;
-}
-
 .error {
-    border: 1px solid #ff0000;
-    box-shadow: 0 0 0 1px #ff0000;
+    border: 1px solid #F76C6A;
+    box-shadow: 0 0 0 1px #F76C6A;
+}
+
+.hidden {
+    visibility: hidden;
 }
 </style>

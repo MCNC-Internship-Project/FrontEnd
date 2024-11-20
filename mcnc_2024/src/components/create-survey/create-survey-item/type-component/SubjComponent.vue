@@ -1,10 +1,6 @@
 <template>
-    <div id="root-container">
-
-        <div class="input-container">
-             <textarea name="subj" id="subj" class="subj-textarea" disabled>답변을 입력해주세요.</textarea>
-        </div>
-
+    <div class="root-container">
+        <textarea class="textarea" disabled>답변을 입력해주세요.</textarea>
     </div>
 </template>
 
@@ -21,25 +17,20 @@ defineExpose({
 </script>
 
 <style scoped>
-#root-container {
-    width : 100%;
+.root-container {
+    width: 100%;
+    padding: 12px 4px;
 }
 
-.input-container {
+.textarea {
     width : 100%;
     height : 64px;
-    margin : 12px 0;
-}
-
-.subj-textarea {
-    width : 100%;
-    height : 100%;
-    box-sizing : border-box;
     resize : none;
-    border : solid 2px #D9D9D9;
-    color : #A9A9A9;
-    border-radius : 10px;
-    padding : 4px 8px;
+    border : solid 1px #D9D9D9;
+    color : #D9D9D9;
+    border-radius : 12px;
+    padding : 12px 8px;
     background-color: #FFF;
+    font-size: 0.9375rem;
 }
 </style>

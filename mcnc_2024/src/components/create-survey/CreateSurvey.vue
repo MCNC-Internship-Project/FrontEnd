@@ -11,7 +11,7 @@
             </div>
         </header>
 
-        <div class="survey-section">
+        <div class="survey-container">
             <div class="survey-title-section">
                 <div class="input-section" :class="{ 'error': titleError }">
                     <input type="text" name="survey-title" class="survey-title" v-model="surveyTitle"
@@ -41,7 +41,7 @@
                 </div>
             </div>
 
-            <div class="survey-item-container">
+            <!-- <div class="survey-item-container">
                 <transition-group name="survey-delete" tag="div" class="survey-items-wrapper">
                     <div class="survey-item-section" v-for="com in totalComponent" :key="com.id">
                         <survey-item ref="surveyItems" />
@@ -53,6 +53,15 @@
                                 :class="{ 'disabled': isDeleting }"
                             ></button>
                         </div>
+                    </div>
+                </transition-group>
+            </div> -->
+
+            <div>
+                <transition-group name="survey-delete" tag="div" class="survey-items-wrapper">
+                    <div class="survey-item-container" v-for="com in totalComponent" :key="com.id">
+                        <survey-item ref="surveyItems" @delete-item="removeComponent(com.id)"
+                            :is-single="totalComponent.length === 1" />
                     </div>
                 </transition-group>
             </div>
@@ -205,7 +214,6 @@ const titleError = ref(false);
 const surveyDescription = ref("")
 
 const dateError = ref(false);
-const isDeleting = ref(false);
 const isDateError = ref(false);
 const isTimeError = ref(false);
 const isTimeBeforeNowError = ref(false);
@@ -350,23 +358,9 @@ const addComponent = () => {
 }
 
 const removeComponent = (id) => {
-    if (isDeleting.value) return; // 이미 삭제 중이면 추가 삭제 방지
-    
-    isDeleting.value = true; // 삭제 시작
-    
-    // Find the index of the component to be removed
-    const index = totalComponent.value.findIndex(component => component.id === id);
-    if (index !== -1) {
-        // Add a class to trigger the animation
-        const elementToRemove = document.querySelectorAll('.survey-item-section')[index];
-        elementToRemove.classList.add('survey-delete-leave-active');
-        
-        // Remove the component after animation
-        setTimeout(() => {
-            totalComponent.value = totalComponent.value.filter((component) => component.id !== id);
-            isDeleting.value = false; // 삭제 완료 후 상태 초기화
-        }, 300); // Match this with animation duration
-    }
+    if (totalComponent.value.length === 1) 
+        return;
+    totalComponent.value = totalComponent.value.filter(item => item.id !== id);
 };
 
 const stepBack = () => {
@@ -444,6 +438,8 @@ const handleSubmit = () => {
 
         jsonData.expireDate = dateTime;
 
+        console.log(JSON.stringify(jsonData));
+
         // axios.post(`${baseUrl}/survey/manage/create`, JSON.stringify(jsonData), {
         //     withCredentials: true,
         //     headers: {
@@ -513,16 +509,22 @@ const showErrorDialog = (message) => {
     color: white;
 }
 
-.survey-section {
+.survey-item-container {
     width: 100%;
-    max-width: 800px;
     padding: 0 24px;
-    margin-top: 68px;
+    display: flex;
+    flex-direction: column;
+    background-color: #FAF8F8;
+    border: solid 1px #eff0f6;
+    border-radius: 16px;
+    box-shadow: 0 1px 3px 1px rgba(0, 0, 0, 0.15);
+    padding: 20px 16px 0px 16px;
+    margin-bottom: 16px;
 }
 
 .survey-title-section {
     background-color: #F8FBFF;
-    border : solid 1px #EFF0F6;
+    border: solid 1px #EFF0F6;
     box-shadow: 0 1px 3px 1px rgba(0, 0, 0, 0.15);
     border-radius: 15px;
     margin-bottom: 20px;
@@ -576,41 +578,18 @@ const showErrorDialog = (message) => {
     height: 20px;
 }
 
-.survey-item-container {
+.survey-container {
     width: 100%;
     display: flex;
     flex-direction: column;
     align-items: stretch;
     justify-content: center;
+    padding: 0 24px;
+    margin-top: 68px;
+    max-width: 800px;
 }
 
-.survey-item-section {
-    background-color: #FAF8F8;
-    margin-bottom: 16px;
-    display: flex;
-    flex-direction: row;
-    align-items: flex-start;
-    justify-content: center;
-    padding: 0;
-    border: solid 1px #eff0f6;
-    border-radius: 15px;
-    box-shadow: 0 1px 3px 1px rgba(0, 0, 0, 0.15);
-}
-
-.delete-btn {
-    border-radius: 8px;
-    text-indent: -999em;
-    background: url("../../assets/images/icon_trash.svg") no-repeat;
-    background-size: contain;
-    width: 24px;
-    height: 24px;
-    margin-top: 36px;
-    margin-right: 12px;
-    cursor: pointer;
-    transition: opacity 0.3s ease;
-}
-
-.delete-btn.disabled {  
+.delete-btn.disabled {
     cursor: not-allowed;
 }
 
@@ -660,7 +639,7 @@ input {
     width: 100%;
     max-width: 800px;
     padding: 0 24px;
-    margin: 0 0 40px 0;
+    margin: 0 0 160px 0;
     cursor: pointer;
 }
 
@@ -742,7 +721,6 @@ input {
 }
 
 .dialog-background {
-    background-color: #FAF8F8;
     background-color: #FAF8F8;
     border: 1px solid #EFF0F6;
 }
@@ -894,7 +872,7 @@ input {
 }
 
 .survey-delete-move {
-    transition: transform 0.1s ease;
+    transition: transform 0.2s ease;
 }
 
 .survey-delete-enter-active {
@@ -918,6 +896,7 @@ input {
         max-height: 500px;
         margin-bottom: 16px;
     }
+
     100% {
         opacity: 0;
         transform: translateX(-30px);
