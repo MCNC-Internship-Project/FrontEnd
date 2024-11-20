@@ -30,10 +30,12 @@
 
 <script setup>
 import { ref } from 'vue'
-import router from '@/router';
+import { useRouter } from 'vue-router'
+
+const router = useRouter();
 
 const goBack = () => {
-    router.push('/');
+    router.back();
 }
 
 const name = ref("username");
@@ -54,7 +56,7 @@ const onItemClick = (item) => {
             router.push({path : "/my-survey"});
             break;
         case '참여한 설문 보기':
-            console.log('참여한 설문 보기');
+            router.push({path : "/joined-survey"});
             break;
         case '로그아웃':
             console.log('로그아웃');
