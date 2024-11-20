@@ -75,7 +75,7 @@ function goBack() {
 <style scoped>
 .root-container {
     width: 100%;
-    background-image: url('../../assets/images/background_sky.svg');
+    background-image: url('../../assets/images/background_pink.svg');
     background-repeat: repeat-x;
     display: flex;
     align-items: center;
