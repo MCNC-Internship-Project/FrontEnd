@@ -1,12 +1,12 @@
 <template>
     <div id="root-container">
-        <div class="header">
-            <div class="back-btn" @click="goBack">back</div>
+        <header class="toolbar">
+            <img class="back" src="@/assets/images/icon_arrow_left.svg" alt="back" @click="goBack">
             <div class="search-input-section">
                 <input type="text" v-model="searchQuery" class="search-input" placeholder="설문 제목을 검색하세요." @keyup.enter="searchBy(searchQuery)"/>
                 <img class="search-icon" src="@/assets/images/icon_search.svg" alt="dropdown icon" @click="searchBy(searchQuery)"/>
             </div>
-        </div>
+        </header>
 
         
         <div class="search-result-section">
@@ -152,23 +152,23 @@ const goToDetail = (surveyId) => {
     width : 100%;
 }
 
-.header {
-    width : 100%;
-    height : 64px;
-    display : flex;
+.toolbar {
+    position: fixed;
+    display: flex;
     align-items: center;
+    left: 0;
+    top: 0;
+    right: 0;
+    width: 100%;
+    height: 64px;
+    background-color: white;
+    z-index: 1000;
 }
 
-.back-btn {
-    text-decoration: none;
-    display: inline-block;
-    width: 20px;
-    height: 20px;
-    margin : 16px 24px;
-    background: url('../../../assets/images/icon_arrow_left.svg') no-repeat;
-    background-size: contain;
-    color: transparent; /* 텍스트 색상을 투명으로 설정 */
-    font-size: 0;       /* 폰트 크기를 0으로 설정하여 텍스트 숨기기 */
+.back {
+    padding-left: 24px;
+    cursor: pointer;
+    margin-right : 16px;
 }
 
 .search-input-section {
@@ -220,7 +220,7 @@ input::placeholder {
 
 .search-result-list {
     list-style : none;
-    margin-top : 24px;
+    margin-top : 68px;
 }
 
 .result-container {
