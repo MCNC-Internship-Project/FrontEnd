@@ -361,7 +361,7 @@ const parseTime = (timeStr) => {
         hour = 0;
     }
 
-    return dayjs().hour(hour).minute(parseInt(minutes));
+    return `${hour.toString().padStart(2, '0')}:${minutes}:00`;
 }
 
 const handleSubmit = () => {
@@ -405,12 +405,15 @@ const handleSubmit = () => {
         isShowSaveModal.value = false;
 
         const dateFormatted = dayjs(date.value).format('YYYY-MM-DD');
-        const timeFormatted = parseTime(time.value).format('hh:mm:00');
+        const timeFormatted = parseTime(time.value);
 
         const dateTime = `${dateFormatted}T${timeFormatted}`;
 
         const currentDateTime = dayjs();
         const selectedDateTime = dayjs(dateTime);
+
+        console.log('설정시간', selectedDateTime);
+        console.log('현재시간', currentDateTime);
 
         if (selectedDateTime.isBefore(currentDateTime)) {
             dateError.value = true;
