@@ -82,7 +82,7 @@
   <script setup>
   import { ref } from 'vue';
   import router from '@/router';
-  import { mockSurveyData, mockEndDate } from './mockData/mockSurveyData'; // 목데이터 가져오기
+  import { mockSurveyData, mockEndDate } from '../mock/MockParticipationSurveys'; // 목데이터 가져오기
   
   const survey = ref(mockSurveyData); // 목데이터 참조
   const answers = ref({});
