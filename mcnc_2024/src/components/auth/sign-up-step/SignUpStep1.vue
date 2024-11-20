@@ -79,7 +79,7 @@ const stepTo2 = () => {
         email: email.value
     }
 
-    axios.post(`${baseUrl}/auth/join/check`, JSON.stringify(jsonData), {
+    axios.post(`${baseUrl}/account/join/check`, JSON.stringify(jsonData), {
         headers: {
             'Content-Type': 'application/json'
         }
