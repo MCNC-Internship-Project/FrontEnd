@@ -1,10 +1,6 @@
 <template>
     <div class="root-container">
-        <header class="toolbar">
-            <div class="back-container">
-                <img class="back" src="../../assets/images/icon_arrow_left.svg" alt="back" @click="goBack" />
-            </div>
-        </header>
+        <ToolBar @goBack="goBack"/>
 
         <div class="survey-container">
             <div class="search-box">
@@ -19,23 +15,8 @@
                 <div class="logo-name">Survwey</div>
             </div>
 
-            <!--검색 결과가 있는 경우-->
-            <div v-else class="result-container">
-                <div v-if="filteredSurveys.length > 0" class="search-results">
-                    <div v-for="survey in filteredSurveys" :key="survey.id" class="survey-card">
-                        <div class="survey-header">
-                            <p class="survey-title">{{ survey.title }}</p>
-                        </div>
-                        <p class="description">{{ survey.description }}</p>
-                        <p class="date-range">{{ survey.dateRange }}</p>
-                    </div>
-                </div>
-                <!--검색 결과가 없는 경우-->
-                <div v-if="filteredSurveys.length === 0" class="no-results">
-                    검색 결과가 없습니다.
-                </div>
-            </div>
-
+            <!--검색결과-->
+            <SearchResult v-else :surveys="filteredSurveys" />
         </div>
     </div>
 </template>
@@ -43,20 +24,23 @@
 <script setup>
 import { useRouter } from 'vue-router';
 import { ref, computed } from 'vue';
-import { mockSurveys } from '@/components/my-survey/mock/Surveys';
+import { mockJoinedSurveys } from '@/components/mock/MockJoinedSurveys';
+
+import ToolBar from '../common/ToolBar.vue';
+import SearchResult from '../common/SearchResult.vue';
 
 const router = useRouter();
 const searchQuery = ref('');
 const showLogo = ref(true);
 
 // 설문지 mock데이터 연결 -> api 연동시 수정
-const surveys = mockSurveys.map(survey => ({
+const surveys = mockJoinedSurveys.map(survey => ({
     id: survey.surveyId,
     title: survey.title,
     description: survey.description,
     createDate: new Date(survey.createDate),
     expireDate: new Date(survey.expireDate),
-    dateRange: `${survey.createDate.split('T')[0]} - ${survey.expireDate.split('T')[0]}`,
+    creationInfo: `${survey.creator} | ${survey.createDate.split('T')[0]} ~ ${survey.expireDate.split('T')[0]}`,
 }));
 
 // 검색 결과 정렬
@@ -91,30 +75,20 @@ function goBack() {
 <style scoped>
 .root-container {
     width: 100%;
-    background-image: url('../../assets/images/background_pink.svg');
+    background-image: url('../../assets/images/background_sky.svg');
     background-repeat: repeat-x;
     display: flex;
     align-items: center;
     justify-content: center;
 }
-.toolbar {
+.survey-container {
     width: 100%;
-    height: 64px;
-    position: fixed;
+    height: calc(100vh - 64px); 
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: space-between;
-    left: 0;
-    top: 0;
-    right: 0;
-}
-.back-container {
-    display: flex;
-    align-items: center;
-    padding-left: 24px;
-}
-.back {
-    cursor: pointer;
+    margin-top: 64px;
+    overflow: hidden; 
 }
 
 .search-box {
@@ -146,73 +120,6 @@ function goBack() {
     background: none;
     border: none;
     cursor: pointer;
-}
-
-.survey-container {
-    width: 100%;
-    height: calc(100vh - 64px); 
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-top: 64px;
-    overflow: hidden; /* survey-list 외부 요소는 스크롤되지 않도록 설정 */
-}
-.result-container {
-    width: 100%;
-    margin: 24px;
-    padding: 0 24px;
-}
-.search-results {
-    height: 80vh;
-    width: 100%;
-    flex: 1; 
-    display: flex;
-    overflow-y: auto; 
-    flex-direction: column;
-    gap: 12px;
-}
-.survey-card {
-    background-color: #fff;
-    padding: 16px;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    width: 100%;
-}
-.survey-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-.survey-title {
-    font-size: 1.25rem;
-    font-weight: bold;
-}
-.status-active {
-    color: #7796E8;
-    font-size: 1rem;
-    font-weight: bold;
-}
-.status-ended {
-    color: #757575;
-    font-size: 1rem;
-    font-weight: bold;
-}
-.description {
-    font-size: 1rem;
-    margin-bottom: 20px;
-}
-.date-range {
-    font-size: 1rem;
-}
-.no-results {
-    height: 80vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    /* text-align: center; */
-    color: #A2A2A3;
-    font-size: 1rem;
-    font-weight: bold;
 }
 
 .logo-container {
