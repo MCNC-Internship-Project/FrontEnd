@@ -240,6 +240,10 @@ input::placeholder {
     width : 100%;
     font-size : 0.8125rem;
     color : #464748;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    word-break: break-word;
+    white-space: nowrap;
 }
 
 .description-section {
@@ -247,6 +251,10 @@ input::placeholder {
     margin-top : 4px;
     font-size : 0.6875rem;
     color : #8D8D8D;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    word-break: break-word;
+    white-space: nowrap;
 }
 
 .info-section {
