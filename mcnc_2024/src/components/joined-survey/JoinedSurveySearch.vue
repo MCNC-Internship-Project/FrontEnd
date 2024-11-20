@@ -24,7 +24,7 @@
 <script setup>
 import { useRouter } from 'vue-router';
 import { ref, computed } from 'vue';
-import { mockMySurveys } from '@/components/mock/MockMySurveys';
+import { mockJoinedSurveys } from '@/components/mock/MockJoinedSurveys';
 
 import ToolBar from '../common/ToolBar.vue';
 import SearchResult from '../common/SearchResult.vue';
@@ -34,14 +34,13 @@ const searchQuery = ref('');
 const showLogo = ref(true);
 
 // 설문지 mock데이터 연결 -> api 연동시 수정
-const surveys = mockMySurveys.map(survey => ({
+const surveys = mockJoinedSurveys.map(survey => ({
     id: survey.surveyId,
     title: survey.title,
     description: survey.description,
-    status: new Date(survey.expireDate) > new Date() ? "진행중" : "종료",
     createDate: new Date(survey.createDate),
     expireDate: new Date(survey.expireDate),
-    creationInfo: `${survey.createDate.split('T')[0]} ~ ${survey.expireDate.split('T')[0]}`,
+    creationInfo: `${survey.creator} | ${survey.createDate.split('T')[0]} ~ ${survey.expireDate.split('T')[0]}`,
 }));
 
 // 검색 결과 정렬
@@ -58,21 +57,7 @@ const filteredSurveys = computed(() => {
 
     // 검색 결과 목록 정렬
     return results.sort((a, b) => {
-        // 상태 정렬: "진행중" 우선
-        if (a.status === "진행중" && b.status === "종료") return -1;
-        if (a.status === "종료" && b.status === "진행중") return 1;
-
-        // "진행중" 상태에서 생성 날짜 내림차순
-        if (a.status === "진행중" && b.status === "진행중") {
-            return b.createDate - a.createDate;
-        }
-
-        // "종료" 상태에서 마감 날짜 내림차순
-        if (a.status === "종료" && b.status === "종료") {
-            return b.expireDate - a.expireDate;
-        }
-
-        return 0;
+        return b.expireDate - a.expireDate;
     });
 });
 
@@ -81,6 +66,7 @@ function searchSurvey() {
     showLogo.value = false; 
 }
 
+// 이전화면으로 돌아가기
 function goBack() {
     router.back();
 }

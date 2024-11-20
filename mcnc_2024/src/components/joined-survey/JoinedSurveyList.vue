@@ -1,28 +1,26 @@
 <template>
     <div class="root-container">
         <ToolBar @goBack="goBack">
-            <SurveyHeader title="설문지 목록" @goSearch="goSearch" />
+            <SurveyHeader title="참여한 설문" @goSearch="goSearch" />
         </ToolBar>
 
         <div class="survey-container">
-
             <!-- 설문 목록이 있을 때와 없을 때를 조건부 렌더링 -->
-            <div class="survey-list" v-if="sortedSurveys.length > 0">
+            <div  class="survey-list" v-if="sortedSurveys.length > 0">
                 <SurveyCard v-for="survey in sortedSurveys" :key="survey.id" :survey="survey" />
             </div>
             <div class="survey-none" v-else>
-                <p>아직 생성된 설문지가 없습니다.<br>첫 번째 설문을 만들어 보세요!</p>
+                <p>아직 참여한 설문이 없습니다.</p>
             </div>
         </div>
-
-        <v-fab icon="mdi-plus" color="#7796E8" size="48" absolute @click="goCreateSurvey" />
     </div>
 </template>
 
 <script setup>
 import { useRouter } from 'vue-router';
-import { mockMySurveys } from '@/components/mock/MockMySurveys';
+import { mockJoinedSurveys } from '@/components/mock/MockJoinedSurveys';
 import { computed } from 'vue';
+
 import SurveyCard from '@/components/common/SurveyCard.vue';
 import SurveyHeader from '@/components/common/SurveyHeader.vue';
 import ToolBar from '@/components/common/ToolBar.vue'
@@ -30,34 +28,20 @@ import ToolBar from '@/components/common/ToolBar.vue'
 const router = useRouter();
 
 // 설문지 mock데이터 연결 -> api 연동시 수정
-const surveys = mockMySurveys.map(survey => ({
+const surveys = mockJoinedSurveys.map(survey => ({
     id: survey.surveyId,
     title: survey.title,
     description: survey.description,
-    status: new Date(survey.expireDate) > new Date() ? "진행중" : "종료",
+    creator: survey.creator,
     createDate: new Date(survey.createDate),
     expireDate: new Date(survey.expireDate),
-    creationInfo: `${survey.createDate.split('T')[0]} ~ ${survey.expireDate.split('T')[0]}`,
+    creationInfo: `${survey.creator} | ${survey.createDate.split('T')[0]} ~ ${survey.expireDate.split('T')[0]}`,
 }));
 
 // 설문지 목록 정렬
 const sortedSurveys = computed(() => {
     return [...surveys].sort((a, b) => {
-        // 상태 정렬 ("진행중" 우선)
-        if (a.status === "진행중" && b.status === "종료") return -1;
-        if (a.status === "종료" && b.status === "진행중") return 1;
-
-        // "진행중" 상태 내에서 생성 날짜 기준 내림차순
-        if (a.status === "진행중" && b.status === "진행중") {
-            return b.createDate - a.createDate; // 생성 날짜 내림차순
-        }
-
-        // "종료" 상태 내에서 마감 날짜 기준 내림차순
-        if (a.status === "종료" && b.status === "종료") {
-            return b.expireDate - a.expireDate; // 마감 날짜 내림차순
-        }
-
-        return 0;
+        return b.expireDate - a.expireDate; 
     });
 });
 
@@ -65,19 +49,15 @@ function goBack() {
     router.back();
 }
 
-function goCreateSurvey() {
-    router.push("/create-survey");
-}
-
 function goSearch() {
-    router.push("/my-survey/search");
+    router.push("/joined-survey/search");
 }
 </script>
 
 <style scoped>
 .root-container {
     width: 100%;
-    background-image: url('../../assets/images/background_sky.svg');
+    background-image: url('../../assets/images/background_pink.svg');
     background-repeat: repeat-x;
     display: flex;
     align-items: center;
@@ -112,10 +92,5 @@ function goSearch() {
     color: #A2A2A3;
     font-size: 1rem;
     font-weight: bold;
-}
-.v-fab {
-    position: fixed;
-    bottom: 24px;
-    right: 24px;
 }
 </style>
