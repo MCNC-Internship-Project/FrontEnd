@@ -12,9 +12,9 @@
 
         <div class="survey-container">
             <div class="survey-title-section">
-                <div class="input-section" :class="{ 'error': titleError }">
+                <div class="input-section" :class="{ 'title-error': titleError }">
                     <input type="text" name="survey-title" class="survey-title" v-model="surveyTitle"
-                        placeholder="설문조사 제목" maxlength="255" @focus="titleError = false" />
+                        :placeholder="titleError ? '(제목 없음)' : '설문조사 제목'" maxlength="255" @focus="titleError = false" />
                 </div>
 
                 <div class="input-section">
@@ -518,9 +518,9 @@ const showErrorDialog = (message) => {
 }
 
 .survey-title {
-    margin-top : 12px;
+    margin-top: 12px;
     border: none;
-    font-size: 1rem;
+    font-size: 1.25rem;
     font-weight: bold;
     color: #464748;
 }
@@ -534,8 +534,8 @@ const showErrorDialog = (message) => {
 }
 
 .survey-description {
-    margin-top : 12px;
-    font-size: 0.875rem;
+    margin-top: 12px;
+    font-size: 1rem;
     color: #C1C3C5;
 }
 
@@ -607,6 +607,10 @@ input {
     margin: 0 16px;
     outline: none;
     transition: all 0.3s;
+}
+
+.title-error .survey-title::placeholder {
+    color: #F77D7D;
 }
 
 .error {
