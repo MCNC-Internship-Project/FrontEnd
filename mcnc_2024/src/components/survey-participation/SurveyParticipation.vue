@@ -100,6 +100,8 @@
   const alertMessage = ref("");
   
   const submitSurvey = () => {
+    console.log("응답 데이터:", answers.value);
+
     const currentDate = new Date();
     const endDate = new Date(mockEndDate); 
 
