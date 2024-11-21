@@ -158,7 +158,7 @@
 </template>
 
 <script setup>
-import router from '@/router';
+import { useRouter } from 'vue-router'
 import { ref, nextTick, watch } from 'vue';
 // import axios from 'axios';
 
@@ -170,6 +170,7 @@ import SurveyItem from './create-survey-item/SurveyItem.vue';
 import TimePickerComponent from './create-survey-item/component/TimePickerComponent.vue';
 
 // const baseUrl = process.env.VUE_APP_API_URL;
+const router = useRouter();
 
 const totalComponent = ref([
     { id: 0 },
