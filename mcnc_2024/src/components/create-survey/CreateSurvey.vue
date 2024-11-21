@@ -26,13 +26,6 @@
                     <div class="deadline">설문 기간</div>
 
                     <div class="datetime-container" @click="showDialog = true; dateError = false">
-                        <!-- <div class="select-deadline">
-                            <span
-                                v-html="date === null && time === null ? '미설정' : ` ~&nbsp;${dayjs(date).format('YYYY.MM.DD')}&nbsp;&nbsp;${time}`"></span>
-                        </div>
-                        <div class="calender-container">
-                            calender
-                        </div> -->
                         <span class="datetime-text" v-html="date === null && time === null ? '미설정' : ` ~&nbsp;${dayjs(date).format('YYYY.MM.DD')}&nbsp;&nbsp;${time}`"></span>
                         <img src="@/assets/images/icon_calendar3.svg" class="datetime-icon" alt="calendar icon" />
                     </div>
