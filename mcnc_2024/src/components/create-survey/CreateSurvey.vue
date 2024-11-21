@@ -89,7 +89,7 @@
                             <v-card>
                                 <v-date-picker hide-header v-model="selectedDate" width="100%" min-width="256"
                                     max-width="336" @update:model-value="isDateMenuOpen = false" color="#1088E3"
-                                    :min="new Date().toISOString().slice(0, 10)"></v-date-picker>
+                                    :min="dayjs().format('YYYY-MM-DD')"></v-date-picker>
                             </v-card>
                         </template>
                     </v-menu>
@@ -174,9 +174,6 @@ import { ref, nextTick, watch } from 'vue';
 // import axios from 'axios';
 
 import dayjs from 'dayjs'
-import customParseFormat from "dayjs/plugin/customParseFormat";
-dayjs.extend(customParseFormat);
-require('dayjs/locale/ko');
 
 import { checkEmptyValues } from '@/utils/checkEmptyValues';
 
