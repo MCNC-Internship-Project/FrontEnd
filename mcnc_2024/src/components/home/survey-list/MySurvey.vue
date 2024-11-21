@@ -5,7 +5,7 @@
                 내 설문조사
             </div>
 
-            <div class="show-all-text">
+            <div class="show-all-text" @click="routeMySurvey">
                 모두보기
             </div>
         </div>
@@ -36,6 +36,9 @@
 
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter();
 
 const surveys = ref([
     {
@@ -63,6 +66,10 @@ const surveys = ref([
         endDate: '2024-11-30'
     },
 ])
+
+const routeMySurvey = () => {
+    router.push({path : "/my-survey"});
+}
 
 const onItemClick = (survey) => {
     console.log(`surveyId: ${survey.surveyId} 클릭`);

@@ -1,21 +1,27 @@
 <template>
-    <div id="root-container">
-        <ul class="survey-item-list">
-            <li v-for="(item, index) in displayItems" :key="item.id" class="list-item"
-                :class="{ 'error': item.hasError }">
-                <input :type="componentType" :name="componentType" class="type-input" disabled>
-                <input type="text" v-model="item.value" placeholder="새로운 항목" class="item-input"
-                    :disabled="item.id === 'etcId'" :ref="el => itemInputs[index] = el" @focus="clearError(index)" />
-                <div class="delete-btn-container">
-                    <button class="list-delete-btn" @click="deleteItem(item.id)" v-if="totalItem.length !== 1"
-                        v-ripple>항목 삭제</button>
-                </div>
-            </li>
-        </ul>
+    <div class="root-container">
+        <div class="item-container">
+            <ul class="survey-list">
+                <li v-for="(item, index) in displayItems" :key="item.id">
+                    <div class="item-selection-container" :class="{ 'error': item.hasError }">
+                        <v-radio v-if="props.surveyType === 'OBJ_SINGLE'" color="#7796E8" disabled />
+                        <v-checkbox-btn v-else color="#7796E8" disabled />
+                        <input type="text" v-model="item.value" class="item-input" :placeholder="`항목 ${index + 1}`"
+                            :disabled="item.id === 'etcId'" :ref="el => itemInputs[index] = el"
+                            @focus="clearError(index)" />
+                        <img class="item-icon" src="@/assets/images/icon_x.svg" alt="delete icon"
+                            v-show="totalItem.length !== 1" @click="deleteItem(item.id)" />
+                    </div>
+                </li>
+            </ul>
+        </div>
 
-        <div class="item-add-section">
-            <button class="item-add-btn" @click="addItem" v-ripple>항목 추가</button>
-            <button class="etc-add-btn" @click="addEtcItem" v-if="!isExistEtc" v-ripple>기타 추가</button>
+        <div class="add-item-container">
+            <v-radio v-if="surveyType === 'OBJ_SINGLE'" color="#7796E8" disabled />
+            <v-checkbox-btn v-else color="#7796E8" disabled />
+            <div class="add-item-option" @click="addItem">옵션 추가</div>
+            <div class="add-item-or" v-if="!isExistEtc">또는</div>
+            <div class="add-item-etc" @click="addEtcItem" v-if="!isExistEtc">'기타' 추가</div>
         </div>
     </div>
 </template>
@@ -24,7 +30,7 @@
 import { ref, watchEffect, defineProps, computed, defineExpose } from 'vue';
 
 const props = defineProps({
-    type: String,
+    surveyType: String,
 })
 
 const totalItem = ref([
@@ -38,8 +44,6 @@ watchEffect(() => {
 });
 
 const isExistEtc = ref(false);
-
-const componentType = computed(() => (props.type === "OBJ_SINGLE" ? "radio" : "checkbox"));
 
 // 표시될 항목들을 계산하는 computed 속성 추가
 const displayItems = computed(() => {
@@ -106,7 +110,7 @@ const deleteItem = (id) => {
 const addEtcItem = () => {
     if (!isExistEtc.value) {
         isExistEtc.value = true;
-        totalItem.value.push({ id: "etcId", value: "기타" });
+        totalItem.value.push({ id: "etcId", value: "기타..." });
     }
 }
 
@@ -126,7 +130,12 @@ const getValue = () => {
         }
     });
 
-    return totalItem.value;
+    return totalItem.value.map(item => {
+        if (item.id === 'etcId') {
+            return { ...item, value: '기타' };
+        }
+        return item;
+    });
 };
 
 const clearError = (index) => {
@@ -139,103 +148,92 @@ defineExpose({
 </script>
 
 <style scoped>
-#root-container {
+.root-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 12px 48px 36px 8px;
+}
+
+.item-container {
     width: 100%;
     display: flex;
     flex-direction: column;
-    align-items: start;
-    justify-content: start;
 }
 
-.survey-item-list {
+.survey-list {
     width: 100%;
     list-style: none;
     padding: 0;
-    margin-top: 8px;
 }
 
-.list-item {
+.item-selection-container {
     width: 100%;
+    height: 32px;
     display: flex;
     align-items: center;
-    padding: 0 4px;
-    margin: 8px 0;
-    box-sizing: border-box;
-    line-height: 32px;
+    padding-left: 8px;
+    margin-bottom: 8px;
+}
+
+.item-selection-container.error {
+    border-color: #F76C6A;
+    border-radius: 4px;
+    outline: none;
+    box-shadow: 0 0 0 1.5px #F76C6A;
+}
+
+:deep(.v-selection-control) {
+    --v-selection-control-size: 16px !important;
+    flex: none;
 }
 
 .item-input {
-    width: 100%;
-    margin-left: 4px;
-    padding-left: 8px;
+    margin: 0 auto;
     outline: none;
+    width: 100%;
+    margin: 0 12px 0 16px;
 }
 
-.item-input::placeholder {
-    color: #dcdcdc;
+.item-input[disabled] {
+    color: #939393;
+    font-size: 0.875rem;
 }
 
 .item-input:focus::placeholder {
     color: transparent;
 }
 
-.list-item.error {
-    border-color: #F77D7D;
-    border-radius: 8px;
-    outline: none;
-    box-shadow: 0 0 0 1px #F77D7D;
-}
-
-/* 포커스 상태일 때도 에러 스타일 유지 */
-.list-item.error:focus {
-    border-color: #F77D7D;
-    outline: none;
-    box-shadow: 0 0 0 1px #F77D7D;
-}
-
-.etc-input {
-    width: 100%;
-    margin-left: 8px;
-    outline: none;
-}
-
-.item-add-section {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-between;
-    padding-left: 36px;
-    margin: 12px 0;
-}
-
-.item-add-btn {
-    color: #1080E3;
-    border-radius: 8px;
-    width: 80px;
-    height: 32px
-}
-
-.etc-add-btn {
-    margin-top: 4px;
-    border-radius: 8px;
-    width: 80px;
-    height: 32px
-}
-
-.delete-btn-container {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: end;
-}
-
-.list-delete-btn {
-    border-radius: 8px;
-    text-indent: -999em;
-    background: url("../../../../assets/images/icon_x.svg") no-repeat;
-    background-size: contain;
+.item-icon {
     width: 20px;
     height: 20px;
+    cursor: pointer;
+}
+
+.add-item-container {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    margin-top: 5px;
+    padding-left: 8px;
+}
+
+.add-item-option {
+    color: #A4A4A4;
+    cursor: pointer;
+    margin-left: 16px;
+    font-size: 0.875rem;
+}
+
+.add-item-or {
+    margin: 0 4px;
+    font-size: 0.875rem;
+}
+
+.add-item-etc {
+    color: #7796E8;
+    cursor: pointer;
+    font-size: 0.875rem;
 }
 </style>

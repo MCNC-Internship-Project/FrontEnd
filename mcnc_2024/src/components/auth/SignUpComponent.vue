@@ -80,7 +80,7 @@ const postSignUpRequest = (data) => {
         name: name.value
     }
 
-    axios.post(`${baseUrl}/auth/join`, JSON.stringify(jsonData), {
+    axios.post(`${baseUrl}/account/join`, JSON.stringify(jsonData), {
         headers: {
             'Content-Type': 'application/json'
         }
