@@ -155,12 +155,26 @@
             </v-card-actions>
         </v-card>
     </v-dialog>
+
+    <v-dialog v-model="showSuccessDialog" max-width="400">
+        <v-card class="dialog-background">
+            <div class="dialog-container">
+                <div class="dialog-error-message">성공적으로 저장되었습니다.</div>
+            </div>
+
+            <v-card-actions>
+                <v-btn class="dialog-close-btn" @click="redirectionToMySurvey">
+                    확인
+                </v-btn>
+            </v-card-actions>
+        </v-card>
+    </v-dialog>
 </template>
 
 <script setup>
 import { useRouter } from 'vue-router'
 import { ref, nextTick, watch } from 'vue';
-// import axios from 'axios';
+import axios from 'axios';
 
 import dayjs from 'dayjs'
 
@@ -169,7 +183,7 @@ import { checkEmptyValues } from '@/utils/checkEmptyValues';
 import SurveyItem from './create-survey-item/SurveyItem.vue';
 import TimePickerComponent from './create-survey-item/component/TimePickerComponent.vue';
 
-// const baseUrl = process.env.VUE_APP_API_URL;
+const baseUrl = process.env.VUE_APP_API_URL;
 const router = useRouter();
 
 const totalComponent = ref([
@@ -188,6 +202,7 @@ const isTimeError = ref(false);
 const isTimeBeforeNowError = ref(false);
 
 const showInvalidDateDialog = ref(false);
+const showSuccessDialog = ref(false);
 const isShowSaveModal = ref(false);
 const showDialog = ref(false);
 const isDateMenuOpen = ref(false);
@@ -399,9 +414,6 @@ const handleSubmit = () => {
         const currentDateTime = dayjs();
         const selectedDateTime = dayjs(dateTime);
 
-        console.log('설정시간', selectedDateTime);
-        console.log('현재시간', currentDateTime);
-
         if (selectedDateTime.isBefore(currentDateTime)) {
             dateError.value = true;
             showErrorDialog('종료 시간은 현재보다 이전으로 설정할 수 없습니다.');
@@ -412,24 +424,32 @@ const handleSubmit = () => {
 
         console.log(JSON.stringify(jsonData));
 
-        // axios.post(`${baseUrl}/survey/manage/create`, JSON.stringify(jsonData), {
-        //     withCredentials: true,
-        //     headers: {
-        //         'Content-Type': 'application/json'
-        //     }
-        // })
-        //     .then(response => {
-        //         console.log(response);
-        //     })
-        //     .catch(error => {
-        //         console.error(error);
-        //     })
+        axios.post(`${baseUrl}/survey/manage/create`, JSON.stringify(jsonData), {
+            withCredentials: true,
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then((response) => {
+                if(response.status === 200) {
+                    showSuccessDialog.value = true;
+                }
+            })
+            .catch(error => {
+                console.error(error);
+                showErrorDialog("설문조사 생성 중 오류가 발생했습니다.");
+            })
     }
 };
 
 const showErrorDialog = (message) => {
     dialogMessage.value = message
     showInvalidDateDialog.value = true
+}
+
+const redirectionToMySurvey = () => {
+    showSuccessDialog.value = false;
+    router.replace({path : "/my-survey"});
 }
 </script>
 
