@@ -32,7 +32,9 @@
 <script setup>
 import MySurvey from './survey-list/MySurvey.vue';
 import MyParticipatedSurvey from './survey-list/MyParticipatedSurvey.vue';
-import router from '@/router'
+import { useRouter } from 'vue-router'
+
+const router = useRouter();
 
 const routeSearch = () => {
     router.push({path : "/surveys"});

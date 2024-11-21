@@ -7,7 +7,7 @@
                     참여한 설문조사
                 </div>
 
-                <div class="show-all-text">
+                <div class="show-all-text" @click="routeJoinSurvey">
                     모두보기
                 </div>
             </div>
@@ -33,6 +33,9 @@
 
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
 
 const surveys = ref([
     {
@@ -67,6 +70,10 @@ const onItemClick = (survey) => {
 
 function formatDate(dateStr) {
     return dateStr.replaceAll('-', '.');
+}
+
+const routeJoinSurvey = () => {
+    router.push({path : "/joined-survey"});
 }
 </script>
 

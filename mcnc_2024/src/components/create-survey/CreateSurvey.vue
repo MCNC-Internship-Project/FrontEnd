@@ -1,6 +1,5 @@
 <template>
     <div class="root-container">
-
         <header class="toolbar">
             <div class="back-container">
                 <img class="back" src="../../assets/images/icon_arrow_left.svg" alt="back" @click="stepBack">
@@ -11,16 +10,16 @@
             </div>
         </header>
 
-        <div class="survey-section">
+        <div class="survey-container">
             <div class="survey-title-section">
-                <div class="input-section" :class="{ 'error': titleError }">
+                <div class="input-section" :class="{ 'title-error': titleError }">
                     <input type="text" name="survey-title" class="survey-title" v-model="surveyTitle"
-                        placeholder="설문조사 제목" maxlength="255" @focus="titleError = false" />
+                        :placeholder="titleError ? '(제목 없음)' : '설문조사 제목'" maxlength="255" @focus="titleError = false" />
                 </div>
 
                 <div class="input-section">
                     <input type="text" name="survey-description" class="survey-description" v-model="surveyDescription"
-                        placeholder="설문지 설명" maxlength="255">
+                        placeholder="설문조사 설명" maxlength="255">
                 </div>
 
                 <div class="select-deadline-section" :class="{ 'date-error': dateError }">
@@ -41,13 +40,13 @@
                 </div>
             </div>
 
-            <div class="survey-item-container">
-                <div class="survey-item-section" v-for="com in totalComponent" :key="com.id">
-                    <survey-item ref="surveyItems" />
-                    <div class="delete-btn-container" :class="{ 'isVisible': totalComponent.length === 1 }">
-                        <button @click="removeComponent(com.id)" class="delete-btn"></button>
+            <div>
+                <transition-group name="survey-delete" tag="div" class="survey-items-wrapper">
+                    <div class="survey-item-container" v-for="(com, index) in totalComponent" :key="com.id">
+                        <survey-item ref="surveyItems" @delete-item="removeComponent(com.id)"
+                            :is-single="totalComponent.length === 1" :item-number="index + 1" />
                     </div>
-                </div>
+                </transition-group>
             </div>
         </div>
 
@@ -139,7 +138,6 @@
                 </div>
             </v-card>
         </v-dialog>
-
 
         <v-dialog v-model="isShowSaveModal" max-width="400">
             <v-card class="dialog-background">
@@ -316,6 +314,15 @@ watch(isTimeMenuOpen, (isOpen) => {
     }
 });
 
+const scrollToBottom = () => {
+    nextTick(() => {
+        window.scrollTo({
+            top: document.documentElement.scrollHeight,
+            behavior: 'smooth'
+        });
+    });
+};
+
 const addComponent = () => {
     const lastIndex = totalComponent.value.length > 0
         ? totalComponent.value[totalComponent.value.length - 1].id
@@ -328,11 +335,14 @@ const addComponent = () => {
     // nextTick으로 DOM 업데이트 후에 ref 배열이 최신 상태로 반영되도록 함
     nextTick(() => {
         surveyItems.value = surveyItems.value.slice(); // 새로운 참조로 배열을 갱신
+        scrollToBottom();
     });
 }
 
 const removeComponent = (id) => {
-    totalComponent.value = totalComponent.value.filter((component) => component.id !== id);
+    if (totalComponent.value.length === 1)
+        return;
+    totalComponent.value = totalComponent.value.filter(item => item.id !== id);
 };
 
 const stepBack = () => {
@@ -351,7 +361,7 @@ const parseTime = (timeStr) => {
         hour = 0;
     }
 
-    return dayjs().hour(hour).minute(parseInt(minutes));
+    return `${hour.toString().padStart(2, '0')}:${minutes}:00`;
 }
 
 const handleSubmit = () => {
@@ -395,12 +405,15 @@ const handleSubmit = () => {
         isShowSaveModal.value = false;
 
         const dateFormatted = dayjs(date.value).format('YYYY-MM-DD');
-        const timeFormatted = parseTime(time.value).format('hh:mm:00');
+        const timeFormatted = parseTime(time.value);
 
         const dateTime = `${dateFormatted}T${timeFormatted}`;
 
         const currentDateTime = dayjs();
         const selectedDateTime = dayjs(dateTime);
+
+        console.log('설정시간', selectedDateTime);
+        console.log('현재시간', currentDateTime);
 
         if (selectedDateTime.isBefore(currentDateTime)) {
             dateError.value = true;
@@ -409,6 +422,8 @@ const handleSubmit = () => {
         }
 
         jsonData.expireDate = dateTime;
+
+        console.log(JSON.stringify(jsonData));
 
         // axios.post(`${baseUrl}/survey/manage/create`, JSON.stringify(jsonData), {
         //     withCredentials: true,
@@ -464,8 +479,7 @@ const showErrorDialog = (message) => {
     display: flex;
     align-items: center;
     position: absolute;
-    right: 0;
-    padding-right: 24px;
+    right: 24px;
 }
 
 .submit-btn {
@@ -480,21 +494,35 @@ const showErrorDialog = (message) => {
     color: white;
 }
 
-.survey-section {
+.survey-item-container {
     width: 100%;
-    max-width: 800px;
     padding: 0 24px;
-    margin-top: 64px;
+    display: flex;
+    flex-direction: column;
+    background-color: #FAF8F8;
+    border: solid 1px #eff0f6;
+    border-radius: 16px;
+    box-shadow: 0 1px 3px 1px rgba(0, 0, 0, 0.15);
+    padding: 20px 16px 0px 16px;
+    margin-bottom: 16px;
 }
 
 .survey-title-section {
     background-color: #F8FBFF;
-    border : solid 1px #EFF0F6;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    border: solid 1px #EFF0F6;
+    box-shadow: 0 1px 3px 1px rgba(0, 0, 0, 0.15);
     border-radius: 15px;
     margin-bottom: 20px;
     padding: 8px 8px;
     box-sizing: border-box;
+}
+
+.survey-title {
+    margin-top: 12px;
+    border: none;
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #464748;
 }
 
 .survey-title::placeholder {
@@ -503,6 +531,12 @@ const showErrorDialog = (message) => {
 
 .survey-title:focus::placeholder {
     color: transparent;
+}
+
+.survey-description {
+    margin-top: 12px;
+    font-size: 1rem;
+    color: #C1C3C5;
 }
 
 .survey-description::placeholder {
@@ -514,7 +548,7 @@ const showErrorDialog = (message) => {
 }
 
 .select-deadline-section {
-    margin: 16px 12px 0 12px;
+    margin: 32px 12px 0 12px;
     padding: 0 4px;
     height: 32px;
     display: flex;
@@ -543,36 +577,19 @@ const showErrorDialog = (message) => {
     height: 20px;
 }
 
-.survey-item-container {
+.survey-container {
     width: 100%;
     display: flex;
     flex-direction: column;
     align-items: stretch;
     justify-content: center;
+    padding: 0 24px;
+    margin-top: 68px;
+    max-width: 800px;
 }
 
-.survey-item-section {
-    background-color: #FAF8F8;
-    margin-bottom: 16px;
-    display: flex;
-    flex-direction: row;
-    align-items: flex-start;
-    justify-content: center;
-    padding: 0;
-    border: solid 1px #eff0f6;
-    border-radius: 15px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-}
-
-.delete-btn {
-    border-radius: 8px;
-    text-indent: -999em;
-    background: url("../../assets/images/icon_trash.svg") no-repeat;
-    background-size: contain;
-    width: 24px;
-    height: 24px;
-    margin-top: 36px;
-    margin-right: 12px;
+.delete-btn.disabled {
+    cursor: not-allowed;
 }
 
 .isVisible {
@@ -588,22 +605,12 @@ const showErrorDialog = (message) => {
 input {
     width: 100%;
     margin: 0 16px;
-    height: 44px;
-    padding: 0 16px;
     outline: none;
-    /* 포커스 outline 제거 */
-    padding: 8px 0;
-    /* 위아래 여백 추가 */
     transition: all 0.3s;
-    /* 포커스 시 애니메이션 */
 }
 
-.survey-title {
-    border: none;
-    /* 기본 테두리 제거 */
-    font-size: 1rem;
-    font-weight: bold;
-    color: #464748;
+.title-error .survey-title::placeholder {
+    color: #F77D7D;
 }
 
 .error {
@@ -616,16 +623,11 @@ input {
     box-shadow: 0 0 0 2px #F77D7D;
 }
 
-.survey-description {
-    font-size: 0.875rem;
-    color: #C1C3C5;
-}
-
 .create-btn-container {
     width: 100%;
     max-width: 800px;
     padding: 0 24px;
-    margin: 16px 0;
+    margin: 0 0 160px 0;
     cursor: pointer;
 }
 
@@ -638,7 +640,7 @@ input {
     justify-content: center;
     border: solid 1px #EFF0F6;
     border-radius: 15px;
-    box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 1px 3px 1px rgba(0, 0, 0, 0.15);
     font-weight: bold;
     font-size: 1rem;
     color: #8C8C8C;
@@ -707,7 +709,6 @@ input {
 }
 
 .dialog-background {
-    background-color: #FAF8F8;
     background-color: #FAF8F8;
     border: 1px solid #EFF0F6;
 }
@@ -853,4 +854,44 @@ input {
     height: 48px;
     font-size: 0.875rem;
 }
+
+.survey-items-wrapper {
+    width: 100%;
+}
+
+.survey-delete-move {
+    transition: transform 0.2s ease;
+}
+
+.survey-delete-enter-active {
+    transition: all 0.2s ease;
+}
+
+.survey-delete-leave-active {
+    transition: all 0.2s ease;
+    animation: slide-fade-out 0.2s ease forwards;
+}
+
+.survey-delete-enter-from,
+.survey-delete-leave-to {
+    opacity: 0;
+}
+
+@keyframes slide-fade-out {
+    0% {
+        opacity: 1;
+        transform: translateX(0);
+        max-height: 500px;
+        margin-bottom: 16px;
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateX(-30px);
+        max-height: 0;
+        margin-bottom: -2px;
+    }
+}
+
+/* Rest of the styles remain the same */
 </style>
