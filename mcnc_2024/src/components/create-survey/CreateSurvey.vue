@@ -52,12 +52,8 @@
 
         <div class="create-btn-container">
             <div class="create-btn-section" @click="addComponent" v-ripple>
-                <div class="add-icon-container">
-                    <div class="add-icon">
-                        add
-                    </div>
-                </div>
-                질문 추가하기
+                <img class="add-icon" src="@/assets/images/icon_add.svg" alt="add icon" />
+                <div class="add-text">질문 추가하기</div>
             </div>
         </div>
 
@@ -533,7 +529,7 @@ const showErrorDialog = (message) => {
 .survey-description {
     margin-top: 12px;
     font-size: 1rem;
-    color: #C1C3C5;
+    color: #868686;
 }
 
 .survey-description::placeholder {
@@ -638,23 +634,20 @@ input {
     border: solid 1px #EFF0F6;
     border-radius: 15px;
     box-shadow: 0 1px 3px 1px rgba(0, 0, 0, 0.15);
-    font-weight: bold;
-    font-size: 1rem;
-    color: #8C8C8C;
-}
-
-.add-icon-container {
-    position: absolute;
-    top: 18px;
-    left: 24px;
+    padding: 0 24px;
 }
 
 .add-icon {
-    text-indent: -999em;
-    background: url("../../assets/images/icon_add.svg");
-    background-size: contain;
     width: 24px;
     height: 24px;
+    position: absolute;
+    left: 24px;
+}
+
+.add-text {
+    font-weight: bold;
+    font-size: 1rem;
+    color: #8C8C8C;
 }
 
 .v-card {
