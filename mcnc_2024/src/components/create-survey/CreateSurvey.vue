@@ -23,18 +23,18 @@
                 </div>
 
                 <div class="select-deadline-section" :class="{ 'date-error': dateError }">
-                    <div class="deadline">
-                        설문 기간
-                    </div>
+                    <div class="deadline">설문 기간</div>
 
                     <div class="datetime-container" @click="showDialog = true; dateError = false">
-                        <div class="select-deadline">
+                        <!-- <div class="select-deadline">
                             <span
                                 v-html="date === null && time === null ? '미설정' : ` ~&nbsp;${dayjs(date).format('YYYY.MM.DD')}&nbsp;&nbsp;${time}`"></span>
                         </div>
                         <div class="calender-container">
                             calender
-                        </div>
+                        </div> -->
+                        <span class="datetime-text" v-html="date === null && time === null ? '미설정' : ` ~&nbsp;${dayjs(date).format('YYYY.MM.DD')}&nbsp;&nbsp;${time}`"></span>
+                        <img src="@/assets/images/icon_calendar3.svg" class="datetime-icon" alt="calendar icon" />
                     </div>
 
                 </div>
@@ -67,7 +67,7 @@
                         <template v-slot:activator="{ props }">
                             <v-card class="dialog-item" v-bind="props" :class="{ 'error': isDateError }">
                                 <div class="dialog-item-container">
-                                    <img src="@/assets/images/icon_calendar.svg" class="dialog-item-icon"
+                                    <img src="@/assets/images/icon_calendar2.svg" class="dialog-item-icon"
                                         alt="calendar icon" />
                                     <div class="dialog-item-text" :class="{ 'selected': selectedDate }"
                                         v-if="selectedDate">
@@ -554,20 +554,18 @@ const showErrorDialog = (message) => {
 .datetime-container {
     display: flex;
     cursor: pointer;
+    margin-left: 8px;
 }
 
-.select-deadline {
+.datetime-text {
     color: #ABABB6;
-    margin: 0 4px 0 8px;
     font-size: 0.8175rem;
 }
 
-.calender-container {
-    text-indent: -999em;
-    background: url("../../assets/images/icon_calendar.svg") no-repeat;
-    background-size: contain;
+.datetime-icon {
     width: 20px;
     height: 20px;
+    margin-left: 4px;
 }
 
 .survey-container {
