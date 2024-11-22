@@ -1,7 +1,7 @@
 <template>
     <div class="root-container">
         <div class="item-container">
-            <ul class="survey-list">
+            <transition-group name="list" tag="ul" class="survey-list">
                 <li v-for="(item, index) in displayItems" :key="item.id">
                     <div class="item-selection-container" :class="{ 'error': item.hasError }">
                         <v-radio v-if="props.surveyType === 'OBJ_SINGLE'" color="#7796E8" disabled />
@@ -13,7 +13,7 @@
                             v-show="totalItem.length !== 1" @click="deleteItem(item.id)" />
                     </div>
                 </li>
-            </ul>
+            </transition-group>
         </div>
 
         <div class="add-item-container">
@@ -45,7 +45,6 @@ watchEffect(() => {
 
 const isExistEtc = ref(false);
 
-// 표시될 항목들을 계산하는 computed 속성 추가
 const displayItems = computed(() => {
     const regularItems = totalItem.value.filter(item => item.id !== 'etcId');
     const etcItem = totalItem.value.find(item => item.id === 'etcId');
@@ -69,7 +68,6 @@ const addItem = () => {
     const newObj = { id: lastIndex + 1, value: "" };
 
     if (isExistEtc.value) {
-        // 기타 항목을 찾아서 임시로 제거
         const etcItem = totalItem.value.find(item => item.id === 'etcId');
         totalItem.value = [...regularItems, newObj, etcItem];
     } else {
@@ -101,7 +99,7 @@ const deleteItem = (id) => {
         return;
     }
 
-    // 항목이 아예 사라지면 화면 뒤틀리는 김에 항목이 1개 이하로는 삭제 안되는 로직
+     // 항목이 아예 사라지면 화면 뒤틀리는 김에 항목이 1개 이하로는 삭제 안되는 로직
     if (totalItem.value.length === 1) { return; }
 
     totalItem.value = totalItem.value.filter((item) => item.id !== id);
@@ -166,6 +164,7 @@ defineExpose({
     width: 100%;
     list-style: none;
     padding: 0;
+    position: relative; /* 추가: transition-group 내부 요소들의 위치 기준점 */
 }
 
 .item-selection-container {
@@ -234,5 +233,24 @@ defineExpose({
     color: #7796E8;
     cursor: pointer;
     font-size: 0.875rem;
+}
+
+.list-enter-active,
+.list-leave-active {
+    transition: all 0.2s ease;
+}
+
+.list-enter-from {
+    opacity: 0;
+    transform: translateX(-30px);
+}
+
+.list-leave-to {
+    opacity: 0;
+    transform: translateX(30px);
+}
+
+.list-move {
+    transition: transform 0.2s ease;
 }
 </style>
