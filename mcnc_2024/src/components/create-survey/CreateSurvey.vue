@@ -240,11 +240,11 @@ const time = ref(null);
 const cancel = () => {
     showDialog.value = false;
 
-    if (selectedDate.value === null) {
+    if (selectedDate.value !== null) {
         selectedDate.value = null;
     }
 
-    if (selectedTime.value === null) {
+    if (selectedTime.value !== null) {
         selectedTime.value = null;
         selectedAmPm.value = '오전';
         selectedHour.value = '12';
@@ -315,6 +315,8 @@ watch(showDialog, (show) => {
         }
     } else {
         isTimeBeforeNowError.value = false;
+        isDateError.value = false;
+        isTimeError.value = false;
     }
 });
 
