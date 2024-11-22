@@ -367,7 +367,7 @@ const removeComponent = (id) => {
 };
 
 const stepBack = () => {
-    router.back()
+    router.back();
 }
 
 const parseTime = (timeStr) => {

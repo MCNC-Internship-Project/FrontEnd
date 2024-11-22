@@ -33,7 +33,10 @@
 import MySurvey from './survey-list/MySurvey.vue';
 import MyParticipatedSurvey from './survey-list/MyParticipatedSurvey.vue';
 import { useRouter } from 'vue-router'
+import { onMounted } from 'vue';
+import axios from 'axios';
 
+const baseUrl = process.env.VUE_APP_API_URL;
 const router = useRouter();
 
 const routeSearch = () => {
@@ -51,6 +54,21 @@ const routeProfile = () => {
 const routeCreateSurvey = () => {
     router.push({path : "/create-survey"});
 }
+
+onMounted(()=>{
+    axios.get(`${baseUrl}/survey/response/result/26`, {
+            withCredentials: true,
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then((response) => {
+            console.log(response)
+        })
+        .catch(error => {
+            console.error(error);
+        })
+})
 </script>
 
 <style scoped>

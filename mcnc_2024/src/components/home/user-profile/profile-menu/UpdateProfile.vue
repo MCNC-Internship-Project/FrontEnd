@@ -46,14 +46,16 @@
 
 <script setup>
 import { ref } from 'vue';
-import router from '@/router';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
 
 const goBack = () => {
-    router.push('/profile');
+    router.back();
 }
 
 const editComplete = () => {
-    router.push('/profile');
+    router.back();
 }
 
 const profileData = ref({
