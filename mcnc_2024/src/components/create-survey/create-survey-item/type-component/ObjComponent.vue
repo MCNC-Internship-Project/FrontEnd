@@ -19,8 +19,8 @@
         <div class="add-item-container">
             <v-radio v-if="surveyType === 'OBJ_SINGLE'" color="#7796E8" disabled />
             <v-checkbox-btn v-else color="#7796E8" disabled />
-            <div class="add-item-option" @click="addItem">옵션 추가</div>
-            <div class="add-item-or" v-if="!isExistEtc">또는</div>
+            <div class="add-item-option" @click="addItem">항목 추가</div>
+            <div class="add-item-or" v-if="!isExistEtc">&nbsp;또는&nbsp;</div>
             <div class="add-item-etc" @click="addEtcItem" v-if="!isExistEtc">'기타' 추가</div>
         </div>
     </div>
@@ -227,7 +227,6 @@ defineExpose({
 }
 
 .add-item-or {
-    margin: 0 4px;
     font-size: 0.875rem;
 }
 

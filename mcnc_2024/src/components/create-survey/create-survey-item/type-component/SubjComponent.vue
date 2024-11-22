@@ -29,7 +29,7 @@ defineExpose({
     border : solid 1px #D9D9D9;
     color : #D9D9D9;
     border-radius : 12px;
-    padding : 12px 8px;
+    padding : 12px;
     background-color: #FFF;
     font-size: 0.9375rem;
 }
