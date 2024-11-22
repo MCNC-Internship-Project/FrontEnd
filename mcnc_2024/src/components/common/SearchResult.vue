@@ -21,21 +21,24 @@ defineProps({
 <style scoped>
 .result-container {
     width: 100%;
-    margin: 24px;
+    height: 80vh; 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center; 
     padding: 0 24px;
 }
 .search-results {
-    height: 80vh;
     width: 100%;
-    flex: 1; 
     display: flex;
-    overflow-y: auto; 
     flex-direction: column;
     gap: 12px;
+    overflow-y: auto;
     padding: 12px;
 }
 .no-results {
-    height: 80vh;
+    width: 100%;
+    height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
