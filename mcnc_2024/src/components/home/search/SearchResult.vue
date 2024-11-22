@@ -220,13 +220,13 @@ input::placeholder {
 
 .search-result-list {
     list-style : none;
-    margin-top : 68px;
+    margin-top : 76px;
 }
 
 .result-container {
     width: 100%;
     height : 100px;
-    margin-top : 12px;
+    margin-top : 8px;
     padding : 16px 16px;
     background: #FFFFFF;
     border: 1px solid #EFF0F6;
@@ -273,6 +273,6 @@ input::placeholder {
 }
 
 .last-item {
-    margin-bottom : 24px;
+    margin-bottom : 8px;
 }
 </style>

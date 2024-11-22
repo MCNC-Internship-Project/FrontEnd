@@ -52,7 +52,7 @@ const stepBack = () => {
     if (step.value > 1)
         step.value--;
     else
-        router.push('/');
+        router.push('/login');
 }
 
 const stepUpTo2 = (data) => {
