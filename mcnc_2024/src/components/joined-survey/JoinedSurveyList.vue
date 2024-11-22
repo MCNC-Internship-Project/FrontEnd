@@ -70,7 +70,7 @@ function goSearch() {
     flex-direction: column;
     align-items: center;
     margin-top: 40px;
-    overflow: hidden; /* survey-list 외부 요소는 스크롤되지 않도록 설정 */
+    overflow: hidden; 
 }
 .survey-list {
     width: 100%;
@@ -78,7 +78,7 @@ function goSearch() {
     flex: 1; 
     display: flex;
     overflow-y: auto; 
-    margin: 24px;
+    margin-top: 24px;
     padding: 4px 24px;
     flex-direction: column;
     gap: 12px;

@@ -37,7 +37,7 @@ defineProps({
 }
 
 .survey-title {
-    font-size: 1.25rem;
+    font-size: 1rem;
     font-weight: bold;
 }
 
@@ -56,10 +56,10 @@ defineProps({
 .description {
     margin-bottom: 20px;
     font-family: var(--font-mont);
-    font-size: 1rem;
+    font-size: 0.875rem;
 }
 
 .date-range {
-    font-size: 0.75rem;
+    font-size: 0.875rem;
 }
 </style>
