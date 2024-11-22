@@ -2,7 +2,7 @@
     <div class="root-container">
         <header class="toolbar">
             <div class="back-container">
-                <img class="back" src="../../assets/images/icon_arrow_left.svg" alt="back" @click="stepBack">
+                <img class="back" src="@/assets/images/icon_arrow_left.svg" alt="back" @click="showCancelDialog = true">
             </div>
 
             <div class="menu-container">
@@ -26,7 +26,8 @@
                     <div class="deadline">설문 기간</div>
 
                     <div class="datetime-container" @click="showDialog = true; dateError = false">
-                        <span class="datetime-text" v-html="date === null && time === null ? '미설정' : ` ~&nbsp;${dayjs(date).format('YYYY.MM.DD')}&nbsp;&nbsp;${time}`"></span>
+                        <span class="datetime-text"
+                            v-html="date === null && time === null ? '미설정' : ` ~&nbsp;${dayjs(date).format('YYYY.MM.DD')}&nbsp;&nbsp;${time}`"></span>
                         <img src="@/assets/images/icon_calendar3.svg" class="datetime-icon" alt="calendar icon" />
                     </div>
 
@@ -140,9 +141,8 @@
                 </div>
             </v-card>
         </v-dialog>
-    </div>
 
-    <v-dialog v-model="showInvalidDateDialog" max-width="400">
+        <v-dialog v-model="showInvalidDateDialog" max-width="400">
         <v-card class="dialog-background">
             <div class="dialog-container">
                 <div class="dialog-error-message">{{ dialogMessage }}</div>
@@ -169,6 +169,20 @@
             </v-card-actions>
         </v-card>
     </v-dialog>
+
+        <v-dialog v-model="showCancelDialog" max-width="400">
+            <v-card class="dialog-background">
+                <div class="dialog-container">
+                    <div class="dialog-message">설문조사 생성을 취소하시겠습니까?</div>
+
+                    <div class="dialog-actions">
+                        <v-btn class="dialog-cancel-btn" @click="showCancelDialog = false">취소</v-btn>
+                        <v-btn class="dialog-confirm-btn" color="#7796E8" @click="stepBack">확인</v-btn>
+                    </div>
+                </div>
+            </v-card>
+        </v-dialog>
+    </div>
 </template>
 
 <script setup>
@@ -205,6 +219,7 @@ const showInvalidDateDialog = ref(false);
 const showSuccessDialog = ref(false);
 const isShowSaveModal = ref(false);
 const showDialog = ref(false);
+const showCancelDialog = ref(false);
 const isDateMenuOpen = ref(false);
 const isTimeMenuOpen = ref(false);
 const dialogMessage = ref("");
@@ -298,6 +313,8 @@ watch(showDialog, (show) => {
             selectedHour.value = hour;
             selectedMinute.value = minute;
         }
+    } else {
+        isTimeBeforeNowError.value = false;
     }
 });
 
@@ -431,7 +448,7 @@ const handleSubmit = () => {
             }
         })
             .then((response) => {
-                if(response.status === 200) {
+                if (response.status === 200) {
                     showSuccessDialog.value = true;
                 }
             })
@@ -449,7 +466,7 @@ const showErrorDialog = (message) => {
 
 const redirectionToMySurvey = () => {
     showSuccessDialog.value = false;
-    router.replace({path : "/my-survey"});
+    router.replace({ path: "/my-survey" });
 }
 </script>
 
@@ -480,6 +497,7 @@ const redirectionToMySurvey = () => {
     display: flex;
     align-items: center;
     padding-left: 24px;
+    cursor: pointer;
 }
 
 .menu-container {
@@ -533,7 +551,7 @@ const redirectionToMySurvey = () => {
 }
 
 .survey-title::placeholder {
-    color: #464748;
+    color: #787a7c;
 }
 
 .survey-title:focus::placeholder {
@@ -579,7 +597,7 @@ const redirectionToMySurvey = () => {
 .datetime-icon {
     width: 20px;
     height: 20px;
-    margin-left: 4px;
+    margin-left: 8px;
 }
 
 .survey-container {
