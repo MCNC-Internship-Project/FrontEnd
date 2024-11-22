@@ -70,7 +70,7 @@
                                     <div class="dialog-item-text" v-else>날짜 선택</div>
                                     <img src="@/assets/images/icon_x.svg" alt="delete icon" class="dialog-item-icon"
                                         :class="{ 'hidden': !selectedDate }"
-                                        @click.stop="selectedDate = null; isDateMenuOpen = false" />
+                                        @click.stop="selectedDate = null; isDateMenuOpen = false; isTimeBeforeNowError = false" />
                                 </div>
                             </v-card>
                         </template>
@@ -98,7 +98,7 @@
                                     <div class="dialog-item-text" v-else>시간 선택</div>
                                     <img src="@/assets/images/icon_x.svg" alt="delete icon" class="dialog-item-icon"
                                         :class="{ 'hidden': !selectedTime }"
-                                        @click.stop="selectedTime = null; selectedAmPm = '오전'; selectedHour = 12; selectedMinute = 0; isTimeMenuOpen = false" />
+                                        @click.stop="selectedTime = null; selectedAmPm = '오전'; selectedHour = 12; selectedMinute = 0; isTimeMenuOpen = false; isTimeBeforeNowError = false" />
                                 </div>
                             </v-card>
                         </template>
@@ -143,32 +143,32 @@
         </v-dialog>
 
         <v-dialog v-model="showInvalidDateDialog" max-width="400">
-        <v-card class="dialog-background">
-            <div class="dialog-container">
-                <div class="dialog-error-message">{{ dialogMessage }}</div>
-            </div>
+            <v-card class="dialog-background">
+                <div class="dialog-container">
+                    <div class="dialog-error-message">{{ dialogMessage }}</div>
+                </div>
 
-            <v-card-actions>
-                <v-btn class="dialog-close-btn" @click="showInvalidDateDialog = false">
-                    확인
-                </v-btn>
-            </v-card-actions>
-        </v-card>
-    </v-dialog>
+                <v-card-actions>
+                    <v-btn class="dialog-close-btn" @click="showInvalidDateDialog = false">
+                        확인
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
 
-    <v-dialog v-model="showSuccessDialog" max-width="400">
-        <v-card class="dialog-background">
-            <div class="dialog-container">
-                <div class="dialog-error-message">성공적으로 저장되었습니다.</div>
-            </div>
+        <v-dialog v-model="showSuccessDialog" max-width="400">
+            <v-card class="dialog-background">
+                <div class="dialog-container">
+                    <div class="dialog-error-message">성공적으로 저장되었습니다.</div>
+                </div>
 
-            <v-card-actions>
-                <v-btn class="dialog-close-btn" @click="redirectionToMySurvey">
-                    확인
-                </v-btn>
-            </v-card-actions>
-        </v-card>
-    </v-dialog>
+                <v-card-actions>
+                    <v-btn class="dialog-close-btn" @click="redirectionToMySurvey">
+                        확인
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
 
         <v-dialog v-model="showCancelDialog" max-width="400">
             <v-card class="dialog-background">
@@ -240,11 +240,11 @@ const time = ref(null);
 const cancel = () => {
     showDialog.value = false;
 
-    if (selectedDate.value === null) {
+    if (selectedDate.value !== null) {
         selectedDate.value = null;
     }
 
-    if (selectedTime.value === null) {
+    if (selectedTime.value !== null) {
         selectedTime.value = null;
         selectedAmPm.value = '오전';
         selectedHour.value = '12';
@@ -315,6 +315,8 @@ watch(showDialog, (show) => {
         }
     } else {
         isTimeBeforeNowError.value = false;
+        isDateError.value = false;
+        isTimeError.value = false;
     }
 });
 
