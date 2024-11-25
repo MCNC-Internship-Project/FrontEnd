@@ -7,7 +7,6 @@
             </div>
 
             <div class="menu-container">
-                <img class="noti-icon" src="@/assets/images/icon_noti.svg" alt="noti icon" @click="routeNoti" />
                 <img class="profile-icon" src="@/assets/images/icon_profile_none.svg" alt="profile icon" @click="routeProfile" />
             </div>
         </header>
@@ -38,10 +37,6 @@ const router = useRouter();
 
 const routeSearch = () => {
     router.push({path : "/surveys"});
-}
-
-const routeNoti = () => {
-    router.push({path : "/noti"});
 }
 
 const routeProfile = () => {
@@ -94,13 +89,6 @@ const routeCreateSurvey = () => {
     padding: 0 20px;
 }
 
-.noti-icon {
-    width: 24px;
-    height: 24px;
-    margin-right: 12px;
-    cursor: pointer;
-}
-
 .profile-icon {
     width: 24px;
     height: 24px;
@@ -108,26 +96,23 @@ const routeCreateSurvey = () => {
 }
 
 .search-container {
-    position: relative;
-    margin: 16px 24px 40px 24px;
-    height: 56px;
-    border-radius: 12px;
-    background: #F3F3F3;
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    margin: 16px 24px 40px 24px;
+    height: 56px;
+    padding: 0 16px;
+    border-radius: 12px;
+    background: #F3F3F3;
     cursor: pointer;
 }
 
 .search-text {
-    position: absolute;
-    left: 16px;
     font-size: 1rem;
     color: #C6C6C6;
 }
 
 .search-icon {
-    position: absolute;
-    right: 16px;
     width: 24px;
     height: 24px;
 }
