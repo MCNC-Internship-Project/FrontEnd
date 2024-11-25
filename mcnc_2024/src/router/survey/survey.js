@@ -14,7 +14,13 @@ const SurveyRoutes = [
         props: true,
     },
     {
-        path: '/survey-completion',  // 참여 완료 페이지 경로
+        path: "/survey-detail", 
+        name: "SurveyDetail",
+        component: () => import("../../components/survey-detail/SurveyDetail.vue"),
+        props: true,
+    },
+    {
+        path: '/survey-completion',  
         name: 'SurveyCompletion',
         component: () => import("../../components/survey-completion/SurveyCompletion.vue")
         
