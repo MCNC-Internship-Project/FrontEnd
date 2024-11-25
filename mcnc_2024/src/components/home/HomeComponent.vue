@@ -50,15 +50,11 @@ const routeCreateSurvey = () => {
 
 <style scoped>
 .root-container {
-    height: 100%;
     width: 100%;
     overflow: hidden;
 }
 
 .toolbar {
-    left: 0;
-    top: 0;
-    right: 0;
     width: 100%;
     height: 64px;
     display: flex;
@@ -68,25 +64,24 @@ const routeCreateSurvey = () => {
 .logo-container {
     display: flex;
     align-items: center;
-    padding-left: 24px;
+    margin: 0 24px;
 }
 
 .logo {
-    width: 42px;
+    width: 40px;
 }
 
 .title {
-    padding-left: 4px;
+    margin-left: 4px;
     font-family: var(--font-mont);
     font-size: 1.25rem;
     color: var(--primary);
 }
 
 .menu-container {
-    margin-left: auto;
-    display : flex;
+    display: flex;
     align-items: center;
-    padding: 0 20px;
+    margin: 0 20px 0 auto;
 }
 
 .profile-icon {
