@@ -1,28 +1,28 @@
 <template>
     <div class="root-container">
         <header class="toolbar">
-            <div class="back-container">
-                <img class="back" src="../../assets/images/icon_arrow_left.svg" alt="back" @click="stepBack">
-            </div>
+            <img class="back" src="../../assets/images/icon_arrow_left.svg" alt="back" @click="stepBack">
         </header>
 
-        <div class="step-container">
-            <div class="step-text">
-                {{ step }} / 3 단계
+        <div class="body-container">
+            <div class="step-container">
+                <div class="step-text">
+                    {{ step }} / 3 단계
+                </div>
+
+                <div class="guide-text">
+                    회원가입을 진행합니다.
+                </div>
             </div>
 
-            <div class="guide-text">
-                회원가입을 진행합니다.
+            <div class="form-container">
+                <sign-up-step1 :step="step" v-show="step === 1" :userInfo="{ userId: userId, email: email }"
+                    @nextStep="stepUpTo2" />
+                <sign-up-step2 :step="step" v-show="step === 2" :userInfo="{ name: name, password: password }"
+                    @nextStep="stepUpTo3" />
+                <sign-up-step3 :step="step" v-show="step === 3" :userInfo="{ birth: birth, gender: gender }"
+                    @signUp="postSignUpRequest" />
             </div>
-        </div>
-
-        <div class="form-container">
-            <sign-up-step1 :step="step" v-show="step === 1" :userInfo="{ userId: userId, email: email }"
-                @nextStep="stepUpTo2" />
-            <sign-up-step2 :step="step" v-show="step === 2" :userInfo="{ name: name, password: password }"
-                @nextStep="stepUpTo3" />
-            <sign-up-step3 :step="step" v-show="step === 3" :userInfo="{ birth: birth, gender: gender }"
-                @signUp="postSignUpRequest" />
         </div>
     </div>
 </template>
@@ -43,8 +43,6 @@ const password = ref("");
 const birth = ref("");
 const gender = ref("");
 const name = ref("");
-
-
 
 const step = ref(1);
 
@@ -96,33 +94,29 @@ const postSignUpRequest = (data) => {
 
 <style scoped>
 .root-container {
-    position: relative;
     width: 100%;
 }
 
 .toolbar {
-    position: relative;
     display: flex;
     align-items: center;
-    left: 0;
-    top: 0;
-    right: 0;
     width: 100%;
     height: 64px;
 }
 
-.back-container {
-    display: flex;
-    align-items: center;
-    padding-left: 24px;
-}
-
 .back {
+    width: 20px;
+    height: 20px;
+    margin-left: 24px;
     cursor: pointer;
 }
 
+.body-container {
+    margin: 0 auto;
+    max-width: 400px;
+}
+
 .step-container {
-    position: relative;
     margin: 12px 24px 0;
 }
 
@@ -139,7 +133,6 @@ const postSignUpRequest = (data) => {
 }
 
 .form-container {
-    position: relative;
     margin-top: 36px;
 }
 </style>
