@@ -81,7 +81,7 @@ const routeCreateSurvey = () => {
 .menu-container {
     display: flex;
     align-items: center;
-    margin: 0 20px 0 auto;
+    margin: 0 24px 0 auto;
 }
 
 .profile-icon {
