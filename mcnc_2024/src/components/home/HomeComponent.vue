@@ -79,7 +79,6 @@ onMounted(()=>{
 }
 
 .toolbar {
-    position: relative;
     left: 0;
     top: 0;
     right: 0;
@@ -107,17 +106,16 @@ onMounted(()=>{
 }
 
 .menu-container {
+    margin-left: auto;
     display : flex;
     align-items: center;
-    position: absolute;
-    right: 0;
-    padding-right: 24px;
+    padding: 0 20px;
 }
 
 .noti-icon {
     width: 24px;
     height: 24px;
-    margin-right: 16px;
+    margin-right: 12px;
     cursor: pointer;
 }
 

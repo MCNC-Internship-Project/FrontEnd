@@ -18,14 +18,14 @@
                         <div class="item-title">{{ survey.title }}</div>
                         <div class="item-description">{{ survey.description }}</div>
 
-                        <div class="item-footer-container">
-                            <div class="item-participated">{{ survey.participated }}명 참여</div>
+                        <div class="footer-container">
+                            <div class="item-participated">{{ survey.respondCount }}명 참여</div>
                             <v-progress-linear class="survey-progress" bg-color="#D9D9D9" bg-opacity="1"
                                 color="var(--primary)" rounded rounded-bar height="4"
-                                :model-value="calculateProgress(survey.startDate, survey.endDate)"></v-progress-linear>
+                                :model-value="calculateProgress(survey.createDate, survey.expireDate)"></v-progress-linear>
                             <div class="date-container">
-                                <div class="date-start">{{ formatDate(survey.startDate) }}</div>
-                                <div class="date-end">{{ formatDate(survey.endDate) }}</div>
+                                <div class="date-start">{{ formatDate(survey.createDate) }}</div>
+                                <div class="date-end">{{ formatDate(survey.expireDate) }}</div>
                             </div>
                         </div>
                     </div>
@@ -42,33 +42,35 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
+import dayjs from 'dayjs'
+
 const router = useRouter();
 
 const surveys = ref([
     {
         surveyId: 1,
-        title: '설문조사 제목 1 설문조사 제목 1 설문조사 제목 1',
-        description: '설문조사 설명 설문조사 설명 설문조사설명 설문조사 설명 설문조사 설명',
-        participated: 10,
-        startDate: '2024-11-06',
-        endDate: '2024-11-13'
+        title: "2024년 개발자 선호 프레임워크 조사",
+        description: "프론트엔드/백엔드 개발자들이 선호하는 프레임워크와 개발 도구를 조사합니다",
+        createDate: "2024-10-01T09:00:00.000Z",
+        expireDate: "2024-10-31T23:59:59.999Z",
+        respondCount: 145
     },
     {
         surveyId: 2,
-        title: '설문조사 제목 2',
-        description: '설문조사 설명',
-        participated: 15,
-        startDate: '2024-11-01',
-        endDate: '2024-11-25'
+        title: "원격근무 만족도 조사",
+        description: "코로나19 이후 정착된 원격근무 환경에 대한 직원들의 만족도를 조사합니다",
+        createDate: "2024-11-10T08:30:00.000Z",
+        expireDate: "2024-11-25T18:00:00.000Z",
+        respondCount: 78
     },
     {
         surveyId: 3,
-        title: '설문조사 제목 3',
-        description: '설문조사 설명',
-        participated: 5,
-        startDate: '2024-11-05',
-        endDate: '2024-11-30'
-    },
+        title: "신규 서비스 사용자 피드백",
+        description: "최근 출시된 베타 서비스에 대한 초기 사용자들의 의견을 수집합니다",
+        createDate: "2024-11-24T00:00:00.000Z",
+        expireDate: "2024-12-31T23:59:59.999Z",
+        respondCount: 32
+    }
 ])
 
 const routeMySurvey = () => {
@@ -96,10 +98,7 @@ function calculateProgress(startDate, endDate) {
 }
 
 function formatDate(dateStr) {
-    const date = new Date(dateStr);
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${month}.${day}`;
+    return dayjs(dateStr).format('MM.DD');
 }
 </script>
 
@@ -109,21 +108,21 @@ function formatDate(dateStr) {
 }
 
 .title-container {
-    width: 100%;
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    width: 100%;
     padding: 0 24px;
 }
 
 .title-text {
-    color: #464748;
-    font-weight: bold;
     font-size: 1.25rem;
+    font-weight: bold;
+    color: #464748;
 }
 
 .show-all-text {
-    position: absolute;
-    right: 24px;
+    cursor: pointer;
     font-size: 1rem;
     color: #B4B4B4;
 }
@@ -133,36 +132,36 @@ function formatDate(dateStr) {
 }
 
 ul {
+    display: flex;
+    overflow-x: scroll;
     margin: 0;
     padding: 16px 8px 40px 24px;
-    overflow-x: scroll;
     list-style: none;
-    white-space: nowrap;
-    scrollbar-width: none;
-    display: flex;
 }
 
 .item-list {
+    flex-shrink: 0;
     width: 240px;
     height: 168px;
     margin-right: 16px;
     border-radius: 12px;
-    box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
-    flex-shrink: 0;
+    box-shadow: 0px 5px 16px rgba(8, 15, 52, 0.08);
+    cursor: pointer;
 }
 
 .item-container {
-    position: relative;
+    display: flex;
+    flex-direction: column;
     width: 100%;
     height: 100%;
-    padding: 20px;
+    padding: 20px 20px 12px 20px;
 }
 
 .item-title {
     width: 100%;
-    color: #414141;
-    font-weight: bold;
     font-size: 1rem;
+    font-weight: bold;
+    color: #414141;
     text-overflow: ellipsis;
     overflow: hidden;
     word-break: break-word;
@@ -170,6 +169,7 @@ ul {
 }
 
 .item-description {
+    display: -webkit-box;
     width: 100%;
     margin-top: 4px;
     font-size: 0.875rem;
@@ -177,11 +177,14 @@ ul {
     text-overflow: ellipsis;
     overflow: hidden;
     word-break: break-word;
-    display: -webkit-box;
+    white-space: normal;
     line-clamp: 2;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
-    white-space: normal;
+}
+
+.footer-container {
+    margin-top: auto;
 }
 
 .item-participated {
@@ -189,13 +192,6 @@ ul {
     font-size: 0.8125rem;
     color: var(--primary);
     text-align: right;
-}
-
-.item-footer-container {
-    position: absolute;
-    bottom: 12px;
-    left: 20px;
-    right: 20px;
 }
 
 .date-container {
@@ -206,11 +202,11 @@ ul {
 }
 
 .empty-container {
-    width: 100%;
-    height: 224px;
     display: flex;
     justify-content: center;
     align-items: center;
+    width: 100%;
+    height: 224px;
 }
 
 .empty-text {
