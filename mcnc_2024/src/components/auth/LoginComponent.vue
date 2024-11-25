@@ -6,13 +6,13 @@
                 <div class="title">Survwey</div>
             </div>
 
-            <div class="form-container">
+            <form class="form-container" @submit.prevent="login">
                 <input type="text" class="form-input" id="userId" placeholder="아이디"
                     autocomplete="new-password" v-model="userId">
                 <input type="password" class="form-input" id="password" placeholder="비밀번호"
                     autocomplete="new-password" v-model="password">
                 <button class="form-btn" @click="login" :disabled="!isPossible">로그인</button>
-            </div>
+            </form>
 
             <div class="footer-container">
                 <router-link to="/sign-up" class="sign-up">회원가입</router-link>
