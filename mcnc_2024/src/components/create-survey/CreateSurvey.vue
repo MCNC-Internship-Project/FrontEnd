@@ -1,13 +1,8 @@
 <template>
     <div class="root-container">
         <header class="toolbar">
-            <div class="back-container">
-                <img class="back" src="@/assets/images/icon_arrow_left.svg" alt="back" @click="showCancelDialog = true">
-            </div>
-
-            <div class="menu-container">
-                <button class="submit-btn" @click="isShowSaveModal = true" v-ripple>저장</button>
-            </div>
+            <img class="back" src="@/assets/images/icon_arrow_left.svg" alt="back" @click="showCancelDialog = true">
+            <button class="submit-btn" @click="isShowSaveModal = true" v-ripple>저장</button>
         </header>
 
         <div class="survey-container">
@@ -481,7 +476,6 @@ const redirectionToMySurvey = () => {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
 }
 
 .toolbar {
@@ -489,39 +483,30 @@ const redirectionToMySurvey = () => {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    left: 0;
-    top: 0;
-    right: 0;
     width: 100%;
     height: 64px;
     background-color: #fff;
     z-index: 50;
+    top: 0;
+    left: 0;
+    right: 0;
 }
 
-.back-container {
-    display: flex;
-    align-items: center;
-    padding-left: 24px;
+.back {
+    width: 20px;
+    height: 20px;
+    margin-left: 24px;
     cursor: pointer;
 }
 
-.menu-container {
-    display: flex;
-    align-items: center;
-    position: absolute;
-    right: 24px;
-}
-
 .submit-btn {
-    display: inline-block;
     width: 56px;
     height: 32px;
-    border: none;
     border-radius: 8px;
-    text-align: center;
     background-color: var(--primary);
     font-size: 0.8125rem;
     color: white;
+    margin-right: 24px;
 }
 
 .survey-item-container {
@@ -697,22 +682,6 @@ input {
     position: relative;
     height: 120px;
     padding: 4px 24px;
-}
-
-.scroll-container {
-    display: flex;
-    position: relative;
-    height: 120px;
-    overflow-y: auto;
-    scrollbar-width: none;
-}
-
-.time-picker-container {
-    display: flex;
-    position: relative;
-    height: 120px;
-    overflow-y: auto;
-    scrollbar-width: none;
 }
 
 .time-separator {

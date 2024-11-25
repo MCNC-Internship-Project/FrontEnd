@@ -27,6 +27,14 @@
             </div>
 
             <div class="profile-container">
+                <div class="text">아이디</div>
+                <div class="input-container">
+                    <input class="input" type="text" placeholder="아이디" v-model="profileData.userId" disabled />
+                    <v-divider></v-divider>
+                </div>
+            </div>
+
+            <div class="profile-container">
                 <div class="text">생년월일</div>
                 <div class="input-container">
                     <input class="input" type="text" placeholder="생년월일" :value="formatDate(profileData.birthDate)" disabled />
@@ -61,6 +69,7 @@ const editComplete = () => {
 const profileData = ref({
     username: '홍길동',
     email: 'email@email.com',
+    userId: 'userId',
     birthDate: '2000-01-01',
     gender: '남성'
 });
@@ -76,36 +85,31 @@ function formatDate(dateStr) {
 
 <style scoped>
 .root-container {
-    position: relative;
     width: 100%;
     height: calc(var(--vh, 1vh) * 100);
 }
 
 .toolbar {
-    position: relative;
     display: flex;
     align-items: center;
-    left: 0;
-    top: 0;
-    right: 0;
+    justify-content: space-between;
     width: 100%;
     height: 64px;
 }
 
 .back {
-    padding-left: 24px;
+    width: 20px;
+    height: 20px;
+    margin-left: 24px;
     cursor: pointer;
 }
 
 .complete {
-    position: absolute;
-    display: flex;
-    align-items: center;
-    right: 24px;
     cursor: pointer;
     font-size: 1rem;
     font-weight: bold;
     color: var(--primary);
+    margin-right: 24px;
 }
 
 .profile-image-container {

@@ -7,7 +7,6 @@
             </div>
 
             <div class="menu-container">
-                <img class="noti-icon" src="@/assets/images/icon_noti.svg" alt="noti icon" @click="routeNoti" />
                 <img class="profile-icon" src="@/assets/images/icon_profile_none.svg" alt="profile icon" @click="routeProfile" />
             </div>
         </header>
@@ -33,18 +32,11 @@
 import MySurvey from './survey-list/MySurvey.vue';
 import MyParticipatedSurvey from './survey-list/MyParticipatedSurvey.vue';
 import { useRouter } from 'vue-router'
-import { onMounted } from 'vue';
-import axios from 'axios';
 
-const baseUrl = process.env.VUE_APP_API_URL;
 const router = useRouter();
 
 const routeSearch = () => {
     router.push({path : "/surveys"});
-}
-
-const routeNoti = () => {
-    router.push({path : "/noti"});
 }
 
 const routeProfile = () => {
@@ -54,35 +46,15 @@ const routeProfile = () => {
 const routeCreateSurvey = () => {
     router.push({path : "/create-survey"});
 }
-
-onMounted(()=>{
-    axios.get(`${baseUrl}/survey/response/result/26`, {
-            withCredentials: true,
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
-        .then((response) => {
-            console.log(response)
-        })
-        .catch(error => {
-            console.error(error);
-        })
-})
 </script>
 
 <style scoped>
 .root-container {
-    height: 100%;
     width: 100%;
     overflow: hidden;
 }
 
 .toolbar {
-    position: relative;
-    left: 0;
-    top: 0;
-    right: 0;
     width: 100%;
     height: 64px;
     display: flex;
@@ -92,33 +64,24 @@ onMounted(()=>{
 .logo-container {
     display: flex;
     align-items: center;
-    padding-left: 24px;
+    margin: 0 24px;
 }
 
 .logo {
-    width: 42px;
+    width: 40px;
 }
 
 .title {
-    padding-left: 4px;
+    margin-left: 4px;
     font-family: var(--font-mont);
     font-size: 1.25rem;
     color: var(--primary);
 }
 
 .menu-container {
-    display : flex;
+    display: flex;
     align-items: center;
-    position: absolute;
-    right: 0;
-    padding-right: 24px;
-}
-
-.noti-icon {
-    width: 24px;
-    height: 24px;
-    margin-right: 16px;
-    cursor: pointer;
+    margin: 0 24px 0 auto;
 }
 
 .profile-icon {
@@ -128,26 +91,23 @@ onMounted(()=>{
 }
 
 .search-container {
-    position: relative;
-    margin: 16px 24px 40px 24px;
-    height: 56px;
-    border-radius: 12px;
-    background: #F3F3F3;
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    margin: 16px 24px 40px 24px;
+    height: 56px;
+    padding: 0 16px;
+    border-radius: 12px;
+    background: #F3F3F3;
     cursor: pointer;
 }
 
 .search-text {
-    position: absolute;
-    left: 16px;
     font-size: 1rem;
     color: #C6C6C6;
 }
 
 .search-icon {
-    position: absolute;
-    right: 16px;
     width: 24px;
     height: 24px;
 }

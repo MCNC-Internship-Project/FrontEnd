@@ -67,24 +67,21 @@ const onItemClick = (item) => {
 
 <style scoped>
 .root-container {
-    position: relative;
     width: 100%;
     height: calc(var(--vh, 1vh) * 100);
 }
 
 .toolbar {
-    position: relative;
     display: flex;
     align-items: center;
-    left: 0;
-    top: 0;
-    right: 0;
     width: 100%;
     height: 64px;
 }
 
 .back {
-    padding-left: 24px;
+    width: 20px;
+    height: 20px;
+    margin-left: 24px;
     cursor: pointer;
 }
 
