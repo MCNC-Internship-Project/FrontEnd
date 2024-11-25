@@ -1,11 +1,9 @@
 <template>
-    <div class="result-container">
-        <div v-if="surveys.length > 0" class="search-results">
-            <SurveyCard v-for="survey in surveys" :key="survey.id" :survey="survey" />
-        </div>
-        <div v-else class="no-results">
-            검색 결과가 없습니다.
-        </div>
+    <div v-if="surveys.length > 0" class="search-results">
+        <SurveyCard v-for="survey in surveys" :key="survey.id" :survey="survey" />
+    </div>
+    <div v-else class="no-results">
+        검색 결과가 없습니다.
     </div>
 </template>
 
@@ -19,23 +17,21 @@ defineProps({
 </script>
 
 <style scoped>
-.result-container {
-    width: 100%;
-    margin: 24px;
-    padding: 0 24px;
-}
 .search-results {
-    height: 80vh;
     width: 100%;
-    flex: 1; 
+    height: 100%;
+    flex: 1;
     display: flex;
-    overflow-y: auto; 
+    overflow-y: auto;
+    margin-top: 12px;
+    padding: 4px 24px;
     flex-direction: column;
     gap: 12px;
-    padding: 12px;
 }
+
 .no-results {
-    height: 80vh;
+    width: 100%;
+    height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
