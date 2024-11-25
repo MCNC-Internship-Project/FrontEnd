@@ -11,16 +11,17 @@
         </div>
 
         <div class="list-container">
-            <ul>
-                <li v-for="(survey, index) in surveys" :key="index" class="item-list" @click="onItemClick(survey)" v-ripple>
+            <ul v-if="surveys.length > 0">
+                <li v-for="(survey, index) in surveys" :key="index" class="item-list" @click="onItemClick(survey)"
+                    v-ripple>
                     <div class="item-container">
                         <div class="item-title">{{ survey.title }}</div>
                         <div class="item-description">{{ survey.description }}</div>
 
                         <div class="item-footer-container">
                             <div class="item-participated">{{ survey.participated }}명 참여</div>
-                            <v-progress-linear class="survey-progress" bg-color="#D9D9D9" bg-opacity="1" color="var(--primary)"
-                                rounded rounded-bar height="4"
+                            <v-progress-linear class="survey-progress" bg-color="#D9D9D9" bg-opacity="1"
+                                color="var(--primary)" rounded rounded-bar height="4"
                                 :model-value="calculateProgress(survey.startDate, survey.endDate)"></v-progress-linear>
                             <div class="date-container">
                                 <div class="date-start">{{ formatDate(survey.startDate) }}</div>
@@ -30,6 +31,9 @@
                     </div>
                 </li>
             </ul>
+            <div v-else class="empty-container">
+                <div class="empty-text">생성한 설문조사가 없습니다.</div>
+            </div>
         </div>
     </div>
 </template>
@@ -68,7 +72,7 @@ const surveys = ref([
 ])
 
 const routeMySurvey = () => {
-    router.push({path : "/my-survey"});
+    router.push({ path: "/my-survey" });
 }
 
 const onItemClick = (survey) => {
@@ -199,5 +203,18 @@ ul {
     justify-content: space-between;
     font-size: 0.8125rem;
     color: #B7B7B7;
+}
+
+.empty-container {
+    width: 100%;
+    height: 224px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.empty-text {
+    font-size: 1.125rem;
+    color: #7796E8;
 }
 </style>

@@ -12,8 +12,9 @@
                 </div>
             </div>
             <div class="list-container">
-                <ul>
-                    <li v-for="(survey, index) in surveys" :key="index" class="item-list"  @click="onItemClick(survey)" v-ripple>
+                <ul v-if="surveys.length > 0">
+                    <li v-for="(survey, index) in surveys" :key="index" class="item-list" @click="onItemClick(survey)"
+                        v-ripple>
                         <div class="item-container">
                             <div class="item-title">{{ survey.title }}</div>
                             <div class="item-description">{{ survey.description }}</div>
@@ -26,6 +27,9 @@
                         </div>
                     </li>
                 </ul>
+                <div v-else class="empty-container">
+                    <div class="empty-text">참여한 설문조사가 없습니다.</div>
+                </div>
             </div>
         </div>
     </div>
@@ -73,7 +77,7 @@ function formatDate(dateStr) {
 }
 
 const routeJoinSurvey = () => {
-    router.push({path : "/joined-survey"});
+    router.push({ path: "/joined-survey" });
 }
 </script>
 
@@ -171,5 +175,18 @@ ul {
 
 .item-date {
     color: #B7B7B7;
+}
+
+.empty-container {
+    width: 100%;
+    height: 224px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.empty-text {
+    font-size: 1.125rem;
+    color: #7796E8;
 }
 </style>
