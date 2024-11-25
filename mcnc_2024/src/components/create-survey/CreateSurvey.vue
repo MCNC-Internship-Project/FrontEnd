@@ -2,7 +2,7 @@
     <div class="root-container">
         <header class="toolbar">
             <div class="back-container">
-                <img class="back" src="../../assets/images/icon_arrow_left.svg" alt="back" @click="stepBack">
+                <img class="back" src="@/assets/images/icon_arrow_left.svg" alt="back" @click="showCancelDialog = true">
             </div>
 
             <div class="menu-container">
@@ -23,18 +23,12 @@
                 </div>
 
                 <div class="select-deadline-section" :class="{ 'date-error': dateError }">
-                    <div class="deadline">
-                        설문 기간
-                    </div>
+                    <div class="deadline">설문 기간</div>
 
                     <div class="datetime-container" @click="showDialog = true; dateError = false">
-                        <div class="select-deadline">
-                            <span
-                                v-html="date === null && time === null ? '미설정' : ` ~&nbsp;${dayjs(date).format('YYYY.MM.DD')}&nbsp;&nbsp;${time}`"></span>
-                        </div>
-                        <div class="calender-container">
-                            calender
-                        </div>
+                        <span class="datetime-text"
+                            v-html="date === null && time === null ? '미설정' : ` ~&nbsp;${dayjs(date).format('YYYY.MM.DD')}&nbsp;&nbsp;${time}`"></span>
+                        <img src="@/assets/images/icon_calendar3.svg" class="datetime-icon" alt="calendar icon" />
                     </div>
 
                 </div>
@@ -52,12 +46,8 @@
 
         <div class="create-btn-container">
             <div class="create-btn-section" @click="addComponent" v-ripple>
-                <div class="add-icon-container">
-                    <div class="add-icon">
-                        add
-                    </div>
-                </div>
-                질문 추가하기
+                <img class="add-icon" src="@/assets/images/icon_add.svg" alt="add icon" />
+                <div class="add-text">질문 추가하기</div>
             </div>
         </div>
 
@@ -71,7 +61,7 @@
                         <template v-slot:activator="{ props }">
                             <v-card class="dialog-item" v-bind="props" :class="{ 'error': isDateError }">
                                 <div class="dialog-item-container">
-                                    <img src="@/assets/images/icon_calendar.svg" class="dialog-item-icon"
+                                    <img src="@/assets/images/icon_calendar2.svg" class="dialog-item-icon"
                                         alt="calendar icon" />
                                     <div class="dialog-item-text" :class="{ 'selected': selectedDate }"
                                         v-if="selectedDate">
@@ -80,7 +70,7 @@
                                     <div class="dialog-item-text" v-else>날짜 선택</div>
                                     <img src="@/assets/images/icon_x.svg" alt="delete icon" class="dialog-item-icon"
                                         :class="{ 'hidden': !selectedDate }"
-                                        @click.stop="selectedDate = null; isDateMenuOpen = false" />
+                                        @click.stop="selectedDate = null; isDateMenuOpen = false; isTimeBeforeNowError = false" />
                                 </div>
                             </v-card>
                         </template>
@@ -89,7 +79,7 @@
                             <v-card>
                                 <v-date-picker hide-header v-model="selectedDate" width="100%" min-width="256"
                                     max-width="336" @update:model-value="isDateMenuOpen = false" color="#1088E3"
-                                    :min="new Date().toISOString().slice(0, 10)"></v-date-picker>
+                                    :min="dayjs().format('YYYY-MM-DD')"></v-date-picker>
                             </v-card>
                         </template>
                     </v-menu>
@@ -108,7 +98,7 @@
                                     <div class="dialog-item-text" v-else>시간 선택</div>
                                     <img src="@/assets/images/icon_x.svg" alt="delete icon" class="dialog-item-icon"
                                         :class="{ 'hidden': !selectedTime }"
-                                        @click.stop="selectedTime = null; selectedAmPm = '오전'; selectedHour = 12; selectedMinute = 0; isTimeMenuOpen = false" />
+                                        @click.stop="selectedTime = null; selectedAmPm = '오전'; selectedHour = 12; selectedMinute = 0; isTimeMenuOpen = false; isTimeBeforeNowError = false" />
                                 </div>
                             </v-card>
                         </template>
@@ -151,39 +141,64 @@
                 </div>
             </v-card>
         </v-dialog>
+
+        <v-dialog v-model="showInvalidDateDialog" max-width="400">
+            <v-card class="dialog-background">
+                <div class="dialog-container">
+                    <div class="dialog-error-message">{{ dialogMessage }}</div>
+                </div>
+
+                <v-card-actions>
+                    <v-btn class="dialog-close-btn" @click="showInvalidDateDialog = false">
+                        확인
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+
+        <v-dialog v-model="showSuccessDialog" max-width="400">
+            <v-card class="dialog-background">
+                <div class="dialog-container">
+                    <div class="dialog-error-message">성공적으로 저장되었습니다.</div>
+                </div>
+
+                <v-card-actions>
+                    <v-btn class="dialog-close-btn" @click="redirectionToMySurvey">
+                        확인
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+
+        <v-dialog v-model="showCancelDialog" max-width="400">
+            <v-card class="dialog-background">
+                <div class="dialog-container">
+                    <div class="dialog-message">설문조사 생성을 취소하시겠습니까?</div>
+
+                    <div class="dialog-actions">
+                        <v-btn class="dialog-cancel-btn" @click="showCancelDialog = false">취소</v-btn>
+                        <v-btn class="dialog-confirm-btn" color="#7796E8" @click="stepBack">확인</v-btn>
+                    </div>
+                </div>
+            </v-card>
+        </v-dialog>
     </div>
-
-    <v-dialog v-model="showInvalidDateDialog" max-width="400">
-        <v-card class="dialog-background">
-            <div class="dialog-container">
-                <div class="dialog-error-message">{{ dialogMessage }}</div>
-            </div>
-
-            <v-card-actions>
-                <v-btn class="dialog-close-btn" @click="showInvalidDateDialog = false">
-                    확인
-                </v-btn>
-            </v-card-actions>
-        </v-card>
-    </v-dialog>
 </template>
 
 <script setup>
-import router from '@/router';
+import { useRouter } from 'vue-router'
 import { ref, nextTick, watch } from 'vue';
-// import axios from 'axios';
+import axios from 'axios';
 
 import dayjs from 'dayjs'
-import customParseFormat from "dayjs/plugin/customParseFormat";
-dayjs.extend(customParseFormat);
-require('dayjs/locale/ko');
 
 import { checkEmptyValues } from '@/utils/checkEmptyValues';
 
 import SurveyItem from './create-survey-item/SurveyItem.vue';
 import TimePickerComponent from './create-survey-item/component/TimePickerComponent.vue';
 
-// const baseUrl = process.env.VUE_APP_API_URL;
+const baseUrl = process.env.VUE_APP_API_URL;
+const router = useRouter();
 
 const totalComponent = ref([
     { id: 0 },
@@ -201,8 +216,10 @@ const isTimeError = ref(false);
 const isTimeBeforeNowError = ref(false);
 
 const showInvalidDateDialog = ref(false);
+const showSuccessDialog = ref(false);
 const isShowSaveModal = ref(false);
 const showDialog = ref(false);
+const showCancelDialog = ref(false);
 const isDateMenuOpen = ref(false);
 const isTimeMenuOpen = ref(false);
 const dialogMessage = ref("");
@@ -223,11 +240,11 @@ const time = ref(null);
 const cancel = () => {
     showDialog.value = false;
 
-    if (selectedDate.value === null) {
+    if (selectedDate.value !== null) {
         selectedDate.value = null;
     }
 
-    if (selectedTime.value === null) {
+    if (selectedTime.value !== null) {
         selectedTime.value = null;
         selectedAmPm.value = '오전';
         selectedHour.value = '12';
@@ -296,6 +313,10 @@ watch(showDialog, (show) => {
             selectedHour.value = hour;
             selectedMinute.value = minute;
         }
+    } else {
+        isTimeBeforeNowError.value = false;
+        isDateError.value = false;
+        isTimeError.value = false;
     }
 });
 
@@ -412,9 +433,6 @@ const handleSubmit = () => {
         const currentDateTime = dayjs();
         const selectedDateTime = dayjs(dateTime);
 
-        console.log('설정시간', selectedDateTime);
-        console.log('현재시간', currentDateTime);
-
         if (selectedDateTime.isBefore(currentDateTime)) {
             dateError.value = true;
             showErrorDialog('종료 시간은 현재보다 이전으로 설정할 수 없습니다.');
@@ -425,24 +443,32 @@ const handleSubmit = () => {
 
         console.log(JSON.stringify(jsonData));
 
-        // axios.post(`${baseUrl}/survey/manage/create`, JSON.stringify(jsonData), {
-        //     withCredentials: true,
-        //     headers: {
-        //         'Content-Type': 'application/json'
-        //     }
-        // })
-        //     .then(response => {
-        //         console.log(response);
-        //     })
-        //     .catch(error => {
-        //         console.error(error);
-        //     })
+        axios.post(`${baseUrl}/survey/manage/create`, JSON.stringify(jsonData), {
+            withCredentials: true,
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then((response) => {
+                if (response.status === 200) {
+                    showSuccessDialog.value = true;
+                }
+            })
+            .catch(error => {
+                console.error(error);
+                showErrorDialog("설문조사 생성 중 오류가 발생했습니다.");
+            })
     }
 };
 
 const showErrorDialog = (message) => {
     dialogMessage.value = message
     showInvalidDateDialog.value = true
+}
+
+const redirectionToMySurvey = () => {
+    showSuccessDialog.value = false;
+    router.replace({ path: "/my-survey" });
 }
 </script>
 
@@ -473,6 +499,7 @@ const showErrorDialog = (message) => {
     display: flex;
     align-items: center;
     padding-left: 24px;
+    cursor: pointer;
 }
 
 .menu-container {
@@ -526,7 +553,7 @@ const showErrorDialog = (message) => {
 }
 
 .survey-title::placeholder {
-    color: #464748;
+    color: #787a7c;
 }
 
 .survey-title:focus::placeholder {
@@ -536,7 +563,7 @@ const showErrorDialog = (message) => {
 .survey-description {
     margin-top: 12px;
     font-size: 1rem;
-    color: #C1C3C5;
+    color: #868686;
 }
 
 .survey-description::placeholder {
@@ -561,20 +588,18 @@ const showErrorDialog = (message) => {
 .datetime-container {
     display: flex;
     cursor: pointer;
+    margin-left: 8px;
 }
 
-.select-deadline {
+.datetime-text {
     color: #ABABB6;
-    margin: 0 4px 0 8px;
     font-size: 0.8175rem;
 }
 
-.calender-container {
-    text-indent: -999em;
-    background: url("../../assets/images/icon_calendar.svg") no-repeat;
-    background-size: contain;
+.datetime-icon {
     width: 20px;
     height: 20px;
+    margin-left: 8px;
 }
 
 .survey-container {
@@ -641,23 +666,20 @@ input {
     border: solid 1px #EFF0F6;
     border-radius: 15px;
     box-shadow: 0 1px 3px 1px rgba(0, 0, 0, 0.15);
-    font-weight: bold;
-    font-size: 1rem;
-    color: #8C8C8C;
-}
-
-.add-icon-container {
-    position: absolute;
-    top: 18px;
-    left: 24px;
+    padding: 0 24px;
 }
 
 .add-icon {
-    text-indent: -999em;
-    background: url("../../assets/images/icon_add.svg");
-    background-size: contain;
     width: 24px;
     height: 24px;
+    position: absolute;
+    left: 24px;
+}
+
+.add-text {
+    font-weight: bold;
+    font-size: 1rem;
+    color: #8C8C8C;
 }
 
 .v-card {
