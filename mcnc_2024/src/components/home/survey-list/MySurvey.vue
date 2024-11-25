@@ -32,46 +32,24 @@
                 </li>
             </ul>
             <div v-else class="empty-container">
-                <div class="empty-text">생성한 설문조사가 없습니다.</div>
+                <div v-if="!onLoading" class="empty-text">생성한 설문조사가 없습니다.</div>
             </div>
         </div>
     </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import axios from 'axios';
 
 import dayjs from 'dayjs'
 
+const baseUrl = process.env.VUE_APP_API_URL;
 const router = useRouter();
 
-const surveys = ref([
-    {
-        surveyId: 1,
-        title: "2024년 개발자 선호 프레임워크 조사",
-        description: "프론트엔드/백엔드 개발자들이 선호하는 프레임워크와 개발 도구를 조사합니다",
-        createDate: "2024-10-01T09:00:00.000Z",
-        expireDate: "2024-10-31T23:59:59.999Z",
-        respondCount: 145
-    },
-    {
-        surveyId: 2,
-        title: "원격근무 만족도 조사",
-        description: "코로나19 이후 정착된 원격근무 환경에 대한 직원들의 만족도를 조사합니다",
-        createDate: "2024-11-10T08:30:00.000Z",
-        expireDate: "2024-11-25T18:00:00.000Z",
-        respondCount: 78
-    },
-    {
-        surveyId: 3,
-        title: "신규 서비스 사용자 피드백",
-        description: "최근 출시된 베타 서비스에 대한 초기 사용자들의 의견을 수집합니다",
-        createDate: "2024-11-24T00:00:00.000Z",
-        expireDate: "2024-12-31T23:59:59.999Z",
-        respondCount: 32
-    }
-])
+const surveys = ref([])
+const onLoading = ref(true)
 
 const routeMySurvey = () => {
     router.push({ path: "/my-survey" });
@@ -81,7 +59,7 @@ const onItemClick = (survey) => {
     console.log(`surveyId: ${survey.surveyId} 클릭`);
 };
 
-function calculateProgress(startDate, endDate) {
+const calculateProgress = (startDate, endDate) => {
     const currentDate = new Date()
     const start = new Date(startDate)
     const end = new Date(endDate)
@@ -95,11 +73,59 @@ function calculateProgress(startDate, endDate) {
     if (progress > 100) progress = 100
 
     return progress
-}
+};
 
-function formatDate(dateStr) {
+const formatDate = (dateStr) => {
     return dayjs(dateStr).format('MM.DD');
-}
+};
+
+onMounted(() => {
+    axios.get(`${baseUrl}/survey/inquiry/created`, {
+        withCredentials: true,
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        params: {
+            page: 0,
+            size: 3
+        }
+    })
+        .then((response) => {
+            surveys.value = response.data.content;
+            onLoading.value = false;
+        })
+        .catch(error => {
+            console.error(error);
+
+            // 임시 데이터
+            surveys.value = [
+                {
+                    surveyId: 1,
+                    title: "2024년 개발자 선호 프레임워크 조사",
+                    description: "프론트엔드/백엔드 개발자들이 선호하는 프레임워크와 개발 도구를 조사합니다",
+                    createDate: "2024-10-01T09:00:00.000Z",
+                    expireDate: "2024-10-31T23:59:59.999Z",
+                    respondCount: 145
+                },
+                {
+                    surveyId: 2,
+                    title: "원격근무 만족도 조사",
+                    description: "코로나19 이후 정착된 원격근무 환경에 대한 직원들의 만족도를 조사합니다",
+                    createDate: "2024-11-10T08:30:00.000Z",
+                    expireDate: "2024-11-25T18:00:00.000Z",
+                    respondCount: 78
+                },
+                {
+                    surveyId: 3,
+                    title: "신규 서비스 사용자 피드백",
+                    description: "최근 출시된 베타 서비스에 대한 초기 사용자들의 의견을 수집합니다",
+                    createDate: "2024-11-24T00:00:00.000Z",
+                    expireDate: "2024-12-31T23:59:59.999Z",
+                    respondCount: 32
+                }
+            ];
+        })
+});
 </script>
 
 <style scoped>

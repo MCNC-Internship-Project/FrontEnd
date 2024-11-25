@@ -19,13 +19,13 @@
                             <div class="item-title">{{ survey.title }}</div>
                             <div class="item-description">{{ survey.description }}</div>
                             <div class="footer-container">
-                                    <div class="item-date">{{ formatDate(survey.createDate, survey.expireDate) }}</div>
-                                </div>
+                                <div class="item-date">{{ formatDate(survey.createDate, survey.expireDate) }}</div>
+                            </div>
                         </div>
                     </li>
                 </ul>
                 <div v-else class="empty-container">
-                    <div class="empty-text">참여한 설문조사가 없습니다.</div>
+                    <div v-if="!onLoading" class="empty-text">참여한 설문조사가 없습니다.</div>
                 </div>
             </div>
         </div>
@@ -33,39 +33,17 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router';
+import axios from 'axios';
 
 import dayjs from 'dayjs'
 
+const baseUrl = process.env.VUE_APP_API_URL;
 const router = useRouter();
 
-const surveys = ref([
-    {
-        surveyId: 4,
-        title: '2024년 회사 연말 행사 선호도 조사',
-        description: '직원들이 선호하는 연말 행사 형태와 시기를 조사합니다',
-        createDate: '2024-10-15T09:00:00.000Z',
-        expireDate: '2024-12-01T23:59:59.999Z',
-        respondCount: 82
-    },
-    {
-        surveyId: 5,
-        title: '사내 동호회 수요 조사',
-        description: '신규 동호회 개설을 위한 직원들의 관심사를 파악합니다',
-        createDate: '2024-11-01T09:00:00.000Z',
-        expireDate: '2024-12-15T23:59:59.999Z',
-        respondCount: 45
-    },
-    {
-        surveyId: 6,
-        title: '구내 식당 메뉴 만족도 조사',
-        description: '구내 식당 메뉴 개선을 위한 의견을 수집합니다',
-        createDate: '2024-11-20T09:00:00.000Z',
-        expireDate: '2024-12-20T23:59:59.999Z',
-        respondCount: 156
-    }
-])
+const surveys = ref([])
+const onLoading = ref(true)
 
 const onItemClick = (survey) => {
     console.log(`surveyId: ${survey.surveyId} 클릭`);
@@ -79,6 +57,53 @@ const routeJoinSurvey = () => {
     router.push({ path: "/joined-survey" });
 }
 
+onMounted(() => {
+    axios.get(`${baseUrl}/survey/inquiry/respond`, {
+        withCredentials: true,
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        params: {
+            page: 0,
+            size: 3
+        }
+    })
+        .then((response) => {
+            surveys.value = response.data.content;
+            onLoading.value = false;
+        })
+        .catch(error => {
+            console.error(error);
+
+            // 임시 데이터
+            surveys.value = [
+                {
+                    surveyId: 4,
+                    title: '2024년 회사 연말 행사 선호도 조사',
+                    description: '직원들이 선호하는 연말 행사 형태와 시기를 조사합니다',
+                    createDate: '2024-10-15T09:00:00.000Z',
+                    expireDate: '2024-12-01T23:59:59.999Z',
+                    respondCount: 82
+                },
+                {
+                    surveyId: 5,
+                    title: '사내 동호회 수요 조사',
+                    description: '신규 동호회 개설을 위한 직원들의 관심사를 파악합니다',
+                    createDate: '2024-11-01T09:00:00.000Z',
+                    expireDate: '2024-12-15T23:59:59.999Z',
+                    respondCount: 45
+                },
+                {
+                    surveyId: 6,
+                    title: '구내 식당 메뉴 만족도 조사',
+                    description: '구내 식당 메뉴 개선을 위한 의견을 수집합니다',
+                    createDate: '2024-11-20T09:00:00.000Z',
+                    expireDate: '2024-12-20T23:59:59.999Z',
+                    respondCount: 156
+                }
+            ];
+        })
+});
 </script>
 
 <style scoped>
