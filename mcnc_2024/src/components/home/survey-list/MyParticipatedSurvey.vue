@@ -12,69 +12,98 @@
                 </div>
             </div>
             <div class="list-container">
-                <ul>
-                    <li v-for="(survey, index) in surveys" :key="index" class="item-list"  @click="onItemClick(survey)" v-ripple>
+                <ul v-if="surveys.length > 0">
+                    <li v-for="(survey, index) in surveys" :key="index" class="item-list" @click="onItemClick(survey)"
+                        v-ripple>
                         <div class="item-container">
                             <div class="item-title">{{ survey.title }}</div>
                             <div class="item-description">{{ survey.description }}</div>
-                            <div class="item-footer-container">
-                                <div class="footer-container">
-                                    <div class="item-participated">{{ survey.participated }}명 참여</div>
-                                    <div class="item-date">{{ formatDate(survey.endDate) }}</div>
-                                </div>
+                            <div class="footer-container">
+                                <div class="item-date">{{ formatDate(survey.createDate, survey.expireDate) }}</div>
                             </div>
                         </div>
                     </li>
                 </ul>
+                <div v-else class="empty-container">
+                    <div v-if="!onLoading" class="empty-text">참여한 설문조사가 없습니다.</div>
+                </div>
             </div>
         </div>
     </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router';
+import axios from 'axios';
 
+import dayjs from 'dayjs'
+
+const baseUrl = process.env.VUE_APP_API_URL;
 const router = useRouter();
 
-const surveys = ref([
-    {
-        surveyId: 1,
-        title: '설문조사 제목 1 설문조사 제목 1 설문조사 제목 1',
-        description: '설문조사 설명 설문조사 설명 설문조사설명 설문조사 설명 설문조사 설명',
-        participated: 10,
-        startDate: '2024-11-06',
-        endDate: '2024-11-13'
-    },
-    {
-        surveyId: 2,
-        title: '설문조사 제목 2',
-        description: '설문조사 설명',
-        participated: 15,
-        startDate: '2024-11-01',
-        endDate: '2024-11-25'
-    },
-    {
-        surveyId: 3,
-        title: '설문조사 제목 3',
-        description: '설문조사 설명',
-        participated: 5,
-        startDate: '2024-11-05',
-        endDate: '2024-11-30'
-    },
-])
+const surveys = ref([])
+const onLoading = ref(true)
 
 const onItemClick = (survey) => {
     console.log(`surveyId: ${survey.surveyId} 클릭`);
 };
 
-function formatDate(dateStr) {
-    return dateStr.replaceAll('-', '.');
-}
+const formatDate = (startDate, endDate) => {
+    return `${dayjs(startDate).format('YYYY.MM.DD')} ~ ${dayjs(endDate).format('YYYY.MM.DD')}`;
+};
 
 const routeJoinSurvey = () => {
-    router.push({path : "/joined-survey"});
+    router.push({ path: "/joined-survey" });
 }
+
+onMounted(() => {
+    axios.get(`${baseUrl}/survey/inquiry/respond`, {
+        withCredentials: true,
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        params: {
+            page: 0,
+            size: 3
+        }
+    })
+        .then((response) => {
+            surveys.value = response.data.content;
+            onLoading.value = false;
+        })
+        .catch(error => {
+            console.error(error);
+
+            // 임시 데이터
+            surveys.value = [
+                {
+                    surveyId: 4,
+                    title: '2024년 회사 연말 행사 선호도 조사',
+                    description: '직원들이 선호하는 연말 행사 형태와 시기를 조사합니다',
+                    createDate: '2024-10-15T09:00:00.000Z',
+                    expireDate: '2024-12-01T23:59:59.999Z',
+                    respondCount: 82
+                },
+                {
+                    surveyId: 5,
+                    title: '사내 동호회 수요 조사',
+                    description: '신규 동호회 개설을 위한 직원들의 관심사를 파악합니다',
+                    createDate: '2024-11-01T09:00:00.000Z',
+                    expireDate: '2024-12-15T23:59:59.999Z',
+                    respondCount: 45
+                },
+                {
+                    surveyId: 6,
+                    title: '구내 식당 메뉴 만족도 조사',
+                    description: '구내 식당 메뉴 개선을 위한 의견을 수집합니다',
+                    createDate: '2024-11-20T09:00:00.000Z',
+                    expireDate: '2024-12-20T23:59:59.999Z',
+                    respondCount: 156
+                }
+            ];
+        })
+});
 </script>
 
 <style scoped>
@@ -83,21 +112,21 @@ const routeJoinSurvey = () => {
 }
 
 .title-container {
-    width: 100%;
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    width: 100%;
     padding: 0 24px;
 }
 
 .title-text {
-    color: #464748;
-    font-weight: bold;
     font-size: 1.25rem;
+    font-weight: bold;
+    color: #464748;
 }
 
 .show-all-text {
-    position: absolute;
-    right: 24px;
+    cursor: pointer;
     font-size: 1rem;
     color: #B4B4B4;
 }
@@ -109,33 +138,31 @@ const routeJoinSurvey = () => {
 ul {
     margin: 0;
     padding: 16px 24px 8px 24px;
-    display: flex;
-    flex-direction: column;
-    flex-wrap: nowrap;
     list-style: none;
-    scrollbar-width: none;
 }
 
 .item-list {
+    flex-shrink: 0;
     width: 100%;
     height: 108px;
     margin-bottom: 16px;
     border-radius: 12px;
-    box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
-    flex-shrink: 0;
+    box-shadow: 0px 5px 16px rgba(8, 15, 52, 0.08);
+    cursor: pointer;
 }
 
 .item-container {
-    position: relative;
+    display: flex;
+    flex-direction: column;
     width: 100%;
     height: 100%;
-    padding: 16px 16px 0 16px;
+    padding: 16px 16px 8px 16px;
 }
 
 .item-title {
     font-size: 0.875rem;
-    color: #464748;
     font-weight: bold;
+    color: #464748;
     text-overflow: ellipsis;
     overflow: hidden;
     word-break: break-word;
@@ -152,24 +179,27 @@ ul {
     white-space: nowrap;
 }
 
-.item-footer-container {
-    position: absolute;
-    bottom: 8px;
-    left: 16px;
-    right: 16px;
-}
-
 .footer-container {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
+    margin-top: auto;
     font-size: 0.75rem;
-}
-
-.item-participated {
-    color: var(--primary);
 }
 
 .item-date {
     color: #B7B7B7;
+}
+
+.empty-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 224px;
+}
+
+.empty-text {
+    font-size: 1.125rem;
+    color: #7796E8;
 }
 </style>

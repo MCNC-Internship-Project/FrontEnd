@@ -26,13 +26,32 @@
             </v-list>
         </div>
     </div>
+
+    <v-dialog v-model="showCancelDialog" max-width="400">
+        <v-card class="dialog-background">
+            <div class="dialog-container">
+                <div class="dialog-error-message">{{ dialogMessage }}</div>
+            </div>
+
+            <v-card-actions>
+                <v-btn class="dialog-close-btn" @click="showCancelDialog = false">
+                    확인
+                </v-btn>
+            </v-card-actions>
+        </v-card>
+    </v-dialog>
 </template>
 
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import axios from 'axios';
 
+const baseUrl = process.env.VUE_APP_API_URL;
 const router = useRouter();
+
+const dialogMessage = ref("");
+const showCancelDialog = ref(false);
 
 const goBack = () => {
     router.back();
@@ -59,41 +78,58 @@ const onItemClick = (item) => {
             router.push({path : "/joined-survey"});
             break;
         case '로그아웃':
-            console.log('로그아웃');
+
+            axios.post(`${baseUrl}/auth/logout`, null, {
+                withCredentials: true,
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then((response) => {
+                if (response.status === 200) {
+                    router.replace("/login");
+                }
+            })
+            .catch(error => {
+                console.error(error);
+                showCancelDialog.value = true;
+                showErrorDialog("로그아웃 중 오류가 발생했습니다.");
+            })
             break;
     }
 };
+
+const showErrorDialog = (message) => {
+    dialogMessage.value = message
+    showCancelDialog.value = true
+}
 </script>
 
 <style scoped>
 .root-container {
-    position: relative;
     width: 100%;
-    height: calc(var(--vh, 1vh) * 100);
 }
 
 .toolbar {
-    position: relative;
     display: flex;
     align-items: center;
-    left: 0;
-    top: 0;
-    right: 0;
     width: 100%;
     height: 64px;
 }
 
 .back {
-    padding-left: 24px;
+    width: 20px;
+    height: 20px;
+    margin-left: 24px;
     cursor: pointer;
 }
 
 .profile-container {
-    width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    width: 100%;
     text-align: center;
     padding: 20px 0;
 }
@@ -105,8 +141,8 @@ const onItemClick = (item) => {
 
 .username {
     margin-top: 16px;
-    font-weight: bold;
     font-size: 1.25rem;
+    font-weight: bold;
     color: #1F2024;
 }
 
@@ -117,10 +153,14 @@ const onItemClick = (item) => {
 }
 
 .list-container {
+    display: flex;
+    justify-content: center;
     padding: 24px 16px 48px 16px;
 }
 
 .v-list {
+    width: 100%;
+    max-width: 400px;
     padding: 0;
 }
 
@@ -131,5 +171,70 @@ const onItemClick = (item) => {
 .item-title {
     font-size: 1rem;
     color: #1F2024;
+}
+
+.dialog-background {
+    background-color: #FAF8F8;
+    border: 1px solid #EFF0F6;
+}
+
+.v-card {
+    padding: 0;
+    border-radius: 16px !important;
+}
+
+.dialog-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 32px 20px 32px;
+}
+
+.dialog-error-message {
+    margin: 32px 0 0 0;
+    font-size: 1.125rem;
+    font-weight: bold;
+    color: #757576;
+}
+
+
+.dialog-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    margin: 16px 8px 0 8px;
+}
+
+.v-dialog .v-btn {
+    height: 44px;
+    flex-grow: 1;
+    font-size: 1rem;
+    font-weight: bold;
+    border-radius: 16px;
+    border: 1px solid #EFF0F7;
+    box-shadow: 0px 5px 16px rgba(8, 15, 52, 0.06);
+}
+
+.dialog-close-btn {
+    width: 100%;
+    margin: 0;
+    color: #FFFFFF !important;
+    background-color: var(--primary);
+    border-radius: 16px;
+    height: 48px;
+    font-size: 0.875rem;
+}
+
+.dialog-message {
+    margin: 32px 0 16px 0;
+    font-size: 1.125rem;
+    font-weight: bold;
+    color: #757576;
+}
+
+.v-card-actions {
+    padding: 20px;
 }
 </style>

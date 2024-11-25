@@ -27,15 +27,14 @@
 </template>
 
 <script setup>
-import { ref, watchEffect, defineProps, computed, defineExpose } from 'vue';
+import { ref, watchEffect, defineProps, computed, defineExpose, watch } from 'vue';
 
 const props = defineProps({
     surveyType: String,
+    selectionList : Object,
 })
 
-const totalItem = ref([
-    { id: 0, value: "" },
-]);
+const totalItem = ref([]);
 
 const itemInputs = ref([]);
 
@@ -44,6 +43,30 @@ watchEffect(() => {
 });
 
 const isExistEtc = ref(false);
+
+watch(
+    () => props.selectionList,
+    (newVal) => {
+        // 기존 데이터 초기화
+        totalItem.value = [];
+        
+        // 새 데이터가 있을 경우에만 처리
+        if (newVal && newVal.length > 0) {
+            newVal.forEach((item, index) => {
+                if (item.isEtc) {
+                    totalItem.value.push({ id: "etcId", value: "기타" });
+                    isExistEtc.value = true;
+                } else {
+                    totalItem.value.push({ id: index, value: item.body });
+                }
+            });
+        } else {
+            // 데이터가 없는 경우 기본 항목 추가
+            totalItem.value = [{ id: 0, value: "" }];
+        }
+    },
+    { immediate: true } // 컴포넌트 마운트 시 즉시 실행
+);
 
 const displayItems = computed(() => {
     const regularItems = totalItem.value.filter(item => item.id !== 'etcId');

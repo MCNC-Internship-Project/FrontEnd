@@ -2,7 +2,7 @@
     <div class="root-container">
         <header class="toolbar">
             <img class="back" src="@/assets/images/icon_arrow_left.svg" alt="back" @click="showCancelDialog = true">
-            <button class="submit-btn" @click="isShowSaveModal = true" v-ripple>저장</button>
+            <button class="submit-btn" @click="isShowSaveModal = true" v-ripple>수정</button>
         </header>
 
         <div class="survey-container">
@@ -32,8 +32,10 @@
             <div>
                 <transition-group name="survey-delete" tag="div" class="survey-items-wrapper">
                     <div class="survey-item-container" v-for="(com, index) in totalComponent" :key="com.id">
-                        <survey-item ref="surveyItems" @delete-item="removeComponent(com.id)"
-                            :is-single="totalComponent.length === 1" :item-number="index + 1" />
+                        <update-survey-item ref="surveyItems" @delete-item="removeComponent(com.id)"
+                            :is-single="totalComponent.length === 1"
+                            :item-number="index + 1"
+                            :questionList="totalComponent[index].data"/>
                     </div>
                 </transition-group>
             </div>
@@ -74,7 +76,7 @@
                             <v-card>
                                 <v-date-picker hide-header v-model="selectedDate" width="100%" min-width="256"
                                     max-width="336" @update:model-value="isDateMenuOpen = false" color="#1088E3"
-                                    :min="dayjs().format('YYYY-MM-DD')"></v-date-picker>
+                                    :min="dayjs(new Date()).format('YYYY-MM-DD')"></v-date-picker>
                             </v-card>
                         </template>
                     </v-menu>
@@ -127,7 +129,7 @@
         <v-dialog v-model="isShowSaveModal" max-width="400">
             <v-card class="dialog-background">
                 <div class="dialog-container">
-                    <div class="dialog-message">저장하시겠습니까?</div>
+                    <div class="dialog-message">수정하시겠습니까?</div>
 
                     <div class="dialog-actions">
                         <v-btn class="dialog-cancel-btn" @click="isShowSaveModal = false">취소</v-btn>
@@ -154,7 +156,7 @@
         <v-dialog v-model="showSuccessDialog" max-width="400">
             <v-card class="dialog-background">
                 <div class="dialog-container">
-                    <div class="dialog-error-message">성공적으로 저장되었습니다.</div>
+                    <div class="dialog-error-message">성공적으로 수정되었습니다.</div>
                 </div>
 
                 <v-card-actions>
@@ -168,7 +170,7 @@
         <v-dialog v-model="showCancelDialog" max-width="400">
             <v-card class="dialog-background">
                 <div class="dialog-container">
-                    <div class="dialog-message">설문조사 생성을 취소하시겠습니까?</div>
+                    <div class="dialog-message">설문조사 수정을 취소하시겠습니까?</div>
 
                     <div class="dialog-actions">
                         <v-btn class="dialog-cancel-btn" @click="showCancelDialog = false">취소</v-btn>
@@ -182,23 +184,22 @@
 
 <script setup>
 import { useRouter } from 'vue-router'
-import { ref, nextTick, watch } from 'vue';
+import { ref, nextTick, watch, onMounted } from 'vue';
 import axios from 'axios';
 
 import dayjs from 'dayjs'
 
 import { checkEmptyValues } from '@/utils/checkEmptyValues';
 
-import SurveyItem from './create-survey-item/SurveyItem.vue';
-import TimePickerComponent from './create-survey-item/component/TimePickerComponent.vue';
+import UpdateSurveyItem from './update-survey-item/UpdateSurveyItem.vue';
+import TimePickerComponent from './update-survey-item/component/TimePickerComponent.vue';
 
 const baseUrl = process.env.VUE_APP_API_URL;
 const router = useRouter();
 
-const totalComponent = ref([
-    { id: 0 },
-]);
+const totalComponent = ref([]);
 const surveyItems = ref([]);
+const surveyId = ref("");
 
 const surveyTitle = ref("");
 const titleError = ref(false);
@@ -231,6 +232,84 @@ const selectedMinute = ref('00');
 
 const date = ref(null);
 const time = ref(null);
+
+// response 오면 얘를 ref(null)로 바꿔서 값 대입하면 됨
+const apiResponse = {
+    "surveyId": 0,
+    "title": "생성하고 수정할 설문",
+    "description": "수정할거임 ㅋㅋ",
+    "questionList": [
+        {
+            "body": "기존 질문1",
+            "questionType": "OBJ_SINGLE",
+            "selectionList": [
+                {
+                    "body": "실시간 변경1",
+                    "isEtc": false
+                },
+                {
+                    "body": "기존질문1항목2",
+                    "isEtc": false
+                },
+                {
+                    "body": "기존질문1항목3",
+                    "isEtc": false
+                },
+                {
+                    "body": "기타",
+                    "isEtc": true
+                }
+            ]
+        },
+        {
+            "body": "기존질문2",
+            "questionType": "OBJ_MULTI",
+            "selectionList": [
+                {
+                    "body": "기존질문2항목1",
+                    "isEtc": false
+                },
+                {
+                    "body": "기존질문2항목2",
+                    "isEtc": false
+                },
+                {
+                    "body": "기존질문2항목3",
+                    "isEtc": false
+                },
+                {
+                    "body": "기존질문2항목4",
+                    "isEtc": false
+                }
+            ]
+        },
+        {
+            "body": "기존질문3",
+            "questionType": "SUBJECTIVE",
+            "selectionList": []
+        }
+    ],
+    "expireDate": "2024-12-18T00:30:00"
+}
+
+onMounted(() => {
+    surveyId.value = apiResponse.surveyId;
+    surveyTitle.value = apiResponse.title;
+    surveyDescription.value = apiResponse.description;
+
+    for(let i=0; i<apiResponse.questionList.length; i++){
+        totalComponent.value.push({id : i, data:apiResponse.questionList[i]})
+    }
+
+    if (!apiResponse.expireDate) return;
+
+    const expireDate = dayjs(apiResponse.expireDate);
+    date.value = new Date(apiResponse.expireDate);
+    const hours = expireDate.hour();
+    const ampm = hours >= 12 ? '오후' : '오전';
+    const hourIn12 = hours % 12 === 0 ? 12 : hours % 12;
+    time.value = `${ampm} ${String(hourIn12).padStart(2, '0')}:${String(expireDate.minute()).padStart(2, '0')}`;
+})
 
 const cancel = () => {
     showDialog.value = false;
@@ -344,13 +423,27 @@ const addComponent = () => {
         ? totalComponent.value[totalComponent.value.length - 1].id
         : -1;
 
-    const newObj = { id: lastIndex + 1 }
+    // 새로운 빈 질문 객체 생성
+    const newQuestionData = {
+        body: "",
+        questionType: "OBJ_SINGLE", // 기본값으로 객관식(단일) 설정
+        selectionList: [
+            {
+                body: "",
+                isEtc: false
+            },
+        ]
+    };
+
+    const newObj = { 
+        id: lastIndex + 1,
+        data: newQuestionData  // 새로운 질문 데이터 추가
+    }
 
     totalComponent.value.push(newObj);
 
-    // nextTick으로 DOM 업데이트 후에 ref 배열이 최신 상태로 반영되도록 함
     nextTick(() => {
-        surveyItems.value = surveyItems.value.slice(); // 새로운 참조로 배열을 갱신
+        surveyItems.value = surveyItems.value.slice();
         scrollToBottom();
     });
 }
@@ -403,7 +496,7 @@ const handleSubmit = () => {
 
     const values = surveyItems.value.map((item) => item.getValue()); // getValue()는 각 survey-item에서 필요한 값을 반환하는 메서드로 가정
 
-    const jsonData = { title: title, description: description, questionList: values }
+    const jsonData = { surveyId: surveyId.value, title: title, description: description, questionList: values }
 
     const emptyPath = checkEmptyValues(jsonData);
 
@@ -441,7 +534,7 @@ const handleSubmit = () => {
 
         console.log(JSON.stringify(jsonData));
 
-        axios.post(`${baseUrl}/survey/manage/create`, JSON.stringify(jsonData), {
+        axios.post(`${baseUrl}/survey/manage/modify`, JSON.stringify(jsonData), {
             withCredentials: true,
             headers: {
                 'Content-Type': 'application/json'
@@ -454,7 +547,7 @@ const handleSubmit = () => {
             })
             .catch(error => {
                 console.error(error);
-                showErrorDialog("설문조사 생성 중 오류가 발생했습니다.");
+                showErrorDialog("설문조사 수정 중 오류가 발생했습니다.");
             })
     }
 };
@@ -476,6 +569,7 @@ const redirectionToMySurvey = () => {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
 }
 
 .toolbar {
@@ -682,6 +776,22 @@ input {
     position: relative;
     height: 120px;
     padding: 4px 24px;
+}
+
+.scroll-container {
+    display: flex;
+    position: relative;
+    height: 120px;
+    overflow-y: auto;
+    scrollbar-width: none;
+}
+
+.time-picker-container {
+    display: flex;
+    position: relative;
+    height: 120px;
+    overflow-y: auto;
+    scrollbar-width: none;
 }
 
 .time-separator {

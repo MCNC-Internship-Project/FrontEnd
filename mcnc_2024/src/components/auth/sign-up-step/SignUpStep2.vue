@@ -92,6 +92,8 @@ const stepTo3 = () => {
 }
 
 .form-container {
+    display: flex;
+    flex-direction: column;
     padding: 0 24px;
 }
 
