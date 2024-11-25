@@ -539,7 +539,7 @@ const handleSubmit = () => {
 
         console.log(JSON.stringify(jsonData));
 
-        axios.post(`${baseUrl}/survey/manage/create`, JSON.stringify(jsonData), {
+        axios.post(`${baseUrl}/survey/manage/modify`, JSON.stringify(jsonData), {
             withCredentials: true,
             headers: {
                 'Content-Type': 'application/json'
