@@ -27,6 +27,14 @@
             </div>
 
             <div class="profile-container">
+                <div class="text">아이디</div>
+                <div class="input-container">
+                    <input class="input" type="text" placeholder="아이디" v-model="profileData.userId" disabled />
+                    <v-divider></v-divider>
+                </div>
+            </div>
+
+            <div class="profile-container">
                 <div class="text">생년월일</div>
                 <div class="input-container">
                     <input class="input" type="text" placeholder="생년월일" :value="formatDate(profileData.birthDate)" disabled />
@@ -61,6 +69,7 @@ const editComplete = () => {
 const profileData = ref({
     username: '홍길동',
     email: 'email@email.com',
+    userId: 'userId',
     birthDate: '2000-01-01',
     gender: '남성'
 });
