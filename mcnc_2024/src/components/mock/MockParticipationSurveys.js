@@ -33,5 +33,5 @@ export const mockSurveyData = {
     ],
   };
   
-  export const mockEndDate = '2024-11-25';
+  export const mockEndDate = '2024-11-27';
   
