@@ -62,6 +62,12 @@ const SurveyRoutes = [
         name: "JoinedSurveySearch",
         component : () => import("../../components/joined-survey/JoinedSurveySearch.vue"),
         meta: { requiresAuth: true },
+    },
+    {
+        path: "/survey-result",
+        name: "SurveyResult",
+        component : () => import("../../components/survey-detail/SurveyResult.vue"),
+        meta: { requiresAuth: true },
     }
 ]
 

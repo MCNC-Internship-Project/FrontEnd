@@ -1,11 +1,11 @@
 <template>
     <div class="root-container">
-        <ToolBar @goBack="goBack"/>
+        <ToolBar @goBack="goBack" />
 
         <div class="survey-container">
             <div class="search-box">
                 <input type="text" placeholder="설문 제목을 검색해보세요." v-model="searchQuery" @keyup.enter="searchSurvey" />
-                <button @click="searchSurvey">
+                <button class="search-btn-section" @click="searchSurvey">
                     <img class="search-btn" src="../../assets/images/icon_search_btn.svg" alt="search icon" />
                 </button>
             </div>
@@ -15,19 +15,20 @@
                 <div class="logo-name">Survwey</div>
             </div>
 
-            <!--검색결과-->
-            <SearchResult v-else :surveys="filteredSurveys" />
+            <!-- 검색 결과가 있을 때 -->
+            <SearchResult :surveys="filteredSurveys" />
         </div>
     </div>
 </template>
 
 <script setup>
 import { useRouter } from 'vue-router';
-import { ref, computed } from 'vue';
+import { ref, computed, } from 'vue';
 import { mockMySurveys } from '@/components/mock/MockMySurveys';
 
 import ToolBar from '../common/ToolBar.vue';
 import SearchResult from '../common/SearchResult.vue';
+
 
 const router = useRouter();
 const searchQuery = ref('');
@@ -48,7 +49,7 @@ const surveys = mockMySurveys.map(survey => ({
 const filteredSurveys = computed(() => {
     // 검색어가 비어 있으면 빈 배열 반환
     if (searchQuery.value.trim() === '') {
-        return []; 
+        return [];
     }
 
     // 검색어 필터링
@@ -78,8 +79,9 @@ const filteredSurveys = computed(() => {
 
 // 검색 함수: 검색 시 로고를 숨김
 function searchSurvey() {
-    showLogo.value = false; 
+    showLogo.value = false;
 }
+
 
 function goBack() {
     router.back();
@@ -95,14 +97,15 @@ function goBack() {
     align-items: center;
     justify-content: center;
 }
+
 .survey-container {
     width: 100%;
-    height: calc(100vh - 64px); 
+    height: calc(100vh - 64px);
     display: flex;
     flex-direction: column;
     align-items: center;
     margin-top: 64px;
-    overflow: hidden; 
+    overflow: hidden;
 }
 
 .search-box {
@@ -113,6 +116,13 @@ function goBack() {
     border-radius: 8px;
     padding: 8px 12px;
 }
+
+.search-btn-section {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .search-btn {
     text-indent: -999em;
     width: 24px;
@@ -122,6 +132,7 @@ function goBack() {
     cursor: pointer;
     margin-left: auto;
 }
+
 .search-box input {
     width: 100%;
     border: none;
@@ -130,6 +141,7 @@ function goBack() {
     padding: 8px;
     font-size: 1rem;
 }
+
 .search-box button {
     background: none;
     border: none;
@@ -140,10 +152,12 @@ function goBack() {
     display: flex;
     align-items: center;
 }
+
 .logo {
     width: 42px;
     height: 80vh;
 }
+
 .logo-name {
     padding-left: 4px;
     color: var(--primary);
