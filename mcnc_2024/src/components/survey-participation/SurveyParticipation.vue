@@ -1,9 +1,7 @@
 <template>
     <div id="survey-participation">
       <header class="toolbar">
-        <div class="back-container">
-          <img class="back" src="../../assets/images/icon_arrow_left.svg" alt="back" @click="goBack">
-        </div>
+
       </header>
   
       <div class="survey-section">
@@ -16,7 +14,7 @@
             </h1>
             <p class="survey-description">{{ survey.description }}</p>
           </div>
-          <p class="survey-period">2024.11.13 ~ 2024.11.21</p>
+          <p class="survey-period">2024-11-13 ~ 2024-11-26</p>
         </div>
   
         <div class="survey-item-container">
@@ -82,59 +80,24 @@
   <script setup>
   import { ref } from 'vue';
   import router from '@/router';
+  import { mockSurveyData, mockEndDate } from '../mock/MockParticipationSurveys'; // 목데이터 가져오기
   
-  const survey = ref({
-    title: '설문조사 제목',
-    description: '설문지 설명',
-    questions: [
-      {
-        id: 1,
-        title: '질문 1',
-        type: 'obj_radio',
-        options: [
-          { id: 1, label: '옵션 1', value: 'option1' },
-          { id: 2, label: '옵션 2', value: 'option2' },
-          { id: 3, label: '옵션 3', value: 'option3' },
-          { id: 4, label: '옵션 4', value: 'option4' },
-        ]
-      },
-      {
-        id: 2,
-        title: '질문 2',
-        type: 'subj',
-        options: []
-      },
-      {
-        id: 3,
-        title: '질문 3',
-        type: 'obj_check',
-        options: [
-          { id: 1, label: '옵션1', value: 'option_1' },
-          { id: 2, label: '옵션2', value: 'option_2' },
-          { id: 3, label: '옵션3', value: 'option_3' },
-          { id: 4, label: '옵션4', value: 'option_4' },
-        ]
-      }
-    ]
-  });
-  
+  const survey = ref(mockSurveyData); // 목데이터 참조
   const answers = ref({});
   survey.value.questions.forEach(question => {
     if (question.type === 'obj_check') {
       answers.value[question.id] = [];  // 체크박스 질문에 빈 배열을 할당
     }
-  });
-  
-  const goBack = () => {
-    router.push("/");
-  };
+  }); 
 
   const showAlert = ref(false);
   const alertMessage = ref("");
   
   const submitSurvey = () => {
+    console.log("응답 데이터:", answers.value);
+
     const currentDate = new Date();
-    const endDate = new Date('2024-11-21'); // 예시로 끝나는 날짜를 설정
+    const endDate = new Date(mockEndDate); 
 
     if (currentDate > endDate) {
       router.push('/survey-expired');
@@ -181,22 +144,17 @@
     flex-direction: column;
     justify-content: center; 
     align-items: center;
+    width: 100%;
     min-height: 100vh; /* 화면 높이에 맞게 */
   }
-  
+
   .toolbar {
-    position: relative;
+    width: 100%;
+    height: 35px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    width: 100%;
-    height: 64px;
-  }
-  
-  .back-container {
-    display: flex;
-    align-items: center;
-    padding-left: 24px;
+    padding: 0 12px;
   }
   
   .menu-container {
@@ -241,6 +199,7 @@
     flex-direction: column;
     min-height: 126px;
     justify-content: space-between;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
   
   .survey-title {
@@ -317,23 +276,92 @@
   .answer-options {
     margin-top: 18px;
   }
-  
+
   .answer-options label {
-    display: flex; 
+    display: flex;
     align-items: center;
     margin-bottom: 7px;
     padding-left: 12px;
     padding-right: 12px;
   }
-
+  
   .answer-options input[type="radio"],
   .answer-options input[type="checkbox"] {
-    margin-top: 2px; 
-    margin-right: 8px; 
-    line-height: 1; 
-    vertical-align: baseline; 
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border: 1px solid #8C8C8C;
+    margin-top: 2px;
+    margin-right: 8px;
+    background-color: white;
+    outline: none;
+    cursor: pointer;
+    position: relative;
+    transition: border-color 0.2s ease-in-out;
   }
-  
+
+  /* 라디오 버튼 스타일 */
+  .answer-options input[type="radio"] {
+      border-radius: 50%;
+  }
+
+  .answer-options input[type="radio"]:checked {
+      background-color: white;
+      border: 1px solid #8C8C8C;
+      width: 16px;
+      height: 16px;
+  }
+
+  .answer-options input[type="radio"]:checked::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 9px;
+      height: 9px;
+      background-color: #374957;
+      border-radius: 50%;
+  }
+
+  /* 체크박스 스타일 */
+  .answer-options input[type="checkbox"] {
+      border-radius: 4px;
+  }
+
+  .answer-options input[type="checkbox"]:checked {
+      border-color: #374957;
+      background-color: #374957;
+  }
+
+  .answer-options input[type="checkbox"]:checked::after {
+      content: '';
+      position: absolute;
+      top: 40%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(45deg);
+      width: 5px;
+      height: 10px;
+      border: solid white;
+      border-width: 0 2px 2px 0;
+  }
+
+  .answer-options label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+      font-size: 0.875rem;
+      color: #464748;
+      cursor: pointer;
+      padding-left: 12px;
+      padding-right: 12px;
+  }
+
+  .answer-options label:hover {
+      color: #374957;
+  }
+    
   textarea {
     width: 100%;
     min-height: 80px;

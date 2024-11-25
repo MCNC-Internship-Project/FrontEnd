@@ -9,7 +9,7 @@
           </h1>
           <p class="survey-description">{{ survey.description }}</p>
         </div>
-        <p class="survey-period">2024.11.13 ~ 2024.11.16</p>
+        <p class="survey-period">2024.11.13 ~ 2024.11.26</p>
       </div>
   
       <!-- 참여 완료 메시지 -->
@@ -42,7 +42,7 @@
   <style scoped>
   .survey-completion {
     text-align: center;
-    margin-top: 65px;
+    margin-top: 35px;
     padding: 0 24px;
   }
   
@@ -57,6 +57,7 @@
     flex-direction: column;
     min-height: 126px;
     justify-content: space-between;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
   
   .survey-title {
@@ -101,7 +102,7 @@
     background-color: #7796E8;
     color: white;
     padding: 10px 20px;
-    margin-top: 50px;
+    margin-top: 4cap;
     border: none;
     border-radius: 15px;
     cursor: pointer;
