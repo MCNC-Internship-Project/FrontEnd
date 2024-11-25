@@ -367,7 +367,10 @@ const removeComponent = (id) => {
 };
 
 const stepBack = () => {
-    router.back();
+    showCancelDialog.value = false;
+    nextTick(() => {
+        router.back();
+    })
 }
 
 const parseTime = (timeStr) => {
