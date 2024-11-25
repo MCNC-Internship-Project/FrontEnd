@@ -288,9 +288,9 @@
   .answer-options input[type="radio"],
   .answer-options input[type="checkbox"] {
     appearance: none;
-    width: 18px;
-    height: 18px;
-    border: 2px solid #D9D9D9;
+    width: 16px;
+    height: 16px;
+    border: 1px solid #8C8C8C;
     margin-top: 2px;
     margin-right: 8px;
     background-color: white;
@@ -307,6 +307,9 @@
 
   .answer-options input[type="radio"]:checked {
       background-color: white;
+      border: 1px solid #8C8C8C;
+      width: 16px;
+      height: 16px;
   }
 
   .answer-options input[type="radio"]:checked::after {
@@ -315,8 +318,8 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      width: 10px;
-      height: 10px;
+      width: 9px;
+      height: 9px;
       background-color: #374957;
       border-radius: 50%;
   }
