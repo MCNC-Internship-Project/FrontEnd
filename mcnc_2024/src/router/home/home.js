@@ -9,12 +9,14 @@ const HomeRoutes = [
     {
         path : "/",
         name : "Home",
-        component : () => import("../../components/home/HomeComponent.vue")
+        component : () => import("../../components/home/HomeComponent.vue"),
+        meta: { requiresAuth: true },
     },
     {
         path : "/surveys",
         name : "Surveys",
-        component : () => import("../../components/home/search/SearchResult.vue")
+        component : () => import("../../components/home/search/SearchResult.vue"),
+        meta: { requiresAuth: true },
     },
     ...UserProfile,
 ]
