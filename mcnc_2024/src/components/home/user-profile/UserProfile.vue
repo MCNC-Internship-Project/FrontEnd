@@ -89,11 +89,11 @@ const onItemClick = (item) => {
 }
 
 .profile-container {
-    width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    width: 100%;
     text-align: center;
     padding: 20px 0;
 }
@@ -105,8 +105,8 @@ const onItemClick = (item) => {
 
 .username {
     margin-top: 16px;
-    font-weight: bold;
     font-size: 1.25rem;
+    font-weight: bold;
     color: #1F2024;
 }
 
@@ -117,10 +117,14 @@ const onItemClick = (item) => {
 }
 
 .list-container {
+    display: flex;
+    justify-content: center;
     padding: 24px 16px 48px 16px;
 }
 
 .v-list {
+    width: 100%;
+    max-width: 400px;
     padding: 0;
 }
 
