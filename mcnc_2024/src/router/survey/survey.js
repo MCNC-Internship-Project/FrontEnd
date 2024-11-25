@@ -43,6 +43,11 @@ const SurveyRoutes = [
         path: "/joined-survey/search",
         name: "JoinedSurveySearch",
         component : () => import("../../components/joined-survey/JoinedSurveySearch.vue")
+    },
+    {
+        path: "/survey-result",
+        name: "SurveyResult",
+        component : () => import("../../components/survey-detail/SurveyResult.vue")
     }
 ]
 
