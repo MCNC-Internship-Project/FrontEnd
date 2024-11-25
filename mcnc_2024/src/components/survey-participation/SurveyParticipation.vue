@@ -16,7 +16,7 @@
             </h1>
             <p class="survey-description">{{ survey.description }}</p>
           </div>
-          <p class="survey-period">2024.11.13 ~ 2024.11.21</p>
+          <p class="survey-period">2024-11-13 ~ 2024-11-21</p>
         </div>
   
         <div class="survey-item-container">
@@ -286,23 +286,89 @@
   .answer-options {
     margin-top: 18px;
   }
-  
+
   .answer-options label {
-    display: flex; 
+    display: flex;
     align-items: center;
     margin-bottom: 7px;
     padding-left: 12px;
     padding-right: 12px;
   }
-
+  
   .answer-options input[type="radio"],
   .answer-options input[type="checkbox"] {
-    margin-top: 2px; 
-    margin-right: 8px; 
-    line-height: 1; 
-    vertical-align: baseline; 
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border: 2px solid #D9D9D9;
+    margin-top: 2px;
+    margin-right: 8px;
+    background-color: white;
+    outline: none;
+    cursor: pointer;
+    position: relative;
+    transition: border-color 0.2s ease-in-out;
   }
-  
+
+  /* 라디오 버튼 스타일 */
+  .answer-options input[type="radio"] {
+      border-radius: 50%;
+  }
+
+  .answer-options input[type="radio"]:checked {
+      background-color: white;
+  }
+
+  .answer-options input[type="radio"]:checked::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 10px;
+      height: 10px;
+      background-color: #374957;
+      border-radius: 50%;
+  }
+
+  /* 체크박스 스타일 */
+  .answer-options input[type="checkbox"] {
+      border-radius: 4px;
+  }
+
+  .answer-options input[type="checkbox"]:checked {
+      border-color: #374957;
+      background-color: #374957;
+  }
+
+  .answer-options input[type="checkbox"]:checked::after {
+      content: '';
+      position: absolute;
+      top: 40%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(45deg);
+      width: 5px;
+      height: 10px;
+      border: solid white;
+      border-width: 0 2px 2px 0;
+  }
+
+  .answer-options label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+      font-size: 0.875rem;
+      color: #464748;
+      cursor: pointer;
+      padding-left: 12px;
+      padding-right: 12px;
+  }
+
+  .answer-options label:hover {
+      color: #374957;
+  }
+    
   textarea {
     width: 100%;
     min-height: 80px;
