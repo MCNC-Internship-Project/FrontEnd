@@ -8,6 +8,11 @@ const SurveyRoutes = [
         component : () => import("../../components/create-survey/CreateSurvey.vue"),
     },
     {
+        path : "/update-survey",
+        name : "update-survey",
+        component : () => import("../../components/update-survey/UpdateSurvey.vue")
+    },
+    {
         path: "/survey-participation",
         name: "survey-participation",
         component: () => import("../../components/survey-participation/SurveyParticipation.vue"),
