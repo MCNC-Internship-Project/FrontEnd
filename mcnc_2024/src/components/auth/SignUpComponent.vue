@@ -1,7 +1,7 @@
 <template>
     <div class="root-container">
         <header class="toolbar">
-            <img class="back" src="../../assets/images/icon_arrow_left.svg" alt="back" @click="stepBack">
+            <img class="back" src="@/assets/images/icon_arrow_left.svg" alt="back" @click="stepBack">
         </header>
 
         <div class="body-container">
