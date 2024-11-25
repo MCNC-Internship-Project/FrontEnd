@@ -5,12 +5,12 @@
         </ToolBar>
 
         <div class="survey-container">
-            <div class="survey-list" v-if="displayedSurveys.length > 0">
-                <SurveyCard v-for="survey in displayedSurveys" :key="survey.id" :survey="survey" />
+            <!-- 로딩 중일 때 표시 -->
+            <div v-if="allSurveys.length === 0 && isLoading" class="loading-spinner"></div>
+            <div v-else-if="allSurveys.length > 0" class="survey-list">
+                <SurveyCard v-for="survey in allSurveys" :key="survey.id" :survey="survey" />
                 <div ref="observerTarget" class="observer-target" v-show="hasMore">
-                    <div v-if="isLoading" class="loading">
-                        로딩 중...
-                    </div>
+                    <div v-if="isLoading" class="loading-spinner"></div>
                 </div>
             </div>
             <div class="survey-none" v-else>
@@ -24,7 +24,7 @@
 <script setup>
 import { useRouter } from 'vue-router';
 import { mockMySurveys } from '@/components/mock/MockMySurveys';
-import { ref, onMounted, onUnmounted, computed, watchEffect } from 'vue';
+import { ref, onMounted, onUnmounted, watchEffect } from 'vue';
 import SurveyCard from '@/components/common/SurveyCard.vue';
 import ToolBar from '@/components/common/ToolBar.vue'
 import SurveyHeader from '@/components/common/SurveyHeader.vue';
@@ -36,118 +36,91 @@ const size = 5;
 const isLoading = ref(false);
 const hasMore = ref(true);
 const allSurveys = ref([]);
-
 let observer = null;
 
-// 설문지 mock데이터 연결 -> api 연동시 수정
-// const surveys = mockMySurveys.map(survey => ({
-//     id: survey.surveyId,
-//     title: survey.title,
-//     description: survey.description,
-//     status: new Date(survey.expireDate) > new Date() ? "진행중" : "종료",
-//     createDate: new Date(survey.createDate),
-//     expireDate: new Date(survey.expireDate),
-//     creationInfo: `${survey.createDate.split('T')[0]} ~ ${survey.expireDate.split('T')[0]}`,
-// }));
+// 설문 데이터 가져오기
+const fetchSurveys = async () => {
+    if (isLoading.value || !hasMore.value) return;
 
-// 화면에 보여질 설문 목록
-const displayedSurveys = computed(() => {
-    return [...allSurveys.value].sort((a, b) => {
-        if (a.status === "진행중" && b.status === "종료") return -1;
-        if (a.status === "종료" && b.status === "진행중") return 1;
+    isLoading.value = true;
 
-        if (a.status === "진행중" && b.status === "진행중") {
-            return b.createDate - a.createDate;
+    try {
+        const response = await fetchMockData();
+        if (response.length < size) {
+            hasMore.value = false;
         }
-
-        if (a.status === "종료" && b.status === "종료") {
-            return b.expireDate - a.expireDate;
-        }
-
-        return 0;
-    });
-});
-
-// Intersection Observer 초기화 함수
-const initializeObserver = () => {
-    if (observer) {
-        observer.disconnect();
+        allSurveys.value.push(...response);
+        page.value++;
+    } catch (error) {
+        console.error('설문 데이터를 불러오는 중 오류 발생:', error);
+    } finally {
+        isLoading.value = false;
     }
+};
 
+// Mock 데이터 가져오기
+const fetchMockData = () =>
+    new Promise((resolve) => {
+        setTimeout(() => {
+            const sortedMockData = mockMySurveys.sort((a, b) => {
+                const aStatus = new Date(a.expireDate) > new Date() ? '진행중' : '종료';
+                const bStatus = new Date(b.expireDate) > new Date() ? '진행중' : '종료';
+                if (aStatus === '진행중' && bStatus === '종료') return -1;
+                if (aStatus === '종료' && bStatus === '진행중') return 1;
+                if (aStatus === "진행중" && bStatus === "진행중") {
+                    return new Date(b.createDate) - new Date(a.createDate);
+                }
+
+                if (aStatus === "종료" && bStatus === "종료") {
+                    return new Date(b.expireDate) - new Date(a.expireDate);
+                }
+                return 0;
+            });
+
+            const startIndex = (page.value - 1) * size;
+            const mockData = sortedMockData.slice(startIndex, startIndex + size).map((survey) => ({
+                id: survey.surveyId,
+                title: survey.title,
+                description: survey.description,
+                status: new Date(survey.expireDate) > new Date() ? '진행중' : '종료',
+                createDate: new Date(survey.createDate),
+                expireDate: new Date(survey.expireDate),
+                creationInfo: `${survey.createDate.split('T')[0]} ~ ${survey.expireDate.split('T')[0]}`,
+            }));
+
+            resolve(mockData);
+        }, 500);
+    });
+
+// Intersection Observer 초기화
+const initializeObserver = () => {
     observer = new IntersectionObserver(
         (entries) => {
             const target = entries[0];
             if (target.isIntersecting && !isLoading.value && hasMore.value) {
-                console.log('Observer triggered - Loading more surveys'); // 디버깅용
                 fetchSurveys();
             }
         },
         {
             root: null,
             rootMargin: '100px',
-            threshold: 0.1
+            threshold: 0.1,
         }
     );
 
     if (observerTarget.value) {
         observer.observe(observerTarget.value);
-        console.log('Observer started watching target'); // 디버깅용
     }
 };
 
-// 설문 데이터를 가져오는 함수
-async function fetchSurveys() {
-    if (!hasMore.value || isLoading.value) return;
-
-    isLoading.value = true;
-    console.log('Fetching surveys for page:', page.value); // 디버깅용
-
-    try {
-        const response = await fetchMockData();
-
-        if (response.length < size) {
-            hasMore.value = false;
-            console.log('No more surveys to load'); // 디버깅용
-        }
-
-        allSurveys.value = [...allSurveys.value, ...response];
-        page.value++;
-
-        console.log('Surveys loaded:', response.length); // 디버깅용
-
-    } catch (error) {
-        console.error('설문 데이터를 불러오는 중 오류가 발생했습니다:', error);
-    } finally {
-        isLoading.value = false;
-    }
-}
-
-// Observer 타겟 요소 감시
+// Observer 감시
 watchEffect(() => {
-    if (observerTarget.value && !isLoading.value) {
+    if (observerTarget.value) {
         initializeObserver();
     }
 });
 
-// Mock 데이터를 가져오는 함수
-function fetchMockData() {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            const startIndex = (page.value - 1) * size;
-            const mockData = mockMySurveys.slice(startIndex, startIndex + size).map(survey => ({
-                id: survey.surveyId,
-                title: survey.title,
-                description: survey.description,
-                status: new Date(survey.expireDate) > new Date() ? "진행중" : "종료",
-                createDate: new Date(survey.createDate),
-                expireDate: new Date(survey.expireDate),
-                creationInfo: `${survey.createDate.split('T')[0]} ~ ${survey.expireDate.split('T')[0]}`,
-            }));
-            resolve(mockData);
-        }, 500);
-    });
-}
-
+// Cleanup
 onMounted(() => {
     fetchSurveys();
     initializeObserver();
@@ -186,8 +159,9 @@ function goSearch() {
     width: 100%;
     height: calc(100vh - 40px);
     display: flex;
-    flex-direction: column;
+    justify-content: center;
     align-items: center;
+    flex-direction: column;
     margin-top: 40px;
     overflow: hidden;
 }
@@ -219,12 +193,28 @@ function goSearch() {
     width: 100%;
     height: 20px;
     margin-top: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.loading {
-    text-align: center;
-    padding: 1rem;
-    color: #A2A2A3;
+.loading-spinner {
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    border-left-color: #A2A2A3;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 .v-fab {
