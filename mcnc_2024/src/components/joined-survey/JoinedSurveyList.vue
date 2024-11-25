@@ -72,10 +72,11 @@ const fetchMockData = () =>
                 id: survey.surveyId,
                 title: survey.title,
                 description: survey.description,
+                creator: survey.creator,
                 status: new Date(survey.expireDate) > new Date() ? '진행중' : '종료',
                 createDate: new Date(survey.createDate),
                 expireDate: new Date(survey.expireDate),
-                creationInfo: `${survey.createDate.split('T')[0]} ~ ${survey.expireDate.split('T')[0]}`,
+                creationInfo: `${survey.creator} | ${survey.createDate.split('T')[0]} ~ ${survey.expireDate.split('T')[0]}`,
             }));
 
             resolve(mockData);
