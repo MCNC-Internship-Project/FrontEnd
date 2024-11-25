@@ -41,11 +41,9 @@
 
         <v-dialog v-model="showDatePicker" width="340" max-width="400">
             <v-card style="background-color: #FFF;">
-                <v-row justify="center">
-                    <v-date-picker hide-header v-model="birth" width="320" max-width="400"
-                        @update:model-value="showDatePicker = false; isBirthError = false;" color="#1088E3"
-                        :max="new Date()"></v-date-picker>
-                </v-row>
+                <v-date-picker hide-header v-model="birth" width="320" max-width="400"
+                    @update:model-value="showDatePicker = false; isBirthError = false;" color="#1088E3"
+                    :max="new Date()"></v-date-picker>
             </v-card>
         </v-dialog>
 
@@ -120,8 +118,9 @@ const goToSignUp = () => {
 }
 
 .v-container {
+    display: flex;
+    flex-direction: column;
     padding: 0 24px;
-    max-width: 100%;
 }
 
 .form-input {
@@ -134,12 +133,10 @@ const goToSignUp = () => {
     border: solid 2px var(--primary);
     border-radius: 12px;
     font-size: 0.875rem;
+    cursor: pointer;
 }
 
 .form-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
     width: 100%;
     height: 56px;
     margin-top: 8px;
@@ -147,7 +144,6 @@ const goToSignUp = () => {
     font-size: 0.875rem;
     background-color: var(--primary);
     color: white;
-    margin-top: 20px;
 }
 
 .text-container {
