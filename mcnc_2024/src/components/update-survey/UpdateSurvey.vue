@@ -81,7 +81,7 @@
                             <v-card>
                                 <v-date-picker hide-header v-model="selectedDate" width="100%" min-width="256"
                                     max-width="336" @update:model-value="isDateMenuOpen = false" color="#1088E3"
-                                    :min="dayjs().format('YYYY-MM-DD')"></v-date-picker>
+                                    :min="dayjs(new Date()).format('YYYY-MM-DD')"></v-date-picker>
                             </v-card>
                         </template>
                     </v-menu>
@@ -204,6 +204,7 @@ const router = useRouter();
 
 const totalComponent = ref([]);
 const surveyItems = ref([]);
+const surveyId = ref("");
 
 const surveyTitle = ref("");
 const titleError = ref(false);
@@ -239,6 +240,7 @@ const time = ref(null);
 
 // response 오면 얘를 ref(null)로 바꿔서 값 대입하면 됨
 const apiResponse = {
+    "surveyId": 0,
     "title": "생성하고 수정할 설문",
     "description": "수정할거임 ㅋㅋ",
     "questionList": [
@@ -247,7 +249,7 @@ const apiResponse = {
             "questionType": "OBJ_SINGLE",
             "selectionList": [
                 {
-                    "body": "기존질문1항목1",
+                    "body": "실시간 변경1",
                     "isEtc": false
                 },
                 {
@@ -296,6 +298,7 @@ const apiResponse = {
 }
 
 onMounted(() => {
+    surveyId.value = apiResponse.surveyId;
     surveyTitle.value = apiResponse.title;
     surveyDescription.value = apiResponse.description;
 
@@ -306,12 +309,11 @@ onMounted(() => {
     if (!apiResponse.expireDate) return;
 
     const expireDate = dayjs(apiResponse.expireDate);
-    date.value = expireDate.format('YYYY-MM-DD'); // 날짜 저장
+    date.value = new Date(apiResponse.expireDate);
     const hours = expireDate.hour();
     const ampm = hours >= 12 ? '오후' : '오전';
     const hourIn12 = hours % 12 === 0 ? 12 : hours % 12;
     time.value = `${ampm} ${String(hourIn12).padStart(2, '0')}:${String(expireDate.minute()).padStart(2, '0')}`;
-    selectedDate.value = null;
 })
 
 const cancel = () => {
@@ -499,7 +501,7 @@ const handleSubmit = () => {
 
     const values = surveyItems.value.map((item) => item.getValue()); // getValue()는 각 survey-item에서 필요한 값을 반환하는 메서드로 가정
 
-    const jsonData = { title: title, description: description, questionList: values }
+    const jsonData = { surveyId: surveyId.value, title: title, description: description, questionList: values }
 
     const emptyPath = checkEmptyValues(jsonData);
 
