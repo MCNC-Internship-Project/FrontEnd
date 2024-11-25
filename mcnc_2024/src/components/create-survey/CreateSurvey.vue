@@ -473,6 +473,9 @@ const redirectionToMySurvey = () => {
 <style scoped>
 .root-container {
     width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .toolbar {
