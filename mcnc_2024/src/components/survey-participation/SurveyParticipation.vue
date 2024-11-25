@@ -1,9 +1,7 @@
 <template>
     <div id="survey-participation">
       <header class="toolbar">
-        <div class="back-container">
-          <img class="back" src="../../assets/images/icon_arrow_left.svg" alt="back" @click="goBack">
-        </div>
+
       </header>
   
       <div class="survey-section">
@@ -16,7 +14,7 @@
             </h1>
             <p class="survey-description">{{ survey.description }}</p>
           </div>
-          <p class="survey-period">2024-11-13 ~ 2024-11-21</p>
+          <p class="survey-period">2024-11-13 ~ 2024-11-26</p>
         </div>
   
         <div class="survey-item-container">
@@ -90,11 +88,7 @@
     if (question.type === 'obj_check') {
       answers.value[question.id] = [];  // 체크박스 질문에 빈 배열을 할당
     }
-  });
-  
-  const goBack = () => {
-    router.push("/");
-  };
+  }); 
 
   const showAlert = ref(false);
   const alertMessage = ref("");
@@ -150,22 +144,17 @@
     flex-direction: column;
     justify-content: center; 
     align-items: center;
+    width: 100%;
     min-height: 100vh; /* 화면 높이에 맞게 */
   }
-  
+
   .toolbar {
-    position: relative;
+    width: 100%;
+    height: 30px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    width: 100%;
-    height: 64px;
-  }
-  
-  .back-container {
-    display: flex;
-    align-items: center;
-    padding-left: 24px;
+    padding: 0 12px;
   }
   
   .menu-container {
@@ -210,6 +199,7 @@
     flex-direction: column;
     min-height: 126px;
     justify-content: space-between;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
   
   .survey-title {
