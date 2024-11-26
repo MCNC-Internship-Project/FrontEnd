@@ -1,77 +1,69 @@
 <template>
   <div id="survey-participation">
-    <header class="toolbar">
-    </header>
+    <header class="toolbar"></header>
 
     <div class="survey-section">
       <div class="survey-title-section">
-        <div class="">
-          <h1 class="survey-title">
-            {{ survey.title }}
-          </h1>
+        <div>
+          <h1 class="survey-title">{{ survey.title }}</h1>
           <p class="survey-description">{{ survey.description }}</p>
         </div>
-        <p class="survey-period">2024-11-13 ~ 2024-11-26</p>
+        <p class="survey-period">{{ formattedDate }}</p>
       </div>
 
       <div class="survey-item-container">
-        <div v-for="question in survey.questions" :key="question.id" :class="['survey-item-section', { error: question.hasError }]">
-          <!-- 에러 메시지 -->
-          <div v-if="question.hasError && question.type === 'obj_radio'" class="error-message">
-              * 항목을 선택해주세요!
+        <div v-for="question in survey.questionList" 
+            :key="question.quesId" 
+            :class="['survey-item-section', { error: question.hasError }]">
+
+          <!-- 에러 메시지: 주관식 제외 -->
+          <div v-if="question.hasError && question.questionType !== 'SUBJECTIVE'" class="error-message">
+            * {{ getErrorMessage(question.questionType) }}
           </div>
 
-          <div v-if="question.hasError && question.type === 'obj_check'" class="error-message">
-              * 항목을 선택해주세요!
-          </div>
+          <div class="question-title">{{ question.body }}</div>
 
-          <div class="question-title">{{ question.title }}</div>
-
-          <!-- 라디오 버튼 (단일 선택) -->
-          <div v-if="question.type === 'obj_radio'" class="answer-options">
-              <label v-for="option in question.options" :key="option.id">
-              <input 
-                  type="radio" 
-                  :name="`question_${question.id}`" 
-                  :value="option.value" 
-                  v-model="answers[question.id]"
-                  @change="handleRadioChange(question.id)"
+          <!-- 다중 선택 -->
+          <div v-if="question.questionType === 'OBJ_MULTI'" class="answer-options">
+            <label v-for="option in question.selectionList" :key="option.selectionId.sequence">
+              <input
+                type="checkbox"
+                :value="option.body"
+                v-model="answers[question.quesId]"
+                @change="handleCheckboxChange(question.quesId)"
               />
-              {{ option.label }}
-              </label>
+              {{ option.body }}
+            </label>
           </div>
 
-          <!-- 주관식 -->
-          <div v-if="question.type === 'subj'" class="answer-options">
-            <textarea 
-                v-model="answers[question.id]" 
-                :placeholder="question.hasError ? '답변을 입력해주세요.' : '답변을 입력해주세요.'" 
+          <!-- 단일 선택 -->
+          <div v-if="question.questionType === 'OBJ_SINGLE'" class="answer-options">
+            <label v-for="option in question.selectionList" :key="option.selectionId.sequence">
+              <input
+                type="radio"
+                :name="`question_${question.quesId}`"
+                :value="option.body"
+                v-model="answers[question.quesId]"
+                @change="handleRadioChange(question.quesId)"
+              />
+              {{ option.body }}
+            </label>
+          </div>
+
+            <!-- 주관식 -->
+            <div v-if="question.questionType === 'SUBJECTIVE'" class="answer-options">
+              <textarea
+                v-model="answers[question.quesId]"
+                :placeholder="'답변을 입력해주세요.'"
                 :class="{ 'error-placeholder': question.hasError }"
-                @input="(event) => {
-                  autoResize(event);
-                  handleSubjectiveInput(question.id);
-                }"
-            ></textarea>
-          </div>
-
-          <!-- 체크박스 (다중 선택) -->
-          <div v-if="question.type === 'obj_check'" class="answer-options">
-              <label v-for="option in question.options" :key="option.id">
-              <input 
-                  type="checkbox" 
-                  :value="option.value" 
-                  v-model="answers[question.id]" 
-                  :name="`question_${question.id}`"
-                  @change="handleCheckboxChange(question.id)"
-              />
-              {{ option.label }}
-              </label>
+                @input="(event) => { autoResize(event); handleTextInputChange(question.quesId); }">
+              </textarea>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- 메뉴 컨테이너를 survey-section 외부로 이동 -->
+    <!-- 메뉴 컨테이너를 isection 외부로 이동 -->
     <div class="menu-container">
       <button class="submit-btn" @click="submitSurvey">제출</button>
     </div>
@@ -87,71 +79,70 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import router from '@/router';
-import { mockSurveyData, mockEndDate } from '../mock/MockParticipationSurveys'; // 목데이터 가져오기
+import { surveyData } from '../mock/MockParticipationSurveys'; // surveyData import
 
-const survey = ref(mockSurveyData); // 목데이터 참조
+// surveyData.js에서 가져온 데이터로 survey 설정
+const survey = ref(surveyData);
+
+// survey.questionList에 답변을 설정
 const answers = ref({});
-survey.value.questions.forEach(question => {
-if (question.type === 'obj_check') {
-  answers.value[question.id] = [];  // 체크박스 질문에 빈 배열을 할당
-}
-}); 
+survey.value.questionList.forEach((question) => {
+  if (question.questionType === 'OBJ_MULTI') {
+    answers.value[question.quesId] = [];
+  }
+});
+
+// 에러 메시지 반환
+const getErrorMessage = (type) => {
+  if (type === 'OBJ_MULTI') return '항목을 선택해주세요!';
+  if (type === 'OBJ_SINGLE') return '항목을 선택해주세요!';
+  if (type === 'SUBJECTIVE') return '답변을 입력해주세요.';
+  return '';
+};
+
+// 날짜 포맷팅
+const formattedDate = computed(() => {
+  const startDate = new Date(survey.value.createDate).toLocaleDateString();
+  const endDate = new Date(survey.value.expireDate).toLocaleDateString();
+  return `${startDate} ~ ${endDate}`;
+});
 
 const showAlert = ref(false);
-const alertMessage = ref("");
+const alertMessage = ref('');
 
-// 라디오 버튼 변경 시 에러 상태 해제
 const handleRadioChange = (questionId) => {
-const question = survey.value.questions.find(q => q.id === questionId);
-if (question) {
-  question.hasError = false;
-}
+  const question = survey.value.questionList.find((q) => q.quesId === questionId);
+  if (question) question.hasError = false;
 };
 
-// 체크박스 변경 시 에러 상태 해제
 const handleCheckboxChange = (questionId) => {
-const question = survey.value.questions.find(q => q.id === questionId);
-if (question) {
-  question.hasError = false;
-}
+  const question = survey.value.questionList.find((q) => q.quesId === questionId);
+  if (question) question.hasError = false;
 };
 
-// 주관식 텍스트 입력 시 에러 상태 해제
-const handleSubjectiveInput = (questionId) => {
-const question = survey.value.questions.find(q => q.id === questionId);
-if (question) {
-  question.hasError = false;
-}
+const handleTextInputChange = (questionId) => {
+  const question = survey.value.questionList.find((q) => q.quesId === questionId);
+  if (question) question.hasError = false;
 };
 
 const submitSurvey = () => {
-  console.log("응답 데이터:", answers.value);
-
-  const currentDate = new Date();
-  const endDate = new Date(mockEndDate); 
-
-  if (currentDate > endDate) {
-    router.push('/survey-expired');
-    return;
-  }
-
   let hasUnanswered = false;
 
-  survey.value.questions.forEach(question => {
-      const answer = answers.value[question.id];
+  survey.value.questionList.forEach((question) => {
+    const answer = answers.value[question.quesId];
 
-      if (
-      (question.type === 'obj_radio' && !answer) || // 단일 선택 미응답
-      (question.type === 'subj' && !answer) || // 주관식 미응답
-      (question.type === 'obj_check' && (!answer || answer.length === 0)) // 다중 선택 미응답
-      ) {
-      question.hasError = true; // 미응답한 질문에 에러 표시
+    if (
+      (question.questionType === 'OBJ_SINGLE' && !answer) ||
+      (question.questionType === 'OBJ_MULTI' && (!answer || answer.length === 0)) ||
+      (question.questionType === 'SUBJECTIVE' && !answer)
+    ) {
+      question.hasError = true;
       hasUnanswered = true;
-      } else {
-      question.hasError = false; // 응답된 질문의 에러 해제
-      }
+    } else {
+      question.hasError = false;
+    }
   });
 
   if (hasUnanswered) {
@@ -165,8 +156,8 @@ const submitSurvey = () => {
 
 const autoResize = (event) => {
   const textarea = event.target;
-  textarea.style.height = 'auto'; // 현재 높이를 초기화하여 새로 계산하도록 함
-  textarea.style.height = `${textarea.scrollHeight}px`; // content에 맞게 높이를 설정
+  textarea.style.height = 'auto';
+  textarea.style.height = `${textarea.scrollHeight}px`;
 };
 </script>
 
@@ -281,6 +272,7 @@ color: #F77D7D;
 font-size: 0.875rem;
 margin-bottom: 8px;
 font-weight: bold;
+margin-left: 10px;
 }
 
 .error-placeholder::placeholder {
@@ -288,9 +280,14 @@ color: #F77D7D;
 font-weight: bold;
 }
 
+.survey-item-section.error .answer-options textarea {
+  border-color: #D9D9D9; /* 주관식 입력창의 테두리는 기존 색상 */
+}
+
 .question-title {
 font-size: 1rem;
 font-weight: bold;
+margin-top: 3px;
 color: #8C8C8C;
 margin-bottom: 8px;
 background-color: white;
