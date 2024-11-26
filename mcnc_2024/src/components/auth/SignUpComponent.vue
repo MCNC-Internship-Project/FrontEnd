@@ -83,8 +83,8 @@ const postSignUpRequest = (data) => {
             'Content-Type': 'application/json'
         }
     })
-        .then((response) => {
-            console.log(response);
+        .then(() => {
+            router.replace({ path : "/login" })
         })
         .catch((error) => {
             console.log(error);
