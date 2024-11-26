@@ -1,6 +1,6 @@
 <template>
     <div class="root-container">
-        <ToolBar @goBack="goBack">
+        <ToolBar @goBack="goBack" backgroundColor="#E6F4FF" zIndex="1000">
             <SurveyHeader title="설문지 목록" @goSearch="goSearch" />
         </ToolBar>
 
@@ -176,6 +176,7 @@ function goSearch() {
     padding: 4px 24px;
     flex-direction: column;
     gap: 12px;
+    padding-bottom: 24px;
 }
 
 .survey-none {
