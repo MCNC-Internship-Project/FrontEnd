@@ -36,18 +36,34 @@
         </div>
     </div>
 
+    <v-dialog v-model="showDisabledModifyDialog" max-width="400">
+        <v-card class="dialog-background">
+            <div class="dialog-container">
+                <div class="dialog-error-message">현재 설문에 응답자가 있어 수정이 불가능합니다.</div>
+            </div>
+
+            <v-card-actions>
+                <v-btn class="dialog-close-btn" @click="showDisabledModifyDialog = false">
+                    확인
+                </v-btn>
+            </v-card-actions>
+        </v-card>
+    </v-dialog>
 </template>
 
 <script setup>
 import { useRouter } from 'vue-router';
-import { defineProps } from 'vue';
+import { ref, defineProps } from 'vue';
 import ToolBar from '@/components/common/ToolBar.vue'
 // import PieChart from '@/components/survey-detail/PieChart.vue';
+import axios from 'axios';
+
 
 const props = defineProps({
     id: Number,
 })
 
+const baseUrl = process.env.VUE_APP_API_URL;
 const router = useRouter();
 
 // 메뉴 버튼 리스트
@@ -58,16 +74,32 @@ const items = [
     { title: '삭제', action: remove }
 ];
 
+const showDisabledModifyDialog = ref(false);
+
 // 각 버튼에 대한 동작 정의
 function share() {
     console.log('share button click');
 }
 
 function edit() {
-    router.push({
-        name: "update-survey",
-        params: { id: props.id },
-    });
+    axios.get(`${baseUrl}/survey/manage/modify/check/${props.id}`, {
+            withCredentials: true,
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then((response) => {
+                if(response.status === 200) {
+                    router.push({
+                    name: "update-survey",
+                    params: { id: props.id },
+                });
+            }
+        })
+        .catch((error) => {
+            console.error(error);
+            showDisabledModifyDialog.value = true;
+        })
 }
 
 function close() {
@@ -183,5 +215,73 @@ function goBack() {
     color: #8C8C8C;
     font-weight: bold;
     font-size: 1rem;
+}
+
+.v-card {
+    padding: 0;
+    border-radius: 16px !important;
+}
+
+.dialog-background {
+    background-color: #FAF8F8;
+    border: 1px solid #EFF0F6;
+}
+
+.dialog-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 32px 20px 32px;
+}
+
+.dialog-error-message {
+    margin: 32px 0 16px 0;
+    font-size: 1.125rem;
+    font-weight: bold;
+    color: #757576;
+}
+
+.v-card-actions {
+    padding: 20px;
+}
+
+.v-card {
+    padding: 0;
+    border-radius: 16px !important;
+}
+
+.dialog-background {
+    background-color: #FAF8F8;
+    border: 1px solid #EFF0F6;
+}
+
+.dialog-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 32px 20px 32px;
+}
+
+.dialog-error-message {
+    margin: 32px 0 16px 0;
+    font-size: 1.125rem;
+    font-weight: bold;
+    color: #757576;
+}
+
+.v-card-actions {
+    padding: 20px;
+}
+
+.v-card-actions .v-btn {
+    width: 100%;
+    margin: 0;
+    color: #FFFFFF !important;
+    background-color: var(--primary);
+    border-radius: 16px;
+    height: 48px;
+    font-size: 0.875rem;
 }
 </style>

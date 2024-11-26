@@ -172,9 +172,14 @@ const goToDetail = (surveyId) => {
 }
 
 .search-input-section {
+    display : flex;
+    align-items: center;
     position : relative;
     width : 100%;
     padding-right : 20px;
+    margin-right : 20px;
+    border-radius: 12px;
+    background-color: #F3F3F3;
 }
 
 input::placeholder {
@@ -184,18 +189,13 @@ input::placeholder {
 .search-input {
     width : 100%;
     line-height : 44px;
-    padding-left : 16px;
-    border-radius: 12px;
-    background-color: #F3F3F3;
+    padding : 0 20px;
     outline : none;
 }
 
 .search-icon {
-    position: absolute;
-    top : 12px;
-    right: 32px;
-    width: 20px;
-    height: 20px;
+    width : 24px;
+    height : 24px;
 }
 
 .search-result-section {
