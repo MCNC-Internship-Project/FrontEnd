@@ -1,5 +1,5 @@
 <template>
-    <div class="toolbar">
+    <div class="toolbar" :style="{ backgroundColor: backgroundColor || 'transparent', zIndex: zIndex || 1000 }">
         <img class="back" src="../../assets/images/icon_arrow_left.svg" alt="back" @click="$emit('goBack')" />
         <slot></slot> <!--SurveyHeader-->
     </div>
@@ -7,7 +7,17 @@
 
 
 <script setup>
-
+import { defineProps } from 'vue'
+defineProps({
+    backgroundColor: {
+        type: String,
+        default: null,
+    },
+    zIndex: {
+        type: [String, Number],
+        default: 1000,
+    }
+});
 </script>
 
 <style scoped>
@@ -30,5 +40,4 @@
     cursor: pointer;
     margin: 24px;
 }
-
 </style>
