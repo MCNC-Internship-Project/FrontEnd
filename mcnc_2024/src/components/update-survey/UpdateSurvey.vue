@@ -184,7 +184,7 @@
 
 <script setup>
 import { useRouter } from 'vue-router'
-import { ref, nextTick, watch, onMounted } from 'vue';
+import { ref, nextTick, watch, onMounted, defineProps } from 'vue';
 import axios from 'axios';
 
 import dayjs from 'dayjs'
@@ -194,12 +194,17 @@ import { checkEmptyValues } from '@/utils/checkEmptyValues';
 import UpdateSurveyItem from './update-survey-item/UpdateSurveyItem.vue';
 import TimePickerComponent from './update-survey-item/component/TimePickerComponent.vue';
 
+const props = defineProps({
+    id: Number
+})
+
 const baseUrl = process.env.VUE_APP_API_URL;
 const router = useRouter();
 
 const totalComponent = ref([]);
 const surveyItems = ref([]);
 const surveyId = ref("");
+const createDate = ref("");
 
 const surveyTitle = ref("");
 const titleError = ref(false);
@@ -234,81 +239,101 @@ const date = ref(null);
 const time = ref(null);
 
 // response 오면 얘를 ref(null)로 바꿔서 값 대입하면 됨
-const apiResponse = {
-    "surveyId": 0,
-    "title": "생성하고 수정할 설문",
-    "description": "수정할거임 ㅋㅋ",
-    "questionList": [
-        {
-            "body": "기존 질문1",
-            "questionType": "OBJ_SINGLE",
-            "selectionList": [
-                {
-                    "body": "실시간 변경1",
-                    "isEtc": false
-                },
-                {
-                    "body": "기존질문1항목2",
-                    "isEtc": false
-                },
-                {
-                    "body": "기존질문1항목3",
-                    "isEtc": false
-                },
-                {
-                    "body": "기타",
-                    "isEtc": true
-                }
-            ]
-        },
-        {
-            "body": "기존질문2",
-            "questionType": "OBJ_MULTI",
-            "selectionList": [
-                {
-                    "body": "기존질문2항목1",
-                    "isEtc": false
-                },
-                {
-                    "body": "기존질문2항목2",
-                    "isEtc": false
-                },
-                {
-                    "body": "기존질문2항목3",
-                    "isEtc": false
-                },
-                {
-                    "body": "기존질문2항목4",
-                    "isEtc": false
-                }
-            ]
-        },
-        {
-            "body": "기존질문3",
-            "questionType": "SUBJECTIVE",
-            "selectionList": []
-        }
-    ],
-    "expireDate": "2024-12-18T00:30:00"
-}
+// const apiResponse = {
+//     "surveyId": 0,
+//     "title": "생성하고 수정할 설문",
+//     "description": "수정할거임 ㅋㅋ",
+//     "questionList": [
+//         {
+//             "body": "기존 질문1",
+//             "questionType": "OBJ_SINGLE",
+//             "selectionList": [
+//                 {
+//                     "body": "실시간 변경1",
+//                     "isEtc": false
+//                 },
+//                 {
+//                     "body": "기존질문1항목2",
+//                     "isEtc": false
+//                 },
+//                 {
+//                     "body": "기존질문1항목3",
+//                     "isEtc": false
+//                 },
+//                 {
+//                     "body": "기타",
+//                     "isEtc": true
+//                 }
+//             ]
+//         },
+//         {
+//             "body": "기존질문2",
+//             "questionType": "OBJ_MULTI",
+//             "selectionList": [
+//                 {
+//                     "body": "기존질문2항목1",
+//                     "isEtc": false
+//                 },
+//                 {
+//                     "body": "기존질문2항목2",
+//                     "isEtc": false
+//                 },
+//                 {
+//                     "body": "기존질문2항목3",
+//                     "isEtc": false
+//                 },
+//                 {
+//                     "body": "기존질문2항목4",
+//                     "isEtc": false
+//                 }
+//             ]
+//         },
+//         {
+//             "body": "기존질문3",
+//             "questionType": "SUBJECTIVE",
+//             "selectionList": []
+//         }
+//     ],
+//     "expireDate": "2024-12-18T00:30:00"
+// }
+
+let apiResponse = null;
 
 onMounted(() => {
-    surveyId.value = apiResponse.surveyId;
-    surveyTitle.value = apiResponse.title;
-    surveyDescription.value = apiResponse.description;
+    surveyId.value = props.id;
 
-    for(let i=0; i<apiResponse.questionList.length; i++){
-        totalComponent.value.push({id : i, data:apiResponse.questionList[i]})
-    }
+    axios.get(`${baseUrl}/survey/inquiry/detail/${surveyId.value}`, {
+            withCredentials: true,
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then((response) => {
+            if (response.status === 200) {
+                apiResponse = response.data;
+                console.log(apiResponse);
+                createDate.value = apiResponse.createDate;
 
-    if (!apiResponse.expireDate) return;
+                surveyTitle.value = apiResponse.title;
+                surveyDescription.value = apiResponse.description;
 
-    const expireDate = dayjs(apiResponse.expireDate);
-    date.value = new Date(apiResponse.expireDate);
-    const hours = expireDate.hour();
-    const ampm = hours >= 12 ? '오후' : '오전';
-    const hourIn12 = hours % 12 === 0 ? 12 : hours % 12;
-    time.value = `${ampm} ${String(hourIn12).padStart(2, '0')}:${String(expireDate.minute()).padStart(2, '0')}`;
+                for(let i=0; i<apiResponse.questionList.length; i++){
+                    totalComponent.value.push({id : i, data:apiResponse.questionList[i]})
+                }
+
+                if (!apiResponse.expireDate) return;
+
+                const expireDate = dayjs(apiResponse.expireDate);
+                date.value = new Date(apiResponse.expireDate);
+                const hours = expireDate.hour();
+                const ampm = hours >= 12 ? '오후' : '오전';
+                const hourIn12 = hours % 12 === 0 ? 12 : hours % 12;
+                time.value = `${ampm} ${String(hourIn12).padStart(2, '0')}:${String(expireDate.minute()).padStart(2, '0')}`;
+            }
+        })
+        .catch(error => {
+            console.error(error);
+        })
 })
 
 const cancel = () => {
@@ -496,7 +521,9 @@ const handleSubmit = () => {
 
     const values = surveyItems.value.map((item) => item.getValue()); // getValue()는 각 survey-item에서 필요한 값을 반환하는 메서드로 가정
 
-    const jsonData = { surveyId: surveyId.value, title: title, description: description, questionList: values }
+    const jsonData = { surveyId: surveyId.value, title: title,
+                        description: description, questionList: values,
+                        createDate : createDate.value }
 
     const emptyPath = checkEmptyValues(jsonData);
 
@@ -559,7 +586,10 @@ const showErrorDialog = (message) => {
 
 const redirectionToMySurvey = () => {
     showSuccessDialog.value = false;
-    router.replace({ path: "/my-survey" });
+    router.replace({
+        name: "SurveyResult",
+        params: {id : surveyId.value}
+    });
 }
 </script>
 
