@@ -20,18 +20,18 @@ defineProps({
 .search-results {
     width: 100%;
     height: 100%;
-    flex: 1;
     display: flex;
     overflow-y: auto;
     margin-top: 12px;
     padding: 4px 24px;
     flex-direction: column;
     gap: 12px;
+    padding-bottom: 24px;
 }
 
 .no-results {
     width: 100%;
-    height: 100%;
+    height: 90vh;
     display: flex;
     align-items: center;
     justify-content: center;
