@@ -10,7 +10,7 @@
                             :disabled="item.id === 'etcId'" :ref="el => itemInputs[index] = el"
                             @focus="clearError(index)" />
                         <img class="item-icon" src="@/assets/images/icon_x.svg" alt="delete icon"
-                            v-show="totalItem.length !== 1" @click="deleteItem(item.id)" />
+                            v-show="showDeleteIcon(item.id)" @click="deleteItem(item.id)" />
                     </div>
                 </li>
             </transition-group>
@@ -139,6 +139,21 @@ const getValue = () => {
 const clearError = (index) => {
     totalItem.value[index].hasError = false;
 };
+
+const showDeleteIcon = (itemId) => {
+    // 기타 항목은 삭제 아이콘 보임
+    if (itemId === 'etcId') 
+        return true;
+
+    // 일반 항목 개수
+    const generalItemCount = totalItem.value.filter(item => item.id !== 'etcId').length;
+
+    // 일반 항목만 1개 있는 경우 삭제 아이콘 숨김
+    if (generalItemCount === 1) 
+        return false;
+
+    return true;
+}
 
 defineExpose({
     getValue,
