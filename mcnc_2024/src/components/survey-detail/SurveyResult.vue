@@ -30,10 +30,11 @@
             </div>
             <div class="gender-container">
                 <div class="text">응답자 성별</div>
-                <PieChart />
+                <GenderChart />
             </div>
             <div class="gender-container">
                 <div class="text">응답자 연령</div>
+                <AgeChart />
             </div>
         </div>
     </div>
@@ -56,8 +57,9 @@
 import { useRouter } from 'vue-router';
 import { ref, defineProps } from 'vue';
 import ToolBar from '@/components/common/ToolBar.vue'
-import PieChart from '@/components/survey-detail/PieChart.vue';
 import axios from 'axios';
+import GenderChart from '@/components/survey-detail/GenderChart.vue';
+import AgeChart from '@/components/survey-detail/AgeChart.vue';
 
 const props = defineProps({
     id: Number,
