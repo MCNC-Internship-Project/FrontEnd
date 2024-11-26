@@ -40,9 +40,13 @@
 
 <script setup>
 import { useRouter } from 'vue-router';
-import { } from 'vue';
+import { defineProps } from 'vue';
 import ToolBar from '@/components/common/ToolBar.vue'
 // import PieChart from '@/components/survey-detail/PieChart.vue';
+
+const props = defineProps({
+    id: Number,
+})
 
 const router = useRouter();
 
@@ -60,7 +64,10 @@ function share() {
 }
 
 function edit() {
-    console.log('edit button click');
+    router.push({
+        name: "update-survey",
+        params: { id: props.id },
+    });
 }
 
 function close() {
