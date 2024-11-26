@@ -56,7 +56,10 @@ const routeMySurvey = () => {
 }
 
 const onItemClick = (survey) => {
-    console.log(`surveyId: ${survey.surveyId} 클릭`);
+    router.push({
+        name: "SurveyResult",
+        params: { id : survey.surveyId },
+    });
 };
 
 const calculateProgress = (startDate, endDate) => {
@@ -91,6 +94,7 @@ onMounted(() => {
         }
     })
         .then((response) => {
+            console.log(response);
             surveys.value = response.data.content;
             onLoading.value = false;
         })
