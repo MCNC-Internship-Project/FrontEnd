@@ -61,9 +61,7 @@ const changePassword = () => {
         return;
     }
 
-    // TODO: 비밀번호 변경 API 호출
-    
-    emit("changePassword");
+    emit("changePassword", { password: password.value });
 }
 </script>
 

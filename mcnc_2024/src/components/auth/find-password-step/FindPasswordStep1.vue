@@ -23,6 +23,9 @@
 
 <script setup>
 import { ref, defineProps, defineEmits } from 'vue'
+import axios from 'axios';
+
+const baseUrl = process.env.VUE_APP_API_URL;
 
 const userId = ref("")
 
@@ -49,9 +52,17 @@ const stepTo2 = () => {
         return;
     }
 
-    // TODO: ID 확인 API 호출
-
-    emit("nextStep", { step: props.step + 1, email: "basdfsdaf@aa.com" })
+    axios.get(`${baseUrl}/account/modify/password/email/${userId.value}`, {
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+        .then((response) => {
+            emit("nextStep", { step: props.step + 1, userId: userId.value, email: response.data.email });
+        })
+        .catch((error) => {
+            console.log(error);
+        });
 }
 </script>
 

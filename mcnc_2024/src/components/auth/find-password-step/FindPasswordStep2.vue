@@ -7,8 +7,8 @@
                     autocomplete="userEmail" v-model="email" @focus="isEmailError = false">
                 <button class="verify-btn" v-ripple @click="verifyCode">인증</button>
             </div>
-            <input type="number" class="form-input" :class="{ 'error': isCodeError }" placeholder="인증번호" v-model="code"
-                @focus="isCodeError = false" @input="preventInvalidInput">
+            <input type="text" class="form-input" :class="{ 'error': isCodeError }" placeholder="인증번호" v-model="code"
+                @focus="isCodeError = false">
             <button class="form-btn" v-ripple @click="stepTo3">다음</button>
         </div>
 
@@ -29,12 +29,14 @@
 
 <script setup>
 import { ref, defineProps, defineEmits } from 'vue'
+import axios from 'axios';
+
+const baseUrl = process.env.VUE_APP_API_URL;
 
 const email = ref("");
 const code = ref("");
 const isEmailError = ref(false);
 const isCodeError = ref(false);
-const verified = ref(false);
 
 const showDialog = ref(false)
 const dialogMessage = ref("")
@@ -42,6 +44,10 @@ const dialogMessage = ref("")
 const props = defineProps({
     step: {
         type: Number,
+        required: true
+    },
+    userId: {
+        type: String,
         required: true
     },
     email: {
@@ -70,7 +76,25 @@ const verifyCode = () => {
         return;
     }
 
+    const jsonData = {
+        userId: props.userId,
+        email: email.value
+    }
+
+    console.log(jsonData);
+
     // TODO: 이메일 인증 코드 전송 API 호출
+    axios.post(`${baseUrl}/auth/password/send`, JSON.stringify(jsonData), {
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+        .then(() => {
+            showErrorDialog('인증번호가 전송되었습니다.');
+        })
+        .catch((error) => {
+            showErrorDialog(error.response.data.errorMessage);
+        });
 }
 
 const stepTo3 = () => {
@@ -80,26 +104,23 @@ const stepTo3 = () => {
         return;
     }
 
-    if (code.value.length !== 6) {
-        isCodeError.value = true;
-        showErrorDialog('인증번호는 6자리로 입력해주세요.');
-        return;
-    }
+    const jsonData = ref({
+        userId: props.userId,
+        tempAuthCode: code.value
+    })
 
-    if (!verified.value) {
-        isCodeError.value = true;
-        showErrorDialog('이메일 인증이 완료되지 않았습니다.');
-        // return;
-    }
-
-    emit("nextStep", { step: props.step + 1 })
-}
-
-const preventInvalidInput = (e) => {
-    let value = e.target.value.replace(/[^0-9]/g, '');
-    value = value.slice(0, 6);
-    e.target.value = value;
-    code.value = value;
+    // TODO: 이메일 인증 코드 확인 API 호출
+    axios.post(`${baseUrl}/auth/password/check`,  JSON.stringify(jsonData.value), {
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+        .then(() => {
+            emit("nextStep", { step: props.step + 1 })
+        })
+        .catch((error) => {
+            showErrorDialog(error.response.data.errorMessage);
+        });
 }
 
 const formatEmail = (email) => {
