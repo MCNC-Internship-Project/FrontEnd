@@ -8,8 +8,7 @@
             </div>
         </header>
 
-        
-        <div class="search-result-section">
+        <div class="search-result-section" ref="scrollContainer" @scroll="handleScroll">
             <div v-if="searchQueryResult === null" class="search-query-none">
                 검색어를 입력해주세요.
             </div>
@@ -26,15 +25,20 @@
                                 {{ result.description }}
                             </div>
                             <div class="info-section">
-                                <span class="response-count-section">
-                                    {{ result.responseCount }}명 참여
-                                </span>
                                 <span v-html="`&nbsp;&nbsp;~&nbsp;&nbsp;${result.expireDate}`"></span>
                             </div>
-                            
                         </div>
                     </li>
                 </ul>
+
+                <!-- Loading Indicator -->
+                <div v-if="loading" class="loading-indicator">
+                    <div class="spinner"></div>
+                </div>
+
+                <!-- No More Results Message -->
+                <div v-if="!hasMoreResults && searchQueryResult.length > 0">
+                </div>
             </div>
 
             <div v-else class="search-result-none">
@@ -45,106 +49,122 @@
 </template>
 
 <script setup>
-import { useRoute, useRouter } from 'vue-router';
-import { ref, watch } from 'vue';
+import { useRouter } from 'vue-router';
+import { ref, onMounted, onUnmounted } from 'vue';
+import axios from 'axios';
+import CryptoJS from 'crypto-js';
 
-const mock = [
-{
-        surveyId: 1,
-        title: "2024 온라인 쇼핑 경험 조사",
-        description: "온라인 쇼핑 경험과 선호하는 서비스를 조사합니다.",
-        createDate: "2024-01-01",
-        expireDate: "2024-12-31",
-        responseCount: 320,
-    },
-    {
-        surveyId: 2,
-        title: "2024 온라인 쇼핑 경험 조사",
-        description: "온라인 쇼핑 경험과 선호하는 서비스를 조사합니다.",
-        createDate: "2024-01-01",
-        expireDate: "2024-12-31",
-        responseCount: 320,
-    },
-    {
-        surveyId: 3,
-        title: "2024 온라인 쇼핑 경험 조사",
-        description: "온라인 쇼핑 경험과 선호하는 서비스를 조사합니다.",
-        createDate: "2024-01-01",
-        expireDate: "2024-12-31",
-        responseCount: 320,
-    },
-    {
-        surveyId: 4,
-        title: "2024 온라인 쇼핑 경험 조사",
-        description: "온라인 쇼핑 경험과 선호하는 서비스를 조사합니다.",
-        createDate: "2024-01-01",
-        expireDate: "2024-12-31",
-        responseCount: 320,
-    },
-    {
-        surveyId: 5,
-        title: "2024 온라인 쇼핑 경험 조사",
-        description: "온라인 쇼핑 경험과 선호하는 서비스를 조사합니다.",
-        createDate: "2024-01-01",
-        expireDate: "2024-12-31",
-        responseCount: 320,
-    },
-    {
-        surveyId: 6,
-        title: "2024 온라인 쇼핑 경험 조사",
-        description: "온라인 쇼핑 경험과 선호하는 서비스를 조사합니다.",
-        createDate: "2024-01-01",
-        expireDate: "2024-12-31",
-        responseCount: 320,
-    },
-    {
-        surveyId: 7,
-        title: "2024 온라인 쇼핑 경험 조사",
-        description: "온라인 쇼핑 경험과 선호하는 서비스를 조사합니다.",
-        createDate: "2024-01-01",
-        expireDate: "2024-12-31",
-        responseCount: 320,
-    },
-    {
-        surveyId: 8,
-        title: "2024 온라인 쇼핑 경험 조사",
-        description: "온라인 쇼핑 경험과 선호하는 서비스를 조사합니다.",
-        createDate: "2024-01-01",
-        expireDate: "2024-12-31",
-        responseCount: 320,
-    },
-]
+const secretKey = process.env.VUE_APP_API_KEY;
+const baseUrl = process.env.VUE_APP_API_URL;
 
-const route = useRoute();
 const router = useRouter();
 
 const searchQuery = ref("");
-const searchQueryResult = ref(null);
+const searchQueryResult = ref([]);
+const page = ref(0);
+const loading = ref(false);
+const hasMoreResults = ref(true);
+const scrollContainer = ref(null);
+
+const pageSize = 10;
+
+const encryptId = (id) => {
+    return CryptoJS.AES.encrypt(id.toString(), secretKey).toString();
+}
 
 const goBack = () => {
     router.push("/");
 }
 
-const searchBy = (searchQuery) => {
-    router.push({
-        path : "/surveys",
-        query : {search : searchQuery},
+const searchBy = (query, resetResults = true) => {
+    // If resetResults is true, reset the page and results
+    if (resetResults) {
+        page.value = 0;
+        searchQueryResult.value = [];
+        hasMoreResults.value = true;
+    }
+
+    // Prevent multiple simultaneous requests
+    if (loading.value || !hasMoreResults.value) return;
+
+    loading.value = true;
+
+    axios.get(`${baseUrl}/survey/inquiry/search`, {
+        withCredentials: true,
+        headers: {
+            "Content-type": "application/json"
+        },
+        params: {
+            title: query,
+            page: page.value,
+            size: pageSize,
+        }
+    })
+    .then((response) => {
+        // Update router query for bookmarking/sharing
+        router.push({path: "/surveys", query: { title: query }});
+
+        // Append new results
+        const newResults = response.data.content;
+        searchQueryResult.value = [...searchQueryResult.value, ...newResults];
+
+        // Check if there are more results
+        if (newResults.length < pageSize) {
+            hasMoreResults.value = false;
+        }
+
+        // Increment page for next fetch
+        page.value++;
+        
+        loading.value = false;
+    })
+    .catch((error) => {
+        console.error(error);
+        loading.value = false;
+        hasMoreResults.value = false;
     });
 }
 
-watch(route, (newRoute) => {
-    // 여기서 newRoute.query.search 에 대한 설문 리스트 post 요청
-    if(newRoute.query.search.length < 2) {
-        // 검색어가 두글자 이하일 때, 알림 다이얼로그로 전환해야됨
-        alert("두 글자 이상 입력해주세요.")
-        return;
+const handleScroll = () => {
+    if (!scrollContainer.value) return;
+
+    const { scrollTop, clientHeight, scrollHeight } = scrollContainer.value;
+    
+    // Check if we're near the bottom (within 200px)
+    if (scrollHeight - scrollTop - clientHeight < 200 && !loading.value && hasMoreResults.value) {
+        if (searchQuery.value) {
+            searchBy(searchQuery.value, false);
+        }
     }
-    searchQueryResult.value = mock.filter((query) => query.title.includes(newRoute.query.search))
-})
+}
 
 const goToDetail = (surveyId) => {
-    console.log(surveyId + "번 설문 클릭");
+    router.push({
+        name: "SurveyResult",
+        params: { id: encryptId(surveyId) },
+    });
 }
+
+// Check for initial query from route
+onMounted(() => {
+    const initialQuery = router.currentRoute.value.query.title;
+    if (initialQuery) {
+        searchQuery.value = initialQuery;
+        searchBy(initialQuery);
+    }
+
+    // Add scroll event listener
+    if (scrollContainer.value) {
+        scrollContainer.value.addEventListener('scroll', handleScroll);
+    }
+})
+
+// Clean up event listener
+onUnmounted(() => {
+    if (scrollContainer.value) {
+        scrollContainer.value.removeEventListener('scroll', handleScroll);
+    }
+})
 </script>
 
 <style scoped>
@@ -274,5 +294,38 @@ input::placeholder {
 
 .last-item {
     margin-bottom : 8px;
+}
+
+.loading-indicator {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #F3F3F3;
+    border-top: 4px solid #464748;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.search-result-section {
+    height: 100vh;
+    overflow-y: auto;
+    position: relative;
+    width: 100%;
+    padding: 0 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
 }
 </style>
