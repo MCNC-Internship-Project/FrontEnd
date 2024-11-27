@@ -195,7 +195,7 @@ import UpdateSurveyItem from './update-survey-item/UpdateSurveyItem.vue';
 import TimePickerComponent from './update-survey-item/component/TimePickerComponent.vue';
 
 const props = defineProps({
-    id: Number
+    id: String,
 })
 
 const baseUrl = process.env.VUE_APP_API_URL;
@@ -241,7 +241,7 @@ const time = ref(null);
 let apiResponse = null;
 
 onMounted(() => {
-    surveyId.value = props.id;
+    surveyId.value = Number(props.id);
 
     axios.get(`${baseUrl}/survey/inquiry/detail/${surveyId.value}`, {
         withCredentials: true,

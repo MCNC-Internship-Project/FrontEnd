@@ -57,15 +57,19 @@
 <script setup>
 import { useRouter } from 'vue-router';
 import { ref, defineProps } from 'vue';
+import axios from 'axios';
 import ToolBar from '@/components/common/ToolBar.vue'
+import AgeChart from './AgeChart.vue';
+import GenderChart from './GenderChart.vue';
 // import PieChart from '@/components/survey-detail/PieChart.vue';
 
 const props = defineProps({
-    id: Number,
+    id: String,
 })
 
 const baseUrl = process.env.VUE_APP_API_URL;
 const router = useRouter();
+const showDisabledModifyDialog = ref(false);
 
 // 메뉴 버튼 리스트
 const items = [
@@ -81,7 +85,7 @@ function share() {
 }
 
 function edit() {
-    axios.get(`${baseUrl}/survey/manage/modify/check/${props.id}`, {
+    axios.get(`${baseUrl}/survey/manage/modify/check/${Number(props.id)}`, {
             withCredentials: true,
             headers: {
                 'Content-Type': 'application/json'
