@@ -186,6 +186,7 @@
 import { useRouter } from 'vue-router'
 import { ref, nextTick, watch, onMounted, defineProps } from 'vue';
 import axios from 'axios';
+import CryptoJS from 'crypto-js';
 
 import dayjs from 'dayjs'
 
@@ -198,6 +199,7 @@ const props = defineProps({
     id: String,
 })
 
+const secretKey = "C!L2I#e4nt@K4e0*Y";
 const baseUrl = process.env.VUE_APP_API_URL;
 const router = useRouter();
 
@@ -238,10 +240,15 @@ const selectedMinute = ref('00');
 const date = ref(null);
 const time = ref(null);
 
+const decryptId = (encryptedId) => {
+    const bytes = CryptoJS.AES.decrypt(encryptedId, secretKey);
+    return bytes.toString(CryptoJS.enc.Utf8);
+}
+
 let apiResponse = null;
 
 onMounted(() => {
-    surveyId.value = Number(props.id);
+    surveyId.value = Number(decryptId(props.id));
 
     axios.get(`${baseUrl}/survey/inquiry/detail/${surveyId.value}`, {
         withCredentials: true,
@@ -252,7 +259,6 @@ onMounted(() => {
     .then((response) => {
         if (response.status === 200) {
             apiResponse = response.data;
-            console.log(apiResponse);
             createDate.value = apiResponse.createDate;
 
             surveyTitle.value = apiResponse.title;

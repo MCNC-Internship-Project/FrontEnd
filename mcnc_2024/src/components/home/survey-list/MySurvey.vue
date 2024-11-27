@@ -42,14 +42,20 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios';
+import CryptoJS from 'crypto-js';
 
 import dayjs from 'dayjs'
 
+const secretKey = "C!L2I#e4nt@K4e0*Y";
 const baseUrl = process.env.VUE_APP_API_URL;
 const router = useRouter();
 
 const surveys = ref([])
 const onLoading = ref(true)
+
+const encryptId = (id) => {
+    return CryptoJS.AES.encrypt(id.toString(), secretKey).toString();
+}
 
 const routeMySurvey = () => {
     router.push({ path: "/my-survey" });
@@ -58,7 +64,7 @@ const routeMySurvey = () => {
 const onItemClick = (survey) => {
     router.push({
         name: "SurveyResult",
-        params: { id : survey.surveyId },
+        params: { id : encryptId(survey.surveyId) },
     });
 };
 
@@ -94,7 +100,6 @@ onMounted(() => {
         }
     })
         .then((response) => {
-            console.log(response);
             surveys.value = response.data.content;
             onLoading.value = false;
         })

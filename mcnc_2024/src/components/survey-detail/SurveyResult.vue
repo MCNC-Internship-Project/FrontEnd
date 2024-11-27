@@ -58,6 +58,7 @@
 import { useRouter } from 'vue-router';
 import { ref, defineProps } from 'vue';
 import axios from 'axios';
+import CryptoJS from 'crypto-js';
 import ToolBar from '@/components/common/ToolBar.vue'
 import AgeChart from './AgeChart.vue';
 import GenderChart from './GenderChart.vue';
@@ -67,6 +68,7 @@ const props = defineProps({
     id: String,
 })
 
+const secretKey = "C!L2I#e4nt@K4e0*Y";
 const baseUrl = process.env.VUE_APP_API_URL;
 const router = useRouter();
 const showDisabledModifyDialog = ref(false);
@@ -79,13 +81,18 @@ const items = [
     { title: '삭제', action: remove }
 ];
 
+const decryptId = (encryptedId) => {
+    const bytes = CryptoJS.AES.decrypt(encryptedId, secretKey);
+    return bytes.toString(CryptoJS.enc.Utf8);
+}
+
 // 각 버튼에 대한 동작 정의
 function share() {
     console.log('share button click');
 }
 
 function edit() {
-    axios.get(`${baseUrl}/survey/manage/modify/check/${Number(props.id)}`, {
+    axios.get(`${baseUrl}/survey/manage/modify/check/${Number(decryptId(props.id))}`, {
             withCredentials: true,
             headers: {
                 'Content-Type': 'application/json'
