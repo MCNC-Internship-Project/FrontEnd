@@ -1,106 +1,130 @@
 <template>
-    <div id="survey-detail" v-if="survey.title && survey.questions.length">
-      <header class="toolbar">
-        <div class="back-container">
-          <img
-            class="back"
-            src="../../assets/images/icon_arrow_left.svg"
-            alt="back"
-            @click="goBack"
-          />
+  <div id="survey-detail" v-if="survey.title && survey.questions.length">
+    <header class="toolbar">
+      <div class="back-container">
+        <img
+          class="back"
+          src="../../assets/images/icon_arrow_left.svg"
+          alt="back"
+          @click="goBack"
+        />
+      </div>
+    </header>
+
+    <div class="survey-section">
+      <div class="survey-title-section">
+        <div>
+          <h1 class="survey-title">{{ survey.title }}</h1>
+          <p class="survey-description">{{ survey.description }}</p>
         </div>
-      </header>
-  
-      <div class="survey-section">
-        <div class="survey-title-section">
-          <div>
-            <h1 class="survey-title">{{ survey.title }}</h1>
-            <p class="survey-description">{{ survey.description }}</p>
-          </div>
-          <p class="survey-period">{{ formatDate(survey.startDate) }} ~ {{ formatDate(survey.endDate) }}</p>
-        </div>
-  
-        <div class="survey-item-container">
-          <div v-for="question in survey.questions" :key="question.id" class="survey-item-section">
-            <div class="question-title">{{ question.title }}</div>
-            <div class="response">
-              <template v-if="question.type === 'obj_radio'">
-                <div class="answer-options">
-                  <label v-for="option in question.options" :key="option">
-                    <input type="radio" :name="`question-${question.id}`" :value="option" disabled v-model="userAnswers[question.id]" />
-                    {{ option }}
-                  </label>
-                </div>
-              </template>
-              <template v-else-if="question.type === 'obj_check'">
-                <div class="answer-options">
-                  <label v-for="option in question.options" :key="option">
-                    <input type="checkbox" :value="option" disabled v-model="userAnswers[question.id]" />
-                    {{ option }}
-                  </label>
-                </div>
-              </template>
-              <template v-else-if="question.type === 'subj'">
-                <textarea disabled v-model="userAnswers[question.id]" placeholder="답변을 입력하세요."></textarea>
-              </template>
-            </div>
+        <p class="survey-period">{{ formatDate(survey.createDate) }} ~ {{ formatDate(survey.expireDate) }}</p>
+      </div>
+
+      <div class="survey-item-container">
+        <div v-for="question in survey.questions" :key="question.quesId" class="survey-item-section">
+          <div class="question-title">{{ question.body }}</div>
+          <div class="response">
+            <template v-if="question.type === 'obj_radio'">
+              <div class="answer-options">
+                <label v-for="option in question.options" :key="option.selectionId.sequence">
+                  <input
+                    type="radio"
+                    :name="`question-${question.quesId}`"
+                    :value="option.body"
+                    disabled
+                    v-model="userAnswers[question.quesId]"
+                  />
+                  {{ option.body }}
+                </label>
+              </div>
+            </template>
+            <template v-else-if="question.type === 'obj_check'">
+              <div class="answer-options">
+                <label v-for="option in question.options" :key="option.selectionId.sequence">
+                  <input
+                    type="checkbox"
+                    :value="option.body"
+                    disabled
+                    v-model="userAnswers[question.quesId]"
+                  />
+                  {{ option.body }}
+                </label>
+              </div>
+            </template>
+            <template v-else-if="question.type === 'subj'">
+              <textarea
+                disabled
+                v-model="userAnswers[question.quesId]"
+                placeholder="답변을 입력하세요."
+              ></textarea>
+            </template>
           </div>
         </div>
       </div>
     </div>
-  </template>
-  
-  <script setup>
-  import { ref } from 'vue';
-  import { useRouter } from 'vue-router';
-  import { mockUserSurveyData } from '../mock/MockUserSurveyData';
-  
-  const router = useRouter();
-  
-  // 초기값 설정
-  const survey = ref({
-    title: '',
-    description: '',
-    startDate: '',
-    endDate: '',
-    questions: [],
-  });
-  const userAnswers = ref({});
-  
-  // 설문 데이터 API 호출 함수
-  const getSurveyDataById = async () => {
-    return new Promise((resolve) =>
-      setTimeout(() => {
-        resolve(mockUserSurveyData); // ID로 필터링 가능
-      }, 500)
-    );
+  </div>
+</template>
+
+<script setup>
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { surveyData } from '../mock/MockUserSurveyData';
+
+const router = useRouter();
+
+const survey = ref({
+  title: '',
+  description: '',
+  createDate: '',
+  expireDate: '',
+  questions: [],
+});
+const userAnswers = ref({});
+
+const mapQuestionType = (type) => {
+  if (type === 'OBJ_SINGLE') return 'obj_radio';
+  if (type === 'OBJ_MULTI') return 'obj_check';
+  if (type === 'SUBJECTIVE') return 'subj';
+  return '';
+};
+
+// 데이터 초기화
+const fetchSurveyData = () => {
+  const fetchedSurvey = surveyData;
+  survey.value = {
+    title: fetchedSurvey.title,
+    description: fetchedSurvey.description,
+    createDate: fetchedSurvey.createDate,
+    expireDate: fetchedSurvey.expireDate,
+    questions: fetchedSurvey.questionList.map((q) => ({
+      quesId: q.quesId,
+      body: q.body,
+      type: mapQuestionType(q.questionType),
+      options: q.selectionList,
+      userResponse: q.userResponse,
+    })),
   };
-  
-  // 데이터 가져오기
-  const fetchSurveyData = async () => {
-    try {
-      const fetchedSurvey = await getSurveyDataById();
-      survey.value = fetchedSurvey;
-      userAnswers.value = fetchedSurvey.responses || {};
-    } catch (error) {
-      console.error('Failed to fetch survey data:', error);
-    }
-  };
-  
-  // 뒤로 가기 함수
-  const goBack = () => {
-    router.push('/');
-  };
-  
-  // 날짜 포맷 함수
-  const formatDate = (dateStr) => {
-    const date = new Date(dateStr);
-    return date.toISOString().split('T')[0];
-  };
-  
-  // 컴포넌트 마운트 시 데이터 가져오기
-  fetchSurveyData();
-  </script>
+
+  // 사용자 응답 초기화
+  userAnswers.value = fetchedSurvey.questionList.reduce((acc, q) => {
+    acc[q.quesId] = q.userResponse;
+    return acc;
+  }, {});
+};
+
+const goBack = () => {
+  router.push('/');
+};
+
+const formatDate = (dateStr) => {
+  const date = new Date(dateStr);
+  return date.toISOString().split('T')[0];
+};
+
+// 데이터 가져오기
+fetchSurveyData();
+</script>
+
   
   <style scoped>
   /* 스타일은 기존 그대로 유지 */
