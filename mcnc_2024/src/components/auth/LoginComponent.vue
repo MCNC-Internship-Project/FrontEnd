@@ -16,7 +16,7 @@
 
             <div class="footer-container">
                 <router-link to="/sign-up" class="sign-up">회원가입</router-link>
-                <router-link to="/" class="forgot-pw">비밀번호를 잊으셨나요?</router-link>
+                <router-link to="/find-password" class="forgot-pw">비밀번호를 잊으셨나요?</router-link>
             </div>
         </div>
 
