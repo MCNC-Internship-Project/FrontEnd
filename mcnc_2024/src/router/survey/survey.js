@@ -23,9 +23,9 @@ const SurveyRoutes = [
         meta: { requiresAuth: true },
     },
     {
-        path: "/survey-detail", 
-        name: "SurveyDetail",
-        component: () => import("../../components/survey-detail/SurveyDetail.vue"),
+        path: "/survey-participation-detail", 
+        name: "SurveyParticipationDetail",
+        component: () => import("../../components/joined-survey/SurveyParticipationDetail"),
         props: true,
     },
     {
