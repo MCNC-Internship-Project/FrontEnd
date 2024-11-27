@@ -186,6 +186,7 @@
 import { useRouter } from 'vue-router'
 import { ref, nextTick, watch, onMounted, defineProps } from 'vue';
 import axios from 'axios';
+import CryptoJS from 'crypto-js';
 
 import dayjs from 'dayjs'
 
@@ -195,9 +196,10 @@ import UpdateSurveyItem from './update-survey-item/UpdateSurveyItem.vue';
 import TimePickerComponent from './update-survey-item/component/TimePickerComponent.vue';
 
 const props = defineProps({
-    id: Number
+    id: String,
 })
 
+const secretKey = "C!L2I#e4nt@K4e0*Y";
 const baseUrl = process.env.VUE_APP_API_URL;
 const router = useRouter();
 
@@ -238,102 +240,47 @@ const selectedMinute = ref('00');
 const date = ref(null);
 const time = ref(null);
 
-// response 오면 얘를 ref(null)로 바꿔서 값 대입하면 됨
-// const apiResponse = {
-//     "surveyId": 0,
-//     "title": "생성하고 수정할 설문",
-//     "description": "수정할거임 ㅋㅋ",
-//     "questionList": [
-//         {
-//             "body": "기존 질문1",
-//             "questionType": "OBJ_SINGLE",
-//             "selectionList": [
-//                 {
-//                     "body": "실시간 변경1",
-//                     "isEtc": false
-//                 },
-//                 {
-//                     "body": "기존질문1항목2",
-//                     "isEtc": false
-//                 },
-//                 {
-//                     "body": "기존질문1항목3",
-//                     "isEtc": false
-//                 },
-//                 {
-//                     "body": "기타",
-//                     "isEtc": true
-//                 }
-//             ]
-//         },
-//         {
-//             "body": "기존질문2",
-//             "questionType": "OBJ_MULTI",
-//             "selectionList": [
-//                 {
-//                     "body": "기존질문2항목1",
-//                     "isEtc": false
-//                 },
-//                 {
-//                     "body": "기존질문2항목2",
-//                     "isEtc": false
-//                 },
-//                 {
-//                     "body": "기존질문2항목3",
-//                     "isEtc": false
-//                 },
-//                 {
-//                     "body": "기존질문2항목4",
-//                     "isEtc": false
-//                 }
-//             ]
-//         },
-//         {
-//             "body": "기존질문3",
-//             "questionType": "SUBJECTIVE",
-//             "selectionList": []
-//         }
-//     ],
-//     "expireDate": "2024-12-18T00:30:00"
-// }
+const decryptId = (encryptedId) => {
+    const bytes = CryptoJS.AES.decrypt(encryptedId, secretKey);
+    return bytes.toString(CryptoJS.enc.Utf8);
+}
 
 let apiResponse = null;
 
 onMounted(() => {
-    surveyId.value = props.id;
+    surveyId.value = Number(decryptId(props.id));
 
     axios.get(`${baseUrl}/survey/inquiry/detail/${surveyId.value}`, {
-            withCredentials: true,
-            headers: {
-                'Content-Type': 'application/json'
+        withCredentials: true,
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then((response) => {
+        if (response.status === 200) {
+            apiResponse = response.data;
+            createDate.value = apiResponse.createDate;
+
+            surveyTitle.value = apiResponse.title;
+            surveyDescription.value = apiResponse.description;
+
+            for(let i=0; i<apiResponse.questionList.length; i++){
+                totalComponent.value.push({id : i, data:apiResponse.questionList[i]})
             }
-        })
-        .then((response) => {
-            if (response.status === 200) {
-                apiResponse = response.data;
-                console.log(apiResponse);
-                createDate.value = apiResponse.createDate;
 
-                surveyTitle.value = apiResponse.title;
-                surveyDescription.value = apiResponse.description;
+            if (!apiResponse.expireDate) return;
 
-                for(let i=0; i<apiResponse.questionList.length; i++){
-                    totalComponent.value.push({id : i, data:apiResponse.questionList[i]})
-                }
-
-                if (!apiResponse.expireDate) return;
-
-                const expireDate = dayjs(apiResponse.expireDate);
-                date.value = new Date(apiResponse.expireDate);
-                const hours = expireDate.hour();
-                const ampm = hours >= 12 ? '오후' : '오전';
-                const hourIn12 = hours % 12 === 0 ? 12 : hours % 12;
-                time.value = `${ampm} ${String(hourIn12).padStart(2, '0')}:${String(expireDate.minute()).padStart(2, '0')}`;
-            }
-        })
-        .catch(error => {
-            console.error(error);
-        })
+            const expireDate = dayjs(apiResponse.expireDate);
+            date.value = new Date(apiResponse.expireDate);
+            const hours = expireDate.hour();
+            const ampm = hours >= 12 ? '오후' : '오전';
+            const hourIn12 = hours % 12 === 0 ? 12 : hours % 12;
+            time.value = `${ampm} ${String(hourIn12).padStart(2, '0')}:${String(expireDate.minute()).padStart(2, '0')}`;
+        }
+    })
+    .catch(error => {
+        console.error(error);
+    })
 })
 
 const cancel = () => {

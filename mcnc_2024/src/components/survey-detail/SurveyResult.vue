@@ -38,6 +38,7 @@
             </div>
         </div>
     </div>
+
     <v-dialog v-model="showDisabledModifyDialog" max-width="400">
         <v-card class="dialog-background">
             <div class="dialog-container">
@@ -56,17 +57,21 @@
 <script setup>
 import { useRouter } from 'vue-router';
 import { ref, defineProps } from 'vue';
-import ToolBar from '@/components/common/ToolBar.vue'
 import axios from 'axios';
-import GenderChart from '@/components/survey-detail/GenderChart.vue';
-import AgeChart from '@/components/survey-detail/AgeChart.vue';
+import CryptoJS from 'crypto-js';
+import ToolBar from '@/components/common/ToolBar.vue'
+import AgeChart from './AgeChart.vue';
+import GenderChart from './GenderChart.vue';
+// import PieChart from '@/components/survey-detail/PieChart.vue';
 
 const props = defineProps({
-    id: Number,
+    id: String,
 })
 
+const secretKey = "C!L2I#e4nt@K4e0*Y";
 const baseUrl = process.env.VUE_APP_API_URL;
 const router = useRouter();
+const showDisabledModifyDialog = ref(false);
 
 // 메뉴 버튼 리스트
 const items = [
@@ -75,7 +80,11 @@ const items = [
     { title: '종료', action: close },
     { title: '삭제', action: remove }
 ];
-const showDisabledModifyDialog = ref(false);
+
+const decryptId = (encryptedId) => {
+    const bytes = CryptoJS.AES.decrypt(encryptedId, secretKey);
+    return bytes.toString(CryptoJS.enc.Utf8);
+}
 
 // 각 버튼에 대한 동작 정의
 function share() {
@@ -83,7 +92,7 @@ function share() {
 }
 
 function edit() {
-    axios.get(`${baseUrl}/survey/manage/modify/check/${props.id}`, {
+    axios.get(`${baseUrl}/survey/manage/modify/check/${Number(decryptId(props.id))}`, {
             withCredentials: true,
             headers: {
                 'Content-Type': 'application/json'
@@ -272,6 +281,74 @@ function goBack() {
 .v-card-actions {
     padding: 20px;
 }
+.v-card-actions .v-btn {
+    width: 100%;
+    margin: 0;
+    color: #FFFFFF !important;
+    background-color: var(--primary);
+    border-radius: 16px;
+    height: 48px;
+    font-size: 0.875rem;
+}
+
+.v-card {
+    padding: 0;
+    border-radius: 16px !important;
+}
+
+.dialog-background {
+    background-color: #FAF8F8;
+    border: 1px solid #EFF0F6;
+}
+
+.dialog-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 32px 20px 32px;
+}
+
+.dialog-error-message {
+    margin: 32px 0 16px 0;
+    font-size: 1.125rem;
+    font-weight: bold;
+    color: #757576;
+}
+
+.v-card-actions {
+    padding: 20px;
+}
+
+.v-card {
+    padding: 0;
+    border-radius: 16px !important;
+}
+
+.dialog-background {
+    background-color: #FAF8F8;
+    border: 1px solid #EFF0F6;
+}
+
+.dialog-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 32px 20px 32px;
+}
+
+.dialog-error-message {
+    margin: 32px 0 16px 0;
+    font-size: 1.125rem;
+    font-weight: bold;
+    color: #757576;
+}
+
+.v-card-actions {
+    padding: 20px;
+}
+
 .v-card-actions .v-btn {
     width: 100%;
     margin: 0;
