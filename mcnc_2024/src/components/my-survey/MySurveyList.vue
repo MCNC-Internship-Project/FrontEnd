@@ -162,7 +162,7 @@ function goSearch() {
     justify-content: center;
     align-items: center;
     flex-direction: column;
-    margin-top: 64px;
+    margin-top: 40px;
     overflow: hidden;
 }
 
@@ -172,9 +172,11 @@ function goSearch() {
     flex: 1;
     display: flex;
     overflow-y: auto;
-    padding: 4px 24px 24px 24px;
+    margin-top: 24px;
+    padding: 4px 24px;
     flex-direction: column;
     gap: 12px;
+    padding-bottom: 24px;
 }
 
 .survey-none {
