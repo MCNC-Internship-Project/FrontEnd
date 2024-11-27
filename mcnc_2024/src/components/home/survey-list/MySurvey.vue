@@ -46,7 +46,7 @@ import CryptoJS from 'crypto-js';
 
 import dayjs from 'dayjs'
 
-const secretKey = "C!L2I#e4nt@K4e0*Y";
+const secretKey = process.env.VUE_APP_API_KEY;
 const baseUrl = process.env.VUE_APP_API_URL;
 const router = useRouter();
 
