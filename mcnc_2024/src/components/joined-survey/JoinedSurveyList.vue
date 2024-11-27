@@ -1,6 +1,6 @@
 <template>
     <div class="root-container">
-        <ToolBar @goBack="goBack">
+        <ToolBar @goBack="goBack" backgroundColor="#ffe6eb" zIndex="1000">
             <SurveyHeader title="참여한 설문" @goSearch="goSearch" />
         </ToolBar>
 
@@ -64,7 +64,7 @@ const fetchMockData = () =>
     new Promise((resolve) => {
         setTimeout(() => {
             const sortedMockData = mockJoinedSurveys.sort((a, b) => {
-                return new Date(b.expireDate) - new Date(a.expireDate); 
+                return new Date(b.expireDate) - new Date(a.expireDate);
             });
 
             const startIndex = (page.value - 1) * size;
@@ -141,27 +141,29 @@ function goSearch() {
     align-items: center;
     justify-content: center;
 }
+
 .survey-container {
     width: 100%;
-    height: calc(100vh - 40px); 
+    height: calc(100vh - 40px);
     display: flex;
     justify-content: center;
     align-items: center;
     flex-direction: column;
-    margin-top: 40px;
-    overflow: hidden; 
+    margin-top: 64px;
+    overflow: hidden;
 }
+
 .survey-list {
     width: 100%;
     height: 100%;
-    flex: 1; 
+    flex: 1;
     display: flex;
-    overflow-y: auto; 
-    margin-top: 24px;
-    padding: 4px 24px;
+    overflow-y: auto;
+    padding: 4px 24px 24px 24px;
     flex-direction: column;
     gap: 12px;
 }
+
 .survey-none {
     height: 100%;
     display: flex;
