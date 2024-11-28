@@ -123,7 +123,8 @@ async function api() {
 }
 
 async function load({ done }) {
-    if (!searchQuery.value.trim()) {
+    if (!searchQuery.value.trim() || currentPage.value === 0) {
+        done('empty');
         return;
     }
 
