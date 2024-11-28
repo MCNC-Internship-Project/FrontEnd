@@ -1,331 +1,329 @@
 <template>
-    <div id="root-container">
+    <div class="root-container">
         <header class="toolbar">
             <img class="back" src="@/assets/images/icon_arrow_left.svg" alt="back" @click="goBack">
-            <div class="search-input-section">
-                <input type="text" v-model="searchQuery" class="search-input" placeholder="설문 제목을 검색하세요." @keyup.enter="searchBy(searchQuery)"/>
-                <img class="search-icon" src="@/assets/images/icon_search.svg" alt="dropdown icon" @click="searchBy(searchQuery)"/>
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="설문조사 제목으로 검색" v-model="searchQuery"
+                    @keyup.enter="search" />
+                <img class="search-icon" src="@/assets/images/icon_search.svg" alt="dropdown icon" />
             </div>
         </header>
 
-        <div class="search-result-section" ref="scrollContainer" @scroll="handleScroll">
-            <div v-if="searchQueryResult === null" class="search-query-none">
-                검색어를 입력해주세요.
-            </div>
-
-            <div v-else-if="searchQueryResult.length > 0" class="search-query-exist">
-                <ul class="search-result-list">
-                    <li class="search-result-list-item" v-for="(result, index) in searchQueryResult" :key="result.surveyId"
-                    :class="{'last-item' : index === searchQueryResult.length - 1}" @click="goToDetail(result.surveyId)">
-                        <div class="result-container" v-ripple>
-                            <div class="title-section">
-                                {{ result.title }}
-                            </div>
-                            <div class="description-section">
-                                {{ result.description }}
-                            </div>
-                            <div class="info-section">
-                                <span v-html="`&nbsp;&nbsp;~&nbsp;&nbsp;${result.expireDate}`"></span>
-                            </div>
+        <div class="search-result-container">
+            <div v-if="isFirstLoad" class="search-result-text">검색어를 입력해주세요.</div>
+            <v-infinite-scroll v-if="surveyList.length > 0" :items="surveyList" :onLoad="load" color="var(--primary)">
+                <template v-for="(item, index) in surveyList" :key="item">
+                    <div class="search-result-item-container" :class="{ 'last-item': index === surveyList.length - 1 }"
+                        v-ripple>
+                        <div class="item-header-container">
+                            <img class="item-img-expire" :src="changeIcon(item.expireDateValid)" alt="survey status icon" />
+                            <div class="item-title">{{ item.title }}</div>
+                            <div class="item-expire" :class="{ 'expired': !item.expireDateValid }">{{ remainTime(item.expireDate) }}</div>
                         </div>
-                    </li>
-                </ul>
-
-                <!-- Loading Indicator -->
-                <div v-if="loading" class="loading-indicator">
-                    <div class="spinner"></div>
-                </div>
-
-                <!-- No More Results Message -->
-                <div v-if="!hasMoreResults && searchQueryResult.length > 0">
-                </div>
-            </div>
-
-            <div v-else class="search-result-none">
-                검색 결과가 없습니다.
-            </div>
+                        <div class="item-description">{{ item.description }}</div>
+                        <div class="item-footer-container">
+                            <img class="item-img-profile" src="@/assets/images/icon_profile_default.svg" alt="profile icon" />
+                            <div class="item-userid">{{ item.creatorId }}</div>
+                        </div>
+                    </div>
+                </template>
+                <template v-slot:empty>
+                </template>
+            </v-infinite-scroll>
+            <div v-if="noResult" class="search-result-text">검색 결과가 없습니다.</div>
         </div>
     </div>
 </template>
 
 <script setup>
-import { useRouter } from 'vue-router';
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref } from 'vue'
 import axios from 'axios';
-import CryptoJS from 'crypto-js';
+import { useRouter } from 'vue-router';
 
-const secretKey = process.env.VUE_APP_API_KEY;
-const baseUrl = process.env.VUE_APP_API_URL;
+import iconTrianglePrimary from '@/assets/images/icon_triangle_primary.svg';
+import iconProfileGray from '@/assets/images/icon_triangle_gray.svg';
 
 const router = useRouter();
 
-const searchQuery = ref("");
-const searchQueryResult = ref([]);
-const page = ref(0);
-const loading = ref(false);
-const hasMoreResults = ref(true);
-const scrollContainer = ref(null);
+const baseUrl = process.env.VUE_APP_API_URL;
 
-const pageSize = 10;
+const searchQuery = ref('');
+const currentPage = ref(0);
+const size = 5;
 
-const encryptId = (id) => {
-    return CryptoJS.AES.encrypt(id.toString(), secretKey).toString();
-}
+const surveyList = ref([]);
+const isFirstLoad = ref(true);
+const noResult = ref(false);
 
 const goBack = () => {
     router.push("/");
 }
 
-const searchBy = (query, resetResults = true) => {
-    // If resetResults is true, reset the page and results
-    if (resetResults) {
-        page.value = 0;
-        searchQueryResult.value = [];
-        hasMoreResults.value = true;
+const search = async () => {
+    if (!searchQuery.value.trim()) {
+        return;
     }
 
-    // Prevent multiple simultaneous requests
-    if (loading.value || !hasMoreResults.value) return;
+    isFirstLoad.value = false;
+    currentPage.value = 0;
+    surveyList.value = [];
+    noResult.value = false;
 
-    loading.value = true;
+    window.scrollTo({
+        top: 0,
+        behavior: 'instant'
+    });
 
     axios.get(`${baseUrl}/survey/inquiry/search`, {
         withCredentials: true,
         headers: {
-            "Content-type": "application/json"
+            'Content-Type': 'application/json',
         },
         params: {
-            title: query,
-            page: page.value,
-            size: pageSize,
+            title: searchQuery.value,
+            page: currentPage.value,
+            size: size,
         }
     })
-    .then((response) => {
-        // Update router query for bookmarking/sharing
-        router.push({path: "/surveys", query: { title: query }});
+        .then((response) => {
+            if (response.data.content.length === 0) {
+                noResult.value = true;
+                return;
+            }
 
-        // Append new results
-        const newResults = response.data.content;
-        searchQueryResult.value = [...searchQueryResult.value, ...newResults];
+            surveyList.value.push(...response.data.content);
 
-        // Check if there are more results
-        if (newResults.length < pageSize) {
-            hasMoreResults.value = false;
-        }
+            if (response.data.totalPages !== currentPage.value + 1) {
+                currentPage.value++;
+            }
+        })
+        .catch((error) => {
+            console.error(error);
+        });
+}
 
-        // Increment page for next fetch
-        page.value++;
-        
-        loading.value = false;
-    })
-    .catch((error) => {
+async function api() {
+    try {
+        const response = await axios.get(`${baseUrl}/survey/inquiry/search`, {
+            withCredentials: true,
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            params: {
+                title: searchQuery.value,
+                page: currentPage.value,
+                size: size,
+            }
+        });
+        return response.data;
+    } catch (error) {
         console.error(error);
-        loading.value = false;
-        hasMoreResults.value = false;
-    });
+        return [];
+    }
 }
 
-const handleScroll = () => {
-    if (!scrollContainer.value) return;
+async function load({ done }) {
+    if (!searchQuery.value.trim()) {
+        return;
+    }
 
-    const { scrollTop, clientHeight, scrollHeight } = scrollContainer.value;
-    
-    // Check if we're near the bottom (within 200px)
-    if (scrollHeight - scrollTop - clientHeight < 200 && !loading.value && hasMoreResults.value) {
-        if (searchQuery.value) {
-            searchBy(searchQuery.value, false);
+    try {
+        const res = await api();
+        surveyList.value.push(...res.content);
+
+        if (res.totalPages !== currentPage.value + 1) {
+            currentPage.value++;
+            done('ok');
+        } else {
+            done('empty');
         }
+    } catch (error) {
+        console.error(error);
+        done('error');
     }
 }
 
-const goToDetail = (surveyId) => {
-    router.push({
-        name: "SurveyResult",
-        params: { id: encryptId(surveyId) },
-    });
+const changeIcon = (isExpired) => {
+    return isExpired ? iconTrianglePrimary : iconProfileGray;
 }
 
-// Check for initial query from route
-onMounted(() => {
-    const initialQuery = router.currentRoute.value.query.title;
-    if (initialQuery) {
-        searchQuery.value = initialQuery;
-        searchBy(initialQuery);
-    }
+const remainTime = (date) => {
+    const now = new Date();
+    const expireDate = new Date(date);
 
-    // Add scroll event listener
-    if (scrollContainer.value) {
-        scrollContainer.value.addEventListener('scroll', handleScroll);
-    }
-})
+    const diff = expireDate - now;
+    const years = Math.floor(diff / (1000 * 60 * 60 * 24 * 365));
+    const months = Math.floor((diff % (1000 * 60 * 60 * 24 * 365)) / (1000 * 60 * 60 * 24 * 30));
+    const days = Math.floor((diff % (1000 * 60 * 60 * 24 * 30)) / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
 
-// Clean up event listener
-onUnmounted(() => {
-    if (scrollContainer.value) {
-        scrollContainer.value.removeEventListener('scroll', handleScroll);
+    if (years > 0) {
+        return `${years}년 남음`;
+    } else if (months > 0) {
+        return `${months}개월 남음`;
+    } else if (days > 0) {
+        return `${days}일 남음`;
+    } else if (hours > 0) {
+        return `${hours}시간 남음`;
+    } else if (minutes > 0) {
+        return `${minutes}분 남음`;
+    } else {
+        return '설문 종료';
     }
-})
+}
 </script>
 
 <style scoped>
-#root-container {
-    width : 100%;
+.root-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
 }
 
 .toolbar {
     position: fixed;
     display: flex;
     align-items: center;
-    left: 0;
-    top: 0;
-    right: 0;
     width: 100%;
     height: 64px;
-    background-color: white;
+    background-color: #FFF;
     z-index: 1000;
 }
 
 .back {
-    padding-left: 24px;
+    width: 20px;
+    height: 20px;
+    margin-left: 24px;
     cursor: pointer;
-    margin-right : 16px;
 }
 
-.search-input-section {
-    display : flex;
+.search-container {
+    flex: 1;
+    display: flex;
     align-items: center;
-    position : relative;
-    width : 100%;
-    padding-right : 20px;
-    margin-right : 20px;
+    margin: 0 20px;
     border-radius: 12px;
     background-color: #F3F3F3;
 }
 
-input::placeholder {
-    color : #C6C6C6;
-}
-
 .search-input {
-    width : 100%;
-    line-height : 44px;
-    padding : 0 20px;
-    outline : none;
+    width: 100%;
+    height: 44px;
+    padding-left: 16px;
+    outline: none;
 }
 
 .search-icon {
-    width : 24px;
-    height : 24px;
+    width: 20px;
+    height: 20px;
+    margin: 0 16px;
 }
 
-.search-result-section {
-    position : relative;
-    width : 100%;
-    padding : 0 20px;
+.search-result-container {
     display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.search-query-none, .search-result-none {
-    position : absolute;
-    top : 200px;
-    font-weight : bold;
-    color : #ABABB6;
-}
-
-.search-query-exist {
-    width : 100%;
-}
-
-.search-result-list {
-    list-style : none;
-    margin-top : 76px;
-}
-
-.result-container {
-    width: 100%;
-    height : 100px;
-    margin-top : 8px;
-    padding : 16px 16px;
-    background: #FFFFFF;
-    border: 1px solid #EFF0F6;
-    box-shadow: 0px 5px 16px rgba(8, 15, 52, 0.06);
-    border-radius: 12px;
-    display : flex;
     flex-direction: column;
+    justify-content: center;
+    margin-top: 64px;
+    padding: 0 20px 4px 20px;
 }
 
-.title-section {
-    width : 100%;
-    font-size : 0.8125rem;
-    color : #464748;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    word-break: break-word;
-    white-space: nowrap;
-}
-
-.description-section {
-    width : 100%;
-    margin-top : 4px;
-    font-size : 0.6875rem;
-    color : #8D8D8D;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    word-break: break-word;
-    white-space: nowrap;
-}
-
-.info-section {
-    width : 100%;
-    display : flex;
+.search-result-text {
+    height: calc(var(--vh, 1vh) * 100 - 72px);
+    display: flex;
+    justify-content: center;
     align-items: center;
-    justify-content: end;
-    margin-top : 16px;
-    font-size : 0.625rem;
-    color : #B7B7B7;
+    font-weight: bold;
+    color: #ABABB6;
+    font-size: 1.125rem;
 }
 
-.response-count-section {
-    font-size : 0.625rem;
-    color : #7796E8;
+.v-infinite-scroll {
+    width: 100%;
+    overflow: hidden;
+}
+
+.search-result-item-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 160px;
+    background-color: #FFF;
+    border-radius: 12px;
+    margin-bottom: 16px;
+    border: 2px solid #F3F3F3;
+    padding: 20px;
+    cursor: pointer;
 }
 
 .last-item {
-    margin-bottom : 8px;
+    margin-bottom: 0;
 }
 
-.loading-indicator {
+.item-header-container {
     display: flex;
-    justify-content: center;
     align-items: center;
-    padding: 20px;
 }
 
-.spinner {
-    width: 40px;
-    height: 40px;
-    border: 4px solid #F3F3F3;
-    border-top: 4px solid #464748;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
+.item-img-expire {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
 }
 
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+.item-img-profile {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
 }
 
-.search-result-section {
-    height: 100vh;
-    overflow-y: auto;
-    position: relative;
+.item-title {
     width: 100%;
-    padding: 0 20px;
+    font-size: 1rem;
+    color: #464748;
+    margin: 0 12px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    word-break: break-word;
+    white-space: nowrap;
+}
+
+.item-expire {
+    font-size: 0.875rem;
+    color: var(--primary);
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+.expired {
+    color: #B0B0B0;
+}
+
+.item-description {
+    display: -webkit-box;
+    width: 100%;
+    margin-top: 12px;
+    font-size: 0.875rem;
+    color: #8D8D8D;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    word-break: break-word;
+    white-space: normal;
+    line-clamp: 2;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.item-footer-container {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    justify-content: flex-start;
+    margin-top: auto;
+}
+
+.item-userid {
+    font-size: 0.875rem;
+    color: #919191;
+    margin-left: 8px;
 }
 </style>
