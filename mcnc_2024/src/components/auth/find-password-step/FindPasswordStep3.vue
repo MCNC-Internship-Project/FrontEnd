@@ -1,8 +1,8 @@
 <template>
     <div class="root-container">
         <div class="form-container">
-            <input type="password" class="form-input" :class="{ 'error': isPasswordError }" placeholder="새로운 비밀번호" v-model="password"
-                @focus="isPasswordError = false">
+            <input type="password" class="form-input" :class="{ 'error': isPasswordError }" placeholder="새로운 비밀번호"
+                v-model="password" @focus="isPasswordError = false">
             <input type="password" class="form-input" :class="{ 'error': isPasswordConfirmError }" placeholder="비밀번호 확인"
                 v-model="passwordConfirm" @focus="isPasswordConfirmError = false">
             <button class="form-btn" v-ripple @click="changePassword">확인</button>
@@ -11,10 +11,23 @@
         <v-dialog v-model="showDialog" max-width="400">
             <v-card>
                 <div class="dialog-container">
-                    <div class="dialog-error-message">{{ dialogMessage }}</div>
+                    <div class="dialog-message">{{ dialogMessage }}</div>
                 </div>
                 <v-card-actions>
                     <v-btn color="primary" text @click="showDialog = false">
+                        확인
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+
+        <v-dialog v-model="showSuccessDialog" max-width="400" persistent>
+            <v-card>
+                <div class="dialog-container">
+                    <div class="dialog-message">비밀번호가 변경되었습니다.</div>
+                </div>
+                <v-card-actions>
+                    <v-btn color="primary" text @click="goToLogin">
                         확인
                     </v-btn>
                 </v-card-actions>
@@ -24,7 +37,10 @@
 </template>
 
 <script setup>
-import { ref, defineEmits } from 'vue'
+import { ref, defineProps, defineEmits } from 'vue'
+import axios from 'axios';
+
+const baseUrl = process.env.VUE_APP_API_URL;
 
 const password = ref("");
 const passwordConfirm = ref("");
@@ -34,6 +50,14 @@ const isPasswordConfirmError = ref(false);
 
 const showDialog = ref(false);
 const dialogMessage = ref("");
+const showSuccessDialog = ref(false);
+
+const props = defineProps({
+    userId: {
+        type: String,
+        required: true
+    }
+})
 
 const emit = defineEmits(["changePassword"]);
 
@@ -61,7 +85,27 @@ const changePassword = () => {
         return;
     }
 
-    emit("changePassword", { password: password.value });
+    const jsonData = {
+        userId: props.userId,
+        password: password.value
+    }
+
+    axios.post(`${baseUrl}/account/modify/password`,  JSON.stringify(jsonData), {
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+        .then(() => {
+            showSuccessDialog.value = true;
+        })
+        .catch((error) => {
+            showErrorDialog(error.response.data.errorMessage);
+        });
+}
+
+const goToLogin = () => {
+    showSuccessDialog.value = false;
+    emit("changePassword");
 }
 </script>
 
@@ -123,7 +167,7 @@ const changePassword = () => {
     padding: 12px 32px 20px 32px;
 }
 
-.dialog-error-message {
+.dialog-message {
     margin: 32px 0 16px 0;
     font-size: 1.125rem;
     font-weight: bold;

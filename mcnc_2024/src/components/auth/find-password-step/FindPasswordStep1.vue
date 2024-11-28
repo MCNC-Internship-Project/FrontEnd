@@ -61,7 +61,7 @@ const stepTo2 = () => {
             emit("nextStep", { step: props.step + 1, userId: userId.value, email: response.data.email });
         })
         .catch((error) => {
-            console.log(error);
+            showErrorDialog(error.response.data.errorMessage);
         });
 }
 </script>

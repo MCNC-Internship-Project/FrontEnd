@@ -5,7 +5,7 @@
             <div class="email-container">
                 <input type="email" class="form-input" :class="{ 'error': isEmailError }" placeholder="이메일"
                     autocomplete="userEmail" v-model="email" @focus="isEmailError = false">
-                <button class="verify-btn" v-ripple @click="verifyCode">인증</button>
+                <button class="verify-btn" v-ripple @click="verifyCode" :disabled="isEmailSending">인증</button>
             </div>
             <input type="text" class="form-input" :class="{ 'error': isCodeError }" placeholder="인증번호" v-model="code"
                 @focus="isCodeError = false">
@@ -24,6 +24,15 @@
                 </v-card-actions>
             </v-card>
         </v-dialog>
+
+        <v-dialog v-model="showProgressDialog" max-width="400" persistent>
+            <v-card>
+                <div class="progress-dialog-container">
+                    <v-progress-circular indeterminate color="var(--primary)"></v-progress-circular>
+                    <div class="progress-dialog-message">인증번호 전송 중...</div>
+                </div>
+            </v-card>
+        </v-dialog>
     </div>
 </template>
 
@@ -40,6 +49,9 @@ const isCodeError = ref(false);
 
 const showDialog = ref(false)
 const dialogMessage = ref("")
+const showProgressDialog = ref(false)
+
+const isEmailSending = ref(false);
 
 const props = defineProps({
     step: {
@@ -81,18 +93,22 @@ const verifyCode = () => {
         email: email.value
     }
 
-    console.log(jsonData);
+    isEmailSending.value = true;
+    showProgressDialog.value = true;
 
-    // TODO: 이메일 인증 코드 전송 API 호출
     axios.post(`${baseUrl}/auth/password/send`, JSON.stringify(jsonData), {
         headers: {
             'Content-Type': 'application/json'
         }
     })
         .then(() => {
+            isEmailSending.value = false;
+            showProgressDialog.value = false;
             showErrorDialog('인증번호가 전송되었습니다.');
         })
         .catch((error) => {
+            isEmailSending.value = false;
+            showProgressDialog.value = false;
             showErrorDialog(error.response.data.errorMessage);
         });
 }
@@ -109,8 +125,7 @@ const stepTo3 = () => {
         tempAuthCode: code.value
     })
 
-    // TODO: 이메일 인증 코드 확인 API 호출
-    axios.post(`${baseUrl}/auth/password/check`,  JSON.stringify(jsonData.value), {
+    axios.post(`${baseUrl}/auth/password/check`, JSON.stringify(jsonData.value), {
         headers: {
             'Content-Type': 'application/json'
         }
@@ -124,7 +139,7 @@ const stepTo3 = () => {
 }
 
 const formatEmail = (email) => {
-    if (!email) 
+    if (!email)
         return '';
 
     const [id, domain] = email.split('@');
@@ -242,5 +257,23 @@ input[type='number'] {
     border-radius: 16px;
     height: 48px;
     font-size: 0.875rem;
+}
+
+.verify-btn:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+.progress-dialog-container {
+    display: flex;
+    align-items: center;
+    padding: 32px 16px 32px 32px;
+}
+
+.progress-dialog-message {
+    margin-left: 32px;
+    font-size: 1.125rem;
+    font-weight: bold;
+    color: #757576;
 }
 </style>
