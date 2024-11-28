@@ -14,7 +14,7 @@
             <v-infinite-scroll v-if="surveyList.length > 0" :items="surveyList" :onLoad="load" color="var(--primary)">
                 <template v-for="(item, index) in surveyList" :key="item">
                     <div class="search-result-item-container" :class="{ 'last-item': index === surveyList.length - 1 }"
-                        v-ripple>
+                        v-ripple @click="goToDetail(item.surveyId)">
                         <div class="item-header-container">
                             <img class="item-img-expire" :src="changeIcon(item.expireDateValid)" alt="survey status icon" />
                             <div class="item-title">{{ item.title }}</div>
@@ -36,9 +36,10 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import axios from 'axios';
 import { useRouter } from 'vue-router';
+import CryptoJS from 'crypto-js';
 
 import iconTrianglePrimary from '@/assets/images/icon_triangle_primary.svg';
 import iconProfileGray from '@/assets/images/icon_triangle_gray.svg';
@@ -46,6 +47,7 @@ import iconProfileGray from '@/assets/images/icon_triangle_gray.svg';
 const router = useRouter();
 
 const baseUrl = process.env.VUE_APP_API_URL;
+const secretKey = process.env.VUE_APP_API_KEY;
 
 const searchQuery = ref('');
 const currentPage = ref(0);
@@ -55,6 +57,10 @@ const surveyList = ref([]);
 const isFirstLoad = ref(true);
 const noResult = ref(false);
 
+const encryptId = (id) => {
+    return CryptoJS.AES.encrypt(id.toString(), secretKey).toString();
+}
+
 const goBack = () => {
     router.push("/");
 }
@@ -63,6 +69,8 @@ const search = async () => {
     if (!searchQuery.value.trim()) {
         return;
     }
+
+    router.push({path: "/surveys", query: { title: searchQuery.value }});
 
     isFirstLoad.value = false;
     currentPage.value = 0;
@@ -144,6 +152,13 @@ async function load({ done }) {
     }
 }
 
+const goToDetail = (surveyId) => {
+    router.push({
+        name: "SurveyResult",
+        params: { id: encryptId(surveyId) },
+    });
+}
+
 const changeIcon = (isExpired) => {
     return isExpired ? iconTrianglePrimary : iconProfileGray;
 }
@@ -173,6 +188,14 @@ const remainTime = (date) => {
         return '설문 종료';
     }
 }
+
+onMounted(() => {
+    const initialQuery = router.currentRoute.value.query.title;
+    if (initialQuery) {
+        searchQuery.value = initialQuery;
+        search(); // 초기 쿼리로 검색 실행
+    }
+});
 </script>
 
 <style scoped>
