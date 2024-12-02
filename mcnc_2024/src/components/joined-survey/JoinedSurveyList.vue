@@ -8,7 +8,12 @@
             <!-- 설문 목록이 있을 때와 없을 때를 조건부 렌더링 -->
             <div v-if="allSurveys.length === 0 && isLoading" class="loading-spinner"></div>
             <div v-else-if="allSurveys.length > 0" class="survey-list">
-                <SurveyCard v-for="survey in allSurveys" :key="survey.id" :survey="survey" />
+                <SurveyCard 
+                    v-for="survey in allSurveys" 
+                    :key="survey.id" 
+                    :survey="survey" 
+                    @click="navigateToDetail" 
+                />
                 <div ref="observerTarget" class="observer-target" v-show="hasMore">
                     <div v-if="isLoading" class="loading-spinner"></div>
                 </div>
@@ -26,7 +31,7 @@ import { mockJoinedSurveys } from '@/components/mock/MockJoinedSurveys';
 import { ref, onMounted, onUnmounted, watchEffect } from 'vue';
 import SurveyCard from '@/components/common/SurveyCard.vue';
 import SurveyHeader from '@/components/common/SurveyHeader.vue';
-import ToolBar from '@/components/common/ToolBar.vue'
+import ToolBar from '@/components/common/ToolBar.vue';
 
 const router = useRouter();
 
@@ -37,7 +42,6 @@ const isLoading = ref(false);
 const hasMore = ref(true);
 const allSurveys = ref([]);
 let observer = null;
-
 
 // 설문 데이터 가져오기
 const fetchSurveys = async () => {
@@ -64,7 +68,7 @@ const fetchMockData = () =>
     new Promise((resolve) => {
         setTimeout(() => {
             const sortedMockData = mockJoinedSurveys.sort((a, b) => {
-                return new Date(b.expireDate) - new Date(a.expireDate); 
+                return new Date(b.expireDate) - new Date(a.expireDate);
             });
 
             const startIndex = (page.value - 1) * size;
@@ -128,7 +132,11 @@ function goBack() {
 }
 
 function goSearch() {
-    router.push("/joined-survey/search");
+    router.push('/joined-survey/search');
+}
+
+function navigateToDetail() {
+    router.push('/survey-participation-detail');
 }
 </script>
 
