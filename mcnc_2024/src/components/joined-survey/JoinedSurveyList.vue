@@ -9,7 +9,8 @@
         <div class="list-container">
             <v-infinite-scroll v-if="!noResult" :items="surveyList" :onLoad="load" color="var(--primary)">
                 <template v-for="(item, index) in surveyList" :key="item">
-                    <SurveyCard :survey="item" :class="{ 'last-item': index === surveyList.length - 1 }"/>
+                    <SurveyCard :survey="item" :class="{ 'last-item': index === surveyList.length - 1 }"  @click="navigateToDetail" 
+                    />
                 </template>
                 <template v-slot:empty>
                 </template>

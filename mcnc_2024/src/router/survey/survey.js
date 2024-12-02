@@ -23,10 +23,11 @@ const SurveyRoutes = [
         meta: { requiresAuth: true },
     },
     {
-        path: "/survey-detail", 
-        name: "SurveyDetail",
-        component: () => import("../../components/survey-detail/SurveyDetail.vue"),
+        path: "/survey-participation-detail", 
+        name: "SurveyParticipationDetail",
+        component: () => import("../../components/joined-survey/SurveyParticipationDetail.vue"),
         props: true,
+        meta: { requiresAuth: true }, // 필요하다면 인증 required 추가
     },
     {
         path: '/survey-completion',  
