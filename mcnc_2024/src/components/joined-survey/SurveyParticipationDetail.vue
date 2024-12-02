@@ -1,5 +1,5 @@
 <template>
-  <div id="survey-detail" v-if="survey.title && survey.questions.length">
+  <div id="survey-detail" v-if="survey.title && survey.questions && survey.questions.length">
     <header class="toolbar">
       <div class="back-container">
         <img
@@ -21,27 +21,27 @@
       </div>
 
       <div class="survey-item-container">
-        <div v-for="question in survey.questions" :key="question.id" class="survey-item-section">
-          <div class="question-title">{{ question.title }}</div>
+        <div v-for="question in survey.questions" :key="question.quesId" class="survey-item-section">
+          <div class="question-title">{{ question.body }}</div>
           <div class="response">
-            <template v-if="question.type === 'obj_radio'">
+            <template v-if="question.questionType === 'OBJ_SINGLE'">
               <div class="answer-options">
-                <label v-for="option in question.options" :key="option">
-                  <input type="radio" :name="`question-${question.id}`" :value="option" disabled v-model="userAnswers[question.id]" />
-                  {{ option }}
+                <label v-for="option in question.selectionList" :key="option.selectionId.sequence">
+                  <input type="radio" :name="`question-${question.quesId}`" :value="option.body" disabled v-model="userAnswers[question.quesId]" />
+                  {{ option.body }}
                 </label>
               </div>
             </template>
-            <template v-else-if="question.type === 'obj_check'">
+            <template v-else-if="question.questionType === 'OBJ_MULTI'">
               <div class="answer-options">
-                <label v-for="option in question.options" :key="option">
-                  <input type="checkbox" :value="option" disabled v-model="userAnswers[question.id]" />
-                  {{ option }}
+                <label v-for="option in question.selectionList" :key="option.selectionId.sequence">
+                  <input type="checkbox" :value="option.body" disabled v-model="userAnswers[question.quesId]" />
+                  {{ option.body }}
                 </label>
               </div>
             </template>
-            <template v-else-if="question.type === 'subj'">
-              <textarea disabled v-model="userAnswers[question.id]" placeholder="답변을 입력하세요."></textarea>
+            <template v-else-if="question.questionType === 'SUBJECTIVE'">
+              <textarea disabled v-model="userAnswers[question.quesId]" placeholder="답변을 입력하세요."></textarea>
             </template>
           </div>
         </div>
@@ -53,7 +53,7 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { mockUserSurveyData } from '../mock/MockUserSurveyData';
+import { surveyData } from '../mock/MockUserSurveyData'; // 데이터 임포트
 
 const router = useRouter();
 
@@ -65,26 +65,28 @@ const survey = ref({
   endDate: '',
   questions: [],
 });
+
 const userAnswers = ref({});
 
-// 설문 데이터 API 호출 함수
-const getSurveyDataById = async () => {
-  return new Promise((resolve) =>
-    setTimeout(() => {
-      resolve(mockUserSurveyData); // ID로 필터링 가능
-    }, 500)
-  );
-};
+// 설문 데이터 가져오기
+const fetchSurveyData = () => {
+  // surveyData는 mock 데이터로 직접 설정
+  const fetchedSurvey = surveyData;
 
-// 데이터 가져오기
-const fetchSurveyData = async () => {
-  try {
-    const fetchedSurvey = await getSurveyDataById();
-    survey.value = fetchedSurvey;
-    userAnswers.value = fetchedSurvey.responses || {};
-  } catch (error) {
-    console.error('Failed to fetch survey data:', error);
-  }
+  // survey와 userAnswers를 맞게 설정
+  survey.value = {
+    title: fetchedSurvey.title,
+    description: fetchedSurvey.description,
+    startDate: fetchedSurvey.createDate,
+    endDate: fetchedSurvey.expireDate,
+    questions: fetchedSurvey.questionList, // questionList를 질문 배열로 사용
+  };
+
+  // userAnswers를 설정 (사용자가 답변한 항목)
+  userAnswers.value = fetchedSurvey.questionList.reduce((acc, question) => {
+    acc[question.quesId] = question.userResponse || (question.questionType === 'OBJ_MULTI' ? [] : '');
+    return acc;
+  }, {});
 };
 
 // 뒤로 가기 함수
@@ -101,16 +103,6 @@ const formatDate = (dateStr) => {
 // 컴포넌트 마운트 시 데이터 가져오기
 fetchSurveyData();
 </script>
-
-<style scoped>
-/* 스타일은 기존 그대로 유지 */
-.no-data-message {
-  text-align: center;
-  font-size: 1.5rem;
-  color: #888;
-  margin-top: 20px;
-}
-</style>
 
 <style scoped>
 #survey-detail {
