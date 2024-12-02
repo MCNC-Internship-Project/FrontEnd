@@ -57,8 +57,8 @@ const goBack = () => {
     router.back();
 }
 
-const name = ref("username");
-const email = ref("email@email.com");
+const name = ref("");
+const email = ref("");
 const items = ref([
     { title: '프로필 수정' },
     { title: '생성한 설문 보기' },
