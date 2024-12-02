@@ -43,7 +43,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios';
 
@@ -103,6 +103,22 @@ const showErrorDialog = (message) => {
     dialogMessage.value = message
     showCancelDialog.value = true
 }
+
+onMounted(() => {
+    axios.get(`${baseUrl}/account/profile`, {
+        withCredentials: true,
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then((response) => {
+        name.value = response.data.name;
+        email.value = response.data.email;
+    })
+    .catch((error) => {
+        console.error(error);
+    });
+})
 </script>
 
 <style scoped>
@@ -140,14 +156,13 @@ const showErrorDialog = (message) => {
 }
 
 .username {
-    margin-top: 16px;
+    margin-top: 24px;
     font-size: 1.25rem;
     font-weight: bold;
     color: #1F2024;
 }
 
 .email {
-    margin-top: 4px;
     font-size: 1rem;
     color: #71727A;
 }
