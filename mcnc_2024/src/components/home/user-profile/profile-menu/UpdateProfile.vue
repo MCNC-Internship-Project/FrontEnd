@@ -13,7 +13,7 @@
             <div class="profile-container">
                 <div class="text">사용자명</div>
                 <div class="input-container">
-                    <input class="input" type="text" placeholder="사용자명" v-model="profileData.username" />
+                    <input class="input" type="text" placeholder="사용자명" v-model="profileData.name" />
                     <v-divider></v-divider>
                 </div>
             </div>
@@ -37,7 +37,7 @@
             <div class="profile-container">
                 <div class="text">생년월일</div>
                 <div class="input-container">
-                    <input class="input" type="text" placeholder="생년월일" :value="formatDate(profileData.birthDate)" disabled />
+                    <input class="input" type="text" placeholder="생년월일" :value="dayjs(profileData.birth).format('YYYY년 M월 D일')" disabled />
                     <v-divider></v-divider>
                 </div>
             </div>
@@ -45,42 +45,136 @@
             <div class="profile-container">
                 <div class="text">성별</div>
                 <div class="input-container">
-                    <input class="input" type="text" placeholder="성별" :value="profileData.gender" disabled />
+                    <input class="input" type="text" placeholder="성별" :value="profileData.gender === 'M' ? '남성' : '여성'" disabled />
                 </div>
             </div>
         </div>
+
+        <v-dialog v-model="showDialog" max-width="400">
+            <v-card>
+                <div class="dialog-container">
+                    <div class="dialog-error-message">{{ dialogMessage }}</div>
+                </div>
+                <v-card-actions>
+                    <v-btn color="primary" text @click="showDialog = false">
+                        확인
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+
+        <v-dialog v-model="showCompleteDialog" max-width="400">
+            <v-card>
+                <div class="dialog-container">
+                    <div class="dialog-error-message">{{ dialogMessage }}</div>
+                </div>
+                <v-card-actions>
+                    <v-btn color="primary" text @click="showCompleteDialog = false; goBack()">
+                        확인
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
     </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
+import axios from 'axios';
 
+import dayjs from 'dayjs'
+
+const baseUrl = process.env.VUE_APP_API_URL;
 const router = useRouter();
+
+const showDialog = ref(false)
+const showCompleteDialog = ref(false)
+const dialogMessage = ref("")
+
+const showErrorDialog = (message) => {
+    dialogMessage.value = message
+    showDialog.value = true
+}
+
+const showCompletedDialog = (message) => {
+    dialogMessage.value = message
+    showCompleteDialog.value = true
+}
 
 const goBack = () => {
     router.back();
 }
 
-const editComplete = () => {
-    router.back();
-}
-
 const profileData = ref({
-    username: '홍길동',
-    email: 'email@email.com',
-    userId: 'userId',
-    birthDate: '2000-01-01',
-    gender: '남성'
+    name: null,
+    email: null,
+    userId: null,
+    birth: null,
+    gender: null
 });
 
-function formatDate(dateStr) {
-    const date = new Date(dateStr);
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1);
-    const day = String(date.getDate());
-    return `${year}년 ${month}월  ${day}일`;
+const updateData = ref({
+    name: null,
+    email: null
+})
+
+const editComplete = () => {
+    if (!profileData.value.name || profileData.value.name.trim() === "") {
+        showErrorDialog('사용자명을 입력해주세요.');
+        return;
+    }
+
+    if (!profileData.value.name.match(/^[a-zA-Z가-힣 ]{2,50}$/)) {
+        showErrorDialog('사용자명은 특수문자를 제외한 2~50자로 입력해주세요.');
+        return;
+    }
+
+    if (!profileData.value.email || profileData.value.email.trim() === "") {
+        showErrorDialog('이메일을 입력해주세요.');
+        return;
+    }
+
+    if (!profileData.value.email.match(/^[_A-Za-z0-9-+]+(\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\.[A-Za-z0-9]+)*(\.[A-Za-z]{2,})$/)) {
+        showErrorDialog('이메일 형식이 올바르지 않습니다.');
+        return;
+    }
+
+    axios.post(`${baseUrl}/account/modify/profile`, JSON.stringify(updateData.value), {
+        withCredentials: true,
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })    
+        .then(() => {
+            showCompletedDialog("프로필 수정이 완료되었습니다.");
+        })
+        .catch(() => {
+            showErrorDialog("프로필 수정에 실패했습니다.");
+        });
 }
+
+watch(profileData, (newVal) => {
+    updateData.value = {
+        name: newVal.name,
+        email: newVal.email
+    }
+}, { deep: true });
+
+onMounted(() => {
+    axios.get(`${baseUrl}/account/profile`, {
+        withCredentials: true,
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })    
+        .then((response) => {
+            profileData.value = response.data;
+        })
+        .catch((error) => {
+            console.error(error);
+        });
+});
 </script>
 
 <style scoped>
@@ -184,5 +278,44 @@ function formatDate(dateStr) {
     width: 100%;
     height: 1px;
     background-color: #D4D6DD;
+}
+
+.v-card {
+    padding: 0;
+    border-radius: 16px !important;
+}
+
+.dialog-background {
+    background-color: #FAF8F8;
+    border: 1px solid #EFF0F6;
+}
+
+.dialog-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 32px 20px 32px;
+}
+
+.dialog-error-message {
+    margin: 32px 0 16px 0;
+    font-size: 1.125rem;
+    font-weight: bold;
+    color: #757576;
+}
+
+.v-card-actions {
+    padding: 20px;
+}
+
+.v-btn {
+    width: 100%;
+    margin: 0;
+    color: #FFFFFF !important;
+    background-color: var(--primary);
+    border-radius: 16px;
+    height: 48px;
+    font-size: 0.875rem;
 }
 </style>

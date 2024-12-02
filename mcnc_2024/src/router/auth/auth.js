@@ -12,6 +12,11 @@ const authRoutes = [
         name : "SignUp",
         component : () => import("../../components/auth/SignUpComponent.vue")
     },
+    {
+        path : "/find-password",
+        name : "FindPassword",
+        component : () => import("../../components/auth/FindPasswordComponent.vue")
+    }
 ];
 
 export default authRoutes;

@@ -1,5 +1,9 @@
 <template>
     <div class="survey-completion">
+
+      <header class="toolbar">
+            <img class="back" src="@/assets/images/icon_arrow_left.svg" alt="back" @click="goBack">
+      </header>
         
       <!-- 설문 정보 섹션 추가 -->
       <div class="survey-section">
@@ -34,15 +38,40 @@
   
   const router = useRouter();
   
+  const goBack = () => {
+    router.back();
+  }
+
   const goBackToHome = () => {
-    router.push('/');  // 홈 페이지로 돌아가기
+    router.replace('/');
   };
   </script>
   
   <style scoped>
+    .toolbar {
+      position: fixed;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      height: 64px;
+      background-color: #fff;
+      z-index: 50;
+      top: 0;
+      left: 0;
+      right: 0;
+  }
+
+  .back {
+      width: 20px;
+      height: 20px;
+      margin-left: 24px;
+      cursor: pointer;
+  }
+
   .survey-completion {
     text-align: center;
-    margin-top: 35px;
+    margin-top: 92px;
     padding: 0 24px;
   }
   
@@ -87,21 +116,19 @@
   .completion-message {
     font-weight: bold;
     color: #374957;
-    margin-top: 8em; 
+    margin-top: 40px; 
   }
 
   .p1 {
     font-weight: bold;
   }
-
-  img {
-    padding-top: 20px;
-  }
   
   button {
     background-color: #7796E8;
     color: white;
-    padding: 10px 20px;
+    font-size : 1rem;
+    font-weight : bold;
+    padding: 12px 24px;
     margin-top: 50px;
     border: none;
     border-radius: 15px;

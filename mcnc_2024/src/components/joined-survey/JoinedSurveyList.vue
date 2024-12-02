@@ -1,24 +1,21 @@
 <template>
     <div class="root-container">
-        <ToolBar @goBack="goBack">
-            <SurveyHeader title="참여한 설문" @goSearch="goSearch" />
+        <div class="background"></div>
+
+        <ToolBar @goBack="goBack" backgroundColor="#FFE6EB" zIndex="1000">
+            <SurveyHeader title="참여한 설문조사" @goSearch="goSearch" />
         </ToolBar>
 
-        <div class="survey-container">
-            <!-- 설문 목록이 있을 때와 없을 때를 조건부 렌더링 -->
-            <div v-if="allSurveys.length === 0 && isLoading" class="loading-spinner"></div>
-            <div v-else-if="allSurveys.length > 0" class="survey-list">
-                <SurveyCard 
-                    v-for="survey in allSurveys" 
-                    :key="survey.id" 
-                    :survey="survey" 
-                    @click="navigateToDetail" 
-                />
-                <div ref="observerTarget" class="observer-target" v-show="hasMore">
-                    <div v-if="isLoading" class="loading-spinner"></div>
-                </div>
-            </div>
-            <div class="survey-none" v-else>
+        <div class="list-container">
+            <v-infinite-scroll v-if="!noResult" :items="surveyList" :onLoad="load" color="var(--primary)">
+                <template v-for="(item, index) in surveyList" :key="item">
+                    <SurveyCard :survey="item" :class="{ 'last-item': index === surveyList.length - 1 }"  @click="navigateToDetail" 
+                    />
+                </template>
+                <template v-slot:empty>
+                </template>
+            </v-infinite-scroll>
+            <div class="list-none" v-else>
                 <p>아직 참여한 설문이 없습니다.</p>
             </div>
         </div>
@@ -26,186 +23,130 @@
 </template>
 
 <script setup>
+import { ref } from 'vue'
+import axios from 'axios';
 import { useRouter } from 'vue-router';
-import { mockJoinedSurveys } from '@/components/mock/MockJoinedSurveys';
-import { ref, onMounted, onUnmounted, watchEffect } from 'vue';
-import SurveyCard from '@/components/common/SurveyCard.vue';
+
+import ToolBar from '@/components/common/ToolBar.vue'
 import SurveyHeader from '@/components/common/SurveyHeader.vue';
-import ToolBar from '@/components/common/ToolBar.vue';
+import SurveyCard from '@/components/common/SurveyCard.vue';
+
+const baseUrl = process.env.VUE_APP_API_URL;
 
 const router = useRouter();
 
-const observerTarget = ref(null);
-const page = ref(1);
-const size = 5;
-const isLoading = ref(false);
-const hasMore = ref(true);
-const allSurveys = ref([]);
-let observer = null;
+const currentPage = ref(0);
+const size = 10;
 
-// 설문 데이터 가져오기
-const fetchSurveys = async () => {
-    if (isLoading.value || !hasMore.value) return;
+const surveyList = ref([]);
+const noResult = ref(false);
 
-    isLoading.value = true;
-
-    try {
-        const response = await fetchMockData();
-        if (response.length < size) {
-            hasMore.value = false;
-        }
-        allSurveys.value.push(...response);
-        page.value++;
-    } catch (error) {
-        console.error('설문 데이터를 불러오는 중 오류 발생:', error);
-    } finally {
-        isLoading.value = false;
-    }
-};
-
-// Mock 데이터 가져오기
-const fetchMockData = () =>
-    new Promise((resolve) => {
-        setTimeout(() => {
-            const sortedMockData = mockJoinedSurveys.sort((a, b) => {
-                return new Date(b.expireDate) - new Date(a.expireDate);
-            });
-
-            const startIndex = (page.value - 1) * size;
-            const mockData = sortedMockData.slice(startIndex, startIndex + size).map((survey) => ({
-                id: survey.surveyId,
-                title: survey.title,
-                description: survey.description,
-                creator: survey.creator,
-                status: new Date(survey.expireDate) > new Date() ? '진행중' : '종료',
-                createDate: new Date(survey.createDate),
-                expireDate: new Date(survey.expireDate),
-                creationInfo: `${survey.creator} | ${survey.createDate.split('T')[0]} ~ ${survey.expireDate.split('T')[0]}`,
-            }));
-
-            resolve(mockData);
-        }, 500);
-    });
-
-// Intersection Observer 초기화
-const initializeObserver = () => {
-    observer = new IntersectionObserver(
-        (entries) => {
-            const target = entries[0];
-            if (target.isIntersecting && !isLoading.value && hasMore.value) {
-                fetchSurveys();
-            }
-        },
-        {
-            root: null,
-            rootMargin: '100px',
-            threshold: 0.1,
-        }
-    );
-
-    if (observerTarget.value) {
-        observer.observe(observerTarget.value);
-    }
-};
-
-// Observer 감시
-watchEffect(() => {
-    if (observerTarget.value) {
-        initializeObserver();
-    }
-});
-
-// Cleanup
-onMounted(() => {
-    fetchSurveys();
-    initializeObserver();
-});
-
-onUnmounted(() => {
-    if (observer) {
-        observer.disconnect();
-    }
-});
-
-function goBack() {
+const goBack = () => {
     router.back();
 }
 
-function goSearch() {
-    router.push('/joined-survey/search');
+const goSearch = () => {
+    router.push("/joined-survey/search");
 }
 
-function navigateToDetail() {
-    router.push('/survey-participation-detail');
+async function api() {
+    try {
+        const response = await axios.get(`${baseUrl}/survey/inquiry/respond`, {
+            withCredentials: true,
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            params: {
+                page: currentPage.value,
+                size: size,
+            }
+        });
+
+        noResult.value = response.data.content.length === 0;
+        return response.data;
+    } catch (error) {
+        console.error(error);
+        return [];
+    }
+}
+
+async function load({ done }) {
+    try {
+        const res = await api();
+        surveyList.value.push(...res.content);
+
+        console.log(surveyList.value);
+
+        if (res.totalPages !== currentPage.value + 1) {
+            currentPage.value++;
+            done('ok');
+        } else {
+            done('empty');
+        }
+    } catch (error) {
+        console.error(error);
+        done('error');
+    }
 }
 </script>
 
 <style scoped>
 .root-container {
     width: 100%;
-    background-image: url('../../assets/images/background_pink.svg');
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('@/assets/images/background_pink.svg');
     background-repeat: repeat-x;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    transform: translateZ(0);
+    will-change: transform;
+    z-index: -1;
 }
-.survey-container {
+
+.v-fab {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+}
+
+.list-container {
     width: 100%;
-    height: calc(100vh - 40px); 
     display: flex;
-    justify-content: center;
-    align-items: center;
     flex-direction: column;
-    margin-top: 40px;
-    overflow: hidden; 
+    justify-content: center;
+    margin-top: 64px;
+    padding: 4px 0;
 }
-.survey-list {
+
+.v-infinite-scroll {
     width: 100%;
-    height: 100%;
-    flex: 1; 
-    display: flex;
-    overflow-y: auto; 
-    margin-top: 24px;
-    padding: 4px 24px;
-    flex-direction: column;
-    gap: 12px;
+    overflow: hidden;
 }
-.survey-none {
-    height: 100%;
+
+:deep(.v-infinite-scroll__side:first-child) {
+    display: none;
+}
+
+.list-none {
+    width: 100%;
+    height: calc(var(--vh, 1vh) * 100 - 72px);
     display: flex;
     justify-content: center;
     align-items: center;
-    text-align: center;
-    color: #A2A2A3;
-    font-size: 1rem;
+    font-size: 1.125remrem;
     font-weight: bold;
+    color: #A2A2A3;
 }
 
-.observer-target {
-    width: 100%;
-    height: 20px;
-    margin-top: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.loading-spinner {
-    border: 4px solid rgba(0, 0, 0, 0.1);
-    border-left-color: #A2A2A3;
-    border-radius: 50%;
-    width: 30px;
-    height: 30px;
-    animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    0% {
-        transform: rotate(0deg);
-    }
-
-    100% {
-        transform: rotate(360deg);
-    }
+.last-item {
+    margin-bottom: 0;
 }
 </style>

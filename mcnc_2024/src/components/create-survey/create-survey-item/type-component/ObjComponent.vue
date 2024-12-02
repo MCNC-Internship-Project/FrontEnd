@@ -121,6 +121,7 @@ const getValue = () => {
     checkEmptyValueArray.forEach((value, index) => {
         if (value === "") {
             totalItem.value[index].hasError = true;
+            totalItem.value[index].value = "";
 
             if (firstEmptyIndex === -1) {
                 firstEmptyIndex = index;
