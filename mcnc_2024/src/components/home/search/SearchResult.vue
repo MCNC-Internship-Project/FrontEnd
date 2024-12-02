@@ -242,7 +242,7 @@ onMounted(() => {
     flex-direction: column;
     justify-content: center;
     margin-top: 64px;
-    padding: 0 20px 4px 20px;
+    padding: 4px 20px;
 }
 
 .search-result-text {
@@ -260,6 +260,10 @@ onMounted(() => {
     overflow: hidden;
 }
 
+:deep(.v-infinite-scroll__side:first-child) {
+    display: none;
+}
+
 .search-result-item-container {
     display: flex;
     flex-direction: column;
@@ -267,7 +271,7 @@ onMounted(() => {
     height: 160px;
     padding: 20px;
     margin-bottom: 16px;
-    border: 2px solid #F3F3F3;
+    border: 1px solid #F3F3F3;
     border-radius: 12px;
     background-color: #FFF;
     cursor: pointer;
@@ -318,6 +322,7 @@ onMounted(() => {
     margin-left: auto;
     flex-shrink: 0;
     font-size: 0.875rem;
+    font-weight: bold;
     color: var(--primary);
 }
 
@@ -328,8 +333,8 @@ onMounted(() => {
 .item-description {
     display: -webkit-box;
     width: 100%;
-    margin-top: 12px;
-    font-size: 0.875rem;
+    margin-top: 8px;
+    font-size: 1rem;
     color: #8D8D8D;
     text-overflow: ellipsis;
     overflow: hidden;
