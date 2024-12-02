@@ -1,12 +1,18 @@
 <template>
     <div class="header">
-        <div class="title">설문지 목록</div>
+        <div class="title">{{ title }}</div>
         <button class="search-btn" @click="$emit('goSearch')">검색</button>
     </div>
 </template>
 
 <script setup>
-import { defineEmits } from 'vue';
+import { defineEmits, defineProps } from 'vue';
+
+defineProps({
+    title: {
+        type: String,
+    },
+});
 
 defineEmits(["goSearch"]);
 </script>

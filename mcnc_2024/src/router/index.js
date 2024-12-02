@@ -21,7 +21,6 @@ const router = createRouter({
 
 // // 라우트 가드 설정
 // router.beforeEach((to, from, next) => {
-//   // 로그인 페이지는 항상 통과
 //   if (to.path === '/login') {
 //     next();
 //   } else if (to.meta.requiresAuth) {
@@ -33,16 +32,30 @@ const router = createRouter({
 //       })
 //       .then((response) => {
 //           if (response.status === 200) {
-//             next(); // 세션이 있으면 통과
+
+//             if(to.path.includes("/create-survey") || to.path.includes("/update-survey")) {
+//               window.addEventListener('beforeunload', handleBeforeUnload);
+//             } else {
+//               window.removeEventListener('beforeunload', handleBeforeUnload);
+//             }
+
+//             next();
 //           }
 //       })
 //       .catch(error => {
 //         console.log(error)
-//         next('/login'); // 세션이 없으면 로그인 페이지로 리디렉션
+//         next('/login');
 //       })
 //   } else {
-//     next(); // 인증이 필요 없는 페이지는 통과
+//     next();
 //   }
 // });
+
+// function handleBeforeUnload(event) {
+//   const confirmationMessage = 'Are you sure you want to leave this page? Changes may not be saved.';
+//   event.preventDefault();
+//   event.returnValue = confirmationMessage;
+//   return confirmationMessage;
+// }
 
 export default router;
