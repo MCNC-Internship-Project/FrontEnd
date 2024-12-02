@@ -47,7 +47,7 @@ const secretKey = process.env.VUE_APP_API_KEY;
 
 const searchQuery = ref('');
 const currentPage = ref(0);
-const size = 5;
+const size = 10;
 
 const surveyList = ref([]);
 const isFirstLoad = ref(true);
