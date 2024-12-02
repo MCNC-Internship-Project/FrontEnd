@@ -36,17 +36,27 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router';
 import axios from 'axios';
+import CryptoJS from 'crypto-js';
 
 import dayjs from 'dayjs'
 
+const secretKey = process.env.VUE_APP_API_KEY;
 const baseUrl = process.env.VUE_APP_API_URL;
 const router = useRouter();
 
 const surveys = ref([])
 const onLoading = ref(true)
 
+const encryptId = (id) => {
+    return CryptoJS.AES.encrypt(id.toString(), secretKey).toString();
+}
+
 const onItemClick = (survey) => {
-    console.log(`surveyId: ${survey.surveyId} 클릭`);
+    const id = survey.surveyId;
+    router.push({
+        name : "SurveyParticipationDetail",
+        params : { id : encryptId(id)}
+    })
 };
 
 const formatDate = (startDate, endDate) => {

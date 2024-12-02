@@ -160,5 +160,6 @@ const goBack = () => {
     font-weight : bold;
     color : #fff;
     background-color: #7796E8;
+    cursor : pointer;
 }
 </style>
