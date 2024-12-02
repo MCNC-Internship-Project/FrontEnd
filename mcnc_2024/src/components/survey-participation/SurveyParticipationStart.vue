@@ -1,7 +1,7 @@
 <template>
-    <div id="root-container">
+    <div v-if="isExpired" id="root-container">
         <header class="toolbar">
-            <img class="back" src="@/assets/images/icon_arrow_left.svg" alt="back" @click="showCancelDialog = true">
+            <img class="back" src="@/assets/images/icon_arrow_left.svg" alt="back" @click="goBack">
         </header>
 
         <div class="content-container">
@@ -26,10 +26,45 @@
             </div>
         </div>
     </div>
+
+    <survey-expired v-else/>
 </template>
 
 <script setup>
-    
+import SurveyExpired from './SurveyExpired.vue';
+import { useRouter } from 'vue-router';
+import { ref, defineProps, onMounted } from 'vue';
+import CryptoJS from 'crypto-js';
+
+const props = defineProps({
+    id: String,
+    isExpiredValue : String,
+})
+
+const secretKey = process.env.VUE_APP_API_KEY;
+// const baseUrl = process.env.VUE_APP_API_URL;
+
+const router = useRouter();
+
+const isExpired = ref(true);
+
+// const encryptId = (id) => {
+//     return CryptoJS.AES.encrypt(id.toString(), secretKey).toString();
+// }
+
+const decryptId = (encryptedId) => {
+    const bytes = CryptoJS.AES.decrypt(encryptedId, secretKey);
+    return bytes.toString(CryptoJS.enc.Utf8);
+}
+
+// expireDateValid 값에 따라 SurveyParticipationStart나 SurveyExpire로 분기
+onMounted(() => {
+    isExpired.value = decryptId(props.isExpiredValue) === "true" ? true : false;
+})
+
+const goBack = () => {
+    router.back();
+}
 </script>
 
 <style scoped>
