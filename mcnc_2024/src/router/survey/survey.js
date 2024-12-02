@@ -35,7 +35,7 @@ const SurveyRoutes = [
         meta: { requiresAuth: true },
     },
     {
-        path: '/:id/:isExpiredValue/survey-start',
+        path: '/:id/:surveyDetailValues/survey-start',
         name: 'SurveyStart',
         props: true,
         component: () => import('@/components/survey-participation/SurveyParticipationStart.vue'),

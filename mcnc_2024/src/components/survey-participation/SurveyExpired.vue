@@ -13,7 +13,7 @@
           </h1>
           <p class="survey-description">{{ survey.description }}</p>
         </div>
-        <p class="survey-period">2024.11.13 ~ 2024.11.26</p>
+        <p class="survey-period">{{ dayjs(surveyValues.createDate).format("YYYY.MM.DD") }} ~ {{ dayjs(surveyValues.expireDate).format("YYYY.MM.DD") }}</p>
       </div>
   
       <!-- 참여 완료 메시지 -->
@@ -28,12 +28,17 @@
   
   <script setup>
   import { useRouter } from 'vue-router';
-  import { ref } from 'vue';
-  
+  import { ref, defineProps } from 'vue';
+  import dayjs from 'dayjs';
+
+  const props = defineProps({
+    surveyValues : Object,
+  })
+
   // 설문 정보 추가
   const survey = ref({
-    title: '설문조사 제목',
-    description: '설문지 설명',
+    title: props.surveyValues.title,
+    description: props.surveyValues.description,
   });
   
   const router = useRouter();
@@ -104,6 +109,10 @@
     font-size: 1rem;
     font-weight: bold;
     color: #C1C3C5;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    word-break: break-word;
+    white-space: nowrap;
   }
   
   .survey-period {

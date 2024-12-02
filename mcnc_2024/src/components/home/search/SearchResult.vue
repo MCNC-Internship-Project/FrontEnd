@@ -14,7 +14,14 @@
             <v-infinite-scroll v-if="surveyList.length > 0" :items="surveyList" :onLoad="load" color="var(--primary)">
                 <template v-for="(item, index) in surveyList" :key="item">
                     <div class="search-result-item-container" :class="{ 'last-item': index === surveyList.length - 1 }"
-                        v-ripple @click="goToDetail(item.surveyId, item.expireDateValid)">
+                        v-ripple @click="goToDetail(item.surveyId,
+                        {surveyDetailValues : {
+                            title : item.title,
+                            description : item.description,
+                            createDate : item.createDate,
+                            expireDate : item.expireDate,
+                            isExpiredValue : item.expireDateValid,
+                        }})">
                         <div class="item-header-container">
                             <div class="item-title">{{ item.title }}</div>
                             <div class="item-expire" :class="{ 'expired': !item.expireDateValid }">{{ remainTime(item.expireDate) }}</div>
@@ -148,7 +155,7 @@ async function load({ done }) {
     }
 }
 
-const goToDetail = (surveyId, isExpired) => {
+const goToDetail = (surveyId, surveyDetailValues) => {
     axios.get(`${baseUrl}/survey/inquiry/check/${surveyId}`, {
             withCredentials: true,
             headers: {
@@ -166,7 +173,7 @@ const goToDetail = (surveyId, isExpired) => {
             } else {
                 router.push({
                     name: "SurveyStart",
-                    params: { id: encryptId(surveyId), isExpiredValue : encryptId(isExpired) },
+                    params: { id: encryptId(surveyId), surveyDetailValues : encryptId(JSON.stringify(surveyDetailValues)) },
                 });
             }
         })

@@ -7,16 +7,16 @@
         <div class="content-container">
             <div class="expire-date-continer">
                 <div class="date-section">
-                    2024.01.01 ~ 2024.12.31
+                    {{ dayjs(createDate).format("YYYY.MM.DD") }} ~ {{ dayjs(expireDate).format("YYYY.MM.DD") }}
                 </div>
             </div>
 
             <div class="title-section">
-                설문조사 제목
+                {{ title }}
             </div>
 
             <div class="description-section">
-                설문지 설명
+                {{ description }}
             </div>
 
             <div class="participate-btn-container">
@@ -27,7 +27,7 @@
         </div>
     </div>
 
-    <survey-expired v-else/>
+    <survey-expired :surveyValues="sendDataToChild" v-else/>
 </template>
 
 <script setup>
@@ -35,10 +35,11 @@ import SurveyExpired from './SurveyExpired.vue';
 import { useRouter } from 'vue-router';
 import { ref, defineProps, onMounted } from 'vue';
 import CryptoJS from 'crypto-js';
+import dayjs from 'dayjs';
 
 const props = defineProps({
     id: String,
-    isExpiredValue : String,
+    surveyDetailValues : String,
 })
 
 const secretKey = process.env.VUE_APP_API_KEY;
@@ -46,7 +47,12 @@ const secretKey = process.env.VUE_APP_API_KEY;
 
 const router = useRouter();
 
+const title = ref("");
+const description = ref("");
+const createDate = ref("");
+const expireDate = ref("");
 const isExpired = ref(true);
+const sendDataToChild = ref(null);
 
 // const encryptId = (id) => {
 //     return CryptoJS.AES.encrypt(id.toString(), secretKey).toString();
@@ -59,7 +65,16 @@ const decryptId = (encryptedId) => {
 
 // expireDateValid 값에 따라 SurveyParticipationStart나 SurveyExpire로 분기
 onMounted(() => {
-    isExpired.value = decryptId(props.isExpiredValue) === "true" ? true : false;
+    const surveyDetailValues = JSON.parse(decryptId(props.surveyDetailValues)).surveyDetailValues;
+    title.value = surveyDetailValues.title;
+    description.value = surveyDetailValues.description;
+    createDate.value = surveyDetailValues.createDate;
+    expireDate.value = surveyDetailValues.expireDate;
+    isExpired.value = surveyDetailValues.isExpiredValue;
+
+    if(!isExpired.value) {
+        sendDataToChild.value = surveyDetailValues;
+    }
 })
 
 const goBack = () => {
