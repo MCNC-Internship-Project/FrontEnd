@@ -13,7 +13,7 @@
             <div v-if="isFirstLoad" class="search-result-text">검색어를 입력해주세요.</div>
             <v-infinite-scroll v-if="surveyList.length > 0" :items="surveyList" :onLoad="load" color="var(--primary)">
                 <template v-for="(item, index) in surveyList" :key="item">
-                    <div class="search-result-item-container" :class="{ 'last-item': index === surveyList.length - 1, 'border-not-expired': item.expireDateValid, 'border-expired': !item.expireDateValid }"
+                    <div class="search-result-item-container" :class="{ 'last-item': index === surveyList.length - 1 }"
                         v-ripple @click="goToDetail(item.surveyId, item.expireDateValid)">
                         <div class="item-header-container">
                             <div class="item-title">{{ item.title }}</div>
@@ -47,7 +47,7 @@ const secretKey = process.env.VUE_APP_API_KEY;
 
 const searchQuery = ref('');
 const currentPage = ref(0);
-const size = 5;
+const size = 10;
 
 const surveyList = ref([]);
 const isFirstLoad = ref(true);
@@ -262,7 +262,7 @@ onMounted(() => {
     flex-direction: column;
     justify-content: center;
     margin-top: 64px;
-    padding: 0 20px 4px 20px;
+    padding: 4px 0;
 }
 
 .search-result-text {
@@ -280,14 +280,19 @@ onMounted(() => {
     overflow: hidden;
 }
 
+:deep(.v-infinite-scroll__side:first-child) {
+    display: none;
+}
+
 .search-result-item-container {
     display: flex;
     flex-direction: column;
-    width: 100%;
     height: 160px;
     padding: 20px;
-    margin-bottom: 16px;
-    border: 2px solid #F3F3F3;
+    margin: 0 20px 12px 20px;
+    background-color: #FFF;
+    border: 1px solid #EFF0F6;
+    box-shadow: 0px 5px 16px rgba(8, 15, 52, 0.08);
     border-radius: 12px;
     background-color: #FFF;
     cursor: pointer;
@@ -338,6 +343,7 @@ onMounted(() => {
     margin-left: auto;
     flex-shrink: 0;
     font-size: 0.875rem;
+    font-weight: bold;
     color: var(--primary);
 }
 
@@ -348,8 +354,8 @@ onMounted(() => {
 .item-description {
     display: -webkit-box;
     width: 100%;
-    margin-top: 12px;
-    font-size: 0.875rem;
+    margin-top: 8px;
+    font-size: 1rem;
     color: #8D8D8D;
     text-overflow: ellipsis;
     overflow: hidden;
