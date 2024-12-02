@@ -389,8 +389,9 @@ const handleSubmit = () => {
     const description = surveyDescription.value.trim();
     let valid = true;
 
-    if (!title) {
+    if (!title || title.length === 0) {
         titleError.value = true
+        surveyTitle.value = "";
         valid = false;
         isShowSaveModal.value = false;
     }

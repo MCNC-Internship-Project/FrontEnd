@@ -180,6 +180,8 @@ ul {
     height: 168px;
     margin-right: 16px;
     border-radius: 12px;
+    background-color: #FFF;
+    border: 1px solid #EFF0F6;
     box-shadow: 0px 5px 16px rgba(8, 15, 52, 0.08);
     cursor: pointer;
 }

@@ -95,6 +95,7 @@ const getValue = () => {
 
     // 제목 검사
     if (!surveyTitle.value.trim()) {
+        surveyTitle.value = "";
         titleError.value = true;
         hasError.value = true;
         isValid = false;
