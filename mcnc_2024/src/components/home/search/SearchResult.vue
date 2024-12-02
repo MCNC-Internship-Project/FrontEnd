@@ -13,10 +13,9 @@
             <div v-if="isFirstLoad" class="search-result-text">검색어를 입력해주세요.</div>
             <v-infinite-scroll v-if="surveyList.length > 0" :items="surveyList" :onLoad="load" color="var(--primary)">
                 <template v-for="(item, index) in surveyList" :key="item">
-                    <div class="search-result-item-container" :class="{ 'last-item': index === surveyList.length - 1 }"
+                    <div class="search-result-item-container" :class="{ 'last-item': index === surveyList.length - 1, 'border-not-expired': item.expireDateValid, 'border-expired': !item.expireDateValid }"
                         v-ripple @click="goToDetail(item.surveyId)">
                         <div class="item-header-container">
-                            <img class="item-img-expire" :src="changeIcon(item.expireDateValid)" alt="survey status icon" />
                             <div class="item-title">{{ item.title }}</div>
                             <div class="item-expire" :class="{ 'expired': !item.expireDateValid }">{{ remainTime(item.expireDate) }}</div>
                         </div>
@@ -40,9 +39,6 @@ import { ref, onMounted } from 'vue'
 import axios from 'axios';
 import { useRouter } from 'vue-router';
 import CryptoJS from 'crypto-js';
-
-import iconTrianglePrimary from '@/assets/images/icon_triangle_primary.svg';
-import iconProfileGray from '@/assets/images/icon_triangle_gray.svg';
 
 const router = useRouter();
 
@@ -159,10 +155,6 @@ const goToDetail = (surveyId) => {
     });
 }
 
-const changeIcon = (isExpired) => {
-    return isExpired ? iconTrianglePrimary : iconProfileGray;
-}
-
 const remainTime = (date) => {
     const now = new Date();
     const expireDate = new Date(date);
@@ -258,9 +250,9 @@ onMounted(() => {
     display: flex;
     justify-content: center;
     align-items: center;
+    font-size: 1.125rem;
     font-weight: bold;
     color: #ABABB6;
-    font-size: 1.125rem;
 }
 
 .v-infinite-scroll {
@@ -273,12 +265,20 @@ onMounted(() => {
     flex-direction: column;
     width: 100%;
     height: 160px;
-    background-color: #FFF;
-    border-radius: 12px;
+    padding: 20px;
     margin-bottom: 16px;
     border: 2px solid #F3F3F3;
-    padding: 20px;
+    border-radius: 12px;
+    background-color: #FFF;
     cursor: pointer;
+}
+
+.border-not-expired {
+    border-color: var(--primary);
+}
+
+.border-expired {
+    border-color: #B0B0B0;
 }
 
 .last-item {
@@ -304,9 +304,10 @@ onMounted(() => {
 
 .item-title {
     width: 100%;
+    margin-right: 12px;
     font-size: 1rem;
+    font-weight: bold;
     color: #464748;
-    margin: 0 12px;
     text-overflow: ellipsis;
     overflow: hidden;
     word-break: break-word;
@@ -314,10 +315,10 @@ onMounted(() => {
 }
 
 .item-expire {
-    font-size: 0.875rem;
-    color: var(--primary);
     margin-left: auto;
     flex-shrink: 0;
+    font-size: 0.875rem;
+    color: var(--primary);
 }
 
 .expired {
@@ -346,8 +347,8 @@ onMounted(() => {
 }
 
 .item-userid {
+    margin-left: 8px;
     font-size: 0.875rem;
     color: #919191;
-    margin-left: 8px;
 }
 </style>
