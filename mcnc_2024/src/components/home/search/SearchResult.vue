@@ -13,7 +13,7 @@
             <div v-if="isFirstLoad" class="search-result-text">검색어를 입력해주세요.</div>
             <v-infinite-scroll v-if="surveyList.length > 0" :items="surveyList" :onLoad="load" color="var(--primary)">
                 <template v-for="(item, index) in surveyList" :key="item">
-                    <div class="search-result-item-container" :class="{ 'last-item': index === surveyList.length - 1, 'border-not-expired': item.expireDateValid, 'border-expired': !item.expireDateValid }"
+                    <div class="search-result-item-container" :class="{ 'last-item': index === surveyList.length - 1 }"
                         v-ripple @click="goToDetail(item.surveyId)">
                         <div class="item-header-container">
                             <div class="item-title">{{ item.title }}</div>
@@ -242,7 +242,7 @@ onMounted(() => {
     flex-direction: column;
     justify-content: center;
     margin-top: 64px;
-    padding: 4px 20px;
+    padding: 4px 0;
 }
 
 .search-result-text {
@@ -267,11 +267,12 @@ onMounted(() => {
 .search-result-item-container {
     display: flex;
     flex-direction: column;
-    width: 100%;
     height: 160px;
     padding: 20px;
-    margin-bottom: 16px;
-    border: 1px solid #F3F3F3;
+    margin: 0 20px 12px 20px;
+    background-color: #FFF;
+    border: 1px solid #EFF0F6;
+    box-shadow: 0px 5px 16px rgba(8, 15, 52, 0.08);
     border-radius: 12px;
     background-color: #FFF;
     cursor: pointer;
