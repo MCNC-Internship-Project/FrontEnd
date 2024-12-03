@@ -7,14 +7,13 @@
                 </template>
                 <v-list>
                     <v-list-item v-for="(item, i) in items" :key="i" @click="item.action">
-                        <v-list-item-title :class="{ deleteTitle: item.action === remove }">{{
-                            item.title}}</v-list-item-title>
+                        <v-list-item-title :class="{ deleteTitle: item.action === remove }">{{item.title}}</v-list-item-title>
                     </v-list-item>
                 </v-list>
             </v-menu>
         </ToolBar>
 
-        <div class="survey-container">
+        <div v-if="surveyData" class="survey-container">
             <div class="header-container">
                 <h1 class="survey-title">{{ surveyData.title }}</h1>
                 <p class="description">{{ surveyData.description }}</p>
@@ -67,10 +66,8 @@ import ToolBar from '@/components/common/ToolBar.vue'
 import AgeChart from './AgeChart.vue';
 import GenderChart from './GenderChart.vue';
 import ResultRenderer from '@/components/survey-detail/ResultRenderer.vue';
-import { MockSurveyResult } from '@/components/mock/MockSurveyResult.js';
 
-const surveyData = ref(MockSurveyResult);
-
+const surveyData = ref(null);
 const secretKey = process.env.VUE_APP_API_KEY;
 const baseUrl = process.env.VUE_APP_API_URL;
 const router = useRouter();
@@ -79,6 +76,12 @@ const showDisabledModifyDialog = ref(false);
 const props = defineProps({
     id: String,
 })
+
+// 암호화
+const decryptId = (encryptedId) => {
+    const bytes = CryptoJS.AES.decrypt(encryptedId, secretKey);
+    return bytes.toString(CryptoJS.enc.Utf8);
+}
 
 // 메뉴 버튼 리스트
 const items = [
@@ -89,14 +92,23 @@ const items = [
 ];
 
 onMounted(() => {
-    // Mock 데이터로 테스트
-    surveyData.value = MockSurveyResult;
+    fetchSurveyData();
 });
 
-// 암호화
-const decryptId = (encryptedId) => {
-    const bytes = CryptoJS.AES.decrypt(encryptedId, secretKey);
-    return bytes.toString(CryptoJS.enc.Utf8);
+// 설문 데이터 가져오기 (api 연결)
+async function fetchSurveyData() {
+    try {
+        const decryptedId = decryptId(props.id);
+        const response = await axios.get(`${baseUrl}/survey/response/result/${decryptedId}`, {
+            withCredentials: true,
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+        surveyData.value = response.data;
+    } catch (error){
+        console.error('설문 데이터를 불러오는 중 오류 발생:', error);
+    }
 }
 
 // 공유 버튼 클릭
