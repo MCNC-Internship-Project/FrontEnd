@@ -1,62 +1,85 @@
 <template>
     <div class="root-container">
-        <div class="parent-container">
-            <div class="logo-container">
-                <img src="../../assets/images/icon_logo.svg" class="logo" alt="logo">
-                <div class="title">Survwey</div>
-            </div>
-
-            <form class="form-container" @submit.prevent="login">
-                <input type="text" class="form-input" id="userId" placeholder="아이디"
-                    autocomplete="new-password" v-model="userId">
-                <input type="password" class="form-input" id="password" placeholder="비밀번호"
-                    autocomplete="new-password" v-model="password">
-                <button class="form-btn" @click="login" :disabled="!isPossible">로그인</button>
-            </form>
-
-            <div class="footer-container">
-                <router-link to="/sign-up" class="sign-up">회원가입</router-link>
-                <router-link to="/find-password" class="forgot-pw">비밀번호를 잊으셨나요?</router-link>
-            </div>
+        <div class="logo-container">
+            <img src="@/assets/images/icon_logo.svg" class="logo" alt="logo">
+            <div class="title">Survwey</div>
         </div>
 
-        <v-dialog v-model="showDialog" max-width="400">
-            <v-card>
-                <v-card-text>
-                    {{ dialogMessage }}
-                </v-card-text>
-                <v-card-actions>
-                    <v-btn color="primary" text @click="showDialog = false">
-                        확인
-                    </v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
+        <form class="form-container" @submit.prevent="login">
+            <input v-model="userId" type="text" class="form-input" :class="{ 'error': isUserIdError }" placeholder="아이디"
+                @focus="isUserIdError = false">
+            <div class="form-password-container" :class="{ 'error': isPasswordError }">
+                <input v-model="password" :type="passwordInputType" class="form-input-password" placeholder="비밀번호"
+                    @focus="isPasswordError = false">
+                <img class="form-input-password-icon" :src="passwordIcon" @click="changePasswordInputType" />
+            </div>
+            <button class="form-btn" v-ripple>로그인</button>
+        </form>
+
+        <div class="footer-container">
+            <router-link to="/sign-up" class="sign-up">회원가입</router-link>
+            <router-link to="/find-password" class="forgot-pw">비밀번호를 잊으셨나요?</router-link>
+        </div>
+
+        <default-dialog v-model="dialog.isVisible" :message="dialog.message" @confirm="dialog.isVisible = false" />
     </div>
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
+
 const baseUrl = process.env.VUE_APP_API_URL;
 
 const router = useRouter();
 
 const userId = ref("");
 const password = ref("");
-const isPossible = ref(false);
 
-const showDialog = ref(false)
-const dialogMessage = ref("")
+const passwordInputType = ref("password");
+const isUserIdError = ref(false);
+const isPasswordError = ref(false);
+
+const dialog = ref({
+    isVisible: false,
+    message: ""
+});
+
+const showDialog = (message) => {
+    dialog.value.message = message;
+    dialog.value.isVisible = true;
+}
+
+const changePasswordInputType = () => {
+    passwordInputType.value = passwordInputType.value === "password" ? "text" : "password";
+}
+
+const passwordIcon = computed(() => {
+    return passwordInputType.value === "password"
+        ? require('@/assets/images/icon_eye_close.svg')
+        : require('@/assets/images/icon_eye_open.svg');
+});
 
 const login = () => {
-    const jsonData = {
-        userId: userId.value, 
+    if (userId.value.trim() === "") {
+        isUserIdError.value = true;
+        showDialog("아이디를 입력해주세요.");
+        return;
+    }
+
+    if (password.value.trim() === "") {
+        isPasswordError.value = true;
+        showDialog("비밀번호를 입력해주세요.");
+        return;
+    }
+
+    const requestBody = {
+        userId: userId.value,
         password: password.value
     }
 
-    axios.post(`${baseUrl}/auth/login`, JSON.stringify(jsonData), {
+    axios.post(`${baseUrl}/auth/login`, JSON.stringify(requestBody), {
         withCredentials: true,
         headers: {
             'Content-Type': 'application/json'
@@ -66,19 +89,9 @@ const login = () => {
             router.push("/");
         })
         .catch((error) => {
-            showErrorDialog(error.response.data.errorMessage);
+            showDialog(error.response.data.errorMessage);
         });
 }
-
-const showErrorDialog = (message) => {
-    dialogMessage.value = message
-    showDialog.value = true
-}
-
-watch([userId, password], () => {
-    isPossible.value = userId.value.length > 0 && password.value.length > 0;
-});
-
 </script>
 
 <style scoped>
@@ -104,30 +117,56 @@ watch([userId, password], () => {
 }
 
 .form-container {
-    margin: 40px;
-    max-width: 360px;
-    min-width: 280px;
+    width: 100%;
+    max-width: 440px;
+    min-width: 360px;
+    padding: 40px;
 }
 
-.form-input {
+.form-input,
+.form-password-container {
     width: 100%;
     height: 56px;
-    margin-bottom: 12px;
-    padding: 0 16px;
-    border: solid 2px var(--primary);
+    border: 2px solid var(--primary);
     border-radius: 12px;
     outline: none;
     font-size: 0.875rem;
 }
 
-.form-input::placeholder {
+.form-input {
+    margin-bottom: 12px;
+    padding: 0 52px 0 16px;
+}
+
+.form-input::placeholder,
+.form-input-password::placeholder {
     color: #C6C6C6;
+}
+
+.form-password-container {
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+}
+
+.form-input-password {
+    width: 100%;
+    height: 100%;
+    padding-right: 16px;
+    outline: none;
+    font-size: 0.875rem;
+}
+
+.form-input-password-icon {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
 }
 
 .form-btn {
     width: 100%;
     height: 56px;
-    margin-top: 8px;
+    margin-top: 20px;
     border-radius: 12px;
     font-size: 0.875rem;
     background-color: var(--primary);
@@ -139,10 +178,6 @@ watch([userId, password], () => {
 .form-btn:disabled {
     background-color: #cccccc;
     cursor: not-allowed;
-}
-
-.form-btn:hover:not([disabled]) {
-    background-color: var(--secondary);
 }
 
 .footer-container {
@@ -168,25 +203,7 @@ a {
     text-decoration: none;
 }
 
-.v-card {
-    background-color: #FAF8F8;
-    border-radius: 16px !important;
-    border: 1px solid #EFF0F6;
-    padding: 16px 12px 12px 12px;
-}
-
-.v-card-text {
-    font-size: 1rem !important;
-    color: #757576;
-}
-
-.v-btn {
-    width: 100%;
-    margin: 0;
-    color: #FFFFFF !important;
-    background-color: var(--primary);
-    border-radius: 16px;
-    height: 48px;
-    font-size: 0.875rem;
+.error {
+    border-color: var(--accent);
 }
 </style>
