@@ -50,7 +50,7 @@ const changePassword = () => {
 }
 
 onUnmounted(() => {
-    store.$dispose();
+    store.reset();
 });
 </script>
 

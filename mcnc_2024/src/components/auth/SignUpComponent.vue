@@ -84,7 +84,7 @@ const login = () => {
 }
 
 onUnmounted(() => {
-    store.$dispose();
+    store.reset();
 });
 </script>
 
