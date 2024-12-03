@@ -27,7 +27,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useSignUpStore } from '@/stores/SignUpStore';
 import axios from 'axios';
@@ -53,7 +53,6 @@ const stepBack = () => {
     if (store.step > 1) {
         store.prevStep();
     } else {
-        store.reset();
         router.push('/login');
     }
 }
@@ -77,14 +76,16 @@ const login = () => {
         }
     })
         .then(() => {
-            store.reset();
             router.replace("/");
         })
         .catch(() => {
-            store.reset();
             router.replace('/login');
         });
 }
+
+onUnmounted(() => {
+    store.$dispose();
+});
 </script>
 
 <style scoped>

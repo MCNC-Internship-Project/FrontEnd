@@ -25,6 +25,7 @@
 </template>
 
 <script setup>
+import { onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useFindPasswordStore } from '@/stores/FindPasswordStore';
 import FindPasswordStep1 from './find-password-step/FindPasswordStep1.vue';
@@ -41,13 +42,16 @@ const stepTexts = [
 ]
 
 const stepBack = () => {
-    store.reset();
     router.replace('/login');
 }
 
 const changePassword = () => {
     router.replace('/login');
 }
+
+onUnmounted(() => {
+    store.$dispose();
+});
 </script>
 
 <style scoped>
