@@ -30,6 +30,9 @@ import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 
+import imgEyeClose from '@/assets/images/icon_eye_close.svg';
+import imgEyeOpen from '@/assets/images/icon_eye_open.svg';
+
 const baseUrl = process.env.VUE_APP_API_URL;
 
 const router = useRouter();
@@ -56,9 +59,7 @@ const changePasswordInputType = () => {
 }
 
 const passwordIcon = computed(() => {
-    return passwordInputType.value === "password"
-        ? require('@/assets/images/icon_eye_close.svg')
-        : require('@/assets/images/icon_eye_open.svg');
+    return passwordInputType.value === "password" ? imgEyeClose : imgEyeOpen;
 });
 
 const login = () => {
