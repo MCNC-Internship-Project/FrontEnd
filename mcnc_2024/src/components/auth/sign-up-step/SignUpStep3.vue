@@ -68,7 +68,7 @@ const genderOptions = ['남성', '여성'];
 const showDatePicker = ref(false);
 const showGenderMenu = ref(false);
 
-const emit = defineEmits(["signUp"]);
+const emit = defineEmits("signUp");
 
 const dialog = ref({
     isVisible: false,
@@ -127,7 +127,6 @@ const goToSignUp = () => {
 watch([birth, gender], ([newBirth, newGender]) => {
     store.setBirth(newBirth);
     store.setGender(newGender);
-    console.log(newBirth, newGender);
 });
 </script>
 

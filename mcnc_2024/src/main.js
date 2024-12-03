@@ -11,6 +11,7 @@ import "./assets/css/main.css";
 
 import DefaultDialog from './components/common/DefaultDialog.vue';
 import ConfirmDialog from "./components/common/ConfirmDialog.vue";
+import ProgressDialog from "./components/common/ProgressDialog.vue";
 
 function setScreenSize() {
   let vh = window.innerHeight * 0.01;
@@ -29,6 +30,7 @@ app.use(pinia);
 app.component("VueDatePicker", VueDatePicker);
 app.component("DefaultDialog", DefaultDialog);
 app.component("ConfirmDialog", ConfirmDialog);
+app.component("ProgressDialog", ProgressDialog);
 app.directive('focus', {
   mounted(el) {
     el.focus()

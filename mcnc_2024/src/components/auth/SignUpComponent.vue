@@ -50,10 +50,12 @@ const showDialog = (message) => {
 }
 
 const stepBack = () => {
-    if (store.step > 1)
+    if (store.step > 1) {
         store.prevStep();
-    else
+    } else {
+        store.reset();
         router.push('/login');
+    }
 }
 
 const signUp = () => {
