@@ -17,12 +17,12 @@
                         placeholder="설문조사 설명" maxlength="255">
                 </div>
 
-                <div class="select-deadline-section" :class="{ 'date-error': dateError }">
+                <div class="select-deadline-section">
                     <div class="deadline">설문 기간</div>
 
-                    <div class="datetime-container" @click="showDialog = true; dateError = false">
+                    <div class="datetime-container" @click="showDialog = true; dateError = false" :class="{ 'date-error': dateError }">
                         <span class="datetime-text"
-                            v-html="date === null && time === null ? '미설정' : ` ~&nbsp;${dayjs(date).format('YYYY.MM.DD')}&nbsp;&nbsp;${time}`"></span>
+                            v-html="date === null && time === null ? (dateError ? '마감 기한을 설정해주세요.' : '미설정') : ` ~&nbsp;${dayjs(date).format('YYYY.MM.DD')}&nbsp;&nbsp;${time}`"></span>
                         <img src="@/assets/images/icon_calendar3.svg" class="datetime-icon" alt="calendar icon" />
                     </div>
 
@@ -116,6 +116,7 @@
                         </template>
                     </v-menu>
 
+                    <div class="error-text" v-if="isDateError || isTimeError">*날짜와 시간을 모두 선택해주세요.</div>
                     <div class="error-text" v-if="isTimeBeforeNowError">*종료 시간은 현재보다 이전으로 설정할 수 없습니다.</div>
 
                     <div class="dialog-actions">
@@ -703,8 +704,7 @@ input {
 }
 
 .date-error {
-    border-radius: 8px;
-    box-shadow: 0 0 0 2px #F77D7D;
+    color : #F77D7D;
 }
 
 .create-btn-container {
