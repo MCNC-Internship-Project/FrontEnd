@@ -7,7 +7,8 @@
                 </template>
                 <v-list>
                     <v-list-item v-for="(item, i) in items" :key="i" @click="item.action">
-                        <v-list-item-title :class="{ deleteTitle: item.action === remove }">{{item.title}}</v-list-item-title>
+                        <v-list-item-title :class="{ deleteTitle: item.action === remove }">{{ item.title
+                            }}</v-list-item-title>
                     </v-list-item>
                 </v-list>
             </v-menu>
@@ -42,6 +43,7 @@
         </div>
     </div>
 
+    <!--수정 모달-->
     <v-dialog v-model="showDisabledModifyDialog" max-width="400">
         <v-card class="dialog-background">
             <div class="dialog-container">
@@ -55,6 +57,16 @@
             </v-card-actions>
         </v-card>
     </v-dialog>
+
+    <!--종료 모달-->
+    <ConfirmationModal v-model="isDeleteModalVisible" message="설문을 정말 삭제하시겠습니까?" warning="*삭제 후에는 복구가 불가능합니다!"
+        cancelText="취소" confirmText="삭제" @cancel="handleModalCancel" @confirm="handleDeleteConfirm" />
+
+    <!--삭제 모달-->
+    <ConfirmationModal v-model="isCloseModalVisible" message="설문을 종료하시겠습니까?" cancelText="취소" confirmText="종료"
+        @cancel="handleModalCancel" @confirm="handleCloseConfirm" />
+
+
 </template>
 
 <script setup>
@@ -66,12 +78,15 @@ import ToolBar from '@/components/common/ToolBar.vue'
 import AgeChart from './AgeChart.vue';
 import GenderChart from './GenderChart.vue';
 import ResultRenderer from '@/components/survey-detail/ResultRenderer.vue';
+import ConfirmationModal from './ConfirmationModal.vue';
 
 const surveyData = ref(null);
 const secretKey = process.env.VUE_APP_API_KEY;
 const baseUrl = process.env.VUE_APP_API_URL;
 const router = useRouter();
 const showDisabledModifyDialog = ref(false);
+const isDeleteModalVisible = ref(false);
+const isCloseModalVisible = ref(false);
 
 const props = defineProps({
     id: String,
@@ -106,7 +121,7 @@ async function fetchSurveyData() {
             },
         });
         surveyData.value = response.data;
-    } catch (error){
+    } catch (error) {
         console.error('설문 데이터를 불러오는 중 오류 발생:', error);
     }
 }
@@ -140,13 +155,58 @@ function edit() {
 
 // 종료 버튼 클릭
 function close() {
-    console.log('close button click');
+    isCloseModalVisible.value = true;
+}
+
+// 설문 종료 api 연결
+async function handleCloseConfirm(){
+    try{
+        const decryptedId = decryptId(props.id);
+        await axios.patch(`${baseUrl}/survey/manage/expire/${decryptedId}`, {
+            withCredentials: true,
+            headers:{
+                'Content-Type' : 'application/json',
+            },
+        });
+        isCloseModalVisible.value = false;
+        router.push('/my-survey');
+    } catch (error) {
+        console.error('설문 종료 실패:', error);
+        alert('설문 종료 실패')
+    }
 }
 
 // 삭제 버튼 클릭
 function remove() {
-    console.log('remove button click');
+    isDeleteModalVisible.value = true; // 모달 표시
+    console.log('삭제 버튼 클릭');
 }
+
+function handleModalCancel() {
+    isDeleteModalVisible.value = false;
+    isCloseModalVisible.value = false;
+}
+
+// 설문 삭제 api 연결 (서버x)
+async function handleDeleteConfirm() {
+    try {
+        const decryptedId = decryptId(props.id); // 설문 ID 복호화
+        // 삭제 API 호출
+        await axios.delete(`${baseUrl}/survey/manage/delete/${decryptedId}`, {
+            withCredentials: true,
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+        console.log('삭제 성공');
+        isDeleteModalVisible.value = false; // 모달 닫기
+        router.push('/my-survey'); // 목록 페이지로 이동
+    } catch (error) {
+        console.error('삭제 실패:', error);
+        alert('삭제에 실패했습니다. 다시 시도해 주세요.');
+    }
+}
+
 function goBack() {
     router.back();
 }
