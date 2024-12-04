@@ -1,100 +1,75 @@
 <template>
     <div class="root-container">
-        <div class="form-container">
-            <div class="email-hint">{{ formatEmail(props.email) }}</div>
+        <form class="form-container" novalidate @submit.prevent="nextStep">
+            <div class="email-hint">{{ hideEmail(store.email) }}</div>
             <div class="email-container">
                 <input type="email" class="form-input" :class="{ 'error': isEmailError }" placeholder="이메일"
-                    autocomplete="userEmail" v-model="email" @focus="isEmailError = false">
+                    autocomplete="userEmail" v-model="email" @focus="isEmailError = false" v-focus>
                 <button class="verify-btn" v-ripple @click="verifyCode" :disabled="isEmailSending">인증</button>
             </div>
             <input type="text" class="form-input" :class="{ 'error': isCodeError }" placeholder="인증번호" v-model="code"
                 @focus="isCodeError = false">
-            <button class="form-btn" v-ripple @click="stepTo3">다음</button>
-        </div>
+            <button class="form-btn" v-ripple>다음</button>
+        </form>
 
-        <v-dialog v-model="showDialog" max-width="400">
-            <v-card>
-                <div class="dialog-container">
-                    <div class="dialog-error-message">{{ dialogMessage }}</div>
-                </div>
-                <v-card-actions>
-                    <v-btn color="primary" text @click="showDialog = false">
-                        확인
-                    </v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
-
-        <v-dialog v-model="showProgressDialog" max-width="400" persistent>
-            <v-card>
-                <div class="progress-dialog-container">
-                    <v-progress-circular indeterminate color="var(--primary)"></v-progress-circular>
-                    <div class="progress-dialog-message">인증번호 전송 중...</div>
-                </div>
-            </v-card>
-        </v-dialog>
+        <default-dialog v-model="dialogs.defaultDialog.isVisible" :message="dialogs.defaultDialog.message"
+            :isPersistent=true @confirm="login" />
+        <progress-dialog v-model="dialogs.progressDialog.isVisible" :message="dialogs.progressDialog.message" />
     </div>
 </template>
 
 <script setup>
-import { ref, defineProps, defineEmits } from 'vue'
+import { ref } from 'vue'
+import { useFindPasswordStore } from '@/stores/FindPasswordStore';
 import axios from 'axios';
 
 const baseUrl = process.env.VUE_APP_API_URL;
+const store = useFindPasswordStore();
 
 const email = ref("");
 const code = ref("");
+
 const isEmailError = ref(false);
 const isCodeError = ref(false);
 
-const showDialog = ref(false)
-const dialogMessage = ref("")
-const showProgressDialog = ref(false)
-
-const isEmailSending = ref(false);
-
-const props = defineProps({
-    step: {
-        type: Number,
-        required: true
+const dialogs = ref({
+    defaultDialog: {
+        isVisible: false,
+        message: "",
     },
-    userId: {
-        type: String,
-        required: true
-    },
-    email: {
-        type: String,
-        required: true
+    progressDialog: {
+        isVisible: false,
+        message: "",
     }
 })
 
-const emit = defineEmits(["nextStep"])
-
-const showErrorDialog = (message) => {
-    dialogMessage.value = message
-    showDialog.value = true
+const showDialog = (type, message) => {
+    dialogs.value[type].message = message;
+    dialogs.value[type].isVisible = true;
 }
+
+const isEmailSending = ref(false);
 
 const verifyCode = () => {
     if (!email.value || email.value.trim() === "") {
         isEmailError.value = true;
-        showErrorDialog('이메일을 입력해주세요.');
+        showDialog('progressDialog', '이메일을 입력해주세요.');
         return;
     }
 
     if (!email.value.match(/^[_A-Za-z0-9-+]+(\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\.[A-Za-z0-9]+)*(\.[A-Za-z]{2,})$/)) {
         isEmailError.value = true;
-        showErrorDialog('이메일 형식이 올바르지 않습니다.');
+        showDialog('progressDialog', '이메일 형식이 올바르지 않습니다.');
         return;
     }
 
     const jsonData = {
-        userId: props.userId,
+        userId: store.userId,
         email: email.value
     }
 
     isEmailSending.value = true;
-    showProgressDialog.value = true;
+    showDialog('progressDialog', '인증번호 발송 중...');
 
     axios.post(`${baseUrl}/auth/password/send`, JSON.stringify(jsonData), {
         headers: {
@@ -103,25 +78,25 @@ const verifyCode = () => {
     })
         .then(() => {
             isEmailSending.value = false;
-            showProgressDialog.value = false;
-            showErrorDialog('인증번호가 전송되었습니다.');
+            dialogs.value.progressDialog.isVisible = false;
+            showDialog('defaultDialog', '인증번호가 발송되었습니다.');
         })
         .catch((error) => {
             isEmailSending.value = false;
-            showProgressDialog.value = false;
-            showErrorDialog(error.response.data.errorMessage);
+            dialogs.value.progressDialog.isVisible = false;
+            showDialog('defaultDialog', error.response.data.errorMessage);
         });
 }
 
-const stepTo3 = () => {
+const nextStep = () => {
     if (!code.value || code.value.trim() === "") {
         isCodeError.value = true;
-        showErrorDialog('인증번호를 입력해주세요.');
+        showDialog('defaultDialog', '인증번호를 입력해주세요.');
         return;
     }
 
     const jsonData = ref({
-        userId: props.userId,
+        userId: store.userId,
         tempAuthCode: code.value
     })
 
@@ -131,14 +106,14 @@ const stepTo3 = () => {
         }
     })
         .then(() => {
-            emit("nextStep", { step: props.step + 1 })
+            store.nextStep();
         })
         .catch((error) => {
-            showErrorDialog(error.response.data.errorMessage);
+            showDialog('defaultDialog', error.response.data.errorMessage);
         });
 }
 
-const formatEmail = (email) => {
+const hideEmail = (email) => {
     if (!email)
         return '';
 

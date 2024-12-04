@@ -27,7 +27,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useSignUpStore } from '@/stores/SignUpStore';
 import axios from 'axios';
@@ -50,10 +50,11 @@ const showDialog = (message) => {
 }
 
 const stepBack = () => {
-    if (store.step > 1)
+    if (store.step > 1) {
         store.prevStep();
-    else
+    } else {
         router.push('/login');
+    }
 }
 
 const signUp = () => {
@@ -75,14 +76,16 @@ const login = () => {
         }
     })
         .then(() => {
-            store.reset();
             router.replace("/");
         })
         .catch(() => {
-            store.reset();
             router.replace('/login');
         });
 }
+
+onUnmounted(() => {
+    store.reset();
+});
 </script>
 
 <style scoped>

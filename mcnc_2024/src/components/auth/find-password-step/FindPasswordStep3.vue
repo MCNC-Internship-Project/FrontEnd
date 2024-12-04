@@ -1,46 +1,27 @@
 <template>
     <div class="root-container">
-        <div class="form-container">
+        <form class="form-container" novalidate @submit.prevent="changePassword">
             <input type="password" class="form-input" :class="{ 'error': isPasswordError }" placeholder="새로운 비밀번호"
-                v-model="password" @focus="isPasswordError = false">
+                v-model="password" @focus="isPasswordError = false" v-focus>
             <input type="password" class="form-input" :class="{ 'error': isPasswordConfirmError }" placeholder="비밀번호 확인"
                 v-model="passwordConfirm" @focus="isPasswordConfirmError = false">
-            <button class="form-btn" v-ripple @click="changePassword">확인</button>
-        </div>
+            <button class="form-btn" v-ripple>확인</button>
+        </form>
 
-        <v-dialog v-model="showDialog" max-width="400">
-            <v-card>
-                <div class="dialog-container">
-                    <div class="dialog-message">{{ dialogMessage }}</div>
-                </div>
-                <v-card-actions>
-                    <v-btn color="primary" text @click="showDialog = false">
-                        확인
-                    </v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
-
-        <v-dialog v-model="showSuccessDialog" max-width="400" persistent>
-            <v-card>
-                <div class="dialog-container">
-                    <div class="dialog-message">비밀번호가 변경되었습니다.</div>
-                </div>
-                <v-card-actions>
-                    <v-btn color="primary" text @click="goToLogin">
-                        확인
-                    </v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
+        <default-dialog v-model="dialogs.defaultDialog.isVisible" :message="dialogs.defaultDialog.message"
+            @confirm="changePasswordSuccess" />
+        <default-dialog v-model="dialogs.errorDialog.isVisible" :message="dialogs.errorDialog.message"
+            @confirm="dialogs.errorDialog.isVisible = false" />
     </div>
 </template>
 
 <script setup>
-import { ref, defineProps, defineEmits } from 'vue'
+import { ref, defineEmits } from 'vue'
+import { useFindPasswordStore } from '@/stores/FindPasswordStore';
 import axios from 'axios';
 
 const baseUrl = process.env.VUE_APP_API_URL;
+const store = useFindPasswordStore();
 
 const password = ref("");
 const passwordConfirm = ref("");
@@ -48,64 +29,64 @@ const passwordConfirm = ref("");
 const isPasswordError = ref(false);
 const isPasswordConfirmError = ref(false);
 
-const showDialog = ref(false);
-const dialogMessage = ref("");
-const showSuccessDialog = ref(false);
+const emit = defineEmits("changePassword");
 
-const props = defineProps({
-    userId: {
-        type: String,
-        required: true
+const dialogs = ref({
+    defaultDialog: {
+        isVisible: false,
+        message: "",
+    },
+    errorDialog: {
+        isVisible: false,
+        message: "",
     }
 })
 
-const emit = defineEmits(["changePassword"]);
+const showDialog = (type, message) => {
+    dialogs.value[type].message = message;
+    dialogs.value[type].isVisible = true;
+}
 
-const showErrorDialog = (message) => {
-    dialogMessage.value = message
-    showDialog.value = true
+const changePasswordSuccess = () => {
+    dialogs.value.defaultDialog.isVisible = false;
+    emit("changePassword");
 }
 
 const changePassword = () => {
     if (!password.value || password.value.trim() === "") {
         isPasswordError.value = true;
-        showErrorDialog('비밀번호를 입력해주세요.');
+        showDialog('errorDialog', '비밀번호를 입력해주세요.');
         return;
     }
 
     if (!password.value.match(/^(?=.*[A-Za-z])(?=.*[0-9])(?=.*[!@#$%^&*()_+]).{8,}$/)) {
         isPasswordError.value = true;
-        showErrorDialog('비밀번호는 최소 8자, 숫자, 특수문자 및 대소문자를 포함해야 합니다.');
+        showDialog('errorDialog', '비밀번호는 최소 8자, 숫자, 특수문자 및 대소문자를 포함해야 합니다.');
         return;
     }
 
     if (password.value !== passwordConfirm.value) {
         isPasswordConfirmError.value = true;
-        showErrorDialog('비밀번호가 일치하지 않습니다.');
+        showDialog('errorDialog', '비밀번호가 일치하지 않습니다.');
         return;
     }
 
     const jsonData = {
-        userId: props.userId,
+        userId: store.userId,
         password: password.value
     }
 
-    axios.post(`${baseUrl}/account/modify/password`,  JSON.stringify(jsonData), {
+    axios.post(`${baseUrl}/account/modify/password`, JSON.stringify(jsonData), {
         headers: {
             'Content-Type': 'application/json'
         }
     })
         .then(() => {
-            showSuccessDialog.value = true;
+            showDialog('defaultDialog', '비밀번호가 변경되었습니다.');
         })
         .catch((error) => {
-            showErrorDialog(error.response.data.errorMessage);
+            showDialog('errorDialog', error.response.data.errorMessage);
         });
-}
-
-const goToLogin = () => {
-    showSuccessDialog.value = false;
-    emit("changePassword");
 }
 </script>
 
@@ -147,44 +128,5 @@ const goToLogin = () => {
 
 .error {
     border-color: var(--accent);
-}
-
-.v-card {
-    padding: 0;
-    border-radius: 16px !important;
-}
-
-.dialog-background {
-    background-color: #FAF8F8;
-    border: 1px solid #EFF0F6;
-}
-
-.dialog-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 12px 32px 20px 32px;
-}
-
-.dialog-message {
-    margin: 32px 0 16px 0;
-    font-size: 1.125rem;
-    font-weight: bold;
-    color: #757576;
-}
-
-.v-card-actions {
-    padding: 20px;
-}
-
-.v-btn {
-    width: 100%;
-    margin: 0;
-    color: #FFFFFF !important;
-    background-color: var(--primary);
-    border-radius: 16px;
-    height: 48px;
-    font-size: 0.875rem;
 }
 </style>
