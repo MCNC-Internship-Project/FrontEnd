@@ -69,14 +69,14 @@ watch(() => isVisible, (newVal) => {
     flex-direction: column;
     align-items: center;
     text-align: center;
-    gap: 8px; /* 메시지와 경고 텍스트 사이 간격 */
+    gap: 8px; 
 }
 
 .dialog-message {
     font-size: 1rem;
     font-weight: bold;
     color: #464748;
-    margin-bottom: 4px; /* 메시지와 경고 텍스트 사이 간격 */
+    margin-bottom: 4px; 
 }
 
 .warning {
@@ -87,23 +87,23 @@ watch(() => isVisible, (newVal) => {
 
 .v-card-actions {
     display: flex;
-    justify-content: center !important; /* 버튼 수평 가운데 정렬 */
-    gap: 16px; /* 버튼 간 간격 */
+    justify-content: center !important; 
+    gap: 16px;
     margin-top: 12px; 
     margin-bottom: -4px;
 }
 
 .dialog-cancel-btn {
+    height: 44px;
     color: #757576;
-    background-color: #FFFFFF;
-    border: 1px solid #EFF0F6;
+    background-color: #FFFFFF !important;
+    border: 1px solid #EFF0F7;
     border-radius: 15px;
-    min-width: 120px; /* 버튼 크기 통일 */
+    min-width: 120px;
     padding: 8px 16px;
-    font-size: 0.875rem;
+    font-size: 1rem;
     font-weight: bold;
-    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s;
+    box-shadow: 0px 5px 16px rgba(8, 15, 52, 0.06);
 }
 
 .dialog-cancel-btn:hover {
@@ -111,20 +111,20 @@ watch(() => isVisible, (newVal) => {
 }
 
 .dialog-confirm-btn {
+    height: 44px;
     color: #FFFFFF;
     background-color: #F77D7D;
     border: none;
     border-radius: 15px;
-    min-width: 120px; /* 버튼 크기 통일 */
+    min-width: 120px;
     padding: 8px 16px;
-    font-size: 0.875rem;
+    font-size: 1rem;
     font-weight: bold;
-    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0px 5px 16px rgba(8, 15, 52, 0.06);
     transition: all 0.3s;
 }
 
 .dialog-confirm-btn:hover {
     background-color: #FF5D5D;
 }
-
 </style>
