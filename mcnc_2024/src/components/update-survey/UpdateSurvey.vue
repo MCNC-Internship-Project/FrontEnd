@@ -234,7 +234,7 @@ const decryptId = (encryptedId) => {
 let apiResponse = null;
 
 onMounted(() => {
-    surveyId.value = Number(decryptId(props.id));
+    surveyId.value = decryptId(props.id);
 
     axios.get(`${baseUrl}/survey/inquiry/detail/${surveyId.value}`, {
         withCredentials: true,
@@ -491,8 +491,6 @@ const handleSubmit = () => {
         }
 
         jsonData.expireDate = dateTime;
-
-        console.log(JSON.stringify(jsonData));
 
         axios.post(`${baseUrl}/survey/manage/modify`, JSON.stringify(jsonData), {
             withCredentials: true,

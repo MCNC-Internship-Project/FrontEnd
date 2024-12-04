@@ -21,9 +21,12 @@
                 <div class="select-deadline-section">
                     <div class="deadline">설문 기간</div>
 
-                    <div class="datetime-container" @click="showDatePickerDialog = true; dateError = false" :class="{ 'date-error': dateError }">
+                    <div class="datetime-container" @click="showDatePickerDialog = true; dateError = false"
+                    :class="{ 'date-error': dateError }">
                         <span class="datetime-text"
-                            v-html="date === null && time === null ? (dateError ? '마감 기한을 설정해주세요.' : '미설정') : ` ~&nbsp;${dayjs(date).format('YYYY.MM.DD')}&nbsp;&nbsp;${time}`"></span>
+                            v-html="date === null && time === null ?
+                            (dateError ? '마감 기한을 설정해주세요.' : '미설정')
+                            : ` ~&nbsp;${dayjs(date).format('YYYY.MM.DD')}&nbsp;&nbsp;${time}`"></span>
                         <img src="@/assets/images/icon_calendar3.svg" class="datetime-icon" alt="calendar icon" />
                     </div>
 
@@ -32,7 +35,8 @@
 
             <div>
                 <transition-group name="survey-delete" tag="div" class="survey-items-wrapper">
-                    <div class="survey-item-container" v-for="(com, index) in totalComponent" :key="com.id" :class="{ 'date-error': dateError }">
+                    <div class="survey-item-container" v-for="(com, index) in totalComponent" :key="com.id"
+                    :class="{ 'date-error': dateError }">
                         <survey-item ref="surveyItems" @delete-item="removeComponent(com.id)"
                             :is-single="totalComponent.length === 1" :item-number="index + 1" />
                     </div>
@@ -394,8 +398,7 @@ const handleSubmit = () => {
     /**
      * 비어있는 경로가 questionList 안에서 발견되는 것이 아니면 통과
      * 제목이나 날짜 입력이 안됐으면,
-     * 질문 항목들 중에 빈 값이 있나 확인하고 스타일 적용 및 경고창 준 뒤에 바로 리턴
-     * jsonData는 보내지 않음
+     * 질문 항목들 중에 빈 값이 있나 확인하고 스타일 적용 및 다이얼로그 띄우고 바로 리턴
      * 
      */
     if (isExistQuestionList.length > 0 || !valid) {
@@ -420,8 +423,6 @@ const handleSubmit = () => {
         }
 
         jsonData.expireDate = dateTime;
-
-        console.log(JSON.stringify(jsonData));
 
         axios.post(`${baseUrl}/survey/manage/create`, JSON.stringify(jsonData), {
             withCredentials: true,
