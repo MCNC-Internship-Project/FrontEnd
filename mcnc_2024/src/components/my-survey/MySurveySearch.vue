@@ -1,87 +1,122 @@
 <template>
     <div class="root-container">
-        <ToolBar @goBack="goBack" />
-
-        <div class="survey-container">
+        <div class="background"></div>
+        <ToolBar @goBack="goBack" backgroundColor="#E6F4FF" zIndex="1000">
             <div class="search-box">
                 <input type="text" placeholder="설문 제목을 검색해보세요." v-model="searchQuery" @keyup.enter="searchSurvey" />
                 <button class="search-btn-section" @click="searchSurvey">
                     <img class="search-btn" src="../../assets/images/icon_search_btn.svg" alt="search icon" />
                 </button>
             </div>
+        </ToolBar>
 
-            <div v-if="showLogo" class="logo-container">
-                <img class="logo" src="../../assets/images/icon_logo.svg" alt="logo" />
-                <div class="logo-name">Survwey</div>
-            </div>
-
-            <!-- 검색 결과가 있을 때 -->
-            <SearchResult :surveys="filteredSurveys" />
-        </div>
+        <SearchResult :surveys="surveys" :isFirstLoad="isFirstLoad" :noResult="noResult" :loadSurveys="loadSurveys"
+            :goToDetail="goToDetail" />
     </div>
 </template>
 
+
 <script setup>
 import { useRouter } from 'vue-router';
-import { ref, computed, } from 'vue';
-import { mockMySurveys } from '@/components/mock/MockMySurveys';
-
+import { ref, onMounted, watch } from 'vue';
+import axios from 'axios';
+import CryptoJS from 'crypto-js';
 import ToolBar from '../common/ToolBar.vue';
 import SearchResult from '../common/SearchResult.vue';
 
+const baseUrl = process.env.VUE_APP_API_URL;
+const secretKey = process.env.VUE_APP_API_KEY;
 
 const router = useRouter();
 const searchQuery = ref('');
-const showLogo = ref(true);
+const surveys = ref([]);
+const isFirstLoad = ref(true);
+const noResult = ref(false);
+const currentPage = ref(0);
+const size = 10;
 
-// 설문지 mock데이터 연결 -> api 연동시 수정
-const surveys = mockMySurveys.map(survey => ({
-    id: survey.surveyId,
-    title: survey.title,
-    description: survey.description,
-    status: new Date(survey.expireDate) > new Date() ? "진행중" : "종료",
-    createDate: new Date(survey.createDate),
-    expireDate: new Date(survey.expireDate),
-    creationInfo: `${survey.createDate.split('T')[0]} ~ ${survey.expireDate.split('T')[0]}`,
-}));
+onMounted(() => {
+    const query = router.currentRoute.value.query.query;
 
-// 검색 결과 정렬
-const filteredSurveys = computed(() => {
-    // 검색어가 비어 있으면 빈 배열 반환
-    if (searchQuery.value.trim() === '') {
-        return [];
+    if (query) {
+        searchQuery.value = query; // 이전 검색어 설정
+        searchSurvey(); // 검색 결과 로드
     }
-
-    // 검색어 필터링
-    let results = surveys.filter(survey =>
-        searchQuery.value.trim() === '' || survey.title.includes(searchQuery.value)
-    );
-
-    // 검색 결과 목록 정렬
-    return results.sort((a, b) => {
-        // 상태 정렬: "진행중" 우선
-        if (a.status === "진행중" && b.status === "종료") return -1;
-        if (a.status === "종료" && b.status === "진행중") return 1;
-
-        // "진행중" 상태에서 생성 날짜 내림차순
-        if (a.status === "진행중" && b.status === "진행중") {
-            return b.createDate - a.createDate;
-        }
-
-        // "종료" 상태에서 마감 날짜 내림차순
-        if (a.status === "종료" && b.status === "종료") {
-            return b.expireDate - a.expireDate;
-        }
-
-        return 0;
-    });
 });
 
-// 검색 함수: 검색 시 로고를 숨김
-function searchSurvey() {
-    showLogo.value = false;
+watch(searchQuery, (newValue) => {
+    if (!newValue.trim()) {
+        surveys.value = []; // 검색 결과 초기화
+        noResult.value = false; // '검색 결과 없음' 메시지 숨기기
+        isFirstLoad.value = true; // 초기 로고 상태로 되돌리기
+    }
+});
+
+async function searchSurvey() {
+    if (!searchQuery.value.trim()) {
+        return;
+    }
+    isFirstLoad.value = false;
+    noResult.value = false;
+    surveys.value = [];
+    currentPage.value = 0;
+
+    router.replace({
+        query: { query: searchQuery.value },
+    });
+
+    await loadSurveys({ done: () => { } });
 }
 
+async function loadSurveys({ done }) {
+    try {
+        const response = await axios.get(`${baseUrl}/survey/inquiry/search/created`, {
+            params: {
+                title: searchQuery.value,
+                page: currentPage.value,
+                size,
+            },
+            withCredentials: true,
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const { content, totalPages } = response.data;
+        if (content.length === 0 && currentPage.value === 0) {
+            noResult.value = true;
+            done('empty');
+            return;
+        }
+
+        const uniqueSurveys = content.filter(
+            (item) => !surveys.value.some((survey) => survey.id === item.id)
+        );
+        surveys.value.push(...uniqueSurveys);
+
+        if (currentPage.value + 1 < totalPages) {
+            currentPage.value++;
+            done('ok');
+        } else {
+            done('empty');
+        }
+    } catch (error) {
+        console.error(error);
+        done('error');
+    }
+}
+
+const encryptId = (id) => {
+    return CryptoJS.AES.encrypt(id.toString(), secretKey).toString();
+};
+
+// 설문 상세로 가기
+function goToDetail(surveyId) {
+    router.push({
+        name: "SurveyResult",
+        params: { id: encryptId(surveyId) },
+    });
+}
 
 function goBack() {
     router.back();
@@ -91,30 +126,44 @@ function goBack() {
 <style scoped>
 .root-container {
     width: 100%;
-    background-image: url('../../assets/images/background_sky.svg');
-    background-repeat: repeat-x;
+    height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
+.background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('@/assets/images/background_sky.svg');
+    background-repeat: repeat-x;
+    transform: translateZ(0);
+    will-change: transform;
+    z-index: -1;
+}
+
 .survey-container {
     width: 100%;
-    height: calc(100vh - 64px);
+    height: 100%;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    justify-content: center;
     margin-top: 64px;
-    overflow: hidden;
 }
 
 .search-box {
     width: 80%;
     display: flex;
+    flex: 1;
     align-items: center;
     background-color: #f2f6fc;
     border-radius: 8px;
-    padding: 8px 12px;
+    padding: 4px 12px;
+    margin-right: 20px;
+    margin-left: -12px;
 }
 
 .search-btn-section {
@@ -151,6 +200,8 @@ function goBack() {
 .logo-container {
     display: flex;
     align-items: center;
+    justify-content: center;
+    height: calc(var(--vh, 1vh) * 100 - 65px);
 }
 
 .logo {
@@ -163,5 +214,20 @@ function goBack() {
     color: var(--primary);
     font-family: var(--font-mont);
     font-size: 1.25rem;
+}
+
+.v-infinite-scroll {
+    width: 100%;
+    overflow: hidden;
+}
+
+:deep(.v-infinite-scroll__side:first-child) {
+    display: none;
+}
+
+.search-result-text {
+    text-align: center;
+    color: #a2a2a2;
+    margin-top: 16px;
 }
 </style>
