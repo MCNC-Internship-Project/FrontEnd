@@ -7,8 +7,7 @@
                 </template>
                 <v-list>
                     <v-list-item v-for="(item, i) in items" :key="i" @click="item.action">
-                        <v-list-item-title :class="{ deleteTitle: item.action === remove }">{{ item.title
-                            }}</v-list-item-title>
+                        <v-list-item-title :class="{ deleteTitle: item.action === remove }">{{ item.title }}</v-list-item-title>
                     </v-list-item>
                 </v-list>
             </v-menu>
@@ -59,13 +58,12 @@
     </v-dialog>
 
     <!--종료 모달-->
-    <ConfirmationModal v-model="isDeleteModalVisible" message="설문을 정말 삭제하시겠습니까?" warning="*삭제 후에는 복구가 불가능합니다!"
-        cancelText="취소" confirmText="삭제" @cancel="handleModalCancel" @confirm="handleDeleteConfirm" />
+    <ConfirmDialog v-model="isCloseModalVisible" message="설문을 종료하시겠습니까?" confirmButtonText="종료"
+        confirmButtonColor="#F77D7D" @confirm="handleCloseConfirm" />
 
     <!--삭제 모달-->
-    <ConfirmationModal v-model="isCloseModalVisible" message="설문을 종료하시겠습니까?" cancelText="취소" confirmText="종료"
-        @cancel="handleModalCancel" @confirm="handleCloseConfirm" />
-
+    <ConfirmDialog v-model="isDeleteModalVisible" message="설문을 정말 삭제하시겠습니까?" subMessage="*삭제 후에는 복구가 불가능합니다!"
+        confirmButtonText="삭제" confirmButtonColor="#F77D7D" @confirm="handleDeleteConfirm" />
 
 </template>
 
@@ -78,7 +76,7 @@ import ToolBar from '@/components/common/ToolBar.vue'
 import AgeChart from './AgeChart.vue';
 import GenderChart from './GenderChart.vue';
 import ResultRenderer from '@/components/survey-detail/ResultRenderer.vue';
-import ConfirmationModal from './ConfirmationModal.vue';
+import ConfirmDialog from '@/components/common/ConfirmDialog.vue';
 
 const surveyData = ref(null);
 const secretKey = process.env.VUE_APP_API_KEY;
@@ -166,13 +164,13 @@ function close() {
 }
 
 // 설문 종료 api 연결
-async function handleCloseConfirm(){
-    try{
+async function handleCloseConfirm() {
+    try {
         const decryptedId = decryptId(props.id);
-        await axios.patch(`${baseUrl}/survey/manage/expire/${decryptedId}`,null, {
+        await axios.patch(`${baseUrl}/survey/manage/expire/${decryptedId}`, null, {
             withCredentials: true,
-            headers:{
-                'Content-Type' : 'application/json',
+            headers: {
+                'Content-Type': 'application/json',
             },
         });
         isCloseModalVisible.value = false;
@@ -187,11 +185,6 @@ async function handleCloseConfirm(){
 function remove() {
     isDeleteModalVisible.value = true; // 모달 표시
     console.log('삭제 버튼 클릭');
-}
-
-function handleModalCancel() {
-    isDeleteModalVisible.value = false;
-    isCloseModalVisible.value = false;
 }
 
 // 설문 삭제 api 연결 (서버x)
