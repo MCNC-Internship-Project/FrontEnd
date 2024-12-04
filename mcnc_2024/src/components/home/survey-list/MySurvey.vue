@@ -19,9 +19,9 @@
                         <div class="item-description">{{ survey.description }}</div>
 
                         <div class="footer-container">
-                            <div class="item-participated">{{ survey.respondCount }}명 참여</div>
+                            <div class="item-participated" :class="{ 'expired': !survey.expireDateValid }" >{{ survey.respondCount }}명 참여</div>
                             <v-progress-linear class="survey-progress" bg-color="#D9D9D9" bg-opacity="1"
-                                :color="survey.expireDateValid ? 'var(--primary)' : 'var(--accent)'" rounded rounded-bar height="4"
+                                :color="survey.expireDateValid ? 'var(--primary)' : '#707070'" rounded rounded-bar height="4"
                                 :model-value="calculateProgress(survey.createDate, survey.expireDate)"></v-progress-linear>
                             <div class="date-container">
                                 <div class="date-start">{{ formatDate(survey.createDate) }}</div>
@@ -251,5 +251,9 @@ ul {
 .empty-text {
     font-size: 1.125rem;
     color: #7796E8;
+}
+
+.expired {
+    color: #707070;
 }
 </style>
