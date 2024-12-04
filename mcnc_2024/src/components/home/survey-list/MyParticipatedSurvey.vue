@@ -24,6 +24,11 @@
                         </div>
                     </li>
                 </ul>
+
+                <div v-else-if="onLoading" class="skeleton-container">
+                    <v-skeleton-loader v-for="n in 3" :key="n" type="image" class="skeleton" />
+                </div>
+
                 <div v-else class="empty-container">
                     <div v-if="!onLoading" class="empty-text">참여한 설문조사가 없습니다.</div>
                 </div>
@@ -37,7 +42,6 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 import CryptoJS from 'crypto-js';
-
 import dayjs from 'dayjs'
 
 const secretKey = process.env.VUE_APP_API_KEY;
@@ -47,25 +51,24 @@ const router = useRouter();
 const surveys = ref([])
 const onLoading = ref(true)
 
+const routeJoinSurvey = () => {
+    router.push("/joined-survey");
+}
+
 const encryptId = (id) => {
     return CryptoJS.AES.encrypt(id.toString(), secretKey).toString();
 }
-
 const onItemClick = (survey) => {
     const id = survey.surveyId;
     router.push({
-        name : "SurveyParticipationDetail",
-        params : { id : encryptId(id)}
+        name: "SurveyParticipationDetail",
+        params: { id: encryptId(id) }
     })
 };
 
 const formatDate = (startDate, endDate) => {
     return `${dayjs(startDate).format('YYYY.MM.DD')} ~ ${dayjs(endDate).format('YYYY.MM.DD')}`;
 };
-
-const routeJoinSurvey = () => {
-    router.push({ path: "/joined-survey" });
-}
 
 onMounted(() => {
     axios.get(`${baseUrl}/survey/inquiry/respond`, {
@@ -75,44 +78,18 @@ onMounted(() => {
         },
         params: {
             page: 0,
-            size: 3
+            size: 10
         }
     })
         .then((response) => {
             surveys.value = response.data.content;
-            onLoading.value = false;
         })
-        .catch(error => {
+        .catch((error) => {
             console.error(error);
-
-            // 임시 데이터
-            surveys.value = [
-                {
-                    surveyId: 4,
-                    title: '2024년 회사 연말 행사 선호도 조사',
-                    description: '직원들이 선호하는 연말 행사 형태와 시기를 조사합니다',
-                    createDate: '2024-10-15T09:00:00.000Z',
-                    expireDate: '2024-12-01T23:59:59.999Z',
-                    respondCount: 82
-                },
-                {
-                    surveyId: 5,
-                    title: '사내 동호회 수요 조사',
-                    description: '신규 동호회 개설을 위한 직원들의 관심사를 파악합니다',
-                    createDate: '2024-11-01T09:00:00.000Z',
-                    expireDate: '2024-12-15T23:59:59.999Z',
-                    respondCount: 45
-                },
-                {
-                    surveyId: 6,
-                    title: '구내 식당 메뉴 만족도 조사',
-                    description: '구내 식당 메뉴 개선을 위한 의견을 수집합니다',
-                    createDate: '2024-11-20T09:00:00.000Z',
-                    expireDate: '2024-12-20T23:59:59.999Z',
-                    respondCount: 156
-                }
-            ];
         })
+        .finally(() => {
+            onLoading.value = false;
+        });
 });
 </script>
 
@@ -200,6 +177,20 @@ ul {
 
 .item-date {
     color: #B7B7B7;
+}
+
+.skeleton-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding: 16px 24px;
+}
+
+:deep(.v-skeleton-loader__image) {
+    width: 100%;
+    height: 108px;
+    border-radius: 12px;
+    margin-bottom: 16px;
 }
 
 .empty-container {
