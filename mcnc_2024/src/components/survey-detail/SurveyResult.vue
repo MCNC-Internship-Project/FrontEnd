@@ -93,6 +93,11 @@ const props = defineProps({
 })
 
 // 암호화
+const encryptId = (id) => {
+    return CryptoJS.AES.encrypt(id.toString(), secretKey).toString();
+}
+
+// 복호화
 const decryptId = (encryptedId) => {
     const bytes = CryptoJS.AES.decrypt(encryptedId, secretKey);
     return bytes.toString(CryptoJS.enc.Utf8);
@@ -133,7 +138,9 @@ function share() {
 
 // 수정 버튼 클릭
 function edit() {
-    axios.get(`${baseUrl}/survey/manage/modify/check/${Number(decryptId(props.id))}`, {
+    const decryptedId = decryptId(props.id)
+
+    axios.get(`${baseUrl}/survey/manage/modify/check/${decryptedId}`, {
         withCredentials: true,
         headers: {
             'Content-Type': 'application/json'
@@ -143,7 +150,7 @@ function edit() {
             if (response.status === 200) {
                 router.push({
                     name: "update-survey",
-                    params: { id: props.id },
+                    params: { id: encryptId(decryptedId) },
                 });
             }
         })
@@ -162,7 +169,7 @@ function close() {
 async function handleCloseConfirm(){
     try{
         const decryptedId = decryptId(props.id);
-        await axios.patch(`${baseUrl}/survey/manage/expire/${decryptedId}`, {
+        await axios.patch(`${baseUrl}/survey/manage/expire/${decryptedId}`,null, {
             withCredentials: true,
             headers:{
                 'Content-Type' : 'application/json',
@@ -270,6 +277,7 @@ function formatPeriod(startDate, endDate) {
     text-decoration: underline;
     text-underline-position: under;
     margin: 12px 16px 0px;
+    word-break: break-all;
 }
 
 .description {
@@ -277,6 +285,7 @@ function formatPeriod(startDate, endDate) {
     color: #C1C3C5;
     margin: 12px 16px 0px;
     font-weight: bold;
+    word-break: break-all;
 }
 
 .period {
