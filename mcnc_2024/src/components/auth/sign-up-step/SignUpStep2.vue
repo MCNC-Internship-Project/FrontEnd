@@ -3,10 +3,19 @@
         <form class="form-container" novalidate @submit.prevent="nextStep">
             <input type="text" class="form-input" :class="{ 'error': isUserNameError }" placeholder="사용자명"
                 v-model="userName" @focus="isUserNameError = false" v-focus>
-            <input type="password" class="form-input" :class="{ 'error': isPasswordError }" placeholder="비밀번호"
-                autocomplete="new-password" v-model="password" @focus="isPasswordError = false">
-            <input type="password" class="form-input" :class="{ 'error': isPasswordConfirmError }" placeholder="비밀번호 확인"
-                autocomplete="new-password" v-model="passwordConfirm" @focus="isPasswordConfirmError = false">
+
+            <div class="password-container" :class="{ 'error': isPasswordError }">
+                <input v-model="password" :type="passwordInputType" class="form-input-password" placeholder="비밀번호"
+                    autocomplete="new-password" @focus="isPasswordError = false">
+                <img class="form-input-icon" :src="passwordIcon" @click="changePasswordInputType" />
+            </div>
+
+            <div class="password-container" :class="{ 'error': isPasswordConfirmError }">
+                <input v-model="passwordConfirm" :type="passwordConfirmInputType" class="form-input-password"
+                    placeholder="비밀번호 확인" autocomplete="new-password" @focus="isPasswordConfirmError = false">
+                <img class="form-input-icon" :src="passwordConfirmIcon" @click="changePasswordConfirmInputType" />
+            </div>
+
             <button class="form-btn" v-ripple>다음</button>
         </form>
 
@@ -15,8 +24,11 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useSignUpStore } from '@/stores/SignUpStore';
+
+import imgEyeClose from '@/assets/images/icon_eye_close.svg';
+import imgEyeOpen from '@/assets/images/icon_eye_open.svg';
 
 const store = useSignUpStore();
 
@@ -28,6 +40,9 @@ const isUserNameError = ref(false);
 const isPasswordError = ref(false);
 const isPasswordConfirmError = ref(false);
 
+const passwordInputType = ref("password");
+const passwordConfirmInputType = ref("password");
+
 const dialog = ref({
     isVisible: false,
     message: ""
@@ -37,6 +52,22 @@ const showDialog = (message) => {
     dialog.value.message = message;
     dialog.value.isVisible = true;
 }
+
+const changePasswordInputType = () => {
+    passwordInputType.value = passwordInputType.value === "password" ? "text" : "password";
+}
+
+const changePasswordConfirmInputType = () => {
+    passwordConfirmInputType.value = passwordConfirmInputType.value === "password" ? "text" : "password";
+}
+
+const passwordIcon = computed(() => {
+    return passwordInputType.value === "password" ? imgEyeClose : imgEyeOpen;
+});
+
+const passwordConfirmIcon = computed(() => {
+    return passwordConfirmInputType.value === "password" ? imgEyeClose : imgEyeOpen;
+});
 
 const nextStep = () => {
     if (!userName.value || userName.value.trim() === "") {
@@ -87,18 +118,46 @@ const nextStep = () => {
     padding: 0 24px;
 }
 
+.password-container {
+    width: 100%;
+    height: 56px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    border: 2px solid var(--primary);
+    border-radius: 12px;
+    font-size: 0.875rem;
+    outline: none;
+}
+
+.form-input-password {
+    width: 100%;
+    height: 100%;
+    padding-right: 16px;
+    font-size: 0.875rem;
+    outline: none;
+}
+
 .form-input {
     width: 100%;
     height: 56px;
     margin-bottom: 12px;
-    padding: 0 16px;
-    border: solid 2px var(--primary);
+    padding: 0 52px 0 16px;
+    border: 2px solid var(--primary);
     border-radius: 12px;
-    outline: none;
     font-size: 0.875rem;
+    outline: none;
 }
 
-.form-input::placeholder {
+.form-input-icon {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+.form-input::placeholder,
+.form-input-password::placeholder {
     color: #C6C6C6;
 }
 
