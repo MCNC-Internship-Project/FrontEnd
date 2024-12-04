@@ -1,89 +1,79 @@
 <template>
     <div class="root-container">
-        <div class="form-container">
+        <form class="form-container" novalidate @submit.prevent="nextStep">
             <input type="text" class="form-input" :class="{ 'error': isUserNameError }" placeholder="사용자명"
-                v-model="userName" @focus="isUserNameError = false">
+                v-model="userName" @focus="isUserNameError = false" v-focus>
             <input type="password" class="form-input" :class="{ 'error': isPasswordError }" placeholder="비밀번호"
                 autocomplete="new-password" v-model="password" @focus="isPasswordError = false">
             <input type="password" class="form-input" :class="{ 'error': isPasswordConfirmError }" placeholder="비밀번호 확인"
                 autocomplete="new-password" v-model="passwordConfirm" @focus="isPasswordConfirmError = false">
-            <button class="form-btn" v-ripple @click="stepTo3">다음</button>
-        </div>
+            <button class="form-btn" v-ripple>다음</button>
+        </form>
 
-        <v-dialog v-model="showDialog" max-width="400">
-            <v-card>
-                <div class="dialog-container">
-                    <div class="dialog-error-message">{{ dialogMessage }}</div>
-                </div>
-                <v-card-actions>
-                    <v-btn color="primary" text @click="showDialog = false">
-                        확인
-                    </v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
+        <default-dialog v-model="dialog.isVisible" :message="dialog.message" @confirm="dialog.isVisible = false" />
     </div>
 </template>
 
 <script setup>
-import { ref, defineProps, defineEmits } from 'vue'
+import { ref } from 'vue'
+import { useSignUpStore } from '@/stores/SignUpStore';
 
-const userName = ref("")
-const password = ref("")
-const passwordConfirm = ref("")
+const store = useSignUpStore();
+
+const userName = ref(store.name);
+const password = ref(store.password);
+const passwordConfirm = ref(store.passwordConfirm);
 
 const isUserNameError = ref(false);
 const isPasswordError = ref(false);
 const isPasswordConfirmError = ref(false);
 
-const showDialog = ref(false)
-const dialogMessage = ref("")
+const dialog = ref({
+    isVisible: false,
+    message: ""
+});
 
-const props = defineProps({
-    step: Number,
-})
-
-const emit = defineEmits(["nextStep"])
-
-const showErrorDialog = (message) => {
-    dialogMessage.value = message
-    showDialog.value = true
+const showDialog = (message) => {
+    dialog.value.message = message;
+    dialog.value.isVisible = true;
 }
 
-const stepTo3 = () => {
+const nextStep = () => {
     if (!userName.value || userName.value.trim() === "") {
         isUserNameError.value = true;
-        showErrorDialog('사용자명을 입력해주세요.');
+        showDialog('사용자명을 입력해주세요.');
         return;
     }
 
     if (!userName.value.match(/^[a-zA-Z가-힣 ]{2,50}$/)) {
         isUserNameError.value = true;
-        showErrorDialog('사용자명은 특수문자를 제외한 2~50자로 입력해주세요.');
+        showDialog('사용자명은 특수문자를 제외한 2~50자로 입력해주세요.');
         return;
     }
 
     if (!password.value || password.value.trim() === "") {
         isPasswordError.value = true;
-        showErrorDialog('비밀번호를 입력해주세요.');
+        showDialog('비밀번호를 입력해주세요.');
         return;
     }
 
     if (!password.value.match(/^(?=.*[A-Za-z])(?=.*[0-9])(?=.*[!@#$%^&*()_+]).{8,}$/)) {
         isPasswordError.value = true;
-        showErrorDialog('비밀번호는 최소 8자, 숫자, 특수문자 및 대소문자를 포함해야 합니다.');
+        showDialog('비밀번호는 최소 8자, 숫자, 특수문자 및 대소문자를 포함해야 합니다.');
         return;
     }
 
     if (password.value !== passwordConfirm.value) {
         isPasswordConfirmError.value = true;
-        showErrorDialog('비밀번호가 일치하지 않습니다.');
+        showDialog('비밀번호가 일치하지 않습니다.');
         return;
     }
 
-    emit("nextStep", { userName: userName.value, password: password.value, step: props.step + 1 })
+    store.setName(userName.value);
+    store.setPassword(password.value);
+    store.setPasswordConfirm(passwordConfirm.value);
+    store.nextStep();
 }
-
 </script>
 
 <style scoped>
@@ -124,44 +114,5 @@ const stepTo3 = () => {
 
 .error {
     border-color: var(--accent);
-}
-
-.v-card {
-    padding: 0;
-    border-radius: 16px !important;
-}
-
-.dialog-background {
-    background-color: #FAF8F8;
-    border: 1px solid #EFF0F6;
-}
-
-.dialog-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 12px 32px 20px 32px;
-}
-
-.dialog-error-message {
-    margin: 32px 0 16px 0;
-    font-size: 1.125rem;
-    font-weight: bold;
-    color: #757576;
-}
-
-.v-card-actions {
-    padding: 20px;
-}
-
-.v-btn {
-    width: 100%;
-    margin: 0;
-    color: #FFFFFF !important;
-    background-color: var(--primary);
-    border-radius: 16px;
-    height: 48px;
-    font-size: 0.875rem;
 }
 </style>

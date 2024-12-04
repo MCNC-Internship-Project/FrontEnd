@@ -1,14 +1,9 @@
 <template>
-    <div id="root-container">
+    <div class="root-container">
         <header class="toolbar">
-            <div class="logo-container">
-                <img class="logo" src="@/assets/images/icon_logo.svg" alt="logo">
-                <div class="title">Survwey</div>
-            </div>
-
-            <div class="menu-container">
-                <img class="profile-icon" src="@/assets/images/icon_profile_none.svg" alt="profile icon" @click="routeProfile" />
-            </div>
+            <img class="logo" src="@/assets/images/icon_logo.svg" alt="logo">
+            <div class="title">Survwey</div>
+            <img class="profile-icon" src="@/assets/images/icon_profile_none.svg" alt="profile icon" @click="routeProfile" />
         </header>
 
         <div class="search-container" @click="routeSearch" v-ripple>
@@ -16,42 +11,39 @@
             <img class="search-icon" src="@/assets/images/icon_search.svg" alt="dropdown icon" />
         </div>
 
-        <!-- 내 설문조사 컴포넌트 -->
         <my-survey />
 
-        <!-- 완료된 설문조사 컴포넌트 -->
         <my-participated-survey />
 
-        <div class="create-survey-conponent">
-            <v-fab icon="mdi-plus" color="#7796E8" size="48" absolute @click="routeCreateSurvey" />
-        </div>
+        <v-fab icon="mdi-plus" color="#7796E8" size="48" absolute @click="routeCreateSurvey" />
     </div>
 </template>
 
 <script setup>
+import { useRouter } from 'vue-router'
 import MySurvey from './survey-list/MySurvey.vue';
 import MyParticipatedSurvey from './survey-list/MyParticipatedSurvey.vue';
-import { useRouter } from 'vue-router'
 
 const router = useRouter();
 
 const routeSearch = () => {
-    router.push({path : "/surveys"});
+    router.push("/surveys");
 }
 
 const routeProfile = () => {
-    router.push({path : "/profile"});
+    router.push("/profile");
 }
 
 const routeCreateSurvey = () => {
-    router.push({path : "/create-survey"});
+    router.push("/create-survey");
 }
 </script>
 
 <style scoped>
 .root-container {
     width: 100%;
-    overflow: hidden;
+    display: flex;
+    flex-direction: column;
 }
 
 .toolbar {
@@ -59,12 +51,7 @@ const routeCreateSurvey = () => {
     height: 64px;
     display: flex;
     align-items: center;
-}
-
-.logo-container {
-    display: flex;
-    align-items: center;
-    margin: 0 24px;
+    padding: 0 24px;
 }
 
 .logo {
@@ -78,15 +65,10 @@ const routeCreateSurvey = () => {
     color: var(--primary);
 }
 
-.menu-container {
-    display: flex;
-    align-items: center;
-    margin: 0 24px 0 auto;
-}
-
 .profile-icon {
     width: 24px;
     height: 24px;
+    margin-left: auto;
     cursor: pointer;
 }
 
@@ -94,8 +76,8 @@ const routeCreateSurvey = () => {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin: 16px 24px 40px 24px;
     height: 56px;
+    margin: 16px 24px 40px;
     padding: 0 16px;
     border-radius: 12px;
     background: #F3F3F3;

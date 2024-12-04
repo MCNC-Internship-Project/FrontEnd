@@ -7,7 +7,7 @@
         <div class="body-container">
             <div class="step-container">
                 <div class="step-text">
-                    {{ step }} / 3 단계
+                    {{ store.step }} / 3 단계
                 </div>
 
                 <div class="guide-text">
@@ -16,80 +16,76 @@
             </div>
 
             <div class="form-container">
-                <sign-up-step1 :step="step" v-show="step === 1" :userInfo="{ userId: userId, email: email }"
-                    @nextStep="stepUpTo2" />
-                <sign-up-step2 :step="step" v-show="step === 2" :userInfo="{ name: name, password: password }"
-                    @nextStep="stepUpTo3" />
-                <sign-up-step3 :step="step" v-show="step === 3" :userInfo="{ birth: birth, gender: gender }"
-                    @signUp="postSignUpRequest" />
+                <sign-up-step1 v-if="store.step === 1"/>
+                <sign-up-step2 v-else-if="store.step === 2"/>
+                <sign-up-step3 v-else @signUp="signUp" />
             </div>
         </div>
+
+        <default-dialog v-model="dialog.isVisible" :message="dialog.message" :isPersistent=true @confirm="login" />
     </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onUnmounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { useSignUpStore } from '@/stores/SignUpStore';
 import axios from 'axios';
 import SignUpStep1 from './sign-up-step/SignUpStep1.vue';
 import SignUpStep2 from './sign-up-step/SignUpStep2.vue';
 import SignUpStep3 from './sign-up-step/SignUpStep3.vue';
-import router from '@/router';
 
 const baseUrl = process.env.VUE_APP_API_URL;
+const store = useSignUpStore();
+const router = useRouter();
 
-const userId = ref("");
-const email = ref("");
-const password = ref("");
-const birth = ref("");
-const gender = ref("");
-const name = ref("");
+const dialog = ref({
+    isVisible: false,
+    message: ""
+});
 
-const step = ref(1);
+const showDialog = (message) => {
+    dialog.value.message = message;
+    dialog.value.isVisible = true;
+}
 
 const stepBack = () => {
-    if (step.value > 1)
-        step.value--;
-    else
+    if (store.step > 1) {
+        store.prevStep();
+    } else {
         router.push('/login');
+    }
 }
 
-const stepUpTo2 = (data) => {
-    userId.value = data.userId;
-    email.value = data.email;
-    step.value += 1;
+const signUp = () => {
+    showDialog('회원가입에 성공했습니다.');
 }
 
-const stepUpTo3 = (data) => {
-    name.value = data.userName;
-    password.value = data.password;
-    step.value += 1;
-}
+const login = () => {
+    dialog.value.isVisible = false
 
-const postSignUpRequest = (data) => {
-    birth.value = data.birth;
-    gender.value = data.gender;
-
-    const jsonData = {
-        userId: userId.value,
-        email: email.value,
-        password: password.value,
-        gender: gender.value,
-        birth: birth.value,
-        name: name.value
+    const requestBody = {
+        userId: store.userId,
+        password: store.password
     }
 
-    axios.post(`${baseUrl}/account/join`, JSON.stringify(jsonData), {
+    axios.post(`${baseUrl}/auth/login`, JSON.stringify(requestBody), {
+        withCredentials: true,
         headers: {
             'Content-Type': 'application/json'
         }
     })
         .then(() => {
-            router.replace({ path : "/login" })
+            router.replace("/");
         })
-        .catch((error) => {
-            console.log(error);
+        .catch(() => {
+            router.replace('/login');
         });
 }
+
+onUnmounted(() => {
+    store.reset();
+});
 </script>
 
 <style scoped>

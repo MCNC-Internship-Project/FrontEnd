@@ -11,53 +11,47 @@
                 </div>
 
                 <div class="guide-text">
-                    {{ stepTexts[step - 1] }}
+                    {{ stepTexts[store.step - 1] }}
                 </div>
             </div>
 
             <div class="form-container">
-                <find-password-step1 :step="step" v-show="step === 1" @nextStep="stepUpTo2" />
-                <find-password-step2 :step="step" :userId="userId" :email="email" v-show="step === 2" @nextStep="stepUpTo3" />
-                <find-password-step3 :step="step" :userId="userId" v-show="step === 3" @changePassword="changePasswordRequest" />
+                <find-password-step1 v-if="store.step === 1" />
+                <find-password-step2 v-else-if="store.step === 2" />
+                <find-password-step3 v-else @changePassword="changePassword" />
             </div>
         </div>
     </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { onUnmounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { useFindPasswordStore } from '@/stores/FindPasswordStore';
 import FindPasswordStep1 from './find-password-step/FindPasswordStep1.vue';
 import FindPasswordStep2 from './find-password-step/FindPasswordStep2.vue';
 import FindPasswordStep3 from './find-password-step/FindPasswordStep3.vue';
-import router from '@/router';
 
-const step = ref(1);
+const store = useFindPasswordStore();
+const router = useRouter();
+
 const stepTexts = [
     "아이디를 입력해주세요.",
     "회원정보에 등록한 이메일로 인증",
     "변경할 비밀번호 입력"
 ]
 
-const userId = ref("");
-const email = ref("");
-
 const stepBack = () => {
     router.replace('/login');
 }
 
-const stepUpTo2 = (data) => {
-    userId.value = data.userId;
-    email.value = data.email;
-    step.value += 1;
-}
-
-const stepUpTo3 = () => {
-    step.value += 1;
-}
-
-const changePasswordRequest = () => {
+const changePassword = () => {
     router.replace('/login');
 }
+
+onUnmounted(() => {
+    store.reset();
+});
 </script>
 
 <style scoped>
@@ -102,44 +96,5 @@ const changePasswordRequest = () => {
 
 .form-container {
     margin-top: 36px;
-}
-
-.v-card {
-    padding: 0;
-    border-radius: 16px !important;
-}
-
-.dialog-background {
-    background-color: #FAF8F8;
-    border: 1px solid #EFF0F6;
-}
-
-.dialog-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 12px 32px 20px 32px;
-}
-
-.dialog-error-message {
-    margin: 32px 0 16px 0;
-    font-size: 1.125rem;
-    font-weight: bold;
-    color: #757576;
-}
-
-.v-card-actions {
-    padding: 20px;
-}
-
-.v-btn {
-    width: 100%;
-    margin: 0;
-    color: #FFFFFF !important;
-    background-color: var(--primary);
-    border-radius: 16px;
-    height: 48px;
-    font-size: 0.875rem;
 }
 </style>

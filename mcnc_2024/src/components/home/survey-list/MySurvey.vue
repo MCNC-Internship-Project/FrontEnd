@@ -1,5 +1,5 @@
 <template>
-    <div id="root-container">
+    <div class="root-container">
         <div class="title-container">
             <div class="title-text">
                 내 설문조사
@@ -19,9 +19,9 @@
                         <div class="item-description">{{ survey.description }}</div>
 
                         <div class="footer-container">
-                            <div class="item-participated">{{ survey.respondCount }}명 참여</div>
+                            <div class="item-participated" :class="{ 'expired': !survey.expireDateValid }" >{{ survey.respondCount }}명 참여</div>
                             <v-progress-linear class="survey-progress" bg-color="#D9D9D9" bg-opacity="1"
-                                color="var(--primary)" rounded rounded-bar height="4"
+                                :color="survey.expireDateValid ? 'var(--primary)' : '#707070'" rounded rounded-bar height="4"
                                 :model-value="calculateProgress(survey.createDate, survey.expireDate)"></v-progress-linear>
                             <div class="date-container">
                                 <div class="date-start">{{ formatDate(survey.createDate) }}</div>
@@ -31,6 +31,11 @@
                     </div>
                 </li>
             </ul>
+
+            <div v-else-if="onLoading" class="skeleton-container">
+                <v-skeleton-loader v-for="n in 10" :key="n" type="image" class="skeleton" />
+            </div>
+
             <div v-else class="empty-container">
                 <div v-if="!onLoading" class="empty-text">생성한 설문조사가 없습니다.</div>
             </div>
@@ -53,39 +58,48 @@ const router = useRouter();
 const surveys = ref([])
 const onLoading = ref(true)
 
-const encryptId = (id) => {
-    return CryptoJS.AES.encrypt(id.toString(), secretKey).toString();
-}
-
 const routeMySurvey = () => {
     router.push({ path: "/my-survey" });
+}
+
+const encryptId = (id) => {
+    return CryptoJS.AES.encrypt(id.toString(), secretKey).toString();
 }
 
 const onItemClick = (survey) => {
     router.push({
         name: "SurveyResult",
-        params: { id : encryptId(survey.surveyId) },
+        params: { id: encryptId(survey.surveyId) },
     });
 };
 
 const calculateProgress = (startDate, endDate) => {
-    const currentDate = new Date()
-    const start = new Date(startDate)
-    const end = new Date(endDate)
+    const current = dayjs();
+    const start = dayjs(startDate);
+    const end = dayjs(endDate);
 
-    const totalDuration = end - start
-    const elapsedDuration = currentDate - start
+    if (current.isBefore(start)) {
+        return 0;
+    }
 
-    let progress = (elapsedDuration / totalDuration) * 100
+    if (current.isAfter(end)) {
+        return 100;
+    }
 
-    if (progress < 0) progress = 0
-    if (progress > 100) progress = 100
+    if (start.isSame(end)) {
+        return 100;
+    }
 
-    return progress
+    const total = end.diff(start);
+    const elapsed = current.diff(start);
+
+    return Math.max(0, Math.min(100, (elapsed / total) * 100));
 };
 
 const formatDate = (dateStr) => {
-    return dayjs(dateStr).format('MM.DD');
+    const date = dayjs(dateStr);
+    const isCurrentYear = date.year() === dayjs().year();
+    return isCurrentYear ? date.format('MM.DD') : date.format('YY.MM.DD');
 };
 
 onMounted(() => {
@@ -96,44 +110,18 @@ onMounted(() => {
         },
         params: {
             page: 0,
-            size: 3
+            size: 10
         }
     })
         .then((response) => {
             surveys.value = response.data.content;
-            onLoading.value = false;
         })
-        .catch(error => {
+        .catch((error) => {
             console.error(error);
-
-            // 임시 데이터
-            surveys.value = [
-                {
-                    surveyId: 1,
-                    title: "2024년 개발자 선호 프레임워크 조사",
-                    description: "프론트엔드/백엔드 개발자들이 선호하는 프레임워크와 개발 도구를 조사합니다",
-                    createDate: "2024-10-01T09:00:00.000Z",
-                    expireDate: "2024-10-31T23:59:59.999Z",
-                    respondCount: 145
-                },
-                {
-                    surveyId: 2,
-                    title: "원격근무 만족도 조사",
-                    description: "코로나19 이후 정착된 원격근무 환경에 대한 직원들의 만족도를 조사합니다",
-                    createDate: "2024-11-10T08:30:00.000Z",
-                    expireDate: "2024-11-25T18:00:00.000Z",
-                    respondCount: 78
-                },
-                {
-                    surveyId: 3,
-                    title: "신규 서비스 사용자 피드백",
-                    description: "최근 출시된 베타 서비스에 대한 초기 사용자들의 의견을 수집합니다",
-                    createDate: "2024-11-24T00:00:00.000Z",
-                    expireDate: "2024-12-31T23:59:59.999Z",
-                    respondCount: 32
-                }
-            ];
         })
+        .finally(() => {
+            onLoading.value = false;
+        });
 });
 </script>
 
@@ -164,13 +152,14 @@ onMounted(() => {
 
 .list-container {
     width: 100%;
+    padding-bottom: 20px;
 }
 
 ul {
     display: flex;
     overflow-x: scroll;
     margin: 0;
-    padding: 16px 8px 40px 24px;
+    padding: 16px 8px 20px 24px;
     list-style: none;
 }
 
@@ -238,6 +227,19 @@ ul {
     color: #B7B7B7;
 }
 
+.skeleton-container {
+    display: flex;
+    width: 100%;
+    padding: 16px 8px 20px 24px;
+}
+
+:deep(.v-skeleton-loader__image) {
+    width: 240px;
+    height: 168px;
+    border-radius: 12px;
+    margin-right: 16px;
+}
+
 .empty-container {
     display: flex;
     justify-content: center;
@@ -249,5 +251,9 @@ ul {
 .empty-text {
     font-size: 1.125rem;
     color: #7796E8;
+}
+
+.expired {
+    color: #707070;
 }
 </style>

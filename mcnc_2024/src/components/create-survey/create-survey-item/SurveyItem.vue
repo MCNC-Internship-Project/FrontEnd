@@ -2,7 +2,7 @@
     <div class="root-container">
         <div class="header-container">
             <input type="text" v-model="surveyTitle" class="header-input" :class="{ 'error': titleError }"
-                :placeholder="`질문 ${itemNumber}`" @focus="clearTitleError" />
+                :placeholder="`질문 ${itemNumber}`" maxlength="255" @focus="clearTitleError"/>
             <img class="header-icon" :class="{ 'disabled': isSingle, 'hidden': isSingle }"
                 src="@/assets/images/icon_trash.svg" alt="trash icon" @click="deleteItem" />
         </div>

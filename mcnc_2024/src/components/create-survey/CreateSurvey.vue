@@ -1,8 +1,9 @@
 <template>
     <div class="root-container">
         <header class="toolbar">
-            <img class="back" src="@/assets/images/icon_arrow_left.svg" alt="back" @click="showCancelDialog = true">
-            <button class="submit-btn" @click="isShowSaveModal = true" v-ripple>저장</button>
+            <img class="back" src="@/assets/images/icon_arrow_left.svg" alt="back"
+            @click="showDialog(dialogs.showCancelDialog, '설문조사 생성을 취소하시겠습니까?')">
+            <button class="submit-btn" @click="showDialog(dialogs.showSaveDialog, '저장하시겠습니까?')" v-ripple>저장</button>
         </header>
 
         <div class="survey-container">
@@ -14,15 +15,18 @@
 
                 <div class="input-section">
                     <input type="text" name="survey-description" class="survey-description" v-model="surveyDescription"
-                        placeholder="설문조사 설명" maxlength="255">
+                        placeholder="설문조사 설명" maxlength="510">
                 </div>
 
-                <div class="select-deadline-section" :class="{ 'date-error': dateError }">
+                <div class="select-deadline-section">
                     <div class="deadline">설문 기간</div>
 
-                    <div class="datetime-container" @click="showDialog = true; dateError = false">
+                    <div class="datetime-container" @click="showDatePickerDialog = true; dateError = false"
+                    :class="{ 'date-error': dateError }">
                         <span class="datetime-text"
-                            v-html="date === null && time === null ? '미설정' : ` ~&nbsp;${dayjs(date).format('YYYY.MM.DD')}&nbsp;&nbsp;${time}`"></span>
+                            v-html="date === null && time === null ?
+                            (dateError ? '마감 기한을 설정해주세요.' : '미설정')
+                            : ` ~&nbsp;${dayjs(date).format('YYYY.MM.DD')}&nbsp;&nbsp;${time}`"></span>
                         <img src="@/assets/images/icon_calendar3.svg" class="datetime-icon" alt="calendar icon" />
                     </div>
 
@@ -31,7 +35,8 @@
 
             <div>
                 <transition-group name="survey-delete" tag="div" class="survey-items-wrapper">
-                    <div class="survey-item-container" v-for="(com, index) in totalComponent" :key="com.id">
+                    <div class="survey-item-container" v-for="(com, index) in totalComponent" :key="com.id"
+                    :class="{ 'date-error': dateError }">
                         <survey-item ref="surveyItems" @delete-item="removeComponent(com.id)"
                             :is-single="totalComponent.length === 1" :item-number="index + 1" />
                     </div>
@@ -46,7 +51,7 @@
             </div>
         </div>
 
-        <v-dialog v-model="showDialog" max-width="400" persistent>
+        <v-dialog v-model="showDatePickerDialog" max-width="400" persistent>
             <v-card class="dialog-background">
                 <div class="dialog-container">
                     <div class="dialog-title">종료 날짜 설정</div>
@@ -114,6 +119,7 @@
                         </template>
                     </v-menu>
 
+                    <div class="error-text" v-if="isDateError || isTimeError">*날짜와 시간을 모두 선택해주세요.</div>
                     <div class="error-text" v-if="isTimeBeforeNowError">*종료 시간은 현재보다 이전으로 설정할 수 없습니다.</div>
 
                     <div class="dialog-actions">
@@ -124,63 +130,23 @@
             </v-card>
         </v-dialog>
 
-        <v-dialog v-model="isShowSaveModal" max-width="400">
-            <v-card class="dialog-background">
-                <div class="dialog-container">
-                    <div class="dialog-message">저장하시겠습니까?</div>
+        <default-dialog v-model="dialogs.showDefaultDialog.isVisible" :message="dialogs.showDefaultDialog.message"
+        @confirm="dialogs.showDefaultDialog.isVisible = false" />
 
-                    <div class="dialog-actions">
-                        <v-btn class="dialog-cancel-btn" @click="isShowSaveModal = false">취소</v-btn>
-                        <v-btn class="dialog-confirm-btn" color="#7796E8" @click="handleSubmit">확인</v-btn>
-                    </div>
-                </div>
-            </v-card>
-        </v-dialog>
+        <confirm-dialog v-model="dialogs.showCancelDialog.isVisible" :message="dialogs.showCancelDialog.message"
+        @confirm="stepBack" />
+        
+        <confirm-dialog v-model="dialogs.showSaveDialog.isVisible" :message="dialogs.showSaveDialog.message"
+        @confirm="handleSubmit" />
 
-        <v-dialog v-model="showInvalidDateDialog" max-width="400">
-            <v-card class="dialog-background">
-                <div class="dialog-container">
-                    <div class="dialog-error-message">{{ dialogMessage }}</div>
-                </div>
-
-                <v-card-actions>
-                    <v-btn class="dialog-close-btn" @click="showInvalidDateDialog = false">
-                        확인
-                    </v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
-
-        <v-dialog v-model="showSuccessDialog" max-width="400">
-            <v-card class="dialog-background">
-                <div class="dialog-container">
-                    <div class="dialog-error-message">성공적으로 저장되었습니다.</div>
-                </div>
-
-                <v-card-actions>
-                    <v-btn class="dialog-close-btn" @click="redirectionToMySurvey">
-                        확인
-                    </v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
-
-        <v-dialog v-model="showCancelDialog" max-width="400">
-            <v-card class="dialog-background">
-                <div class="dialog-container">
-                    <div class="dialog-message">설문조사 생성을 취소하시겠습니까?</div>
-
-                    <div class="dialog-actions">
-                        <v-btn class="dialog-cancel-btn" @click="showCancelDialog = false">취소</v-btn>
-                        <v-btn class="dialog-confirm-btn" color="#7796E8" @click="stepBack">확인</v-btn>
-                    </div>
-                </div>
-            </v-card>
-        </v-dialog>
+        <default-dialog v-model="dialogs.showSuccessDialog.isVisible" :message="dialogs.showSuccessDialog.message"
+        @confirm="redirectionToMySurvey" :isPersistent="true"/>
     </div>
 </template>
 
 <script setup>
+import DefaultDialog from '../common/DefaultDialog.vue';
+import ConfirmDialog from '../common/ConfirmDialog.vue';
 import { useRouter } from 'vue-router'
 import { ref, nextTick, watch } from 'vue';
 import axios from 'axios';
@@ -210,14 +176,33 @@ const isDateError = ref(false);
 const isTimeError = ref(false);
 const isTimeBeforeNowError = ref(false);
 
-const showInvalidDateDialog = ref(false);
-const showSuccessDialog = ref(false);
-const isShowSaveModal = ref(false);
-const showDialog = ref(false);
-const showCancelDialog = ref(false);
+const showDatePickerDialog = ref(false);
 const isDateMenuOpen = ref(false);
 const isTimeMenuOpen = ref(false);
-const dialogMessage = ref("");
+
+const dialogs = ref({
+    showDefaultDialog : {
+        isVisible : false,
+        message : "",
+    },
+    showCancelDialog : {
+        isVisible : false,
+        message : "",
+    },
+    showSuccessDialog : {
+        isVisible : false,
+        message : "",
+    },
+    showSaveDialog : {
+        isVisible : false,
+        message : "",
+    },
+})
+
+const showDialog = (dialog, message) => {
+    dialog.message = message
+    dialog.isVisible = true
+}
 
 const ampmList = ref(['오전', '오후']);
 const hourList = ref(['12', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11']);
@@ -233,7 +218,7 @@ const date = ref(null);
 const time = ref(null);
 
 const cancel = () => {
-    showDialog.value = false;
+    showDatePickerDialog.value = false;
 
     if (selectedDate.value !== null) {
         selectedDate.value = null;
@@ -282,7 +267,7 @@ const confirm = () => {
         date.value = selectedDate.value;
         time.value = selectedTime.value;
 
-        showDialog.value = false;
+        showDatePickerDialog.value = false;
     }
 };
 
@@ -292,7 +277,7 @@ const onTimePickerClose = (value) => {
     }
 };
 
-watch(showDialog, (show) => {
+watch(showDatePickerDialog, (show) => {
     if (show) {
         if (date.value) {
             selectedDate.value = date.value;
@@ -362,7 +347,7 @@ const removeComponent = (id) => {
 };
 
 const stepBack = () => {
-    showCancelDialog.value = false;
+    dialogs.value.showCancelDialog.isVisible = false;
     nextTick(() => {
         router.back();
     })
@@ -393,13 +378,13 @@ const handleSubmit = () => {
         titleError.value = true
         surveyTitle.value = "";
         valid = false;
-        isShowSaveModal.value = false;
+        dialogs.value.showSaveDialog.isVisible = false;
     }
 
     if (!date.value || !time.value) {
         dateError.value = true
         valid = false;
-        isShowSaveModal.value = false;
+        dialogs.value.showSaveDialog.isVisible = false;
     }
 
     const values = surveyItems.value.map((item) => item.getValue()); // getValue()는 각 survey-item에서 필요한 값을 반환하는 메서드로 가정
@@ -413,16 +398,15 @@ const handleSubmit = () => {
     /**
      * 비어있는 경로가 questionList 안에서 발견되는 것이 아니면 통과
      * 제목이나 날짜 입력이 안됐으면,
-     * 질문 항목들 중에 빈 값이 있나 확인하고 스타일 적용 및 경고창 준 뒤에 바로 리턴
-     * jsonData는 보내지 않음
+     * 질문 항목들 중에 빈 값이 있나 확인하고 스타일 적용 및 다이얼로그 띄우고 바로 리턴
      * 
      */
     if (isExistQuestionList.length > 0 || !valid) {
-        isShowSaveModal.value = false;
-        showErrorDialog('입력되지 않은 항목이 있습니다.');
+        dialogs.value.showSaveDialog.isVisible = false;
+        showDialog(dialogs.value.showDefaultDialog, '입력되지 않은 항목이 있습니다.');
         return;
     } else {
-        isShowSaveModal.value = false;
+        dialogs.value.showSaveDialog.isVisible = false;
 
         const dateFormatted = dayjs(date.value).format('YYYY-MM-DD');
         const timeFormatted = parseTime(time.value);
@@ -434,13 +418,11 @@ const handleSubmit = () => {
 
         if (selectedDateTime.isBefore(currentDateTime)) {
             dateError.value = true;
-            showErrorDialog('종료 시간은 현재보다 이전으로 설정할 수 없습니다.');
+            showDialog(dialogs.value.showDefaultDialog, '종료 시간은 현재보다 이전으로 설정할 수 없습니다.');
             return;
         }
 
         jsonData.expireDate = dateTime;
-
-        console.log(JSON.stringify(jsonData));
 
         axios.post(`${baseUrl}/survey/manage/create`, JSON.stringify(jsonData), {
             withCredentials: true,
@@ -450,23 +432,18 @@ const handleSubmit = () => {
         })
             .then((response) => {
                 if (response.status === 200) {
-                    showSuccessDialog.value = true;
+                    showDialog(dialogs.value.showSuccessDialog, "성공적으로 저장되었습니다.");
                 }
             })
             .catch(error => {
                 console.error(error);
-                showErrorDialog("설문조사 생성 중 오류가 발생했습니다.");
+                showDialog(dialogs.value.showDefaultDialog,"설문조사 생성 중 오류가 발생했습니다.");
             })
     }
 };
 
-const showErrorDialog = (message) => {
-    dialogMessage.value = message
-    showInvalidDateDialog.value = true
-}
-
 const redirectionToMySurvey = () => {
-    showSuccessDialog.value = false;
+    dialogs.value.showSuccessDialog.isVisible = false;
     router.replace({ path: "/my-survey" });
 }
 </script>
@@ -632,9 +609,8 @@ input {
     box-shadow: 0 0 0 2px #F77D7D;
 }
 
-.date-error {
-    border-radius: 8px;
-    box-shadow: 0 0 0 2px #F77D7D;
+.date-error .datetime-text{
+    color : #F77D7D;
 }
 
 .create-btn-container {
@@ -838,16 +814,6 @@ input {
 
 .v-card-actions {
     padding: 20px;
-}
-
-.dialog-close-btn {
-    width: 100%;
-    margin: 0;
-    color: #FFFFFF !important;
-    background-color: var(--primary);
-    border-radius: 16px;
-    height: 48px;
-    font-size: 0.875rem;
 }
 
 .survey-items-wrapper {
