@@ -9,6 +9,12 @@ const routes = [
     ...homeRoutes,
     ...authRoutes,
     ...surveyRoutes,
+    { 
+      path: '/:pathMatch(.*)*',
+      name: 'NotFound',
+      component : () => import("@/components/error/NotFound.vue"),
+      meta: { requiresAuth: true },
+    }
 ]
 
 const router = createRouter({
