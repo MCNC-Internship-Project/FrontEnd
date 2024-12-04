@@ -1,8 +1,13 @@
 <template>
     <div class="question-container">
         <h3 class="question-title">{{ question.body }}</h3>
-        <div v-for="(answer, index) in question.subjAnswerList" :key="index" class="answer-box">
-            {{ answer }}
+        <div v-if="question.subjAnswerList.length > 0">
+            <div v-for="(answer, index) in question.subjAnswerList" :key="index" class="answer-box">
+                {{ answer }}
+            </div>
+        </div>
+        <div v-else class="no-answer-box">
+            아직 등록된 답변이 없습니다
         </div>
     </div>
 </template>
@@ -44,5 +49,12 @@ defineProps({
   border-radius: 8px;
   background-color: #FFFFFF;
   font-size: 0.875rem;
+}
+
+.no-answer-box {
+    padding: 12px;
+    font-size: 0.875rem;
+    color: #8C8C8C;
+    text-align: center;
 }
 </style>
