@@ -1,6 +1,6 @@
 <template>
     <div class="root-container">
-        <form class="form-container" novalidate @submit.prevent="nextStep">
+        <div class="form-container">
             <div class="email-hint">{{ hideEmail(store.email) }}</div>
             <div class="email-container">
                 <input type="email" class="form-input" :class="{ 'error': isEmailError }" placeholder="이메일"
@@ -9,8 +9,8 @@
             </div>
             <input type="text" class="form-input" :class="{ 'error': isCodeError }" placeholder="인증번호" v-model="code"
                 @focus="isCodeError = false">
-            <button class="form-btn" v-ripple>다음</button>
-        </form>
+            <button class="form-btn" v-ripple @click="nextStep">다음</button>
+        </div>
 
         <default-dialog v-model="dialogs.defaultDialog.isVisible" :message="dialogs.defaultDialog.message"
             :isPersistent=true @confirm="login" />
@@ -53,13 +53,13 @@ const isEmailSending = ref(false);
 const verifyCode = () => {
     if (!email.value || email.value.trim() === "") {
         isEmailError.value = true;
-        showDialog('progressDialog', '이메일을 입력해주세요.');
+        showDialog('defaultDialog', '이메일을 입력해주세요.');
         return;
     }
 
     if (!email.value.match(/^[_A-Za-z0-9-+]+(\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\.[A-Za-z0-9]+)*(\.[A-Za-z]{2,})$/)) {
         isEmailError.value = true;
-        showDialog('progressDialog', '이메일 형식이 올바르지 않습니다.');
+        showDialog('defaultDialog', '이메일 형식이 올바르지 않습니다.');
         return;
     }
 
