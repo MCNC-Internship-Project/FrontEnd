@@ -29,7 +29,7 @@
 import { ref, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import axios from 'axios';
-
+import { encrypt } from '@/utils/crypto';
 import imgEyeClose from '@/assets/images/icon_eye_close.svg';
 import imgEyeOpen from '@/assets/images/icon_eye_open.svg';
 
@@ -78,7 +78,7 @@ const login = () => {
 
     const requestBody = {
         userId: userId.value,
-        password: password.value
+        password: encrypt(password.value)
     }
 
     axios.post(`${baseUrl}/auth/login`, JSON.stringify(requestBody), {

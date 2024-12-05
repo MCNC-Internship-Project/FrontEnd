@@ -19,6 +19,7 @@
 import { ref, defineEmits } from 'vue'
 import { useFindPasswordStore } from '@/stores/FindPasswordStore';
 import axios from 'axios';
+import { encrypt } from '@/utils/crypto';
 
 const baseUrl = process.env.VUE_APP_API_URL;
 const store = useFindPasswordStore();
@@ -66,13 +67,13 @@ const changePassword = () => {
         return;
     }
 
-    const jsonData = {
+    const requestBody = {
         userId: store.userId,
-        password: password.value
+        password: encrypt(password.value)
     }
 
     // 비밀번호 변경 API 호출
-    axios.post(`${baseUrl}/account/modify/password`, JSON.stringify(jsonData), {
+    axios.post(`${baseUrl}/account/modify/password`, JSON.stringify(requestBody), {
         headers: {
             'Content-Type': 'application/json'
         }

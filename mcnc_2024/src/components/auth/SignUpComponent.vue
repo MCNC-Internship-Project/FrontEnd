@@ -34,6 +34,7 @@ import axios from 'axios';
 import SignUpStep1 from './sign-up-step/SignUpStep1.vue';
 import SignUpStep2 from './sign-up-step/SignUpStep2.vue';
 import SignUpStep3 from './sign-up-step/SignUpStep3.vue';
+import { encrypt } from '@/utils/crypto';
 
 const baseUrl = process.env.VUE_APP_API_URL;
 const store = useSignUpStore(); // pinia store - 회원가입 정보 임시 저장
@@ -70,7 +71,7 @@ const login = () => {
 
     const requestBody = {
         userId: store.userId,
-        password: store.password
+        password: encrypt(store.password)
     }
 
     // 로그인 API 호출

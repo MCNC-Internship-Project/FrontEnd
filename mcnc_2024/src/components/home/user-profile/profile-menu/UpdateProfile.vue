@@ -37,7 +37,8 @@
             <div class="profile-container">
                 <div class="text">생년월일</div>
                 <div class="input-container">
-                    <input class="input" type="text" placeholder="생년월일" :value="dayjs(profileData.birth).format('YYYY년 M월 D일')" disabled />
+                    <input class="input" type="text" placeholder="생년월일"
+                        :value="dayjs(profileData.birth).format('YYYY년 M월 D일')" disabled />
                     <v-divider></v-divider>
                 </div>
             </div>
@@ -45,7 +46,8 @@
             <div class="profile-container">
                 <div class="text">성별</div>
                 <div class="input-container">
-                    <input class="input" type="text" placeholder="성별" :value="profileData.gender === 'M' ? '남성' : '여성'" disabled />
+                    <input class="input" type="text" placeholder="성별" :value="profileData.gender === 'M' ? '남성' : '여성'"
+                        disabled />
                 </div>
             </div>
         </div>
@@ -79,11 +81,11 @@
 </template>
 
 <script setup>
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
-
-import dayjs from 'dayjs'
+import dayjs from 'dayjs';
+import { encrypt, decrypt } from '@/utils/crypto';
 
 const baseUrl = process.env.VUE_APP_API_URL;
 const router = useRouter();
@@ -114,11 +116,6 @@ const profileData = ref({
     gender: null
 });
 
-const updateData = ref({
-    name: null,
-    email: null
-})
-
 const editComplete = () => {
     if (!profileData.value.name || profileData.value.name.trim() === "") {
         showErrorDialog('사용자명을 입력해주세요.');
@@ -140,12 +137,17 @@ const editComplete = () => {
         return;
     }
 
-    axios.post(`${baseUrl}/account/modify/profile`, JSON.stringify(updateData.value), {
+    const requestBody = {
+        name: profileData.value.name,
+        email: encrypt(profileData.value.email)
+    }
+
+    axios.post(`${baseUrl}/account/modify/profile`, JSON.stringify(requestBody), {
         withCredentials: true,
         headers: {
             'Content-Type': 'application/json'
         }
-    })    
+    })
         .then(() => {
             showCompletedDialog("프로필 수정이 완료되었습니다.");
         })
@@ -154,22 +156,24 @@ const editComplete = () => {
         });
 }
 
-watch(profileData, (newVal) => {
-    updateData.value = {
-        name: newVal.name,
-        email: newVal.email
-    }
-}, { deep: true });
-
 onMounted(() => {
     axios.get(`${baseUrl}/account/profile`, {
         withCredentials: true,
         headers: {
             'Content-Type': 'application/json'
         }
-    })    
+    })
         .then((response) => {
-            profileData.value = response.data;
+            const data = response.data;
+
+            profileData.value = {
+                name: data.name,
+                email: decrypt(data.email),
+                userId: data.userId,
+                birth: data.birth,
+                gender: data.gender
+            }
+
         })
         .catch((error) => {
             console.error(error);

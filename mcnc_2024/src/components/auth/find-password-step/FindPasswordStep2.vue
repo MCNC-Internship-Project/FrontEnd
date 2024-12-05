@@ -22,6 +22,7 @@
 import { ref } from 'vue'
 import { useFindPasswordStore } from '@/stores/FindPasswordStore';
 import axios from 'axios';
+import { encrypt } from '@/utils/crypto';
 
 const baseUrl = process.env.VUE_APP_API_URL;
 const store = useFindPasswordStore();
@@ -65,7 +66,7 @@ const verifyCode = () => {
 
     const requestBody = {
         userId: store.userId,
-        email: email.value
+        email: encrypt(email.value)
     }
 
     isEmailSending.value = true;
@@ -122,7 +123,8 @@ const hideEmail = (email) => {
 
     const [id, domain] = email.split('@');
     const formattedId = id.charAt(0) + '****';
-    return `${formattedId}@${domain}`;
+    const formattedDomain = domain.charAt(0) + '****';
+    return `${formattedId}@${formattedDomain}`;
 }
 </script>
 

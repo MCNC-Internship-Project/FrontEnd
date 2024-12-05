@@ -14,6 +14,7 @@
 import { ref } from 'vue'
 import { useFindPasswordStore } from '@/stores/FindPasswordStore';
 import axios from 'axios';
+import { decrypt } from '@/utils/crypto';
 
 const baseUrl = process.env.VUE_APP_API_URL;
 const store = useFindPasswordStore();
@@ -48,7 +49,7 @@ const nextStep = () => {
         .then((response) => {
             // store에 아이디 이메일 저장
             store.userId = userId.value;
-            store.email = response.data.email;
+            store.email = decrypt(response.data.email);
             store.nextStep();
         })
         .catch((error) => {

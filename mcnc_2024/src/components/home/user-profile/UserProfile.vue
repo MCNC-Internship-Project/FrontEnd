@@ -46,6 +46,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios';
+import { decrypt } from '@/utils/crypto';
 
 const baseUrl = process.env.VUE_APP_API_URL;
 const router = useRouter();
@@ -113,7 +114,7 @@ onMounted(() => {
     })
     .then((response) => {
         name.value = response.data.name;
-        email.value = response.data.email;
+        email.value = decrypt(response.data.email);
     })
     .catch((error) => {
         console.error(error);
