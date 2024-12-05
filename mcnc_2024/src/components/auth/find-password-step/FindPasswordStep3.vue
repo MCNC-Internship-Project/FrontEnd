@@ -19,6 +19,7 @@
 import { ref, defineEmits } from 'vue'
 import { useFindPasswordStore } from '@/stores/FindPasswordStore';
 import axios from 'axios';
+import { encrypt } from '@/utils/crypto';
 
 const baseUrl = process.env.VUE_APP_API_URL;
 const store = useFindPasswordStore();
@@ -47,11 +48,6 @@ const showDialog = (type, message) => {
     dialogs.value[type].isVisible = true;
 }
 
-const changePasswordSuccess = () => {
-    dialogs.value.defaultDialog.isVisible = false;
-    emit("changePassword");
-}
-
 const changePassword = () => {
     if (!password.value || password.value.trim() === "") {
         isPasswordError.value = true;
@@ -71,12 +67,13 @@ const changePassword = () => {
         return;
     }
 
-    const jsonData = {
+    const requestBody = {
         userId: store.userId,
-        password: password.value
+        password: encrypt(password.value)
     }
 
-    axios.post(`${baseUrl}/account/modify/password`, JSON.stringify(jsonData), {
+    // 비밀번호 변경 API 호출
+    axios.post(`${baseUrl}/account/modify/password`, JSON.stringify(requestBody), {
         headers: {
             'Content-Type': 'application/json'
         }
@@ -87,6 +84,12 @@ const changePassword = () => {
         .catch((error) => {
             showDialog('errorDialog', error.response.data.errorMessage);
         });
+}
+
+// 비밀번호 변경 성공
+const changePasswordSuccess = () => {
+    dialogs.value.defaultDialog.isVisible = false;
+    emit("changePassword");
 }
 </script>
 

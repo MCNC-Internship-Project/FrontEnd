@@ -53,6 +53,7 @@ import { ref, defineEmits, watch } from 'vue'
 import { useSignUpStore } from '@/stores/SignUpStore';
 import axios from 'axios';
 import dayjs from 'dayjs'
+import { encrypt } from '@/utils/crypto';
 
 const baseUrl = process.env.VUE_APP_API_URL;
 const store = useSignUpStore();
@@ -99,18 +100,20 @@ const goToSignUp = () => {
         return;
     }
 
+    // 서버 요청 형식에 맞게 데이터 형식 변경
     const birthFormatted = dayjs(birth.value).format('YYYY-MM-DD');
     const genderFormatted = gender.value === '남성' ? 'M' : 'F'
 
     const requestBody = {
         userId: store.userId,       
-        email: store.email,
-        password: store.password,
+        email: encrypt(store.email),
+        password: encrypt(store.password),
         gender: genderFormatted,
         birth: birthFormatted,
         name: store.name
     };
 
+    // 회원가입 API 호출
     axios.post(`${baseUrl}/account/join`, JSON.stringify(requestBody), {
         headers: {
             'Content-Type': 'application/json'
@@ -120,7 +123,7 @@ const goToSignUp = () => {
             emit("signUp");
         })
         .catch((error) => {
-            console.log(error);
+            showDialog(error.response.data.errorMessage);
         });
 }
 

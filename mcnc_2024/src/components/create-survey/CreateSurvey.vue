@@ -2,7 +2,7 @@
     <div class="root-container">
         <header class="toolbar">
             <img class="back" src="@/assets/images/icon_arrow_left.svg" alt="back"
-            @click="showDialog(dialogs.showCancelDialog, '설문조사 생성을 취소하시겠습니까?')">
+            @click="stepBack">
             <button class="submit-btn" @click="showDialog(dialogs.showSaveDialog, '저장하시겠습니까?')" v-ripple>저장</button>
         </header>
 
@@ -132,9 +132,6 @@
 
         <default-dialog v-model="dialogs.showDefaultDialog.isVisible" :message="dialogs.showDefaultDialog.message"
         @confirm="dialogs.showDefaultDialog.isVisible = false" />
-
-        <confirm-dialog v-model="dialogs.showCancelDialog.isVisible" :message="dialogs.showCancelDialog.message"
-        @confirm="stepBack" />
         
         <confirm-dialog v-model="dialogs.showSaveDialog.isVisible" :message="dialogs.showSaveDialog.message"
         @confirm="handleSubmit" />
@@ -157,6 +154,9 @@ import { checkEmptyValues } from '@/utils/checkEmptyValues';
 
 import SurveyItem from './create-survey-item/SurveyItem.vue';
 import TimePickerComponent from './create-survey-item/component/TimePickerComponent.vue';
+import { useSaveStatusStore } from '@/stores/saveStatusStore';
+
+const saveStatusStore = useSaveStatusStore();
 
 const baseUrl = process.env.VUE_APP_API_URL;
 const router = useRouter();
@@ -182,10 +182,6 @@ const isTimeMenuOpen = ref(false);
 
 const dialogs = ref({
     showDefaultDialog : {
-        isVisible : false,
-        message : "",
-    },
-    showCancelDialog : {
         isVisible : false,
         message : "",
     },
@@ -347,10 +343,7 @@ const removeComponent = (id) => {
 };
 
 const stepBack = () => {
-    dialogs.value.showCancelDialog.isVisible = false;
-    nextTick(() => {
-        router.back();
-    })
+    router.back();
 }
 
 const parseTime = (timeStr) => {
@@ -432,6 +425,7 @@ const handleSubmit = () => {
         })
             .then((response) => {
                 if (response.status === 200) {
+                    saveStatusStore.setSaved();
                     showDialog(dialogs.value.showSuccessDialog, "성공적으로 저장되었습니다.");
                 }
             })

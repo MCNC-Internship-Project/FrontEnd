@@ -46,6 +46,10 @@ import { ref, onMounted } from 'vue'
 import axios from 'axios';
 import { useRouter } from 'vue-router';
 import CryptoJS from 'crypto-js';
+import { getCurrentInstance } from "vue";
+
+const { appContext } = getCurrentInstance();
+const $axios = appContext.config.globalProperties.$axios;
 
 const router = useRouter();
 
@@ -156,30 +160,33 @@ async function load({ done }) {
 }
 
 const goToDetail = (surveyId, surveyDetailValues) => {
-    axios.get(`${baseUrl}/survey/inquiry/check/${surveyId}`, {
-            withCredentials: true,
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        })
-        .then((response) => {
-            const isMine = response.data.result; // boolean, 내꺼면 true
 
-            if(isMine){
-                router.push({
-                    name : "SurveyResult",
-                    params : {id : encryptId(surveyId)},
-                });
-            } else {
-                router.push({
-                    name: "SurveyStart",
-                    params: { id: encryptId(surveyId), surveyDetailValues : encryptId(JSON.stringify(surveyDetailValues)) },
-                });
-            }
-        })
-        .catch((error) => {
-            console.error(error);
-        })
+    $axios.get(`/survey/inquiry/check/${surveyId}`)
+    .then((response) => {
+        const isMine = response.data.result; // boolean, 내꺼면 true
+
+        if(isMine){
+            router.push({
+                name : "SurveyResult",
+                params : {id : encryptId(surveyId)},
+            });
+        } else {
+            router.push({
+                name: "SurveyStart",
+                params: { id: encryptId(surveyId), surveyDetailValues : encryptId(JSON.stringify(surveyDetailValues)) },
+            });
+        }
+    })
+    .catch((error) => {
+        console.error(error);
+        if(error.response.status === 401) {
+            alert("세션이 만료되었습니다.");
+            router.push({
+                name : "Login",
+                query : {redirect : router.currentRoute.value.fullPath},
+            })
+        }
+    })
 }
 
 const remainTime = (date) => {
