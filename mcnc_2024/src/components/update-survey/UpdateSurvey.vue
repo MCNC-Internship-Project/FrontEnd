@@ -153,6 +153,9 @@ import { checkEmptyValues } from '@/utils/checkEmptyValues';
 
 import UpdateSurveyItem from './update-survey-item/UpdateSurveyItem.vue';
 import TimePickerComponent from './update-survey-item/component/TimePickerComponent.vue';
+import { useSaveStatusStore } from '@/stores/saveStatusStore';
+
+const saveStatusStore = useSaveStatusStore();
 
 const props = defineProps({
     id: String,
@@ -490,6 +493,7 @@ const handleSubmit = () => {
         })
             .then((response) => {
                 if (response.status === 200) {
+                    saveStatusStore.setSaved();
                     showDialog(dialogs.value.showSuccessDialog, "성공적으로 수정되었습니다.");
                 }
             })
