@@ -32,9 +32,10 @@ import FindPasswordStep1 from './find-password-step/FindPasswordStep1.vue';
 import FindPasswordStep2 from './find-password-step/FindPasswordStep2.vue';
 import FindPasswordStep3 from './find-password-step/FindPasswordStep3.vue';
 
-const store = useFindPasswordStore();
+const store = useFindPasswordStore(); // pinia store - 비밀번호 찾기 정보 임시 저장
 const router = useRouter();
 
+// 단계 별 텍스트
 const stepTexts = [
     "아이디를 입력해주세요.",
     "회원정보에 등록한 이메일로 인증",
@@ -46,10 +47,12 @@ const stepBack = () => {
 }
 
 const changePassword = () => {
+    // 비밀번호 변경 성공 시 로그인 화면으로 이동
     router.replace('/login');
 }
 
 onUnmounted(() => {
+    // store에 저장된 데이터 초기화
     store.reset();
 });
 </script>

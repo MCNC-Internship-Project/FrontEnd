@@ -1,6 +1,7 @@
 import { createApp } from "vue";
 import App from "./App.vue";
 import router from "./router";
+import axiosInstance from "./utils/axiosInstance";
 
 import vuetify from "./plugins/vuetify";
 import VueDatePicker from "@vuepic/vue-datepicker";
@@ -23,6 +24,7 @@ window.addEventListener('resize', setScreenSize);
 
 const app = createApp(App);
 const pinia = createPinia();
+app.config.globalProperties.$axios = axiosInstance;
 
 app.use(router);
 app.use(vuetify);

@@ -61,12 +61,13 @@ const nextStep = () => {
         return;
     }
 
-    const jsonData = {
+    const requestBody = {
         userId: userId.value,
         email: email.value
     }
 
-    axios.post(`${baseUrl}/account/join/check`, JSON.stringify(jsonData), {
+    // 아이디 이메일 중복 체크 API 호출
+    axios.post(`${baseUrl}/account/join/check`, JSON.stringify(requestBody), {
         headers: {
             'Content-Type': 'application/json'
         }
@@ -87,6 +88,7 @@ const nextStep = () => {
                 return;
             }
 
+            // pinia store에 아이디, 이메일 임시 저장 후 2단계로 이동
             store.setUserId(userId.value);
             store.setEmail(email.value);
             store.nextStep();

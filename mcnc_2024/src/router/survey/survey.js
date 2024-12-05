@@ -9,13 +9,6 @@ const SurveyRoutes = [
         meta: { requiresAuth: true },
     },
     {
-        path : "/survey-detail/:id/update-survey",
-        name : "update-survey",
-        component : () => import("../../components/update-survey/UpdateSurvey.vue"),
-        props : true,
-        meta: { requiresAuth: true },
-    },
-    {
         path: "/survey-participation",
         name: "survey-participation",
         component: () => import("../../components/survey-participation/SurveyParticipation.vue"),
@@ -72,7 +65,14 @@ const SurveyRoutes = [
         component : () => import("../../components/survey-detail/SurveyResult.vue"),
         props : true,
         meta: { requiresAuth: true },
-    }
+    },
+    {
+        path : "/survey-result/:id/update-survey",
+        name : "update-survey",
+        component : () => import("../../components/update-survey/UpdateSurvey.vue"),
+        props : true,
+        meta: { requiresAuth: true },
+    },
 ]
 
 
