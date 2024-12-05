@@ -27,7 +27,7 @@
 
 <script setup>
 import { ref, computed } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import axios from 'axios';
 
 import imgEyeClose from '@/assets/images/icon_eye_close.svg';
@@ -35,6 +35,7 @@ import imgEyeOpen from '@/assets/images/icon_eye_open.svg';
 
 const baseUrl = process.env.VUE_APP_API_URL;
 
+const route = useRoute();
 const router = useRouter();
 
 const userId = ref("");
@@ -87,7 +88,15 @@ const login = () => {
         }
     })
         .then(() => {
-            router.push("/");
+            // 리다이렉션 route가 없으면 "/"로 이동
+            let redirect = route.query.redirect || "/";
+
+            // 외부 URL 리다이렉트 방지
+            if (!redirect.startsWith("/")) {
+                redirect = "/";
+            }
+
+            router.replace(redirect);
         })
         .catch((error) => {
             showDialog(error.response.data.errorMessage);
