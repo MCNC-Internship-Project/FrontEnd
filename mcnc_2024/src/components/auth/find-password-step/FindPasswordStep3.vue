@@ -47,11 +47,6 @@ const showDialog = (type, message) => {
     dialogs.value[type].isVisible = true;
 }
 
-const changePasswordSuccess = () => {
-    dialogs.value.defaultDialog.isVisible = false;
-    emit("changePassword");
-}
-
 const changePassword = () => {
     if (!password.value || password.value.trim() === "") {
         isPasswordError.value = true;
@@ -76,6 +71,7 @@ const changePassword = () => {
         password: password.value
     }
 
+    // 비밀번호 변경 API 호출
     axios.post(`${baseUrl}/account/modify/password`, JSON.stringify(jsonData), {
         headers: {
             'Content-Type': 'application/json'
@@ -87,6 +83,12 @@ const changePassword = () => {
         .catch((error) => {
             showDialog('errorDialog', error.response.data.errorMessage);
         });
+}
+
+// 비밀번호 변경 성공
+const changePasswordSuccess = () => {
+    dialogs.value.defaultDialog.isVisible = false;
+    emit("changePassword");
 }
 </script>
 

@@ -36,7 +36,7 @@ import SignUpStep2 from './sign-up-step/SignUpStep2.vue';
 import SignUpStep3 from './sign-up-step/SignUpStep3.vue';
 
 const baseUrl = process.env.VUE_APP_API_URL;
-const store = useSignUpStore();
+const store = useSignUpStore(); // pinia store - 회원가입 정보 임시 저장
 const router = useRouter();
 
 const dialog = ref({
@@ -49,7 +49,9 @@ const showDialog = (message) => {
     dialog.value.isVisible = true;
 }
 
+// 뒤로가기 버튼 클릭 시
 const stepBack = () => {
+    // 2단계 이상이면 이전 단계로 이동, 1단계면 로그인 페이지로 이동
     if (store.step > 1) {
         store.prevStep();
     } else {
@@ -57,10 +59,12 @@ const stepBack = () => {
     }
 }
 
+// 회원가입 성공
 const signUp = () => {
     showDialog('회원가입에 성공했습니다.');
 }
 
+// 회원가입 성공 후 로그인
 const login = () => {
     dialog.value.isVisible = false
 
@@ -69,6 +73,7 @@ const login = () => {
         password: store.password
     }
 
+    // 로그인 API 호출
     axios.post(`${baseUrl}/auth/login`, JSON.stringify(requestBody), {
         withCredentials: true,
         headers: {
@@ -76,14 +81,17 @@ const login = () => {
         }
     })
         .then(() => {
+            // 로그인 성공 시 홈으로 이동
             router.replace("/");
         })
         .catch(() => {
+            // 로그인 실패 시 로그인 페이지로 이동
             router.replace('/login');
         });
 }
 
 onUnmounted(() => {
+    // store에 저장된 데이터 초기화
     store.reset();
 });
 </script>

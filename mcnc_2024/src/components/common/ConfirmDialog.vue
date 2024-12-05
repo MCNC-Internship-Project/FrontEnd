@@ -2,10 +2,11 @@
     <v-dialog v-model="isVisible" :persistent="isPersistent" max-width="400" @keydown.enter="onConfirm">
         <v-card>
             <div class="message">{{ message }}</div>
-                <div class="dialog-actions">
-                    <v-btn class="cancel-btn" @click="isVisible = false">취소</v-btn>
-                    <v-btn class="confirm-btn" :color="confirmButtonColor" @click="onConfirm">확인</v-btn>
-                </div>
+            <div v-if="subMessage?.trim()" class="sub-message">{{ subMessage }}</div>
+            <div class="dialog-actions">
+                <v-btn class="cancel-btn" @click="isVisible = false">취소</v-btn>
+                <v-btn class="confirm-btn" :color="confirmButtonColor" @click="onConfirm">{{ confirmButtonText }}</v-btn>
+            </div>
         </v-card>
     </v-dialog>
 </template>
@@ -22,9 +23,17 @@ const props = defineProps({
         type: String,
         required: true
     },
+    subMessage: {
+        type: String,
+        default: ''
+    },
     isPersistent: {
         type: Boolean,
         default: false
+    },
+    confirmButtonText: {
+        type: String,
+        default: '확인'
     },
     confirmButtonColor: {
         type: String,
@@ -58,10 +67,16 @@ const onConfirm = () => {
 }
 
 .message {
-    margin: 0 16px 28px 16px;
+    margin: 0 16px;
     font-size: 1.125rem;
     font-weight: bold;
     color: #757576;
+}
+
+.sub-message {
+    font-size: 0.875rem;
+    color: #F77D7D;
+    font-weight: bold;
 }
 
 .dialog-actions {
@@ -69,7 +84,7 @@ const onConfirm = () => {
     align-items: center;
     gap: 12px;
     width: 100%;
-    margin: 0 8px;
+    margin: 28px 8px 0 8px;
 }
 
 .v-btn {

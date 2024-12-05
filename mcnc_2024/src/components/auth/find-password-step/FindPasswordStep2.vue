@@ -1,6 +1,6 @@
 <template>
     <div class="root-container">
-        <form class="form-container" novalidate @submit.prevent="nextStep">
+        <div class="form-container">
             <div class="email-hint">{{ hideEmail(store.email) }}</div>
             <div class="email-container">
                 <input type="email" class="form-input" :class="{ 'error': isEmailError }" placeholder="이메일"
@@ -9,11 +9,11 @@
             </div>
             <input type="text" class="form-input" :class="{ 'error': isCodeError }" placeholder="인증번호" v-model="code"
                 @focus="isCodeError = false">
-            <button class="form-btn" v-ripple>다음</button>
-        </form>
+            <button class="form-btn" v-ripple @click="nextStep">다음</button>
+        </div>
 
         <default-dialog v-model="dialogs.defaultDialog.isVisible" :message="dialogs.defaultDialog.message"
-            :isPersistent=true @confirm="login" />
+            :isPersistent=true @confirm="dialogs.defaultDialog.isVisible = false" />
         <progress-dialog v-model="dialogs.progressDialog.isVisible" :message="dialogs.progressDialog.message" />
     </div>
 </template>
@@ -53,17 +53,17 @@ const isEmailSending = ref(false);
 const verifyCode = () => {
     if (!email.value || email.value.trim() === "") {
         isEmailError.value = true;
-        showDialog('progressDialog', '이메일을 입력해주세요.');
+        showDialog('defaultDialog', '이메일을 입력해주세요.');
         return;
     }
 
     if (!email.value.match(/^[_A-Za-z0-9-+]+(\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\.[A-Za-z0-9]+)*(\.[A-Za-z]{2,})$/)) {
         isEmailError.value = true;
-        showDialog('progressDialog', '이메일 형식이 올바르지 않습니다.');
+        showDialog('defaultDialog', '이메일 형식이 올바르지 않습니다.');
         return;
     }
 
-    const jsonData = {
+    const requestBody = {
         userId: store.userId,
         email: email.value
     }
@@ -71,20 +71,21 @@ const verifyCode = () => {
     isEmailSending.value = true;
     showDialog('progressDialog', '인증번호 발송 중...');
 
-    axios.post(`${baseUrl}/auth/password/send`, JSON.stringify(jsonData), {
+    // 인증번호 발송 API 호출
+    axios.post(`${baseUrl}/auth/password/send`, JSON.stringify(requestBody), {
         headers: {
             'Content-Type': 'application/json'
         }
     })
         .then(() => {
-            isEmailSending.value = false;
-            dialogs.value.progressDialog.isVisible = false;
             showDialog('defaultDialog', '인증번호가 발송되었습니다.');
         })
         .catch((error) => {
+            showDialog('defaultDialog', error.response.data.errorMessage);
+        })
+        .finally(() => {
             isEmailSending.value = false;
             dialogs.value.progressDialog.isVisible = false;
-            showDialog('defaultDialog', error.response.data.errorMessage);
         });
 }
 
@@ -95,12 +96,13 @@ const nextStep = () => {
         return;
     }
 
-    const jsonData = ref({
+    const requestBody = {
         userId: store.userId,
         tempAuthCode: code.value
-    })
+    }
 
-    axios.post(`${baseUrl}/auth/password/check`, JSON.stringify(jsonData.value), {
+    // 인증번호 확인 API 호출
+    axios.post(`${baseUrl}/auth/password/check`, JSON.stringify(requestBody), {
         headers: {
             'Content-Type': 'application/json'
         }
@@ -113,6 +115,7 @@ const nextStep = () => {
         });
 }
 
+// 이메일 주소 가리기
 const hideEmail = (email) => {
     if (!email)
         return '';
