@@ -100,6 +100,7 @@ const nextStep = () => {
         return;
     }
 
+    // pinia store에 이름, 비밀번호 저장
     store.setName(userName.value);
     store.setPassword(password.value);
     store.setPasswordConfirm(passwordConfirm.value);

@@ -99,6 +99,7 @@ const goToSignUp = () => {
         return;
     }
 
+    // 서버 요청 형식에 맞게 데이터 형식 변경
     const birthFormatted = dayjs(birth.value).format('YYYY-MM-DD');
     const genderFormatted = gender.value === '남성' ? 'M' : 'F'
 
@@ -111,6 +112,7 @@ const goToSignUp = () => {
         name: store.name
     };
 
+    // 회원가입 API 호출
     axios.post(`${baseUrl}/account/join`, JSON.stringify(requestBody), {
         headers: {
             'Content-Type': 'application/json'
@@ -120,7 +122,7 @@ const goToSignUp = () => {
             emit("signUp");
         })
         .catch((error) => {
-            console.log(error);
+            showDialog(error.response.data.errorMessage);
         });
 }
 
