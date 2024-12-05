@@ -154,6 +154,9 @@ import { checkEmptyValues } from '@/utils/checkEmptyValues';
 
 import SurveyItem from './create-survey-item/SurveyItem.vue';
 import TimePickerComponent from './create-survey-item/component/TimePickerComponent.vue';
+import { useSaveStatusStore } from '@/stores/saveStatusStore';
+
+const saveStatusStore = useSaveStatusStore();
 
 const baseUrl = process.env.VUE_APP_API_URL;
 const router = useRouter();
@@ -422,6 +425,7 @@ const handleSubmit = () => {
         })
             .then((response) => {
                 if (response.status === 200) {
+                    saveStatusStore.setSaved();
                     showDialog(dialogs.value.showSuccessDialog, "성공적으로 저장되었습니다.");
                 }
             })

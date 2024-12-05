@@ -180,6 +180,7 @@ const goToDetail = (surveyId, surveyDetailValues) => {
     .catch((error) => {
         console.error(error);
         if(error.response.status === 401) {
+            alert("세션이 만료되었습니다.");
             router.push({
                 name : "Login",
                 query : {redirect : router.currentRoute.value.fullPath},
