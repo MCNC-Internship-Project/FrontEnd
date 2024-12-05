@@ -13,7 +13,7 @@
         </div>
 
         <default-dialog v-model="dialogs.defaultDialog.isVisible" :message="dialogs.defaultDialog.message"
-            :isPersistent=true @confirm="login" />
+            :isPersistent=true @confirm="dialogs.defaultDialog.isVisible = false" />
         <progress-dialog v-model="dialogs.progressDialog.isVisible" :message="dialogs.progressDialog.message" />
     </div>
 </template>
@@ -63,7 +63,7 @@ const verifyCode = () => {
         return;
     }
 
-    const jsonData = {
+    const requestBody = {
         userId: store.userId,
         email: email.value
     }
@@ -71,20 +71,21 @@ const verifyCode = () => {
     isEmailSending.value = true;
     showDialog('progressDialog', '인증번호 발송 중...');
 
-    axios.post(`${baseUrl}/auth/password/send`, JSON.stringify(jsonData), {
+    // 인증번호 발송 API 호출
+    axios.post(`${baseUrl}/auth/password/send`, JSON.stringify(requestBody), {
         headers: {
             'Content-Type': 'application/json'
         }
     })
         .then(() => {
-            isEmailSending.value = false;
-            dialogs.value.progressDialog.isVisible = false;
             showDialog('defaultDialog', '인증번호가 발송되었습니다.');
         })
         .catch((error) => {
+            showDialog('defaultDialog', error.response.data.errorMessage);
+        })
+        .finally(() => {
             isEmailSending.value = false;
             dialogs.value.progressDialog.isVisible = false;
-            showDialog('defaultDialog', error.response.data.errorMessage);
         });
 }
 
@@ -95,12 +96,13 @@ const nextStep = () => {
         return;
     }
 
-    const jsonData = ref({
+    const requestBody = {
         userId: store.userId,
         tempAuthCode: code.value
-    })
+    }
 
-    axios.post(`${baseUrl}/auth/password/check`, JSON.stringify(jsonData.value), {
+    // 인증번호 확인 API 호출
+    axios.post(`${baseUrl}/auth/password/check`, JSON.stringify(requestBody), {
         headers: {
             'Content-Type': 'application/json'
         }
@@ -113,6 +115,7 @@ const nextStep = () => {
         });
 }
 
+// 이메일 주소 가리기
 const hideEmail = (email) => {
     if (!email)
         return '';

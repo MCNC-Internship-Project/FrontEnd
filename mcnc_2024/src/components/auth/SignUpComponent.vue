@@ -91,7 +91,8 @@ const login = () => {
 }
 
 onUnmounted(() => {
-    store.reset(); // store에 저장된 데이터 초기화
+    // store에 저장된 데이터 초기화
+    store.reset();
 });
 </script>
 

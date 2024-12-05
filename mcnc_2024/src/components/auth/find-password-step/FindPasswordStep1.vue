@@ -39,12 +39,14 @@ const nextStep = () => {
         return;
     }
 
+    // 아이디 확인 API 호출
     axios.get(`${baseUrl}/account/modify/password/email/${userId.value}`, {
         headers: {
             'Content-Type': 'application/json'
         }
     })
         .then((response) => {
+            // store에 아이디 이메일 저장
             store.userId = userId.value;
             store.email = response.data.email;
             store.nextStep();
