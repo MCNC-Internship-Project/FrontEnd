@@ -150,7 +150,7 @@ function goToDetail(surveyId) {
     align-items: center;
     font-size: 1.125remrem;
     font-weight: bold;
-    color: #A2A2A3;
+    color: #6D6D6D;
 }
 
 .last-item {
