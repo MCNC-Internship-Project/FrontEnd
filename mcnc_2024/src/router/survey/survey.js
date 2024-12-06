@@ -23,7 +23,7 @@ const SurveyRoutes = [
         meta: { requiresAuth: true }, // 필요하다면 인증 required 추가
     },
     {
-        path: '/survey-completion',  
+        path: '/survey-completion',
         name: 'SurveyCompletion',
         component: () => import("../../components/survey-completion/SurveyCompletion.vue"),
         meta: { requiresAuth: true },
