@@ -6,7 +6,7 @@
       <div class="survey-title-section">
         <div>
           <!-- 제목이 없으면 기본 메시지 표시 -->
-          <h1 class="survey-title">{{ survey.title || '설문 제목이 없습니다.' }}</h1>
+          <h1 class="survey-title">{{ survey.title }}</h1>
 
           <!-- 설명이 없으면 빈칸으로 표시 -->
           <p class="survey-description">{{ survey.description || '' }}</p>
@@ -15,9 +15,11 @@
       </div>
 
       <div class="survey-item-container">
-        <div v-for="question in survey.questionList" 
-            :key="question.quesId" 
-            :class="['survey-item-section', { error: question.hasError }]">
+        <div
+          v-for="question in survey.questionList"
+          :key="question.quesId"
+          :class="['survey-item-section', { error: question.hasError }]"
+        >
           <!-- 에러 메시지: 주관식 제외 -->
           <div v-if="question.hasError && question.questionType !== 'SUBJECTIVE'" class="error-message">
             * {{ getErrorMessage(question.questionType) }}
@@ -59,8 +61,8 @@
               :placeholder="'답변을 입력해주세요.'"
               :class="{ 'error-placeholder': question.hasError }"
               ref="textAreaRef"
-              @input="(event) => { if (textAreaRef.value) autoResize(); handleTextInputChange(question.quesId); }">
-            </textarea>
+              @input="(event) => { if (textAreaRef.value) autoResize(); handleTextInputChange(question.quesId); }"
+            ></textarea>
           </div>
         </div>
       </div>
@@ -69,13 +71,7 @@
     <!-- 메뉴 컨테이너를 section 외부로 이동 -->
     <div class="menu-container">
       <!-- 제출 버튼 비활성화 -->
-      <button 
-        class="submit-btn" 
-        @click="submitSurvey" 
-        :disabled="isSurveyExpired"
-      >
-        제출
-      </button>
+      <button class="submit-btn" @click="submitSurvey">제출</button>
     </div>
 
     <!-- 중앙에 표시되는 알림 모달 -->
@@ -90,20 +86,21 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
+import { useRouter, useRoute } from 'vue-router'; // 라우터 추가
 import axios from 'axios';
-import router from '@/router';
+
+// 라우터 사용
+const router = useRouter();
+const route = useRoute(); // 현재 URL 파라미터에서 surveyId 가져오기
 
 // Constants
 const baseUrl = process.env.VUE_APP_API_URL;
-const surveyId = 44; // 설문 ID를 하드코딩 또는 동적으로 설정 가능
-const API_URL = `${baseUrl}/survey/inquiry/detail/${surveyId}`;
 
 // survey 데이터
 const survey = ref({ title: '', description: '', questionList: [] });
 
 // survey.questionList에 답변을 설정
 const answers = ref({});
-
 
 const showAlert = ref(false);
 const alertMessage = ref('');
@@ -127,17 +124,17 @@ const autoResize = () => {
 };
 
 // 설문 데이터 불러오기
-const fetchSurveyData = async () => {
+const fetchSurveyData = async (surveyId) => {
   try {
-    const response = await axios.get(API_URL, { withCredentials: true });
+    const response = await axios.get(`${baseUrl}/survey/inquiry/detail/${surveyId}`, { withCredentials: true });
     const data = response.data;
 
     // survey 데이터 업데이트
     survey.value = {
       title: data.title,
       description: data.description,
-      createDate: data.createDate,  // API 응답에서 받은 createDate
-      expireDate: data.expireDate,  // API 응답에서 받은 expireDate
+      createDate: data.createDate, // API 응답에서 받은 createDate
+      expireDate: data.expireDate, // API 응답에서 받은 expireDate
       questionList: data.questionList,
     };
 
@@ -156,16 +153,13 @@ const fetchSurveyData = async () => {
 
 // 날짜 포맷팅
 const formattedDate = computed(() => {
-  // survey.createDate와 survey.expireDate가 유효한 날짜인지 확인
   const startDate = new Date(survey.value.createDate);
   const endDate = new Date(survey.value.expireDate);
 
-  // 유효한 날짜인지 확인
   if (isNaN(startDate) || isNaN(endDate)) {
-    return '날짜가 유효하지 않습니다'; // 날짜가 유효하지 않으면 에러 메시지 반환
+    return '날짜가 유효하지 않습니다';
   }
 
-  // 로컬 시간으로 변환 후 날짜 포맷팅
   const options = { year: 'numeric', month: 'numeric', day: 'numeric' };
   const formattedStartDate = startDate.toLocaleDateString('ko-KR', options);
   const formattedEndDate = endDate.toLocaleDateString('ko-KR', options);
@@ -175,18 +169,15 @@ const formattedDate = computed(() => {
 
 // 체크박스 변경 처리
 const handleCheckboxChange = (quesId) => {
-  // 다중 선택 질문의 경우 선택된 값들을 업데이트
   const selectedAnswers = answers.value[quesId];
   if (!selectedAnswers) {
     answers.value[quesId] = [];
   }
-  // 선택한 항목을 추가 또는 제거
   answers.value[quesId] = [...new Set(selectedAnswers)];
 };
 
 // 라디오 버튼 변경 처리
 const handleRadioChange = (quesId) => {
-  // 단일 선택 질문의 경우 답변을 해당 값으로 설정
   const selectedAnswer = answers.value[quesId];
   answers.value[quesId] = selectedAnswer || '';
 };
@@ -207,16 +198,14 @@ const getErrorMessage = (type) => {
 
 // 설문 제출
 const submitSurvey = async () => {
-  // 설문 만료 여부 확인
+  const surveyId = route.params.surveyId; // URL 파라미터에서 surveyId 가져오기
   if (isSurveyExpired.value) {
     console.warn('설문 기간이 만료되었습니다.');
-    router.push('/survey-expired');
     return;
   }
 
   let hasUnanswered = false;
 
-  // 설문 문항별로 응답 확인
   survey.value.questionList.forEach((question) => {
     const answer = answers.value[question.quesId];
 
@@ -232,7 +221,6 @@ const submitSurvey = async () => {
     }
   });
 
-  // 응답하지 않은 질문이 있다면 알림 표시
   if (hasUnanswered) {
     alertMessage.value = '미응답 설문이 있습니다.';
     showAlert.value = true;
@@ -241,24 +229,79 @@ const submitSurvey = async () => {
 
   try {
     const payload = {
-      surveyId: surveyId, // 설문 ID
-      answers: answers.value, // 사용자가 입력한 답변들
+      surveyId: surveyId,
+      responseList: survey.value.questionList.map((question) => {
+        const response = answers.value[question.quesId];
+        
+        const baseResponse = {
+          quesId: question.quesId,
+          questionType: question.questionType,
+        };
+
+        // 주관식 처리
+        if (question.questionType === 'SUBJECTIVE') {
+          return {
+            ...baseResponse,
+            response: response
+            // selectionId를 제거
+          };
+        }
+
+        // 단일 선택 처리
+        if (question.questionType === 'OBJ_SINGLE') {
+          const selectedOption = question.selectionList.find(opt => opt.body === response);
+          return {
+            ...baseResponse,
+            selectionId: {
+              quesId: question.quesId,
+              sequence: selectedOption ? selectedOption.selectionId.sequence : 0
+            }
+          };
+        }
+
+        // 다중 선택 처리
+        if (question.questionType === 'OBJ_MULTI') {
+          const selectedSequences = response
+            .map(res => 
+              question.selectionList.find(opt => opt.body === res)?.selectionId.sequence
+            )
+            .filter(seq => seq !== undefined);
+
+          return {
+            ...baseResponse,
+            selectionId: {
+              quesId: question.quesId,
+              sequence: selectedSequences[0] // 첫 번째 선택된 항목의 sequence
+            }
+          };
+        }
+
+        return baseResponse;
+      }),
     };
 
-    await axios.post(`${baseUrl}/POST /survey/response`, payload, { withCredentials: true });
+    console.log('Submitting payload:', JSON.stringify(payload, null, 2));
+
+    await axios.post(`${baseUrl}/survey/response`, payload, { withCredentials: true });
 
     alertMessage.value = '설문이 제출되었습니다.';
     showAlert.value = true;
+
+    setTimeout(() => {
+      router.push({ path: '/survey-completion' });
+    }, 1000);
   } catch (error) {
     console.error('설문 제출 중 오류 발생:', error);
+    console.error('에러 상세:', error.response?.data);
     alertMessage.value = '설문 제출 중 오류가 발생했습니다.';
     showAlert.value = true;
   }
 };
 
-// 마운트 후 설문 데이터 불러오기
+// mounted 시 surveyId로 데이터 불러오기
 onMounted(() => {
-  fetchSurveyData();
+  const surveyId = route.params.surveyId;
+  fetchSurveyData(surveyId);
 });
 </script>
 
