@@ -491,16 +491,13 @@ const handleSubmit = () => {
                 'Content-Type': 'application/json'
             }
         })
-            .then((response) => {
-                if (response.status === 200) {
-                    saveStatusStore.setSaved();
-                    showDialog(dialogs.value.showSuccessDialog, "성공적으로 수정되었습니다.");
-                }
+            .then(() => {
+                saveStatusStore.setSaved();
+                showDialog(dialogs.value.showSuccessDialog, "설문조사가 수정되었습니다.");
             })
-            .catch(error => {
-                console.error(error);
+            .catch(() => {
                 showDialog(dialogs.value.showDefaultDialog, "설문조사 생성 중 오류가 발생했습니다.");
-            })
+            });
     }
 };
 
@@ -522,7 +519,6 @@ const redirectionToMySurvey = () => {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
 }
 
 .toolbar {
@@ -534,9 +530,6 @@ const redirectionToMySurvey = () => {
     height: 64px;
     background-color: #fff;
     z-index: 50;
-    top: 0;
-    left: 0;
-    right: 0;
 }
 
 .back {
@@ -553,7 +546,7 @@ const redirectionToMySurvey = () => {
     background-color: var(--primary);
     font-size: 0.8125rem;
     color: white;
-    margin-right: 24px;
+    margin: 0 24px 0 auto;
 }
 
 .survey-item-container {

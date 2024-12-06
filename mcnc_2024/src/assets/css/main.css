@@ -1,46 +1,53 @@
 @font-face {
-    font-family: "Noto Sans"; 
-    font-weight: normal; 
-    font-style: normal;
-    src: local("Noto Sans"), url("@/assets/fonts/NotoSans-Regular.ttf") format("truetype")
-}
-
-@font-face {
-    font-family: "Noto Sans"; 
-    font-weight: bold; 
-    font-style: normal;
-    src: local("Noto Sans"), url("@/assets/fonts/NotoSans-Bold.ttf") format("truetype")
-}
-
-@font-face {
-    font-family: 'Mont';
-    font-weight: bold;
-    font-style: normal;
-    src: local("Montserrat Alternates"), url('@/assets/fonts/MontserratAlternates-Bold.ttf') format('truetype');
-}
-
-@font-face {
-    font-family: 'Recipe korea';
+    font-family: "Noto Sans";
     font-weight: normal;
     font-style: normal;
-    src: local("Recipe korea"), url('@/assets/fonts/Recipekorea.ttf') format('truetype');
+    src: local("Noto Sans"), url("@/assets/fonts/NotoSans-Regular.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: "Noto Sans";
+    font-weight: bold;
+    font-style: normal;
+    src: local("Noto Sans"), url("@/assets/fonts/NotoSans-Bold.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: "Mont";
+    font-weight: bold;
+    font-style: normal;
+    src: local("Montserrat Alternates"), url("@/assets/fonts/MontserratAlternates-Bold.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: "Recipe korea";
+    font-weight: normal;
+    font-style: normal;
+    src: local("Recipe korea"), url("@/assets/fonts/Recipekorea.ttf") format("truetype");
 }
 
 :root {
     --font-noto-sans: "Noto Sans";
     --font-mont: "Mont";
-    --font-recipekorea : "Recipe korea";
+    --font-recipekorea: "Recipe korea";
     --normal: #464748;
-    --primary: #7796E8;
-    --secondary: #0D6DB7;
-    --accent: #F77D7D;
+    --primary: #7796e8;
+    --secondary: #0d6db7;
+    --accent: #f77d7d;
 }
 
-html, body {
+html,
+body {
     font-family: var(--font-noto-sans);
     color: var(--normal);
     margin: 0;
     padding: 0;
+    min-width: 340px;
+    word-break: break-all;
+}
+
+.toolbar {
+    min-width: 340px;
 }
 
 input:-webkit-autofill,

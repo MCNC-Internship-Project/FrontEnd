@@ -143,7 +143,7 @@ async function load({ done }) {
     flex-direction: column;
     justify-content: center;
     margin-top: 64px;
-    padding: 4px 0;
+    padding: 4px 0 80px 0;
 }
 
 .v-infinite-scroll {
