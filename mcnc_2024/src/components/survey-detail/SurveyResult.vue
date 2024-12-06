@@ -21,11 +21,11 @@
             </div>
             <div class="result-info">
                 <div class="total-response">
-                    <img src="../../assets/images/icon_total_response.svg" class="icon-total" />
+                    <img src="../../assets/images/icon_total_response.svg" class="icon-total" alt="total response" />
                     총 응답자 {{ surveyData.responseCount }}명
                 </div>
-                <button class="download">
-                    <img src="../../assets/images/icon_download.svg" class="icon-download" />
+                <button type="button" @click="downloadExcel" class="download">
+                    <img src="../../assets/images/icon_download.svg" class="icon-download" alt="download" />
                 </button>
             </div>
             <div class="result-container">
@@ -72,6 +72,7 @@ import { useRouter } from 'vue-router';
 import { ref, defineProps, onMounted } from 'vue';
 import axios from 'axios';
 import CryptoJS from 'crypto-js';
+import * as XLSX from 'xlsx';
 import ToolBar from '@/components/common/ToolBar.vue'
 import AgeChart from './AgeChart.vue';
 import GenderChart from './GenderChart.vue';
@@ -204,6 +205,121 @@ async function handleDeleteConfirm() {
     } catch (error) {
         console.error('삭제 실패:', error);
         alert('삭제에 실패했습니다. 다시 시도해 주세요.');
+    }
+}
+
+// excel 다운로드
+async function downloadExcel() {
+    try {
+        // 설문 데이터를 API로부터 가져오기
+        const decryptedId = decryptId(props.id);
+        const response = await axios.get(`${baseUrl}/survey/response/result/${decryptedId}`, {
+            withCredentials: true,
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        const data = response.data; // 설문 데이터
+
+        // 엑셀 워크북 생성
+        const workbook = XLSX.utils.book_new();
+
+        // 설문 개요 시트
+        const summaryData = [
+            ['설문 제목', '설문 설명', '작성자 ID', '생성일', '종료일', '총 응답자'],
+            [data.title, data.description, data.creatorId, formatDateToYMD(data.createDate), formatDateToYMD(data.expireDate), data.responseCount]
+        ];
+        const summarySheet = XLSX.utils.aoa_to_sheet(summaryData);
+        summarySheet['!cols'] = [
+            { wch: 20 }, // 첫 번째 열
+            { wch: 40 }, // 두 번째 열
+            { wch: 15 }, // 세 번째 열
+            { wch: 12 }, // 네 번째 열
+            { wch: 12 }, // 다섯 번째 열
+            { wch: 10 }  // 여섯 번째 열
+        ];
+        XLSX.utils.book_append_sheet(workbook, summarySheet, '설문 개요');
+
+        // 성별 통계 시트
+        const genderData = [['성별', '응답자 수']];
+        const translateGender = (gender) => {
+            if (gender === 'FEMALE') return '여성';
+            if (gender === 'MALE') return '남성';
+        };
+        data.genderCountList.forEach((item) => {
+            genderData.push([translateGender(item.gender), item.count]);
+        });
+        const genderSheet = XLSX.utils.aoa_to_sheet(genderData);
+        XLSX.utils.book_append_sheet(workbook, genderSheet, '성별 통계');
+
+        // 연령 통계 시트
+        const ageData = [['연령대', '응답자 수']];
+        data.ageCountList.forEach((item) => {
+            ageData.push([item.age, item.count]);
+        });
+        const ageSheet = XLSX.utils.aoa_to_sheet(ageData);
+        XLSX.utils.book_append_sheet(workbook, ageSheet, '연령 통계');
+
+        // 질문 및 답변 시트
+        const questionData = [['질문유형', '질문', '보기', '응답', '응답자수']];
+        data.questionList.forEach((question) => {
+            const questionType =
+                question.questionType === 'OBJ_SINGLE' ? '객관식(단일선택)'
+                    : question.questionType === 'OBJ_MULTI' ? '객관식(다중선택)'
+                        : '주관식';
+
+            // 객관식 항목 처리
+            let isFirstRow = true;
+            if (question.questionType === 'OBJ_SINGLE' || question.questionType === 'OBJ_MULTI') {
+                question.selectionList.forEach((selection) => {
+                    questionData.push([
+                        isFirstRow ? questionType : '',   
+                        isFirstRow ? question.body : '',
+                        selection.body,
+                        '',
+                        selection.responseCount
+                    ]);
+                    isFirstRow = false;
+                });
+            }
+
+            // 주관식 항목 처리
+            if (question.questionType === 'SUBJECTIVE') {
+                if (question.subjAnswerList.length > 0) {
+                    // 주관식 답변이 있는 경우
+                    question.subjAnswerList.forEach((answer) => {
+                        questionData.push([
+                            isFirstRow ? questionType : '',   // 첫 번째 행에만 출력
+                            isFirstRow ? question.body : '', // 첫 번째 행에만 출력
+                            '',                              // 보기 없음
+                            answer,                          // 응답
+                            ''                               // 응답자 수 없음
+                        ]);
+                        isFirstRow = false; // 첫 행 이후에는 질문 유형과 질문 빈칸 처리
+                    });
+                } else {
+                    questionData.push([
+                        questionType,
+                        question.body, 
+                        '',           
+                        '답변 없음',    
+                        ''           
+                    ]);
+                }
+            }
+
+            questionData.push(['', '', '', '', '']); // 질문 간 빈 줄 추가
+        });
+        const questionSheet = XLSX.utils.aoa_to_sheet(questionData);
+        XLSX.utils.book_append_sheet(workbook, questionSheet, '질문 및 답변');
+
+        // 파일 다운로드
+        const fileName = `${data.title}.xlsx`;
+        XLSX.writeFile(workbook, fileName);
+    } catch (error) {
+        console.error('엑셀 다운로드 실패:', error);
+        alert('엑셀 다운로드에 실패했습니다.');
     }
 }
 
