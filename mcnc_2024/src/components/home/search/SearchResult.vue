@@ -405,5 +405,9 @@ onMounted(() => {
     margin-left: 8px;
     font-size: 0.875rem;
     color: #919191;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    word-break: break-word;
+    white-space: nowrap;
 }
 </style>

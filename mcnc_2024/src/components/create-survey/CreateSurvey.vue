@@ -1,8 +1,7 @@
 <template>
     <div class="root-container">
         <header class="toolbar">
-            <img class="back" src="@/assets/images/icon_arrow_left.svg" alt="back"
-            @click="stepBack">
+            <img class="back" src="@/assets/images/icon_arrow_left.svg" alt="back" @click="stepBack">
             <button class="submit-btn" @click="showDialog(dialogs.showSaveDialog, '저장하시겠습니까?')" v-ripple>저장</button>
         </header>
 
@@ -22,9 +21,8 @@
                     <div class="deadline">설문 기간</div>
 
                     <div class="datetime-container" @click="showDatePickerDialog = true; dateError = false"
-                    :class="{ 'date-error': dateError }">
-                        <span class="datetime-text"
-                            v-html="date === null && time === null ?
+                        :class="{ 'date-error': dateError }">
+                        <span class="datetime-text" v-html="date === null && time === null ?
                             (dateError ? '마감 기한을 설정해주세요.' : '미설정')
                             : ` ~&nbsp;${dayjs(date).format('YYYY.MM.DD')}&nbsp;&nbsp;${time}`"></span>
                         <img src="@/assets/images/icon_calendar3.svg" class="datetime-icon" alt="calendar icon" />
@@ -36,7 +34,7 @@
             <div>
                 <transition-group name="survey-delete" tag="div" class="survey-items-wrapper">
                     <div class="survey-item-container" v-for="(com, index) in totalComponent" :key="com.id"
-                    :class="{ 'date-error': dateError }">
+                        :class="{ 'date-error': dateError }">
                         <survey-item ref="surveyItems" @delete-item="removeComponent(com.id)"
                             :is-single="totalComponent.length === 1" :item-number="index + 1" />
                     </div>
@@ -131,13 +129,13 @@
         </v-dialog>
 
         <default-dialog v-model="dialogs.showDefaultDialog.isVisible" :message="dialogs.showDefaultDialog.message"
-        @confirm="dialogs.showDefaultDialog.isVisible = false" />
-        
+            @confirm="dialogs.showDefaultDialog.isVisible = false" />
+
         <confirm-dialog v-model="dialogs.showSaveDialog.isVisible" :message="dialogs.showSaveDialog.message"
-        @confirm="handleSubmit" />
+            @confirm="handleSubmit" />
 
         <default-dialog v-model="dialogs.showSuccessDialog.isVisible" :message="dialogs.showSuccessDialog.message"
-        @confirm="redirectionToMySurvey" :isPersistent="true"/>
+            @confirm="redirectionToMySurvey" :isPersistent="true" />
     </div>
 </template>
 
@@ -181,17 +179,17 @@ const isDateMenuOpen = ref(false);
 const isTimeMenuOpen = ref(false);
 
 const dialogs = ref({
-    showDefaultDialog : {
-        isVisible : false,
-        message : "",
+    showDefaultDialog: {
+        isVisible: false,
+        message: "",
     },
-    showSuccessDialog : {
-        isVisible : false,
-        message : "",
+    showSuccessDialog: {
+        isVisible: false,
+        message: "",
     },
-    showSaveDialog : {
-        isVisible : false,
-        message : "",
+    showSaveDialog: {
+        isVisible: false,
+        message: "",
     },
 })
 
@@ -423,16 +421,13 @@ const handleSubmit = () => {
                 'Content-Type': 'application/json'
             }
         })
-            .then((response) => {
-                if (response.status === 200) {
-                    saveStatusStore.setSaved();
-                    showDialog(dialogs.value.showSuccessDialog, "성공적으로 저장되었습니다.");
-                }
+            .then(() => {
+                saveStatusStore.setSaved();
+                showDialog(dialogs.value.showSuccessDialog, "설문조사가 생성되었습니다.");
             })
-            .catch(error => {
-                console.error(error);
-                showDialog(dialogs.value.showDefaultDialog,"설문조사 생성 중 오류가 발생했습니다.");
-            })
+            .catch(() => {
+                showDialog(dialogs.value.showDefaultDialog, "설문조사 생성 중 오류가 발생했습니다.");
+            });
     }
 };
 
@@ -454,14 +449,10 @@ const redirectionToMySurvey = () => {
     position: fixed;
     display: flex;
     align-items: center;
-    justify-content: space-between;
     width: 100%;
     height: 64px;
     background-color: #fff;
-    z-index: 50;
-    top: 0;
-    left: 0;
-    right: 0;
+    z-index: 1000;
 }
 
 .back {
@@ -478,7 +469,7 @@ const redirectionToMySurvey = () => {
     background-color: var(--primary);
     font-size: 0.8125rem;
     color: white;
-    margin-right: 24px;
+    margin: 0 24px 0 auto;
 }
 
 .survey-item-container {
@@ -603,8 +594,8 @@ input {
     box-shadow: 0 0 0 2px #F77D7D;
 }
 
-.date-error .datetime-text{
-    color : #F77D7D;
+.date-error .datetime-text {
+    color: #F77D7D;
 }
 
 .create-btn-container {
