@@ -1,115 +1,66 @@
 <template>
-    <div class="survey-completion">
-        
-      <!-- 설문 정보 섹션 추가 -->
-      <div class="survey-section">
-        <div class="survey-title-section">
-          <h1 class="survey-title">
-            {{ survey.title }}
-          </h1>
-          <p class="survey-description">{{ survey.description }}</p>
-        </div>
-        <p class="survey-period">2024.11.13 ~ 2024.11.26</p>
-      </div>
-  
+  <div class="survey-completion">
+
+    <img src="@/assets/images/icon_complete.svg" alt="아이콘" class="survey-icon" />
+
       <!-- 참여 완료 메시지 -->
       <p class="completion-message">응답이 제출되었습니다!</p>
       <p class="p1">설문에 참여해 주셔서 감사합니다.</p>
 
-      <img src="@/assets/images/icon_complete.svg" alt="아이콘" class="survey-icon" />
-
-      <p><button @click="goBackToHome">홈 바로가기</button></p>
-    </div>
+    <p><button @click="goBackToHome">홈 바로가기</button></p>
+  </div>
 </template>
-  
-  <script setup>
-  import { useRouter } from 'vue-router';
-  import { ref } from 'vue';
-  
-  // 설문 정보 추가
-  const survey = ref({
-    title: '설문조사 제목',
-    description: '설문지 설명',
-  });
-  
-  const router = useRouter();
-  
-  const goBackToHome = () => {
-    router.push('/');  // 홈 페이지로 돌아가기
-  };
-  </script>
-  
-  <style scoped>
-  .survey-completion {
-    text-align: center;
-    margin-top: 35px;
-    padding: 0 24px;
-  }
-  
-  .survey-section {
-    background-color: #F8FBFF;
-    padding: 16px;
-    border-radius: 15px;
-    margin-bottom: 20px;
-    text-align: left;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    min-height: 126px;
-    justify-content: space-between;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-  
-  .survey-title {
-    text-decoration: underline;
-    text-underline-position : under;
-    font-size: 1.25rem;
-    font-weight: bold;
-    color: #464748;
-    margin-bottom: 4px;
-    position: relative;
-    display: inline-block;
-  }
 
-  .survey-description {
-    font-size: 1rem;
-    font-weight: bold;
-    color: #C1C3C5;
-  }
-  
-  .survey-period {
-    font-size: 0.75rem;
-    color: #8C8C8C;
-    margin-top: 10px;
-    font-weight: bold;
-  }
+<script setup>
+import { useRouter } from 'vue-router';
 
-  .completion-message {
-    font-weight: bold;
-    color: #374957;
-    margin-top: 8em; 
-  }
+const router = useRouter();
 
-  .p1 {
-    font-weight: bold;
-  }
+const goBackToHome = () => {
+  router.push('/');  // 홈 페이지로 돌아가기
+};
+</script>
 
-  img {
-    padding-top: 20px;
-  }
-  
-  button {
-    background-color: #7796E8;
-    color: white;
-    padding: 10px 20px;
-    margin-top: 4cap;
-    border: none;
-    border-radius: 15px;
-    cursor: pointer;
-  }
-  
-  button:hover {
-    background-color: #5c7fbb;
-  }
-  </style>
-  
+<style scoped>
+.survey-completion {
+  display: flex;              
+  flex-direction: column;       /* 세로 방향으로 정렬 */
+  align-items: center;          /* 가로 중심 정렬 */
+  justify-content: center;      /* 세로 중심 정렬 */
+  min-height: 100vh;            /* 화면 전체 높이를 차지 */
+  padding: 0 24px;
+  box-sizing: border-box;       /* 패딩 포함한 크기 계산 */
+  text-align: center;
+}
+
+img {
+  width: 134px;                 /* 고정 너비 */
+  height: 118px;                /* 고정 높이 */
+  margin-top: 0.5em;             /* 아이콘과 메시지 간 간격 */
+}
+
+.completion-message {
+  font-weight: bold;
+  color: #374957;
+  margin-top: 20px;             /* 아이콘 아래 고정된 간격 */
+}
+
+.p1 {
+  font-weight: bold;
+  margin-top: 10px;             /* 메시지 간 간격 */
+}
+
+button {
+  background-color: #7796E8;
+  color: white;
+  padding: 10px 20px;
+  margin-top: 8.5em;             /* 메시지와 버튼 사이 고정 간격 */
+  border: none;
+  border-radius: 15px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #5c7fbb;
+}
+</style>
