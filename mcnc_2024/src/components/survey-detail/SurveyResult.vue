@@ -202,7 +202,7 @@ async function handleDeleteConfirm() {
 async function downloadExcel() {
     try {
         // 설문 데이터를 API로부터 가져오기
-        const decryptedId = decryptId(props.id);
+        const decryptedId = decrypt(props.id);
         const response = await axios.get(`${baseUrl}/survey/response/result/${decryptedId}`, {
             withCredentials: true,
             headers: {
