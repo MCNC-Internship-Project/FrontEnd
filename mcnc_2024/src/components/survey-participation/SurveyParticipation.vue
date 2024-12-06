@@ -5,8 +5,11 @@
     <div class="survey-section">
       <div class="survey-title-section">
         <div>
-          <h1 class="survey-title">{{ survey.title }}</h1>
-          <p class="survey-description">{{ survey.description }}</p>
+          <!-- 제목이 없으면 기본 메시지 표시 -->
+          <h1 class="survey-title">{{ survey.title || '설문 제목이 없습니다.' }}</h1>
+
+          <!-- 설명이 없으면 빈칸으로 표시 -->
+          <p class="survey-description">{{ survey.description || '' }}</p>
         </div>
         <p class="survey-period">{{ formattedDate }}</p>
       </div>
@@ -15,7 +18,6 @@
         <div v-for="question in survey.questionList" 
             :key="question.quesId" 
             :class="['survey-item-section', { error: question.hasError }]">
-
           <!-- 에러 메시지: 주관식 제외 -->
           <div v-if="question.hasError && question.questionType !== 'SUBJECTIVE'" class="error-message">
             * {{ getErrorMessage(question.questionType) }}
@@ -50,22 +52,30 @@
             </label>
           </div>
 
-            <!-- 주관식 -->
-            <div v-if="question.questionType === 'SUBJECTIVE'" class="answer-options">
-              <textarea
-                v-model="answers[question.quesId]"
-                :placeholder="'답변을 입력해주세요.'"
-                :class="{ 'error-placeholder': question.hasError }"
-                @input="(event) => { autoResize(event); handleTextInputChange(question.quesId); }">
-              </textarea>
-            </div>
+          <!-- 주관식 -->
+          <div v-if="question.questionType === 'SUBJECTIVE'" class="answer-options">
+            <textarea
+              v-model="answers[question.quesId]"
+              :placeholder="'답변을 입력해주세요.'"
+              :class="{ 'error-placeholder': question.hasError }"
+              ref="textAreaRef"
+              @input="(event) => { if (textAreaRef.value) autoResize(); handleTextInputChange(question.quesId); }">
+            </textarea>
           </div>
         </div>
       </div>
+    </div>
 
-    <!-- 메뉴 컨테이너를 isection 외부로 이동 -->
+    <!-- 메뉴 컨테이너를 section 외부로 이동 -->
     <div class="menu-container">
-      <button class="submit-btn" @click="submitSurvey">제출</button>
+      <!-- 제출 버튼 비활성화 -->
+      <button 
+        class="submit-btn" 
+        @click="submitSurvey" 
+        :disabled="isSurveyExpired"
+      >
+        제출
+      </button>
     </div>
 
     <!-- 중앙에 표시되는 알림 모달 -->
@@ -79,20 +89,113 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
+import axios from 'axios';
 import router from '@/router';
-import { surveyData } from '../mock/MockParticipationSurveys'; // surveyData import
 
-// surveyData.js에서 가져온 데이터로 survey 설정
-const survey = ref(surveyData);
+// Constants
+const baseUrl = process.env.VUE_APP_API_URL;
+const surveyId = 44; // 설문 ID를 하드코딩 또는 동적으로 설정 가능
+const API_URL = `${baseUrl}/survey/inquiry/detail/${surveyId}`;
+
+// survey 데이터
+const survey = ref({ title: '', description: '', questionList: [] });
 
 // survey.questionList에 답변을 설정
 const answers = ref({});
-survey.value.questionList.forEach((question) => {
-  if (question.questionType === 'OBJ_MULTI') {
-    answers.value[question.quesId] = [];
-  }
+
+
+const showAlert = ref(false);
+const alertMessage = ref('');
+
+// 텍스트 영역 참조
+const textAreaRef = ref(null);
+
+// 설문 만료 여부 확인
+const isSurveyExpired = computed(() => {
+  const now = new Date();
+  const expireDate = new Date(survey.value.expireDate);
+  return expireDate < now;
 });
+
+// 자동 크기 조정 함수
+const autoResize = () => {
+  if (textAreaRef.value) {
+    textAreaRef.value.style.height = 'auto'; // 높이를 auto로 리셋
+    textAreaRef.value.style.height = `${textAreaRef.value.scrollHeight}px`; // scrollHeight로 높이 설정
+  }
+};
+
+// 설문 데이터 불러오기
+const fetchSurveyData = async () => {
+  try {
+    const response = await axios.get(API_URL, { withCredentials: true });
+    const data = response.data;
+
+    // survey 데이터 업데이트
+    survey.value = {
+      title: data.title,
+      description: data.description,
+      createDate: data.createDate,  // API 응답에서 받은 createDate
+      expireDate: data.expireDate,  // API 응답에서 받은 expireDate
+      questionList: data.questionList,
+    };
+
+    // 설문 문항에 대한 초기 답변 세팅
+    survey.value.questionList.forEach((question) => {
+      if (question.questionType === 'OBJ_MULTI') {
+        answers.value[question.quesId] = [];
+      } else {
+        answers.value[question.quesId] = '';
+      }
+    });
+  } catch (error) {
+    console.error('설문 데이터를 불러오는 데 오류가 발생했습니다.', error);
+  }
+};
+
+// 날짜 포맷팅
+const formattedDate = computed(() => {
+  // survey.createDate와 survey.expireDate가 유효한 날짜인지 확인
+  const startDate = new Date(survey.value.createDate);
+  const endDate = new Date(survey.value.expireDate);
+
+  // 유효한 날짜인지 확인
+  if (isNaN(startDate) || isNaN(endDate)) {
+    return '날짜가 유효하지 않습니다'; // 날짜가 유효하지 않으면 에러 메시지 반환
+  }
+
+  // 로컬 시간으로 변환 후 날짜 포맷팅
+  const options = { year: 'numeric', month: 'numeric', day: 'numeric' };
+  const formattedStartDate = startDate.toLocaleDateString('ko-KR', options);
+  const formattedEndDate = endDate.toLocaleDateString('ko-KR', options);
+
+  return `${formattedStartDate} ~ ${formattedEndDate}`;
+});
+
+// 체크박스 변경 처리
+const handleCheckboxChange = (quesId) => {
+  // 다중 선택 질문의 경우 선택된 값들을 업데이트
+  const selectedAnswers = answers.value[quesId];
+  if (!selectedAnswers) {
+    answers.value[quesId] = [];
+  }
+  // 선택한 항목을 추가 또는 제거
+  answers.value[quesId] = [...new Set(selectedAnswers)];
+};
+
+// 라디오 버튼 변경 처리
+const handleRadioChange = (quesId) => {
+  // 단일 선택 질문의 경우 답변을 해당 값으로 설정
+  const selectedAnswer = answers.value[quesId];
+  answers.value[quesId] = selectedAnswer || '';
+};
+
+// 주관식 입력 변경 처리
+const handleTextInputChange = (quesId) => {
+  const inputText = answers.value[quesId];
+  answers.value[quesId] = inputText || '';
+};
 
 // 에러 메시지 반환
 const getErrorMessage = (type) => {
@@ -102,34 +205,18 @@ const getErrorMessage = (type) => {
   return '';
 };
 
-// 날짜 포맷팅
-const formattedDate = computed(() => {
-  const startDate = new Date(survey.value.createDate).toLocaleDateString();
-  const endDate = new Date(survey.value.expireDate).toLocaleDateString();
-  return `${startDate} ~ ${endDate}`;
-});
+// 설문 제출
+const submitSurvey = async () => {
+  // 설문 만료 여부 확인
+  if (isSurveyExpired.value) {
+    console.warn('설문 기간이 만료되었습니다.');
+    router.push('/survey-expired');
+    return;
+  }
 
-const showAlert = ref(false);
-const alertMessage = ref('');
-
-const handleRadioChange = (questionId) => {
-  const question = survey.value.questionList.find((q) => q.quesId === questionId);
-  if (question) question.hasError = false;
-};
-
-const handleCheckboxChange = (questionId) => {
-  const question = survey.value.questionList.find((q) => q.quesId === questionId);
-  if (question) question.hasError = false;
-};
-
-const handleTextInputChange = (questionId) => {
-  const question = survey.value.questionList.find((q) => q.quesId === questionId);
-  if (question) question.hasError = false;
-};
-
-const submitSurvey = () => {
   let hasUnanswered = false;
 
+  // 설문 문항별로 응답 확인
   survey.value.questionList.forEach((question) => {
     const answer = answers.value[question.quesId];
 
@@ -145,20 +232,34 @@ const submitSurvey = () => {
     }
   });
 
+  // 응답하지 않은 질문이 있다면 알림 표시
   if (hasUnanswered) {
     alertMessage.value = '미응답 설문이 있습니다.';
     showAlert.value = true;
     return;
   }
 
-  router.push('/survey-completion');
+  try {
+    const payload = {
+      surveyId: surveyId, // 설문 ID
+      answers: answers.value, // 사용자가 입력한 답변들
+    };
+
+    await axios.post(`${baseUrl}/POST /survey/response`, payload, { withCredentials: true });
+
+    alertMessage.value = '설문이 제출되었습니다.';
+    showAlert.value = true;
+  } catch (error) {
+    console.error('설문 제출 중 오류 발생:', error);
+    alertMessage.value = '설문 제출 중 오류가 발생했습니다.';
+    showAlert.value = true;
+  }
 };
 
-const autoResize = (event) => {
-  const textarea = event.target;
-  textarea.style.height = 'auto';
-  textarea.style.height = `${textarea.scrollHeight}px`;
-};
+// 마운트 후 설문 데이터 불러오기
+onMounted(() => {
+  fetchSurveyData();
+});
 </script>
 
 <style scoped>
