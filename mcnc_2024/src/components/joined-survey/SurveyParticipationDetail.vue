@@ -14,6 +14,7 @@
     <div class="survey-section">
       <div class="survey-title-section">
         <div>
+          
           <h1 class="survey-title">{{ survey.title }}</h1>
           <p class="survey-description">{{ survey.description }}</p>
         </div>
@@ -40,8 +41,10 @@
                 </label>
               </div>
             </template>
-            <template v-else-if="question.questionType === 'SUBJECTIVE'">
-              <textarea disabled v-model="userAnswers[question.quesId]" placeholder="답변을 입력하세요."></textarea>
+            <template v-if="question.questionType !== 'SUBJECTIVE' && question.selectionList && question.selectionList.length">
+              <div class="answer-options">
+                <!-- 기존 라디오/체크박스 렌더링 -->
+              </div>
             </template>
           </div>
         </div>
@@ -51,13 +54,22 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { surveyData } from '../mock/MockUserSurveyData'; // 데이터 임포트
+import axios from 'axios'; // axios import
+import { defineProps } from 'vue';
 
 const router = useRouter();
 
-// 초기값 설정
+// id를 props로 받아옴
+const props = defineProps({
+  id: {
+    type: String, // id는 일반적으로 문자열로 받음
+    required: true,
+  },
+});
+
+// survey 객체와 사용자 답변 객체
 const survey = ref({
   title: '',
   description: '',
@@ -65,33 +77,48 @@ const survey = ref({
   endDate: '',
   questions: [],
 });
-
 const userAnswers = ref({});
 
-// 설문 데이터 가져오기
-const fetchSurveyData = () => {
-  // surveyData는 mock 데이터로 직접 설정
-  const fetchedSurvey = surveyData;
+// API에서 설문 데이터를 가져오는 함수
+const fetchSurveyData = async () => {
+  try {
+    // 실제 API 요청
+    const response = await axios.get(`/api/survey/response/${props.id}`);
+    const fetchedSurvey = response.data;
 
-  // survey와 userAnswers를 맞게 설정
-  survey.value = {
+    // 설문 정보 설정
+    survey.value = {
     title: fetchedSurvey.title,
     description: fetchedSurvey.description,
     startDate: fetchedSurvey.createDate,
     endDate: fetchedSurvey.expireDate,
-    questions: fetchedSurvey.questionList, // questionList를 질문 배열로 사용
+    isExpired: !fetchedSurvey.expireDateValid, // 설문 만료 여부 추가
+    questions: fetchedSurvey.questionList,
   };
 
-  // userAnswers를 설정 (사용자가 답변한 항목)
-  userAnswers.value = fetchedSurvey.questionList.reduce((acc, question) => {
-    acc[question.quesId] = question.userResponse || (question.questionType === 'OBJ_MULTI' ? [] : '');
-    return acc;
-  }, {});
+
+    // 사용자 답변 설정
+    userAnswers.value = fetchedSurvey.questionList.reduce((acc, question) => {
+      acc[question.quesId] = question.questionType === 'OBJ_MULTI' ? [] : '';
+      return acc;
+    }, {});
+  } catch (error) {
+    // 404 오류 처리
+    if (error.response && error.response.status === 404) {
+      console.error('설문을 찾을 수 없습니다.');
+      router.push('/not-found'); // 'not-found' 페이지로 이동
+    }
+  }
 };
+
+// 컴포넌트가 마운트되면 fetchSurveyData 호출
+onMounted(() => {
+  fetchSurveyData();
+});
 
 // 뒤로 가기 함수
 const goBack = () => {
-  router.push('/');
+  router.push('/'); // 홈 페이지로 이동
 };
 
 // 날짜 포맷 함수
@@ -99,9 +126,6 @@ const formatDate = (dateStr) => {
   const date = new Date(dateStr);
   return date.toISOString().split('T')[0];
 };
-
-// 컴포넌트 마운트 시 데이터 가져오기
-fetchSurveyData();
 </script>
 
 <style scoped>
@@ -131,15 +155,16 @@ fetchSurveyData();
 
 .survey-section {
   width: 100%;
-  max-width: 800px;
   padding: 0 24px;
   flex-grow: 1;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
+  justify-content: center;
+  align-items: center;
 }
 
 .survey-title-section {
+  width: 100%;
   background-color: #F8FBFF;
   border-radius: 15px;
   margin-bottom: 20px;
@@ -147,6 +172,7 @@ fetchSurveyData();
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
+  max-width: 800px;
   min-height: 126px;
   justify-content: space-between;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -187,6 +213,7 @@ fetchSurveyData();
 
 .survey-item-container {
   width: 100%;
+  max-width: 800px;
 }
 
 .survey-item-section {
