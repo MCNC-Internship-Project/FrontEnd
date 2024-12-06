@@ -145,7 +145,7 @@ import ConfirmDialog from '../common/ConfirmDialog.vue';
 import { useRouter } from 'vue-router'
 import { ref, nextTick, watch, onMounted, defineProps } from 'vue';
 import axios from 'axios';
-import CryptoJS from 'crypto-js';
+import { decrypt, encrypt } from '@/utils/crypto';
 
 import dayjs from 'dayjs'
 
@@ -161,7 +161,6 @@ const props = defineProps({
     id: String,
 })
 
-const secretKey = process.env.VUE_APP_API_KEY;
 const baseUrl = process.env.VUE_APP_API_URL;
 const router = useRouter();
 
@@ -218,19 +217,10 @@ const selectedMinute = ref('00');
 const date = ref(null);
 const time = ref(null);
 
-const encryptId = (id) => {
-    return CryptoJS.AES.encrypt(id.toString(), secretKey).toString();
-}
-
-const decryptId = (encryptedId) => {
-    const bytes = CryptoJS.AES.decrypt(encryptedId, secretKey);
-    return bytes.toString(CryptoJS.enc.Utf8);
-}
-
 let apiResponse = null;
 
 onMounted(() => {
-    surveyId.value = decryptId(props.id);
+    surveyId.value = decrypt(props.id);
 
     axios.get(`${baseUrl}/survey/inquiry/detail/${surveyId.value}`, {
         withCredentials: true,
@@ -507,7 +497,7 @@ const redirectionToMySurvey = () => {
     setTimeout(() => {
             router.replace({
             name: "SurveyResult",
-            params: {id : encryptId(surveyId.value)}
+            params: {id : encrypt(surveyId.value)}
         });
     }, 100);
 }

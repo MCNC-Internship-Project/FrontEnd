@@ -88,6 +88,7 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router'; // 라우터 추가
 import axios from 'axios';
+import { decrypt } from '@/utils/crypto';
 
 // 라우터 사용
 const router = useRouter();
@@ -300,7 +301,7 @@ const submitSurvey = async () => {
 
 // mounted 시 surveyId로 데이터 불러오기
 onMounted(() => {
-  const surveyId = route.params.surveyId;
+  const surveyId = decrypt(route.params.id);
   fetchSurveyData(surveyId);
 });
 </script>

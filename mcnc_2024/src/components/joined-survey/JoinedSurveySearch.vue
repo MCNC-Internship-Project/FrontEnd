@@ -20,12 +20,11 @@
 import { useRouter } from 'vue-router';
 import { ref, onMounted, watch } from 'vue';
 import axios from 'axios';
-import CryptoJS from 'crypto-js';
+import { encrypt } from '@/utils/crypto';
 import ToolBar from '../common/ToolBar.vue';
 import SearchResult from '../common/SearchResult.vue';
 
 const baseUrl = process.env.VUE_APP_API_URL;
-const secretKey = process.env.VUE_APP_API_KEY;
 
 const router = useRouter();
 const searchQuery = ref('');
@@ -104,15 +103,11 @@ async function loadSurveys({ done }) {
     }
 }
 
-const encryptId = (id) => {
-    return CryptoJS.AES.encrypt(id.toString(), secretKey).toString();
-};
-
 // 설문 상세로 가기
 function goToDetail(surveyId) {
     router.push({
         name: "SurveyParticipationDetail",
-        params: { id: encryptId(surveyId) },
+        params: { id: encrypt(surveyId) },
     });
 }
 
