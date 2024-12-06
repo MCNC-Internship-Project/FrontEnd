@@ -7,14 +7,14 @@
                 </template>
                 <v-list>
                     <v-list-item v-for="(item, i) in items" :key="i" @click="item.action">
-                        <v-list-item-title :class="{ deleteTitle: item.action === remove }">{{
-                            item.title}}</v-list-item-title>
+                        <v-list-item-title :class="{ deleteTitle: item.action === remove }">{{ item.title
+                            }}</v-list-item-title>
                     </v-list-item>
                 </v-list>
             </v-menu>
         </ToolBar>
 
-        <div class="survey-container">
+        <div v-if="surveyData" class="survey-container">
             <div class="header-container">
                 <h1 class="survey-title">{{ surveyData.title }}</h1>
                 <p class="description">{{ surveyData.description }}</p>
@@ -43,6 +43,7 @@
         </div>
     </div>
 
+    <!--수정 모달-->
     <v-dialog v-model="showDisabledModifyDialog" max-width="400">
         <v-card class="dialog-background">
             <div class="dialog-container">
@@ -56,6 +57,16 @@
             </v-card-actions>
         </v-card>
     </v-dialog>
+
+    <!--종료 모달-->
+    <ConfirmationModal v-model="isDeleteModalVisible" message="설문을 정말 삭제하시겠습니까?" warning="*삭제 후에는 복구가 불가능합니다!"
+        cancelText="취소" confirmText="삭제" @cancel="handleModalCancel" @confirm="handleDeleteConfirm" />
+
+    <!--삭제 모달-->
+    <ConfirmationModal v-model="isCloseModalVisible" message="설문을 종료하시겠습니까?" cancelText="취소" confirmText="종료"
+        @cancel="handleModalCancel" @confirm="handleCloseConfirm" />
+
+
 </template>
 
 <script setup>
@@ -67,18 +78,30 @@ import ToolBar from '@/components/common/ToolBar.vue'
 import AgeChart from './AgeChart.vue';
 import GenderChart from './GenderChart.vue';
 import ResultRenderer from '@/components/survey-detail/ResultRenderer.vue';
-import { MockSurveyResult } from '@/components/mock/MockSurveyResult.js';
+import ConfirmationModal from './ConfirmationModal.vue';
 
-const surveyData = ref(MockSurveyResult);
-
+const surveyData = ref(null);
 const secretKey = process.env.VUE_APP_API_KEY;
 const baseUrl = process.env.VUE_APP_API_URL;
 const router = useRouter();
 const showDisabledModifyDialog = ref(false);
+const isDeleteModalVisible = ref(false);
+const isCloseModalVisible = ref(false);
 
 const props = defineProps({
     id: String,
 })
+
+// 암호화
+const encryptId = (id) => {
+    return CryptoJS.AES.encrypt(id.toString(), secretKey).toString();
+}
+
+// 복호화
+const decryptId = (encryptedId) => {
+    const bytes = CryptoJS.AES.decrypt(encryptedId, secretKey);
+    return bytes.toString(CryptoJS.enc.Utf8);
+}
 
 // 메뉴 버튼 리스트
 const items = [
@@ -89,14 +112,23 @@ const items = [
 ];
 
 onMounted(() => {
-    // Mock 데이터로 테스트
-    surveyData.value = MockSurveyResult;
+    fetchSurveyData();
 });
 
-// 암호화
-const decryptId = (encryptedId) => {
-    const bytes = CryptoJS.AES.decrypt(encryptedId, secretKey);
-    return bytes.toString(CryptoJS.enc.Utf8);
+// 설문 데이터 가져오기 (api 연결)
+async function fetchSurveyData() {
+    try {
+        const decryptedId = decryptId(props.id);
+        const response = await axios.get(`${baseUrl}/survey/response/result/${decryptedId}`, {
+            withCredentials: true,
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+        surveyData.value = response.data;
+    } catch (error) {
+        console.error('설문 데이터를 불러오는 중 오류 발생:', error);
+    }
 }
 
 // 공유 버튼 클릭
@@ -106,7 +138,9 @@ function share() {
 
 // 수정 버튼 클릭
 function edit() {
-    axios.get(`${baseUrl}/survey/manage/modify/check/${Number(decryptId(props.id))}`, {
+    const decryptedId = decryptId(props.id)
+
+    axios.get(`${baseUrl}/survey/manage/modify/check/${decryptedId}`, {
         withCredentials: true,
         headers: {
             'Content-Type': 'application/json'
@@ -116,7 +150,7 @@ function edit() {
             if (response.status === 200) {
                 router.push({
                     name: "update-survey",
-                    params: { id: props.id },
+                    params: { id: encryptId(decryptedId) },
                 });
             }
         })
@@ -128,13 +162,58 @@ function edit() {
 
 // 종료 버튼 클릭
 function close() {
-    console.log('close button click');
+    isCloseModalVisible.value = true;
+}
+
+// 설문 종료 api 연결
+async function handleCloseConfirm(){
+    try{
+        const decryptedId = decryptId(props.id);
+        await axios.patch(`${baseUrl}/survey/manage/expire/${decryptedId}`,null, {
+            withCredentials: true,
+            headers:{
+                'Content-Type' : 'application/json',
+            },
+        });
+        isCloseModalVisible.value = false;
+        router.push('/my-survey');
+    } catch (error) {
+        console.error('설문 종료 실패:', error);
+        alert('설문 종료 실패')
+    }
 }
 
 // 삭제 버튼 클릭
 function remove() {
-    console.log('remove button click');
+    isDeleteModalVisible.value = true; // 모달 표시
+    console.log('삭제 버튼 클릭');
 }
+
+function handleModalCancel() {
+    isDeleteModalVisible.value = false;
+    isCloseModalVisible.value = false;
+}
+
+// 설문 삭제 api 연결 (서버x)
+async function handleDeleteConfirm() {
+    try {
+        const decryptedId = decryptId(props.id); // 설문 ID 복호화
+        // 삭제 API 호출
+        await axios.delete(`${baseUrl}/survey/manage/delete/${decryptedId}`, {
+            withCredentials: true,
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+        console.log('삭제 성공');
+        isDeleteModalVisible.value = false; // 모달 닫기
+        router.push('/my-survey'); // 목록 페이지로 이동
+    } catch (error) {
+        console.error('삭제 실패:', error);
+        alert('삭제에 실패했습니다. 다시 시도해 주세요.');
+    }
+}
+
 function goBack() {
     router.back();
 }
@@ -198,6 +277,7 @@ function formatPeriod(startDate, endDate) {
     text-decoration: underline;
     text-underline-position: under;
     margin: 12px 16px 0px;
+    word-break: break-all;
 }
 
 .description {
@@ -205,6 +285,7 @@ function formatPeriod(startDate, endDate) {
     color: #C1C3C5;
     margin: 12px 16px 0px;
     font-weight: bold;
+    word-break: break-all;
 }
 
 .period {

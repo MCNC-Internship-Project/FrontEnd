@@ -6,7 +6,8 @@
                     <div class="item-selection-container" :class="{ 'error': item.hasError }">
                         <v-radio v-if="props.surveyType === 'OBJ_SINGLE'" color="#7796E8" disabled />
                         <v-checkbox-btn v-else color="#7796E8" disabled />
-                        <input type="text" v-model="item.value" class="item-input" :placeholder="`항목 ${index + 1}`"
+                        <input type="text" v-model="item.value" class="item-input" 
+                            :placeholder="`항목 ${index + 1}`" maxlength="255"
                             :disabled="item.id === 'etcId'" :ref="el => itemInputs[index] = el"
                             @focus="clearError(index)" />
                         <img class="item-icon" src="@/assets/images/icon_x.svg" alt="delete icon"

@@ -1,13 +1,18 @@
 import { createApp } from "vue";
 import App from "./App.vue";
 import router from "./router";
-
-import VueDatePicker from "@vuepic/vue-datepicker";
-import "@vuepic/vue-datepicker/dist/main.css";
+import axiosInstance from "./utils/axiosInstance";
 
 import vuetify from "./plugins/vuetify";
+import VueDatePicker from "@vuepic/vue-datepicker";
+import "@vuepic/vue-datepicker/dist/main.css";
+import { createPinia } from 'pinia';
 
 import "./assets/css/main.css";
+
+import DefaultDialog from './components/common/DefaultDialog.vue';
+import ConfirmDialog from "./components/common/ConfirmDialog.vue";
+import ProgressDialog from "./components/common/ProgressDialog.vue";
 
 function setScreenSize() {
   let vh = window.innerHeight * 0.01;
@@ -18,8 +23,19 @@ window.addEventListener('load', setScreenSize);
 window.addEventListener('resize', setScreenSize);
 
 const app = createApp(App);
+const pinia = createPinia();
+app.config.globalProperties.$axios = axiosInstance;
 
 app.use(router);
 app.use(vuetify);
+app.use(pinia);
 app.component("VueDatePicker", VueDatePicker);
+app.component("DefaultDialog", DefaultDialog);
+app.component("ConfirmDialog", ConfirmDialog);
+app.component("ProgressDialog", ProgressDialog);
+app.directive('focus', {
+  mounted(el) {
+    el.focus()
+  }
+})
 app.mount("#app");

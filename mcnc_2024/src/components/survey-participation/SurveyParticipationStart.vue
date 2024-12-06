@@ -20,7 +20,7 @@
             </div>
 
             <div class="participate-btn-container">
-                <div class="participate-btn">
+                <div class="participate-btn" v-ripple>
                     설문 참여하기
                 </div>
             </div>

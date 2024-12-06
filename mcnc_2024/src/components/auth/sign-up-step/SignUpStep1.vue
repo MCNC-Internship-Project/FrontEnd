@@ -1,112 +1,102 @@
 <template>
     <div class="root-container">
-        <div class="form-container">
+        <form class="form-container" novalidate @submit.prevent="nextStep">
             <input type="text" class="form-input" :class="{ 'error': isUserIdError }" placeholder="아이디" v-model="userId"
-                @focus="isUserIdError = false">
-            <input type="email" class="form-input" :class="{ 'error': isEmailError }" placeholder="이메일"
-                autocomplete="userEmail" v-model="email" @focus="isEmailError = false">
-            <button class="form-btn" v-ripple @click="stepTo2">다음</button>
-        </div>
+                @focus="isUserIdError = false" v-focus>
+            <input type="email" class="form-input" :class="{ 'error': isEmailError }" placeholder="이메일" v-model="email"
+                autocomplete="new-password" @focus="isEmailError = false">
+            <button class="form-btn" v-ripple>다음</button>
+        </form>
 
-        <v-dialog v-model="showDialog" max-width="400">
-            <v-card>
-                <div class="dialog-container">
-                    <div class="dialog-error-message">{{ dialogMessage }}</div>
-                </div>
-                <v-card-actions>
-                    <v-btn color="primary" text @click="showDialog = false">
-                        확인
-                    </v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
+        <default-dialog v-model="dialog.isVisible" :message="dialog.message" @confirm="dialog.isVisible = false" />
     </div>
 </template>
 
 <script setup>
+import { ref } from 'vue'
+import { useSignUpStore } from '@/stores/SignUpStore';
 import axios from 'axios';
-import { ref, defineProps, defineEmits } from 'vue'
 
 const baseUrl = process.env.VUE_APP_API_URL;
+const store = useSignUpStore();
 
-const userId = ref("")
-const email = ref("")
+const userId = ref(store.userId);
+const email = ref(store.email);
 
 const isUserIdError = ref(false);
 const isEmailError = ref(false);
 
-const showDialog = ref(false)
-const dialogMessage = ref("")
+const dialog = ref({
+    isVisible: false,
+    message: ""
+});
 
-const props = defineProps({
-    step: Number,
-})
-
-const emit = defineEmits(["nextStep"]);
-
-const showErrorDialog = (message) => {
-    dialogMessage.value = message
-    showDialog.value = true
+const showDialog = (message) => {
+    dialog.value.message = message;
+    dialog.value.isVisible = true;
 }
 
-const stepTo2 = () => {
+const nextStep = () => {
     if (!userId.value || userId.value.trim() === "") {
         isUserIdError.value = true;
-        showErrorDialog('아이디를 입력해주세요.');
+        showDialog('아이디를 입력해주세요.');
         return;
     }
 
     if (!userId.value.match(/^[a-zA-Z0-9-]{5,20}$/)) {
         isUserIdError.value = true;
-        showErrorDialog('아이디는 영문과 숫자 조합 5~20자로 입력해주세요.');
+        showDialog('아이디는 영문과 숫자 조합 5~20자로 입력해주세요.');
         return;
     }
 
     if (!email.value || email.value.trim() === "") {
         isEmailError.value = true;
-        showErrorDialog('이메일을 입력해주세요.');
+        showDialog('이메일을 입력해주세요.');
         return;
     }
 
     if (!email.value.match(/^[_A-Za-z0-9-+]+(\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\.[A-Za-z0-9]+)*(\.[A-Za-z]{2,})$/)) {
         isEmailError.value = true;
-        showErrorDialog('이메일 형식이 올바르지 않습니다.');
+        showDialog('이메일 형식이 올바르지 않습니다.');
         return;
     }
 
-    const jsonData = {
+    const requestBody = {
         userId: userId.value,
         email: email.value
     }
 
-    axios.post(`${baseUrl}/account/join/check`, JSON.stringify(jsonData), {
+    // 아이디 이메일 중복 체크 API 호출
+    axios.post(`${baseUrl}/account/join/check`, JSON.stringify(requestBody), {
         headers: {
             'Content-Type': 'application/json'
         }
     })
         .then((response) => {
             if (response.data.id == true && response.data.email == true) {
-                showErrorDialog('아이디와 이메일이 이미 사용 중입니다.');
+                showDialog('아이디와 이메일이 이미 사용 중입니다.');
                 return;
             }
 
             if (response.data.id == true) {
-                showErrorDialog('아이디가 이미 사용 중입니다.');
+                showDialog('아이디가 이미 사용 중입니다.');
                 return;
             }
 
             if (response.data.email == true) {
-                showErrorDialog('이메일이 이미 사용 중입니다.');
+                showDialog('이메일이 이미 사용 중입니다.');
                 return;
             }
 
-            emit("nextStep", { userId: userId.value, email: email.value, step: props.step + 1 })
+            // pinia store에 아이디, 이메일 임시 저장 후 2단계로 이동
+            store.setUserId(userId.value);
+            store.setEmail(email.value);
+            store.nextStep();
         })
-        .catch((error) => {
-            console.log(error);
+        .catch(() => {
+            showDialog("회원가입 중 오류가 발생했습니다.");
         });
 }
-
 </script>
 
 <style scoped>
@@ -147,44 +137,5 @@ const stepTo2 = () => {
 
 .error {
     border-color: var(--accent);
-}
-
-.v-card {
-    padding: 0;
-    border-radius: 16px !important;
-}
-
-.dialog-background {
-    background-color: #FAF8F8;
-    border: 1px solid #EFF0F6;
-}
-
-.dialog-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 12px 32px 20px 32px;
-}
-
-.dialog-error-message {
-    margin: 32px 0 16px 0;
-    font-size: 1.125rem;
-    font-weight: bold;
-    color: #757576;
-}
-
-.v-card-actions {
-    padding: 20px;
-}
-
-.v-btn {
-    width: 100%;
-    margin: 0;
-    color: #FFFFFF !important;
-    background-color: var(--primary);
-    border-radius: 16px;
-    height: 48px;
-    font-size: 0.875rem;
 }
 </style>

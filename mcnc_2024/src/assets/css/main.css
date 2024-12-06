@@ -2,26 +2,34 @@
     font-family: "Noto Sans"; 
     font-weight: normal; 
     font-style: normal;
-    src: local("Noto Sans"), url("../fonts/NotoSans-Regular.ttf") format("truetype")
+    src: local("Noto Sans"), url("@/assets/fonts/NotoSans-Regular.ttf") format("truetype")
 }
 
 @font-face {
     font-family: "Noto Sans"; 
     font-weight: bold; 
     font-style: normal;
-    src: local("Noto Sans"), url("../fonts/NotoSans-Bold.ttf") format("truetype")
+    src: local("Noto Sans"), url("@/assets/fonts/NotoSans-Bold.ttf") format("truetype")
 }
 
 @font-face {
     font-family: 'Mont';
     font-weight: bold;
     font-style: normal;
-    src: local("Montserrat Alternates"), url('../fonts/MontserratAlternates-Bold.ttf') format('truetype');
+    src: local("Montserrat Alternates"), url('@/assets/fonts/MontserratAlternates-Bold.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Recipe korea';
+    font-weight: normal;
+    font-style: normal;
+    src: local("Recipe korea"), url('@/assets/fonts/Recipekorea.ttf') format('truetype');
 }
 
 :root {
     --font-noto-sans: "Noto Sans";
     --font-mont: "Mont";
+    --font-recipekorea : "Recipe korea";
     --normal: #464748;
     --primary: #7796E8;
     --secondary: #0D6DB7;
@@ -33,4 +41,20 @@ html, body {
     color: var(--normal);
     margin: 0;
     padding: 0;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0px 1000px #fff inset;
+    box-shadow: 0 0 0px 1000px #fff inset;
+}
+
+input:autofill,
+input:autofill:hover,
+input:autofill:focus,
+input:autofill:active {
+    -webkit-box-shadow: 0 0 0px 1000px #fff inset;
+    box-shadow: 0 0 0px 1000px #fff inset;
 }
