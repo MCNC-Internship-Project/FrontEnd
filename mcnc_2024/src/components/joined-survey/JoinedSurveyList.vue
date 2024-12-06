@@ -2,7 +2,7 @@
     <div class="root-container">
         <div class="background"></div>
 
-        <ToolBar @goBack="goBack" backgroundColor="#FFE6EB" zIndex="1000">
+        <ToolBar @goBack="goBack" backgroundColor="#FFFFFF" zIndex="1000">
             <SurveyHeader title="참여한 설문조사" @goSearch="goSearch" />
         </ToolBar>
 
@@ -108,14 +108,13 @@ function goToDetail(surveyId) {
 
 .background {
     position: fixed;
-    top: 0;
+    bottom: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: url('@/assets/images/background_pink.svg');
+    background-image: url('@/assets/images/background_ash.svg');
     background-repeat: repeat-x;
-    transform: translateZ(0);
-    will-change: transform;
+    background-position: bottom;
     z-index: -1;
 }
 
