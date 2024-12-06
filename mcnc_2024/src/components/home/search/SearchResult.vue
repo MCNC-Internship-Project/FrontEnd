@@ -3,14 +3,17 @@
         <header class="toolbar">
             <img class="back" src="@/assets/images/icon_arrow_left.svg" alt="back" @click="goBack">
             <div class="search-container">
-                <input type="text" class="search-input" placeholder="설문조사 제목으로 검색" v-model="searchQuery"
+                <input type="text" class="search-input" placeholder="설문 제목을 검색해보세요." v-model="searchQuery"
                     @keyup.enter="search" />
-                <img class="search-icon" src="@/assets/images/icon_search.svg" alt="dropdown icon" />
+                <img class="search-icon" src="@/assets/images/icon_search_btn.svg" alt="dropdown icon" />
             </div>
         </header>
 
         <div class="search-result-container">
-            <div v-if="isFirstLoad" class="search-result-text">검색어를 입력해주세요.</div>
+            <div v-if="isFirstLoad" class="search-result-text">
+                <img class="logo" src="@/assets/images/icon_logo.svg" alt="Survwey Logo" />
+                <div class="logo-name">Survwey</div>
+            </div>
             <v-infinite-scroll v-if="surveyList.length > 0" :items="surveyList" :onLoad="load" color="var(--primary)">
                 <template v-for="(item, index) in surveyList" :key="item">
                     <div class="search-result-item-container" :class="{ 'last-item': index === surveyList.length - 1 }"
@@ -287,6 +290,18 @@ onMounted(() => {
     font-size: 1.125rem;
     font-weight: bold;
     color: #ABABB6;
+}
+
+.logo {
+    width: 42px;
+    height: 80vh;
+}
+
+.logo-name {
+    padding-left: 4px;
+    color: var(--primary);
+    font-family: var(--font-mont);
+    font-size: 1.25rem;
 }
 
 .v-infinite-scroll {
