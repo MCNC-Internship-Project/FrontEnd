@@ -2,7 +2,7 @@
     <div class="root-container">
         <div class="background"></div>
 
-        <ToolBar @goBack="goBack" backgroundColor="#E6F4FF" zIndex="1000">
+        <ToolBar @goBack="goBack" backgroundColor="#FFFFFF" zIndex="1000">
             <SurveyHeader title="내 설문조사" @goSearch="goSearch" />
         </ToolBar>
 
@@ -115,14 +115,13 @@ async function load({ done }) {
 
 .background {
     position: fixed;
-    top: 0;
+    bottom: 0;
     left: 0;
     width: 100%;
     height: 100%;
     background-image: url('@/assets/images/background_sky.svg');
     background-repeat: repeat-x;
-    transform: translateZ(0);
-    will-change: transform;
+    background-position: bottom;
     z-index: -1;
 }
 
@@ -158,7 +157,7 @@ async function load({ done }) {
     align-items: center;
     font-size: 1.125remrem;
     font-weight: bold;
-    color: #A2A2A3;
+    color: #1C3177;
 }
 
 .last-item {
