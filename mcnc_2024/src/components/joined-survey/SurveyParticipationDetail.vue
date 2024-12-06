@@ -27,7 +27,7 @@
           <div class="response">
             <template v-if="question.questionType === 'OBJ_SINGLE'">
               <div class="answer-options">
-                <label v-for="option in question.selectionList" :key="option.selectionId.sequence">
+                <label v-for="option in question.selectionList" :key="option.selectionId">
                   <input type="radio" :name="`question-${question.quesId}`" :value="option.body" disabled v-model="userAnswers[question.quesId]" />
                   {{ option.body }}
                 </label>
@@ -35,7 +35,7 @@
             </template>
             <template v-else-if="question.questionType === 'OBJ_MULTI'">
               <div class="answer-options">
-                <label v-for="option in question.selectionList" :key="option.selectionId.sequence">
+                <label v-for="option in question.selectionList" :key="option.selectionId">
                   <input type="checkbox" :value="option.body" disabled v-model="userAnswers[question.quesId]" />
                   {{ option.body }}
                 </label>
@@ -54,19 +54,17 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, defineProps } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios'; // axios import
-import { defineProps } from 'vue';
+import { decrypt } from '@/utils/crypto';
 
 const router = useRouter();
+const baseUrl = process.env.VUE_APP_API_URL;
 
 // id를 props로 받아옴
 const props = defineProps({
-  id: {
-    type: String, // id는 일반적으로 문자열로 받음
-    required: true,
-  },
+  id: String,
 });
 
 // survey 객체와 사용자 답변 객체
@@ -79,46 +77,77 @@ const survey = ref({
 });
 const userAnswers = ref({});
 
-// API에서 설문 데이터를 가져오는 함수
-const fetchSurveyData = async () => {
-  try {
-    // 실제 API 요청
-    const response = await axios.get(`/api/survey/response/${props.id}`);
-    const fetchedSurvey = response.data;
+// // API에서 설문 데이터를 가져오는 함수
+// const fetchSurveyData = async () => {
+//   const decryptedId = decryptId(props.id)
+//   try {
+//     // 실제 API 요청
+//     const response = await axios.get(`/api/survey/response/${decryptedId}`);
+//     const fetchedSurvey = response.data;
 
-    // 설문 정보 설정
-    survey.value = {
-    title: fetchedSurvey.title,
-    description: fetchedSurvey.description,
-    startDate: fetchedSurvey.createDate,
-    endDate: fetchedSurvey.expireDate,
-    isExpired: !fetchedSurvey.expireDateValid, // 설문 만료 여부 추가
-    questions: fetchedSurvey.questionList,
-  };
+//     // 설문 정보 설정
+//     survey.value = {
+//     title: fetchedSurvey.title,
+//     description: fetchedSurvey.description,
+//     startDate: fetchedSurvey.createDate,
+//     endDate: fetchedSurvey.expireDate,
+//     isExpired: !fetchedSurvey.expireDateValid, // 설문 만료 여부 추가
+//     questions: fetchedSurvey.questionList,
+//   };
 
 
-    // 사용자 답변 설정
-    userAnswers.value = fetchedSurvey.questionList.reduce((acc, question) => {
-      acc[question.quesId] = question.questionType === 'OBJ_MULTI' ? [] : '';
-      return acc;
-    }, {});
-  } catch (error) {
-    // 404 오류 처리
-    if (error.response && error.response.status === 404) {
-      console.error('설문을 찾을 수 없습니다.');
-      router.push('/not-found'); // 'not-found' 페이지로 이동
-    }
-  }
-};
+//     // 사용자 답변 설정
+//     userAnswers.value = fetchedSurvey.questionList.reduce((acc, question) => {
+//       acc[question.quesId] = question.questionType === 'OBJ_MULTI' ? [] : '';
+//       return acc;
+//     }, {});
+//   } catch (error) {
+//     // 404 오류 처리
+//     if (error.response && error.response.status === 404) {
+//       console.error('설문을 찾을 수 없습니다.');
+//       router.push('/not-found'); // 'not-found' 페이지로 이동
+//     }
+//   }
+// };
 
 // 컴포넌트가 마운트되면 fetchSurveyData 호출
 onMounted(() => {
-  fetchSurveyData();
+  const decryptedId = decrypt(props.id)
+    // 실제 API 요청
+    axios.get(`${baseUrl}/survey/response/${decryptedId}`,{
+        withCredentials: true,
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    }).then((response) => {
+      const fetchedSurvey = response.data;
+          
+      console.log(fetchedSurvey)
+      // 설문 정보 설정
+      survey.value = {
+      title: fetchedSurvey.title,
+      description: fetchedSurvey.description,
+      startDate: fetchedSurvey.createDate,
+      endDate: fetchedSurvey.expireDate,
+      isExpired: !fetchedSurvey.expireDateValid, // 설문 만료 여부 추가
+      questions: fetchedSurvey.questionList,
+    };
+
+
+      // 사용자 답변 설정
+      userAnswers.value = fetchedSurvey.questionList.reduce((acc, question) => {
+        acc[question.quesId] = question.questionType === 'OBJ_MULTI' ? [] : '';
+        return acc;
+      }, {});
+    })
+    .catch((error) => {
+      console.error(error);
+    })
 });
 
 // 뒤로 가기 함수
 const goBack = () => {
-  router.push('/'); // 홈 페이지로 이동
+  router.back(); // 홈 페이지로 이동
 };
 
 // 날짜 포맷 함수
@@ -131,11 +160,8 @@ const formatDate = (dateStr) => {
 <style scoped>
 #survey-detail {
   width: 100%;
-  display: flex;
+  display : flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
 }
 
 .toolbar {
@@ -154,9 +180,7 @@ const formatDate = (dateStr) => {
 }
 
 .survey-section {
-  width: 100%;
   padding: 0 24px;
-  flex-grow: 1;
   display: flex;
   flex-direction: column;
   justify-content: center;

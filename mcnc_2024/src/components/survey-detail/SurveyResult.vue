@@ -71,8 +71,8 @@
 import { useRouter } from 'vue-router';
 import { ref, defineProps, onMounted } from 'vue';
 import axios from 'axios';
-import CryptoJS from 'crypto-js';
 import * as XLSX from 'xlsx';
+import { decrypt, encrypt } from '@/utils/crypto';
 import ToolBar from '@/components/common/ToolBar.vue'
 import AgeChart from './AgeChart.vue';
 import GenderChart from './GenderChart.vue';
@@ -80,7 +80,6 @@ import ResultRenderer from '@/components/survey-detail/ResultRenderer.vue';
 import ConfirmDialog from '@/components/common/ConfirmDialog.vue';
 
 const surveyData = ref(null);
-const secretKey = process.env.VUE_APP_API_KEY;
 const baseUrl = process.env.VUE_APP_API_URL;
 const router = useRouter();
 const showDisabledModifyDialog = ref(false);
@@ -90,17 +89,6 @@ const isCloseModalVisible = ref(false);
 const props = defineProps({
     id: String,
 })
-
-// 암호화
-const encryptId = (id) => {
-    return CryptoJS.AES.encrypt(id.toString(), secretKey).toString();
-}
-
-// 복호화
-const decryptId = (encryptedId) => {
-    const bytes = CryptoJS.AES.decrypt(encryptedId, secretKey);
-    return bytes.toString(CryptoJS.enc.Utf8);
-}
 
 // 메뉴 버튼 리스트
 const items = [
@@ -117,7 +105,9 @@ onMounted(() => {
 // 설문 데이터 가져오기 (api 연결)
 async function fetchSurveyData() {
     try {
-        const decryptedId = decryptId(props.id);
+        const decryptedId = decrypt(props.id);
+        console.log(props.id)
+        console.log(decryptedId)
         const response = await axios.get(`${baseUrl}/survey/response/result/${decryptedId}`, {
             withCredentials: true,
             headers: {
@@ -137,7 +127,7 @@ function share() {
 
 // 수정 버튼 클릭
 function edit() {
-    const decryptedId = decryptId(props.id)
+    const decryptedId = decrypt(props.id)
 
     axios.get(`${baseUrl}/survey/manage/modify/check/${decryptedId}`, {
         withCredentials: true,
@@ -149,7 +139,7 @@ function edit() {
             if (response.status === 200) {
                 router.push({
                     name: "update-survey",
-                    params: { id: encryptId(decryptedId) },
+                    params: { id: encrypt(decryptedId) },
                 });
             }
         })
@@ -165,10 +155,10 @@ function close() {
 }
 
 // 설문 종료 api 연결
-async function handleCloseConfirm() {
-    try {
-        const decryptedId = decryptId(props.id);
-        await axios.patch(`${baseUrl}/survey/manage/expire/${decryptedId}`, null, {
+async function handleCloseConfirm(){
+    try{
+        const decryptedId = decrypt(props.id);
+        await axios.patch(`${baseUrl}/survey/manage/expire/${decryptedId}`,null, {
             withCredentials: true,
             headers: {
                 'Content-Type': 'application/json',
@@ -191,7 +181,7 @@ function remove() {
 // 설문 삭제 api 연결 (서버x)
 async function handleDeleteConfirm() {
     try {
-        const decryptedId = decryptId(props.id); // 설문 ID 복호화
+        const decryptedId = decrypt(props.id); // 설문 ID 복호화
         // 삭제 API 호출
         await axios.delete(`${baseUrl}/survey/manage/delete/${decryptedId}`, {
             withCredentials: true,
