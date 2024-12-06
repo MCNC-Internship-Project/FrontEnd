@@ -88,6 +88,7 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router'; // 라우터 추가
 import axios from 'axios';
+import { decrypt } from '@/utils/crypto';
 
 // 라우터 사용
 const router = useRouter();
@@ -198,7 +199,7 @@ const getErrorMessage = (type) => {
 
 // 설문 제출
 const submitSurvey = async () => {
-  const surveyId = route.params.surveyId; // URL 파라미터에서 surveyId 가져오기
+  const surveyId = decrypt(route.params.id); // URL 파라미터에서 surveyId 가져오기
   if (isSurveyExpired.value) {
     console.warn('설문 기간이 만료되었습니다.');
     return;
@@ -228,6 +229,7 @@ const submitSurvey = async () => {
   }
 
   try {
+
     const payload = {
       surveyId: surveyId,
       responseList: survey.value.questionList.map((question) => {
@@ -300,7 +302,8 @@ const submitSurvey = async () => {
 
 // mounted 시 surveyId로 데이터 불러오기
 onMounted(() => {
-  const surveyId = route.params.surveyId;
+  const surveyId = decrypt(route.params.id);
+  
   fetchSurveyData(surveyId);
 });
 </script>

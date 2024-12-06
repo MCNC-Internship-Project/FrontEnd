@@ -3,25 +3,21 @@
         <header class="toolbar">
             <img class="back" src="@/assets/images/icon_arrow_left.svg" alt="back" @click="goBack">
             <div class="search-container">
-                <input type="text" class="search-input" placeholder="설문조사 제목으로 검색" v-model="searchQuery"
+                <input type="text" class="search-input" placeholder="설문 제목을 검색해보세요." v-model="searchQuery"
                     @keyup.enter="search" />
-                <img class="search-icon" src="@/assets/images/icon_search.svg" alt="dropdown icon" />
+                <img class="search-icon" src="@/assets/images/icon_search_btn.svg" alt="dropdown icon" />
             </div>
         </header>
 
         <div class="search-result-container">
-            <div v-if="isFirstLoad" class="search-result-text">검색어를 입력해주세요.</div>
+            <div v-if="isFirstLoad" class="search-result-text">
+                <img class="logo" src="@/assets/images/icon_logo.svg" alt="Survwey Logo" />
+                <div class="logo-name">Survwey</div>
+            </div>
             <v-infinite-scroll v-if="surveyList.length > 0" :items="surveyList" :onLoad="load" color="var(--primary)">
                 <template v-for="(item, index) in surveyList" :key="item">
                     <div class="search-result-item-container" :class="{ 'last-item': index === surveyList.length - 1 }"
-                        v-ripple @click="goToDetail(item.surveyId,
-                        {surveyDetailValues : {
-                            title : item.title,
-                            description : item.description,
-                            createDate : item.createDate,
-                            expireDate : item.expireDate,
-                            isExpiredValue : item.expireDateValid,
-                        }})">
+                        v-ripple @click="goToDetail(item.surveyId)">
                         <div class="item-header-container">
                             <div class="item-title">{{ item.title }}</div>
                             <div class="item-expire" :class="{ 'expired': !item.expireDateValid }">{{ remainTime(item.expireDate) }}</div>
@@ -45,8 +41,8 @@
 import { ref, onMounted } from 'vue'
 import axios from 'axios';
 import { useRouter } from 'vue-router';
-import CryptoJS from 'crypto-js';
 import { getCurrentInstance } from "vue";
+import { encrypt } from '@/utils/crypto';
 
 const { appContext } = getCurrentInstance();
 const $axios = appContext.config.globalProperties.$axios;
@@ -54,7 +50,6 @@ const $axios = appContext.config.globalProperties.$axios;
 const router = useRouter();
 
 const baseUrl = process.env.VUE_APP_API_URL;
-const secretKey = process.env.VUE_APP_API_KEY;
 
 const searchQuery = ref('');
 const currentPage = ref(0);
@@ -63,10 +58,6 @@ const size = 10;
 const surveyList = ref([]);
 const isFirstLoad = ref(true);
 const noResult = ref(false);
-
-const encryptId = (id) => {
-    return CryptoJS.AES.encrypt(id.toString(), secretKey).toString();
-}
 
 const goBack = () => {
     router.push("/");
@@ -159,23 +150,13 @@ async function load({ done }) {
     }
 }
 
-const goToDetail = (surveyId, surveyDetailValues) => {
-
-    $axios.get(`/survey/inquiry/check/${surveyId}`)
-    .then((response) => {
-        const isMine = response.data.result; // boolean, 내꺼면 true
-
-        if(isMine){
-            router.push({
-                name : "SurveyResult",
-                params : {id : encryptId(surveyId)},
-            });
-        } else {
-            router.push({
-                name: "SurveyStart",
-                params: { id: encryptId(surveyId), surveyDetailValues : encryptId(JSON.stringify(surveyDetailValues)) },
-            });
-        }
+const goToDetail = (surveyId) => {
+    $axios.get(`/survey/inquiry/detail/${surveyId}`)
+    .then(() => {
+        router.push({
+            name: "survey-participation",
+            params : {id: encrypt(surveyId)}
+        })
     })
     .catch((error) => {
         console.error(error);
@@ -289,6 +270,18 @@ onMounted(() => {
     color: #ABABB6;
 }
 
+.logo {
+    width: 42px;
+    height: 80vh;
+}
+
+.logo-name {
+    padding-left: 4px;
+    color: var(--primary);
+    font-family: var(--font-mont);
+    font-size: 1.25rem;
+}
+
 .v-infinite-scroll {
     width: 100%;
     overflow: hidden;
@@ -390,5 +383,9 @@ onMounted(() => {
     margin-left: 8px;
     font-size: 0.875rem;
     color: #919191;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    word-break: break-word;
+    white-space: nowrap;
 }
 </style>

@@ -145,7 +145,7 @@ import ConfirmDialog from '../common/ConfirmDialog.vue';
 import { useRouter } from 'vue-router'
 import { ref, nextTick, watch, onMounted, defineProps } from 'vue';
 import axios from 'axios';
-import CryptoJS from 'crypto-js';
+import { decrypt, encrypt } from '@/utils/crypto';
 
 import dayjs from 'dayjs'
 
@@ -161,7 +161,6 @@ const props = defineProps({
     id: String,
 })
 
-const secretKey = process.env.VUE_APP_API_KEY;
 const baseUrl = process.env.VUE_APP_API_URL;
 const router = useRouter();
 
@@ -218,19 +217,10 @@ const selectedMinute = ref('00');
 const date = ref(null);
 const time = ref(null);
 
-const encryptId = (id) => {
-    return CryptoJS.AES.encrypt(id.toString(), secretKey).toString();
-}
-
-const decryptId = (encryptedId) => {
-    const bytes = CryptoJS.AES.decrypt(encryptedId, secretKey);
-    return bytes.toString(CryptoJS.enc.Utf8);
-}
-
 let apiResponse = null;
 
 onMounted(() => {
-    surveyId.value = decryptId(props.id);
+    surveyId.value = decrypt(props.id);
 
     axios.get(`${baseUrl}/survey/inquiry/detail/${surveyId.value}`, {
         withCredentials: true,
@@ -491,16 +481,13 @@ const handleSubmit = () => {
                 'Content-Type': 'application/json'
             }
         })
-            .then((response) => {
-                if (response.status === 200) {
-                    saveStatusStore.setSaved();
-                    showDialog(dialogs.value.showSuccessDialog, "성공적으로 수정되었습니다.");
-                }
+            .then(() => {
+                saveStatusStore.setSaved();
+                showDialog(dialogs.value.showSuccessDialog, "설문조사가 수정되었습니다.");
             })
-            .catch(error => {
-                console.error(error);
+            .catch(() => {
                 showDialog(dialogs.value.showDefaultDialog, "설문조사 생성 중 오류가 발생했습니다.");
-            })
+            });
     }
 };
 
@@ -510,7 +497,7 @@ const redirectionToMySurvey = () => {
     setTimeout(() => {
             router.replace({
             name: "SurveyResult",
-            params: {id : encryptId(surveyId.value)}
+            params: {id : encrypt(surveyId.value)}
         });
     }, 100);
 }
@@ -522,7 +509,6 @@ const redirectionToMySurvey = () => {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
 }
 
 .toolbar {
@@ -534,9 +520,6 @@ const redirectionToMySurvey = () => {
     height: 64px;
     background-color: #fff;
     z-index: 50;
-    top: 0;
-    left: 0;
-    right: 0;
 }
 
 .back {
@@ -553,7 +536,7 @@ const redirectionToMySurvey = () => {
     background-color: var(--primary);
     font-size: 0.8125rem;
     color: white;
-    margin-right: 24px;
+    margin: 0 24px 0 auto;
 }
 
 .survey-item-container {

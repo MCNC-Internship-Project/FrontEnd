@@ -9,7 +9,7 @@
         <div class="list-container">
             <v-infinite-scroll v-if="!noResult" :items="surveyList" :onLoad="load" color="var(--primary)">
                 <template v-for="(item, index) in surveyList" :key="item">
-                    <SurveyCard :survey="item" :class="{ 'last-item': index === surveyList.length - 1 }"  @click="navigateToDetail" />
+                    <SurveyCard :survey="item" :class="{ 'last-item': index === surveyList.length - 1 }"  @click="goToDetail(item.surveyId)" />
                 </template>
                 <template v-slot:empty>
                 </template>
@@ -25,6 +25,7 @@
 import { ref } from 'vue'
 import axios from 'axios';
 import { useRouter } from 'vue-router';
+import { encrypt } from '@/utils/crypto';
 
 import ToolBar from '@/components/common/ToolBar.vue'
 import SurveyHeader from '@/components/common/SurveyHeader.vue';
@@ -87,6 +88,14 @@ async function load({ done }) {
         done('error');
     }
 }
+
+// 설문 상세로 가기
+function goToDetail(surveyId) {
+    router.push({
+        name: "SurveyParticipationDetail",
+        params: { id: encrypt(surveyId) },
+    });
+}
 </script>
 
 <style scoped>
@@ -122,7 +131,7 @@ async function load({ done }) {
     flex-direction: column;
     justify-content: center;
     margin-top: 64px;
-    padding: 4px 0;
+    padding: 4px 0 80px 0;
 }
 
 .v-infinite-scroll {
