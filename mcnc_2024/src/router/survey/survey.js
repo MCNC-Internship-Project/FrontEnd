@@ -9,12 +9,12 @@ const SurveyRoutes = [
         meta: { requiresAuth: true },
     },
     {
-        path: "/survey-participation",
+        path: "/survey-participation/:surveyId", // surveyId를 URL 파라미터로 추가
         name: "survey-participation",
         component: () => import("../../components/survey-participation/SurveyParticipation.vue"),
-        props: true,
+        props: true,  // URL 파라미터를 props로 전달
         meta: { requiresAuth: true },
-    },
+      },      
     {
         path: "/survey-participation-detail/:id", 
         name: "SurveyParticipationDetail",
