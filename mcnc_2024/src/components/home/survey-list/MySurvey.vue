@@ -47,11 +47,10 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios';
-import CryptoJS from 'crypto-js';
+import { encrypt } from '@/utils/crypto';
 
 import dayjs from 'dayjs'
 
-const secretKey = process.env.VUE_APP_API_KEY;
 const baseUrl = process.env.VUE_APP_API_URL;
 const router = useRouter();
 
@@ -62,14 +61,10 @@ const routeMySurvey = () => {
     router.push({ path: "/my-survey" });
 }
 
-const encryptId = (id) => {
-    return CryptoJS.AES.encrypt(id.toString(), secretKey).toString();
-}
-
 const onItemClick = (survey) => {
     router.push({
         name: "SurveyResult",
-        params: { id: encryptId(survey.surveyId) },
+        params: { id: encrypt(survey.surveyId) },
     });
 };
 

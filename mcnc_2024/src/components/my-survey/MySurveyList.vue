@@ -33,10 +33,9 @@ import ToolBar from '@/components/common/ToolBar.vue'
 import SurveyHeader from '@/components/common/SurveyHeader.vue';
 import SurveyCard from '@/components/common/SurveyCard.vue';
 
-import CryptoJS from 'crypto-js';
+import { encrypt } from '@/utils/crypto';
 
 const baseUrl = process.env.VUE_APP_API_URL;
-const secretKey = process.env.VUE_APP_API_KEY;
 
 const router = useRouter();
 
@@ -61,12 +60,8 @@ const goCreateSurvey = () => {
 const goDetail = (surveyId) => {
     router.push({
         name: "SurveyResult",
-        params: { id: encryptId(surveyId) },
+        params: { id: encrypt(surveyId) },
     });
-}
-
-const encryptId = (id) => {
-    return CryptoJS.AES.encrypt(id.toString(), secretKey).toString();
 }
 
 async function api() {
@@ -143,7 +138,7 @@ async function load({ done }) {
     flex-direction: column;
     justify-content: center;
     margin-top: 64px;
-    padding: 4px 0;
+    padding: 4px 0 80px 0;
 }
 
 .v-infinite-scroll {

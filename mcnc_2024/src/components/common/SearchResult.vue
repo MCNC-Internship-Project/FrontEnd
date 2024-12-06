@@ -23,6 +23,7 @@
 <script setup>
 import { defineProps } from 'vue';
 import SurveyCard from './SurveyCard.vue';
+
 defineProps({
     surveys: Array,
     isFirstLoad: Boolean,

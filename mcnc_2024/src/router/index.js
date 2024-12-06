@@ -28,6 +28,9 @@ const router = createRouter({
 // 라우트 가드 설정
 router.beforeEach((to, from, next) => {
     const saveStore = useSaveStatusStore();
+    const isLoggedInKey = btoa('isLoggedIn'); // Base64 인코딩된 키
+    const isLoggedInValue = btoa('true');    // Base64 인코딩된 값
+    const isFirstAccess = !localStorage.getItem(isLoggedInKey); // 첫 접근 여부 확인
     
     if (to.path === '/login') {
         next();
@@ -35,6 +38,7 @@ router.beforeEach((to, from, next) => {
         axiosInstance.get(`/auth/session`)
             .then((response) => {
                 if (response.status === 200) {
+                    localStorage.setItem(isLoggedInKey, isLoggedInValue); // Base64로 저장
 
                     if (to.path.includes("/create-survey") || to.path.includes("/update-survey")) {
                         window.addEventListener('beforeunload', handleBeforeUnload);
@@ -61,11 +65,24 @@ router.beforeEach((to, from, next) => {
             })
             .catch(error => {
                 console.log(error);
-                alert("세션이 만료되었습니다.");
+
+                if (!isFirstAccess) { // 이전에 로그인한 적이 있는 경우에만 알림 표시
+                    alert("세션이 만료되었습니다.");
+                }
+
+                localStorage.removeItem(isLoggedInKey); // Base64로 저장된 키 삭제
                 next({ path: '/login', query: { redirect: to.fullPath } });
             });
     } else {
         next();
+    }
+});
+
+// 새로고침 시 beforeunload 핸들러 활성화 보장
+window.addEventListener('beforeunload', (event) => {
+    const isCreateOrUpdate = location.pathname.includes("/create-survey") || location.pathname.includes("/update-survey");
+    if (isCreateOrUpdate) {
+        handleBeforeUnload(event); // 핸들러 강제 호출
     }
 });
 

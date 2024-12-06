@@ -12,7 +12,7 @@ export const encrypt = (data) => {
         const iv = CryptoJS.enc.Utf8.parse(secretKey.substring(0, 16));
         const key = CryptoJS.enc.Utf8.parse(secretKey);
         
-        const encrypted = CryptoJS.AES.encrypt(data, key, {
+        const encrypted = CryptoJS.AES.encrypt(data.toString(), key, {
             iv: iv,
             mode: CryptoJS.mode.CBC,
             padding: CryptoJS.pad.Pkcs7
