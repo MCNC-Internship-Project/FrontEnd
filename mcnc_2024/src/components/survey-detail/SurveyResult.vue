@@ -7,7 +7,8 @@
                 </template>
                 <v-list>
                     <v-list-item v-for="(item, i) in items" :key="i" @click="item.action">
-                        <v-list-item-title :class="{ deleteTitle: item.action === remove }">{{ item.title }}</v-list-item-title>
+                        <v-list-item-title :class="{ deleteTitle: item.action === remove }">{{ item.title
+                            }}</v-list-item-title>
                     </v-list-item>
                 </v-list>
             </v-menu>
@@ -70,9 +71,9 @@
 <script setup>
 import { useRouter } from 'vue-router';
 import { ref, defineProps, onMounted } from 'vue';
-import axios from 'axios';
-import * as XLSX from 'xlsx';
 import { decrypt, encrypt } from '@/utils/crypto';
+import axios from 'axios';
+import * as XLSX from 'xlsx-js-style';
 import ToolBar from '@/components/common/ToolBar.vue'
 import AgeChart from './AgeChart.vue';
 import GenderChart from './GenderChart.vue';
@@ -155,10 +156,10 @@ function close() {
 }
 
 // 설문 종료 api 연결
-async function handleCloseConfirm(){
-    try{
+async function handleCloseConfirm() {
+    try {
         const decryptedId = decrypt(props.id);
-        await axios.patch(`${baseUrl}/survey/manage/expire/${decryptedId}`,null, {
+        await axios.patch(`${baseUrl}/survey/manage/expire/${decryptedId}`, null, {
             withCredentials: true,
             headers: {
                 'Content-Type': 'application/json',
@@ -215,6 +216,28 @@ async function downloadExcel() {
         // 엑셀 워크북 생성
         const workbook = XLSX.utils.book_new();
 
+        // 헤더 스타일 설정
+        const headerStyle = {
+            font: { bold: true },
+            border: {
+                top: { style: 'thin', color: { rgb: '000000' } },
+                bottom: { style: 'thin', color: { rgb: '000000' } },
+                left: { style: 'thin', color: { rgb: '000000' } },
+                right: { style: 'thin', color: { rgb: '000000' } },
+            },
+        };
+
+        // 데이터 스타일 설정
+        const dataStyle = {
+            border: {
+                top: { style: 'thin', color: { rgb: '000000' } },
+                bottom: { style: 'thin', color: { rgb: '000000' } },
+                left: { style: 'thin', color: { rgb: '000000' } },
+                right: { style: 'thin', color: { rgb: '000000' } },
+            },
+            alignment: { vertical: 'center' },
+        };
+
         // 설문 개요 시트
         const summaryData = [
             ['설문 제목', '설문 설명', '작성자 ID', '생성일', '종료일', '총 응답자'],
@@ -222,13 +245,15 @@ async function downloadExcel() {
         ];
         const summarySheet = XLSX.utils.aoa_to_sheet(summaryData);
         summarySheet['!cols'] = [
-            { wch: 20 }, // 첫 번째 열
-            { wch: 40 }, // 두 번째 열
-            { wch: 15 }, // 세 번째 열
-            { wch: 12 }, // 네 번째 열
-            { wch: 12 }, // 다섯 번째 열
-            { wch: 10 }  // 여섯 번째 열
+            { wch: 20 },
+            { wch: 40 },
+            { wch: 15 },
+            { wch: 15 },
+            { wch: 15 },
+            { wch: 10 }
         ];
+        applyHeaderStyle(summarySheet, summaryData[0].length, headerStyle);
+        applyDataStyle(summarySheet, 1, summaryData.length - 1, summaryData[0].length, dataStyle);
         XLSX.utils.book_append_sheet(workbook, summarySheet, '설문 개요');
 
         // 성별 통계 시트
@@ -241,6 +266,8 @@ async function downloadExcel() {
             genderData.push([translateGender(item.gender), item.count]);
         });
         const genderSheet = XLSX.utils.aoa_to_sheet(genderData);
+        applyHeaderStyle(genderSheet, genderData[0].length, headerStyle);
+        applyDataStyle(genderSheet, 1, genderData.length - 1, genderData[0].length, dataStyle);
         XLSX.utils.book_append_sheet(workbook, genderSheet, '성별 통계');
 
         // 연령 통계 시트
@@ -249,59 +276,75 @@ async function downloadExcel() {
             ageData.push([item.age, item.count]);
         });
         const ageSheet = XLSX.utils.aoa_to_sheet(ageData);
+        applyHeaderStyle(ageSheet, ageData[0].length, headerStyle);
+        applyDataStyle(ageSheet, 1, ageData.length - 1, ageData[0].length, dataStyle);
         XLSX.utils.book_append_sheet(workbook, ageSheet, '연령 통계');
 
         // 질문 및 답변 시트
-        const questionData = [['질문유형', '질문', '보기', '응답', '응답자수']];
+        const questionData = [];
+        const mergeRanges = [];
+
+        questionData.push(['질문유형', '질문', '보기', '응답', '응답자수']);
         data.questionList.forEach((question) => {
+            const startRow = questionData.length;
             const questionType =
                 question.questionType === 'OBJ_SINGLE' ? '객관식(단일선택)'
                     : question.questionType === 'OBJ_MULTI' ? '객관식(다중선택)'
                         : '주관식';
 
-            // 객관식 항목 처리
-            let isFirstRow = true;
+            // 객관식 질문 처리
             if (question.questionType === 'OBJ_SINGLE' || question.questionType === 'OBJ_MULTI') {
-                question.selectionList.forEach((selection) => {
+                question.selectionList.forEach((selection, selectionIndex) => {
                     questionData.push([
-                        isFirstRow ? questionType : '',   
-                        isFirstRow ? question.body : '',
+                        selectionIndex === 0 ? questionType : '',
+                        selectionIndex === 0 ? question.body : '',
                         selection.body,
                         '',
-                        selection.responseCount
+                        selection.responseCount,
                     ]);
-                    isFirstRow = false;
                 });
             }
 
-            // 주관식 항목 처리
+            // 주관식 질문 처리
             if (question.questionType === 'SUBJECTIVE') {
                 if (question.subjAnswerList.length > 0) {
-                    // 주관식 답변이 있는 경우
-                    question.subjAnswerList.forEach((answer) => {
+                    question.subjAnswerList.forEach((answer, answerIndex) => {
                         questionData.push([
-                            isFirstRow ? questionType : '',   // 첫 번째 행에만 출력
-                            isFirstRow ? question.body : '', // 첫 번째 행에만 출력
-                            '',                              // 보기 없음
-                            answer,                          // 응답
-                            ''                               // 응답자 수 없음
+                            answerIndex === 0 ? questionType : '',
+                            answerIndex === 0 ? question.body : '',
+                            '',
+                            answer,
+                            '',
                         ]);
-                        isFirstRow = false; // 첫 행 이후에는 질문 유형과 질문 빈칸 처리
                     });
                 } else {
                     questionData.push([
                         questionType,
-                        question.body, 
-                        '',           
-                        '답변 없음',    
-                        ''           
+                        question.body,
+                        '',
+                        '답변 없음',
+                        '',
                     ]);
                 }
             }
+            const endRow = questionData.length - 1; // 현재 질문 종료 행 번호
 
-            questionData.push(['', '', '', '', '']); // 질문 간 빈 줄 추가
+            // 질문유형과 질문 열 병합 설정
+            mergeRanges.push({ s: { r: startRow, c: 0 }, e: { r: endRow, c: 0 } }); // 질문유형 병합
+            mergeRanges.push({ s: { r: startRow, c: 1 }, e: { r: endRow, c: 1 } }); // 질문 병합
         });
+
         const questionSheet = XLSX.utils.aoa_to_sheet(questionData);
+        questionSheet['!merges'] = mergeRanges;
+        questionSheet['!cols'] = [
+            { wch: 15 },
+            { wch: 40 },
+            { wch: 25 },
+            { wch: 25 },
+            { wch: 15 }
+        ];
+        applyHeaderStyle(questionSheet, questionData[0].length, headerStyle);
+        applyDataStyle(questionSheet, 1, questionData.length - 1, questionData[0].length, dataStyle);
         XLSX.utils.book_append_sheet(workbook, questionSheet, '질문 및 답변');
 
         // 파일 다운로드
@@ -310,6 +353,28 @@ async function downloadExcel() {
     } catch (error) {
         console.error('엑셀 다운로드 실패:', error);
         alert('엑셀 다운로드에 실패했습니다.');
+    }
+}
+
+// 헤더 스타일 적용 함수
+function applyHeaderStyle(sheet, headerRowLength, headerStyle) {
+    for (let col = 0; col < headerRowLength; col++) {
+        const cellAddress = XLSX.utils.encode_cell({ r: 0, c: col });
+        if (sheet[cellAddress]) {
+            sheet[cellAddress].s = headerStyle;
+        }
+    }
+}
+
+// 데이터 스타일 적용 함수
+function applyDataStyle(sheet, dataStartRow, dataEndRow, dataColumnLength, dataStyle) {
+    for (let row = dataStartRow; row <= dataEndRow; row++) {
+        for (let col = 0; col < dataColumnLength; col++) {
+            const cellAddress = XLSX.utils.encode_cell({ r: row, c: col });
+            if (sheet[cellAddress]) {
+                sheet[cellAddress].s = dataStyle;
+            }
+        }
     }
 }
 
