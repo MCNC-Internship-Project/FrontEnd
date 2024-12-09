@@ -14,7 +14,7 @@
 
                 <div class="input-section">
                     <input type="text" name="survey-description" class="survey-description" v-model="surveyDescription"
-                        placeholder="설문조사 설명" maxlength="510">
+                        placeholder="설문조사 설명" maxlength="512">
                 </div>
 
                 <div class="select-deadline-section">

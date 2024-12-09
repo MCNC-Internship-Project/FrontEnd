@@ -46,7 +46,7 @@ router.beforeEach((to, from, next) => {
                         window.removeEventListener('beforeunload', handleBeforeUnload);
                     }
 
-                    const confirmationMessage = '정말 나가시겠습니까? 저장되지 않은 변경 사항이 있을 수 있습니다.';
+                    const confirmationMessage = '정말 나가시겠습니까? 변경사항이 저장되지 않을 수 있습니다.';
                     if (from.name === 'create-survey' || from.name === 'update-survey') {
                         if(saveStore.isSaved) {
                             saveStore.resetStatus();
