@@ -316,11 +316,12 @@ onMounted(() => {
     border-radius: 12px;
     background-color: #FFF;
     cursor: pointer;
+    min-width: 0;
 }
 
 .list-container {
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 12px;
     padding: 0 20px 20px 20px;
 }
