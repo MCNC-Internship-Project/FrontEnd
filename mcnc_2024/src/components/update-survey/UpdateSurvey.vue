@@ -289,9 +289,7 @@ const confirm = () => {
         } else {
             isTimeBeforeNowError.value = false;
         }
-    }
 
-    if (selectedDate.value !== null && selectedTime.value !== null) {
         date.value = selectedDate.value;
         time.value = selectedTime.value;
 
@@ -377,7 +375,7 @@ const addComponent = () => {
     totalComponent.value.push(newObj);
 
     nextTick(() => {
-        surveyItems.value = surveyItems.value.slice();
+        // surveyItems.value = surveyItems.value.slice();
         scrollToBottom();
     });
 }
