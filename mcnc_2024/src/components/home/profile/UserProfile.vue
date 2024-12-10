@@ -70,7 +70,7 @@ const items = ref([
 const onItemClick = (item) => {
     switch (item.title) {
         case '프로필 수정':
-            router.push({path : "/profile/update"});
+            router.push({path : "/profile/edit"});
             break;
         case '생성한 설문 보기':
             router.push({path : "/my-survey"});

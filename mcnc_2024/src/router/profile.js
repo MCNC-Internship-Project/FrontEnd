@@ -9,13 +9,13 @@ const profileRoutes = [
     {
         path : "/profile",
         name : "Profile",
-        component : () => import("@/components/home/user-profile/UserProfile.vue"),
+        component : () => import("@/components/home/profile/UserProfile.vue"),
         meta: { requiresAuth: true },
     },
     {
-        path : "/profile/update",
-        name : "UpdateProfile",
-        component : () => import("@/components/home/user-profile/profile-menu/UpdateProfile.vue"),
+        path : "/profile/edit",
+        name : "EditProfile",
+        component : () => import("@/components/home/profile/EditProfile.vue"),
         meta: { requiresAuth: true },
     }
 ]

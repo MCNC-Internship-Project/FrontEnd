@@ -3,23 +3,21 @@
         <div class="background"></div>
 
         <ToolBar @goBack="goBack" backgroundColor="#FFFFFF" zIndex="1000">
-            <SurveyHeader title="내 설문조사" @goSearch="goSearch" />
+            <SurveyHeader title="참여한 설문조사" @goSearch="goSearch" />
         </ToolBar>
 
         <div class="list-container">
             <v-infinite-scroll v-if="!noResult" :items="surveyList" :onLoad="load" color="var(--primary)">
                 <template v-for="(item) in surveyList" :key="item">
-                    <SurveyCard :survey="item" @click="goDetail(item.surveyId)" />
+                    <SurveyCard :survey="item" @click="goToDetail(item.surveyId)" />
                 </template>
                 <template v-slot:empty>
                 </template>
             </v-infinite-scroll>
             <div class="list-none" v-else>
-                <p>아직 생성된 설문지가 없습니다.<br>첫 번째 설문을 만들어 보세요!</p>
+                <p>아직 참여한 설문이 없습니다.</p>
             </div>
         </div>
-
-        <v-fab icon="mdi-plus" color="#7796E8" size="48" absolute @click="goCreateSurvey" />
     </div>
 </template>
 
@@ -27,12 +25,11 @@
 import { ref } from 'vue'
 import axios from 'axios';
 import { useRouter } from 'vue-router';
+import { encrypt } from '@/utils/crypto';
 
 import ToolBar from '@/components/common/ToolBar.vue'
 import SurveyHeader from '@/components/common/SurveyHeader.vue';
 import SurveyCard from '@/components/common/SurveyCard.vue';
-
-import { encrypt } from '@/utils/crypto';
 
 const baseUrl = process.env.VUE_APP_API_URL;
 
@@ -49,23 +46,12 @@ const goBack = () => {
 }
 
 const goSearch = () => {
-    router.push("/my-survey/search");
-}
-
-const goCreateSurvey = () => {
-    router.push("/create-survey");
-}
-
-const goDetail = (surveyId) => {
-    router.push({
-        name: "SurveyResult",
-        params: { id: encrypt(surveyId) },
-    });
+    router.push("/respond/search");
 }
 
 async function api() {
     try {
-        const response = await axios.get(`${baseUrl}/survey/inquiry/created`, {
+        const response = await axios.get(`${baseUrl}/survey/inquiry/respond`, {
             withCredentials: true,
             headers: {
                 'Content-Type': 'application/json',
@@ -100,6 +86,14 @@ async function load({ done }) {
         done('error');
     }
 }
+
+// 설문 상세로 가기
+function goToDetail(surveyId) {
+    router.push({
+        name: "SurveyParticipationDetail",
+        params: { id: encrypt(surveyId) },
+    });
+}
 </script>
 
 <style scoped>
@@ -116,7 +110,7 @@ async function load({ done }) {
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: url('@/assets/images/background_sky.svg');
+    background-image: url('@/assets/images/background_ash.svg');
     background-repeat: repeat-x;
     background-position: bottom;
     z-index: -1;
@@ -162,7 +156,7 @@ async function load({ done }) {
     align-items: center;
     font-size: 1.125remrem;
     font-weight: bold;
-    color: #1C3177;
+    color: #6D6D6D;
 }
 
 @media screen and (min-width: 768px) {

@@ -2,7 +2,7 @@
     <div class="root-container">
         <div class="header-container">
             <input type="text" v-model="surveyTitle" class="header-input" :class="{ 'error': titleError }"
-                :placeholder="`질문 ${itemNumber}`" maxlength="255" @focus="clearTitleError"/>
+                :placeholder="`질문 ${itemNumber}`" maxlength="255" @focus="clearTitleError" />
             <img class="header-icon" :class="{ 'disabled': isSingle, 'hidden': isSingle }"
                 src="@/assets/images/icon_trash.svg" alt="trash icon" @click="deleteItem" />
         </div>
@@ -31,21 +31,23 @@
             </div>
         </div>
         <div class="footer-container">
-            <subj-component v-if="surveyType === 'SUBJECTIVE'" ref="subjComponentRef" />
-            <obj-component v-else :survey-type="surveyType" ref="objComponentRef" />
+            <update-subj-component v-if="surveyType === 'SUBJECTIVE'" ref="subjComponentRef" />
+            <update-obj-component v-else :survey-type="surveyType" ref="objComponentRef" :selectionList="selectionList"/>
         </div>
     </div>
 </template>
 
 <script setup>
-import { ref, watch, defineExpose, defineEmits, defineProps } from 'vue';
+import { ref, watch, defineExpose, defineEmits, defineProps, onMounted } from 'vue';
 
-import ObjComponent from './type-component/ObjComponent.vue'
-import SubjComponent from './type-component/SubjComponent.vue'
+import UpdateObjComponent from './UpdateObjComponent.vue'
+import UpdateSubjComponent from './UpdateSubjComponent.vue'
 
 import iconSingle from '@/assets/images/icon_single.svg';
 import iconMulti from '@/assets/images/icon_multi.svg';
 import iconSubj from '@/assets/images/icon_subj.svg';
+
+const selectionList = ref([]);
 
 const subjComponentRef = ref(null);
 const objComponentRef = ref(null);
@@ -66,6 +68,51 @@ const showTypeMenu = ref(false);
 
 const titleError = ref(false);
 const hasError = ref(false);
+
+const props = defineProps({
+    isSingle: {
+        type: Boolean,
+        default: false
+    },
+    itemNumber: {
+        type: Number,
+        required: true
+    },
+    questionList: {
+        type: Object,
+    }
+});
+
+onMounted(() => {
+    surveyTitle.value = props.questionList.body;
+    const typeIdx = surveyTypes.indexOf(props.questionList.questionType)
+    surveyType.value = surveyTypes[typeIdx];
+
+    let surveyTypesIdx = 0;
+    if(surveyType.value === "OBJ_SINGLE") {
+        surveyTypesIdx = 0;
+    } else if (surveyType.value === "OBJ_MULTI") {
+        surveyTypesIdx = 1;
+    } else {
+        surveyTypesIdx = 2;
+    }
+
+    surveyTypeText.value = surveyTypeTexts[surveyTypesIdx];
+})
+
+watch(
+    () => props.questionList, 
+    (newVal) => {
+        if (newVal && newVal.selectionList) {
+            selectionList.value = newVal.selectionList.map(item => ({
+                body: item.body,
+                isEtc: item.isEtc
+            }));
+        }
+    },
+    { immediate: true } // 즉시 실행
+);
+
 
 watch(surveyTypeText, (type) => {
     switch (type) {
@@ -95,7 +142,6 @@ const getValue = () => {
 
     // 제목 검사
     if (!surveyTitle.value.trim()) {
-        surveyTitle.value = "";
         titleError.value = true;
         hasError.value = true;
         isValid = false;
@@ -123,17 +169,6 @@ const getValue = () => {
         selectionList: values
     };
 };
-
-const props = defineProps({
-    isSingle: {
-        type: Boolean,
-        default: false
-    },
-    itemNumber: {
-        type: Number,
-        required: true
-    }
-});
 
 const emit = defineEmits(['delete-item']);
 

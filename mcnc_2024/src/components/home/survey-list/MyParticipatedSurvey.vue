@@ -49,7 +49,7 @@ const surveys = ref([])
 const onLoading = ref(true)
 
 const routeJoinSurvey = () => {
-    router.push("/joined-survey");
+    router.push("/respond");
 }
 
 const onItemClick = (survey) => {

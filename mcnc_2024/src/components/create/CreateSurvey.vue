@@ -145,8 +145,8 @@ import { ref, nextTick, watch } from 'vue';
 import axios from 'axios';
 import dayjs from 'dayjs'
 import { checkEmptyValues } from '@/utils/checkEmptyValues';
-import SurveyItem from './create-survey-item/SurveyItem.vue';
-import TimePickerComponent from './create-survey-item/component/TimePickerComponent.vue';
+import SurveyItem from './component/SurveyItem.vue';
+import TimePickerComponent from './component/TimePickerComponent.vue';
 import { useSaveStatusStore } from '@/stores/saveStatusStore';
 
 const saveStatusStore = useSaveStatusStore();

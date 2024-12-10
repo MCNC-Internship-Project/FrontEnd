@@ -58,12 +58,12 @@ const surveys = ref([])
 const onLoading = ref(true)
 
 const routeMySurvey = () => {
-    router.push({ path: "/my-survey" });
+    router.push({ path: "/my" });
 }
 
 const onItemClick = (survey) => {
     router.push({
-        name: "SurveyResult",
+        name: "Result",
         params: { id: encrypt(survey.surveyId) },
     });
 };

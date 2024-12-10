@@ -27,7 +27,7 @@ import MyParticipatedSurvey from './survey-list/MyParticipatedSurvey.vue';
 const router = useRouter();
 
 const routeSearch = () => {
-    router.push("/surveys");
+    router.push("/search");
 }
 
 const routeProfile = () => {
@@ -35,7 +35,7 @@ const routeProfile = () => {
 }
 
 const routeCreateSurvey = () => {
-    router.push("/create-survey");
+    router.push("/create");
 }
 </script>
 
