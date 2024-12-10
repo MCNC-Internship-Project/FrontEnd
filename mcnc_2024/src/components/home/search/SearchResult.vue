@@ -74,9 +74,9 @@ const search = async () => {
     }
 
     router.push({
-        path: "/surveys",
+        path: "/search",
         query: {
-            title: searchQuery.value
+            q: searchQuery.value
         }
     });
 
@@ -102,24 +102,24 @@ const search = async () => {
             size: size,
         }
     })
-        .then((response) => {
-            if (response.data.content.length === 0) {
-                noResult.value = true;
-                return;
-            }
+    .then((response) => {
+        if (response.data.content.length === 0) {
+            noResult.value = true;
+            return;
+        }
 
-            surveyList.value.push(...response.data.content);
+        surveyList.value.push(...response.data.content);
 
-            if (response.data.totalPages !== currentPage.value + 1) {
-                currentPage.value++;
-            }
-        })
-        .catch((error) => {
-            console.error(error);
-        })
-        .finally(() => {
-            onLoading.value = false;
-        });
+        if (response.data.totalPages !== currentPage.value + 1) {
+            currentPage.value++;
+        }
+    })
+    .catch((error) => {
+        console.error(error);
+    })
+    .finally(() => {
+        onLoading.value = false;
+    });
 }
 
 async function api() {

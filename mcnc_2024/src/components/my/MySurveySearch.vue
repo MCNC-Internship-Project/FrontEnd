@@ -61,7 +61,7 @@ async function searchSurvey() {
     currentPage.value = 0;
 
     router.replace({
-        query: { query: searchQuery.value },
+        query: { q: searchQuery.value },
     });
 
     await loadSurveys({ done: () => { } });
@@ -69,7 +69,7 @@ async function searchSurvey() {
 
 async function loadSurveys({ done }) {
     try {
-        const response = await axios.get(`${baseUrl}/survey/inquiry/search/respond`, {
+        const response = await axios.get(`${baseUrl}/survey/inquiry/search/created`, {
             params: {
                 title: searchQuery.value,
                 page: currentPage.value,
@@ -80,6 +80,7 @@ async function loadSurveys({ done }) {
                 'Content-Type': 'application/json'
             }
         });
+
         const { content, totalPages } = response.data;
         if (content.length === 0 && currentPage.value === 0) {
             noResult.value = true;
@@ -99,14 +100,16 @@ async function loadSurveys({ done }) {
             done('empty');
         }
     } catch (error) {
+        console.error(error);
         done('error');
     }
 }
 
+
 // 설문 상세로 가기
 function goToDetail(surveyId) {
     router.push({
-        name: "SurveyParticipationDetail",
+        name: "Result",
         params: { id: encrypt(surveyId) },
     });
 }
@@ -131,10 +134,19 @@ function goBack() {
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: url('@/assets/images/background_ash.svg');
+    background-image: url('@/assets/images/background_sky.svg');
     background-repeat: repeat-x;
     background-position: bottom;
     z-index: -1;
+}
+
+.survey-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-top: 64px;
 }
 
 .search-box {
@@ -178,5 +190,39 @@ function goBack() {
     background: none;
     border: none;
     cursor: pointer;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: calc(var(--vh, 1vh) * 100 - 65px);
+}
+
+.logo {
+    width: 42px;
+    height: 80vh;
+}
+
+.logo-name {
+    padding-left: 4px;
+    color: var(--primary);
+    font-family: var(--font-mont);
+    font-size: 1.25rem;
+}
+
+.v-infinite-scroll {
+    width: 100%;
+    overflow: hidden;
+}
+
+:deep(.v-infinite-scroll__side:first-child) {
+    display: none;
+}
+
+.search-result-text {
+    text-align: center;
+    color: #a2a2a2;
+    margin-top: 16px;
 }
 </style>

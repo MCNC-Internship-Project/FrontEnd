@@ -146,8 +146,8 @@ import axios from 'axios';
 import dayjs from 'dayjs'
 import { decrypt, encrypt } from '@/utils/crypto';
 import { checkEmptyValues } from '@/utils/checkEmptyValues';
-import UpdateSurveyItem from './update-survey-item/UpdateSurveyItem.vue';
-import TimePickerComponent from './update-survey-item/component/TimePickerComponent.vue';
+import UpdateSurveyItem from './component/UpdateSurveyItem.vue';
+import TimePickerComponent from './component/TimePickerComponent.vue';
 import { useSaveStatusStore } from '@/stores/saveStatusStore';
 
 const saveStatusStore = useSaveStatusStore();
@@ -488,7 +488,7 @@ const redirectionToMySurvey = () => {
     router.go(-1);
     setTimeout(() => {
             router.replace({
-            name: "SurveyResult",
+            name: "Result",
             params: {id : encrypt(surveyId.value)}
         });
     }, 100);

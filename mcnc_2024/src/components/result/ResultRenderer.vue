@@ -6,8 +6,8 @@
   </template>
   
   <script setup>
-  import SubjectiveQuestion from '@/components/survey-detail/SubjQuestion.vue';
-  import ObjectiveQuestion from '@/components/survey-detail/ObjQuestion.vue';
+  import SubjectiveQuestion from '@/components/result/SubjQuestion.vue';
+  import ObjectiveQuestion from '@/components/result/ObjQuestion.vue';
   import { defineProps } from 'vue';
   defineProps({
     question: Object,

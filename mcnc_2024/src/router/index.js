@@ -1,7 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import homeRoutes from './home/home';
-import authRoutes from './auth/auth';
-import surveyRoutes from './survey/survey';
+import homeRoutes from './home';
+import authRoutes from './auth';
+import surveyRoutes from './survey';
+import profile from './profile';
 import axiosInstance from '@/utils/axiosInstance';
 import { useSaveStatusStore } from '@/stores/saveStatusStore';
 
@@ -9,6 +10,7 @@ const routes = [
     ...homeRoutes,
     ...authRoutes,
     ...surveyRoutes,
+    ...profile,
     {
         path: '/:pathMatch(.*)*',
         name: 'NotFound',
@@ -32,9 +34,7 @@ router.beforeEach((to, from, next) => {
     const isLoggedInValue = btoa('true');    // Base64 인코딩된 값
     const isFirstAccess = !localStorage.getItem(isLoggedInKey); // 첫 접근 여부 확인
     
-    if (to.path === '/login') {
-        next();
-    } else if (to.meta.requiresAuth) {
+    if (to.meta.requiresAuth) {
         axiosInstance.get(`/auth/session`)
             .then((response) => {
                 if (response.status === 200) {
@@ -58,9 +58,7 @@ router.beforeEach((to, from, next) => {
                             }
                         }
                     }
-
                     next();
-
                 }
             })
             .catch(error => {

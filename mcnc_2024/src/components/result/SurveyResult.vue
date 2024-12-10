@@ -84,7 +84,7 @@ import * as XLSX from 'xlsx-js-style';
 import ToolBar from '@/components/common/ToolBar.vue'
 import AgeChart from './AgeChart.vue';
 import GenderChart from './GenderChart.vue';
-import ResultRenderer from '@/components/survey-detail/ResultRenderer.vue';
+import ResultRenderer from '@/components/result/ResultRenderer.vue';
 import ShareSurveyDialog from './ShareSurveyDialog.vue';
 
 const surveyData = ref("");
@@ -169,7 +169,7 @@ function edit() {
         .then((response) => {
             if (response.status === 200) {
                 router.push({
-                    name: "update-survey",
+                    name: "Update",
                     params: { id: encrypt(decryptedId) },
                 });
             }
