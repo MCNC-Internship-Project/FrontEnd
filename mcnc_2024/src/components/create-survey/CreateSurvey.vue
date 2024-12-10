@@ -49,7 +49,7 @@
             </div>
         </div>
 
-        <v-dialog v-model="showDatePickerDialog" max-width="400" persistent>
+        <v-dialog v-model="showDatePickerDialog" max-width="400" persistent min-width="300px">
             <v-card class="dialog-background">
                 <div class="dialog-container">
                     <div class="dialog-title">종료 날짜 설정</div>

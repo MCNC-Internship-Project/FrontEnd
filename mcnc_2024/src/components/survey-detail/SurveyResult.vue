@@ -1,17 +1,19 @@
 <template>
     <div class="root-container">
         <ToolBar @goBack="goBack" backgroundColor="#fff" zIndex="1000">
-            <v-menu>
+            <v-menu v-if="expireDateBoolean && !isLoading">
                 <template v-slot:activator="{ props }">
                     <v-btn icon="mdi-dots-vertical" variant="text" v-bind="props"></v-btn>
                 </template>
                 <v-list>
                     <v-list-item v-for="(item, i) in items" :key="i" @click="item.action">
-                        <v-list-item-title :class="{ deleteTitle: item.action === remove }">{{ item.title
-                            }}</v-list-item-title>
+                        <v-list-item-title :class="{ 'deleteTitle': item.action === remove}"
+                        >{{ item.title }}</v-list-item-title>
                     </v-list-item>
                 </v-list>
             </v-menu>
+
+            <button v-if="!expireDateBoolean && !isLoaing" class="delete-btn" @click="isCloseModalVisible = true" v-ripple>삭제</button>
         </ToolBar>
 
         <div v-if="surveyData" class="survey-container">
@@ -47,7 +49,7 @@
     <v-dialog v-model="showDisabledModifyDialog" max-width="400">
         <v-card class="dialog-background">
             <div class="dialog-container">
-                <div class="dialog-error-message">현재 설문에 응답자가 있어 수정이 불가능합니다.</div>
+                <div class="dialog-error-message">{{ responseErrorMessage }}</div>
             </div>
 
             <v-card-actions>
@@ -80,12 +82,15 @@ import GenderChart from './GenderChart.vue';
 import ResultRenderer from '@/components/survey-detail/ResultRenderer.vue';
 import ConfirmationModal from './ConfirmationModal.vue';
 
-const surveyData = ref(null);
+const surveyData = ref("");
+const isLoading = ref(true);
+const expireDateBoolean = ref(true);
 const baseUrl = process.env.VUE_APP_API_URL;
 const router = useRouter();
 const showDisabledModifyDialog = ref(false);
 const isDeleteModalVisible = ref(false);
 const isCloseModalVisible = ref(false);
+const responseErrorMessage = ref("");
 
 const props = defineProps({
     id: String,
@@ -107,8 +112,6 @@ onMounted(() => {
 async function fetchSurveyData() {
     try {
         const decryptedId = decrypt(props.id);
-        console.log(props.id)
-        console.log(decryptedId)
         const response = await axios.get(`${baseUrl}/survey/response/result/${decryptedId}`, {
             withCredentials: true,
             headers: {
@@ -116,8 +119,11 @@ async function fetchSurveyData() {
             },
         });
         surveyData.value = response.data;
+        expireDateBoolean.value = surveyData.value.expireDateValid;
     } catch (error) {
         console.error('설문 데이터를 불러오는 중 오류 발생:', error);
+    } finally {
+        isLoading.value = false;
     }
 }
 
@@ -146,6 +152,7 @@ function edit() {
         })
         .catch((error) => {
             console.error(error);
+            responseErrorMessage.value = error.response.data.errorMessage;
             showDisabledModifyDialog.value = true;
         })
 }
@@ -230,6 +237,16 @@ function formatPeriod(startDate, endDate) {
     flex-direction: column;
     align-items: center;
     justify-content: center;
+}
+
+.delete-btn {
+    width: 56px;
+    height: 32px;
+    border-radius: 8px;
+    background-color: var(--accent);
+    font-size: 0.8125rem;
+    color: white;
+    margin: 0 24px 0 auto;
 }
 
 .v-list-item-title {
