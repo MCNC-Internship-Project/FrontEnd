@@ -1,15 +1,15 @@
 @font-face {
-    font-family: "Noto Sans";
+    font-family: 'Pretendard';
     font-weight: normal;
     font-style: normal;
-    src: local("Noto Sans"), url("@/assets/fonts/NotoSans-Regular.ttf") format("truetype");
+    src: local("Pretendard"), url("@/assets/fonts/Pretendard-Regular.woff2") format("woff2");
 }
 
 @font-face {
-    font-family: "Noto Sans";
+    font-family: 'Pretendard';
     font-weight: bold;
     font-style: normal;
-    src: local("Noto Sans"), url("@/assets/fonts/NotoSans-Bold.ttf") format("truetype");
+    src: local("Pretendard"), url("@/assets/fonts/Pretendard-Bold.woff2") format("woff2");
 }
 
 @font-face {
@@ -27,7 +27,7 @@
 }
 
 :root {
-    --font-noto-sans: "Noto Sans";
+    --font-pretendard: "Pretendard";
     --font-mont: "Mont";
     --font-recipekorea: "Recipe korea";
     --normal: #464748;
@@ -38,7 +38,7 @@
 
 html,
 body {
-    font-family: var(--font-noto-sans);
+    font-family: var(--font-pretendard);
     color: var(--normal);
     margin: 0;
     padding: 0;

@@ -140,23 +140,17 @@
 </template>
 
 <script setup>
-import DefaultDialog from '../common/DefaultDialog.vue';
-import ConfirmDialog from '../common/ConfirmDialog.vue';
 import { useRouter } from 'vue-router'
 import { ref, nextTick, watch, onMounted, defineProps } from 'vue';
 import axios from 'axios';
-import { decrypt, encrypt } from '@/utils/crypto';
-
 import dayjs from 'dayjs'
-
+import { decrypt, encrypt } from '@/utils/crypto';
 import { checkEmptyValues } from '@/utils/checkEmptyValues';
-
 import UpdateSurveyItem from './update-survey-item/UpdateSurveyItem.vue';
 import TimePickerComponent from './update-survey-item/component/TimePickerComponent.vue';
 import { useSaveStatusStore } from '@/stores/saveStatusStore';
 
 const saveStatusStore = useSaveStatusStore();
-
 const props = defineProps({
     id: String,
 })
@@ -168,10 +162,8 @@ const totalComponent = ref([]);
 const surveyItems = ref([]);
 const surveyId = ref("");
 const createDate = ref("");
-
 const surveyTitle = ref("");
 const titleError = ref(false);
-
 const surveyDescription = ref("")
 
 const dateError = ref(false);
@@ -231,16 +223,14 @@ onMounted(() => {
     .then((response) => {
         if (response.status === 200) {
             apiResponse = response.data;
-            createDate.value = apiResponse.createDate;
 
+            createDate.value = apiResponse.createDate;
             surveyTitle.value = apiResponse.title;
             surveyDescription.value = apiResponse.description;
 
             for(let i=0; i<apiResponse.questionList.length; i++){
                 totalComponent.value.push({id : i, data:apiResponse.questionList[i]})
             }
-
-            if (!apiResponse.expireDate) return;
 
             const expireDate = dayjs(apiResponse.expireDate);
             date.value = new Date(apiResponse.expireDate);
@@ -299,9 +289,7 @@ const confirm = () => {
         } else {
             isTimeBeforeNowError.value = false;
         }
-    }
 
-    if (selectedDate.value !== null && selectedTime.value !== null) {
         date.value = selectedDate.value;
         time.value = selectedTime.value;
 
@@ -387,7 +375,7 @@ const addComponent = () => {
     totalComponent.value.push(newObj);
 
     nextTick(() => {
-        surveyItems.value = surveyItems.value.slice();
+        // surveyItems.value = surveyItems.value.slice();
         scrollToBottom();
     });
 }
@@ -435,7 +423,7 @@ const handleSubmit = () => {
         dialogs.value.showSaveDialog.isVisible = false;
     }
 
-    const values = surveyItems.value.map((item) => item.getValue()); // getValue()는 각 survey-item에서 필요한 값을 반환하는 메서드로 가정
+    const values = surveyItems.value.map((item) => item.getValue()); // getValue()는 각 survey-item에서 필요한 값을 반환하는 메서드
 
     const jsonData = { surveyId: surveyId.value, title: title,
                         description: description, questionList: values,
@@ -481,13 +469,17 @@ const handleSubmit = () => {
                 'Content-Type': 'application/json'
             }
         })
-            .then(() => {
-                saveStatusStore.setSaved();
-                showDialog(dialogs.value.showSuccessDialog, "설문조사가 수정되었습니다.");
-            })
-            .catch(() => {
-                showDialog(dialogs.value.showDefaultDialog, "설문조사 생성 중 오류가 발생했습니다.");
-            });
+        .then(() => {
+            saveStatusStore.setSaved();
+            showDialog(dialogs.value.showSuccessDialog, "설문조사가 수정되었습니다.");
+        })
+        .catch((error) => {
+            if(error.response.status === 400){
+                showDialog(dialogs.value.showDefaultDialog, error.response.data.errorMessage);
+            } else {
+                showDialog(dialogs.value.showDefaultDialog, "설문조사 수정 중 오류가 발생했습니다.");
+            }
+        });
     }
 };
 

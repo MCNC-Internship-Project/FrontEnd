@@ -8,9 +8,8 @@
 
         <div class="list-container">
             <v-infinite-scroll v-if="!noResult" :items="surveyList" :onLoad="load" color="var(--primary)">
-                <template v-for="(item, index) in surveyList" :key="item">
-                    <SurveyCard :survey="item" :class="{ 'last-item': index === surveyList.length - 1 }"
-                        @click="goDetail(item.surveyId)" />
+                <template v-for="(item) in surveyList" :key="item">
+                    <SurveyCard :survey="item" @click="goDetail(item.surveyId)" />
                 </template>
                 <template v-slot:empty>
                 </template>
@@ -90,8 +89,6 @@ async function load({ done }) {
         const res = await api();
         surveyList.value.push(...res.content);
 
-        console.log(surveyList.value);
-
         if (res.totalPages !== currentPage.value + 1) {
             currentPage.value++;
             done('ok');
@@ -137,12 +134,20 @@ async function load({ done }) {
     flex-direction: column;
     justify-content: center;
     margin-top: 64px;
-    padding: 4px 0 80px 0;
+    padding: 4px 0 40px 0;
 }
 
 .v-infinite-scroll {
     width: 100%;
     overflow: hidden;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+    padding: 0 20px 20px 20px;
+}
+
+:deep(.v-infinite-scroll__side) {
+    grid-column: 1 / -1;
 }
 
 :deep(.v-infinite-scroll__side:first-child) {
@@ -160,7 +165,15 @@ async function load({ done }) {
     color: #1C3177;
 }
 
-.last-item {
-    margin-bottom: 0;
+@media screen and (min-width: 768px) {
+    .v-infinite-scroll {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media screen and (min-width: 1200px) {
+    .v-infinite-scroll {
+        grid-template-columns: repeat(3, 1fr);
+    }
 }
 </style>

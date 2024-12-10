@@ -1,16 +1,19 @@
 <template>
     <div class="root-container">
         <ToolBar @goBack="goBack" backgroundColor="#fff" zIndex="1000">
-            <v-menu>
+            <v-menu v-if="expireDateBoolean && !isLoading">
                 <template v-slot:activator="{ props }">
                     <v-btn icon="mdi-dots-vertical" variant="text" v-bind="props"></v-btn>
                 </template>
                 <v-list>
                     <v-list-item v-for="(item, i) in items" :key="i" @click="item.action">
-                        <v-list-item-title :class="{ deleteTitle: item.action === remove }">{{ item.title }}</v-list-item-title>
+                        <v-list-item-title :class="{ deleteTitle: item.action === remove }">{{ item.title
+                            }}</v-list-item-title>
                     </v-list-item>
                 </v-list>
             </v-menu>
+
+            <button v-if="!expireDateBoolean && !isLoaing" class="delete-btn" @click="isDeleteModalVisible = true" v-ripple>삭제</button>
         </ToolBar>
 
         <div v-if="surveyData" class="survey-container">
@@ -46,7 +49,7 @@
     <v-dialog v-model="showDisabledModifyDialog" max-width="400">
         <v-card class="dialog-background">
             <div class="dialog-container">
-                <div class="dialog-error-message">현재 설문에 응답자가 있어 수정이 불가능합니다.</div>
+                <div class="dialog-error-message">{{ responseErrorMessage }}</div>
             </div>
 
             <v-card-actions>
@@ -65,6 +68,11 @@
     <ConfirmDialog v-model="isDeleteModalVisible" message="설문을 정말 삭제하시겠습니까?" subMessage="*삭제 후에는 복구가 불가능합니다!"
         confirmButtonText="삭제" confirmButtonColor="#F77D7D" @confirm="handleDeleteConfirm" />
 
+
+    <default-dialog v-model="dialogs.showDefaultDialog.isVisible" :message="dialogs.showDefaultDialog.message" @confirm="dialogs.showDefaultDialog.isVisible = false" />
+    <default-dialog v-model="dialogs.showSuccessRemoveDialog.isVisible" :message="dialogs.showSuccessRemoveDialog.message" @confirm="deleteConfirm" :isPersistent="true"/>
+
+    <share-survey-dialog v-model="dialogs.showShareDialog.isVisible" :surveyId="decrypt(props.id)" @confirm="showDialog(dialogs.showDefaultDialog, '이메일 전송이 완료되었습니다.')" />
 </template>
 
 <script setup>
@@ -77,18 +85,40 @@ import ToolBar from '@/components/common/ToolBar.vue'
 import AgeChart from './AgeChart.vue';
 import GenderChart from './GenderChart.vue';
 import ResultRenderer from '@/components/survey-detail/ResultRenderer.vue';
-import ConfirmDialog from '@/components/common/ConfirmDialog.vue';
+import ShareSurveyDialog from './ShareSurveyDialog.vue';
 
-const surveyData = ref(null);
+const surveyData = ref("");
+const isLoading = ref(true);
+const expireDateBoolean = ref(true);
 const baseUrl = process.env.VUE_APP_API_URL;
 const router = useRouter();
 const showDisabledModifyDialog = ref(false);
 const isDeleteModalVisible = ref(false);
 const isCloseModalVisible = ref(false);
+const responseErrorMessage = ref("");
 
 const props = defineProps({
     id: String,
 })
+
+const dialogs = ref({
+    showShareDialog: {
+        isVisible: false
+    },
+    showDefaultDialog: {
+        isVisible: false,
+        message: ''
+    },
+    showSuccessRemoveDialog: {
+        isVisible: false,
+        message: '',
+    },
+});
+
+const showDialog = (dialog, message) => {
+    dialog.message = message
+    dialog.isVisible = true
+}
 
 // 메뉴 버튼 리스트
 const items = [
@@ -106,8 +136,6 @@ onMounted(() => {
 async function fetchSurveyData() {
     try {
         const decryptedId = decrypt(props.id);
-        console.log(props.id)
-        console.log(decryptedId)
         const response = await axios.get(`${baseUrl}/survey/response/result/${decryptedId}`, {
             withCredentials: true,
             headers: {
@@ -115,14 +143,17 @@ async function fetchSurveyData() {
             },
         });
         surveyData.value = response.data;
+        expireDateBoolean.value = surveyData.value.expireDateValid;
     } catch (error) {
         console.error('설문 데이터를 불러오는 중 오류 발생:', error);
+    } finally {
+        isLoading.value = false;
     }
 }
 
 // 공유 버튼 클릭
 function share() {
-    console.log('share button click');
+    showDialog(dialogs.value.showShareDialog, '');
 }
 
 // 수정 버튼 클릭
@@ -145,6 +176,7 @@ function edit() {
         })
         .catch((error) => {
             console.error(error);
+            responseErrorMessage.value = error.response.data.errorMessage;
             showDisabledModifyDialog.value = true;
         })
 }
@@ -175,7 +207,20 @@ async function handleCloseConfirm() {
 // 삭제 버튼 클릭
 function remove() {
     isDeleteModalVisible.value = true;
-    console.log('삭제 버튼 클릭');
+}
+
+function deleteConfirm() {
+    dialogs.value.showSuccessRemoveDialog.value = false;
+    router.go(-1);
+    setTimeout(() => {
+        const currentPath = router.currentRoute.value.path
+        
+        if (currentPath === '/') {
+            router.replace({ path: '/' });
+        } else if (currentPath === '/my-survey') {
+            router.replace({ name: 'MySurvey' });
+        }
+    }, 100);
 }
 
 // 설문 삭제 api
@@ -188,12 +233,10 @@ async function handleDeleteConfirm() {
                 'Content-Type': 'application/json',
             },
         });
-        console.log('삭제 성공');
-        isDeleteModalVisible.value = false; 
-        router.push('/my-survey'); 
+        showDialog(dialogs.value.showSuccessRemoveDialog, "성공적으로 삭제되었습니다.");
     } catch (error) {
-        console.error('삭제 실패:', error);
-        alert('삭제에 실패했습니다. 다시 시도해 주세요.');
+        console.error(error);
+        showDialog(dialogs.value.showDefaultDialog, "삭제 중 오류가 발생했습니다.");
     }
 }
 
@@ -401,6 +444,16 @@ function formatPeriod(startDate, endDate) {
     flex-direction: column;
     align-items: center;
     justify-content: center;
+}
+
+.delete-btn {
+    width: 56px;
+    height: 32px;
+    border-radius: 8px;
+    background-color: var(--accent);
+    font-size: 0.8125rem;
+    color: white;
+    margin: 0 24px 0 auto;
 }
 
 .v-list-item-title {

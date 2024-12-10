@@ -14,7 +14,7 @@
 
                 <div class="input-section">
                     <input type="text" name="survey-description" class="survey-description" v-model="surveyDescription"
-                        placeholder="설문조사 설명" maxlength="510">
+                        placeholder="설문조사 설명" maxlength="512">
                 </div>
 
                 <div class="select-deadline-section">
@@ -49,7 +49,7 @@
             </div>
         </div>
 
-        <v-dialog v-model="showDatePickerDialog" max-width="400" persistent>
+        <v-dialog v-model="showDatePickerDialog" max-width="400" persistent min-width="300px">
             <v-card class="dialog-background">
                 <div class="dialog-container">
                     <div class="dialog-title">종료 날짜 설정</div>
@@ -140,33 +140,23 @@
 </template>
 
 <script setup>
-import DefaultDialog from '../common/DefaultDialog.vue';
-import ConfirmDialog from '../common/ConfirmDialog.vue';
 import { useRouter } from 'vue-router'
 import { ref, nextTick, watch } from 'vue';
 import axios from 'axios';
-
 import dayjs from 'dayjs'
-
 import { checkEmptyValues } from '@/utils/checkEmptyValues';
-
 import SurveyItem from './create-survey-item/SurveyItem.vue';
 import TimePickerComponent from './create-survey-item/component/TimePickerComponent.vue';
 import { useSaveStatusStore } from '@/stores/saveStatusStore';
 
 const saveStatusStore = useSaveStatusStore();
-
 const baseUrl = process.env.VUE_APP_API_URL;
 const router = useRouter();
-
-const totalComponent = ref([
-    { id: 0 },
-]);
+const totalComponent = ref([{ id: 0 },]);
 const surveyItems = ref([]);
 
 const surveyTitle = ref("");
 const titleError = ref(false);
-
 const surveyDescription = ref("")
 
 const dateError = ref(false);
@@ -255,9 +245,7 @@ const confirm = () => {
         } else {
             isTimeBeforeNowError.value = false;
         }
-    }
 
-    if (selectedDate.value !== null && selectedTime.value !== null) {
         date.value = selectedDate.value;
         time.value = selectedTime.value;
 
@@ -327,9 +315,9 @@ const addComponent = () => {
 
     totalComponent.value.push(newObj);
 
-    // nextTick으로 DOM 업데이트 후에 ref 배열이 최신 상태로 반영되도록 함
+    // nextTick으로 DOM 업데이트 후에 스크롤 이동
     nextTick(() => {
-        surveyItems.value = surveyItems.value.slice(); // 새로운 참조로 배열을 갱신
+        // surveyItems.value = surveyItems.value.slice(); // 새로운 참조로 배열을 갱신
         scrollToBottom();
     });
 }
@@ -378,7 +366,7 @@ const handleSubmit = () => {
         dialogs.value.showSaveDialog.isVisible = false;
     }
 
-    const values = surveyItems.value.map((item) => item.getValue()); // getValue()는 각 survey-item에서 필요한 값을 반환하는 메서드로 가정
+    const values = surveyItems.value.map((item) => item.getValue()); // getValue()는 각 survey-item이 갖고있는 값을 반환하는 메서드
 
     const jsonData = { title: title, description: description, questionList: values }
 
@@ -421,19 +409,33 @@ const handleSubmit = () => {
                 'Content-Type': 'application/json'
             }
         })
-            .then(() => {
-                saveStatusStore.setSaved();
-                showDialog(dialogs.value.showSuccessDialog, "설문조사가 생성되었습니다.");
-            })
-            .catch(() => {
-                showDialog(dialogs.value.showDefaultDialog, "설문조사 생성 중 오류가 발생했습니다.");
-            });
+        .then(() => {
+            saveStatusStore.setSaved();
+            showDialog(dialogs.value.showSuccessDialog, "설문이 성공적으로 생성되었습니다!");
+        })
+        .catch(() => {
+            showDialog(dialogs.value.showDefaultDialog, "설문조사 생성 중 오류가 발생했습니다.");
+        });
     }
 };
 
+/**
+ * 생성 후 리플레이스의 위치가 / 이면 / 으로 replcae,
+ * /my-survey 이면 /my-survey로 replace.
+ */
 const redirectionToMySurvey = () => {
     dialogs.value.showSuccessDialog.isVisible = false;
-    router.replace({ path: "/my-survey" });
+    
+    router.go(-1);
+    setTimeout(() => {
+        const currentPath = router.currentRoute.value.path;
+
+        if (currentPath === '/') {
+            router.replace({ path: '/' });
+        } else if (currentPath === '/my-survey') {
+            router.replace({ name: 'MySurvey' });
+        }
+    }, 100);
 }
 </script>
 
