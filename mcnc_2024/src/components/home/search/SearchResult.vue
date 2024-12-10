@@ -4,7 +4,7 @@
             <img class="back" src="@/assets/images/icon_arrow_left.svg" alt="back" @click="goBack">
             <div class="search-container">
                 <input type="text" class="search-input" placeholder="설문 제목을 검색해보세요." v-model="searchQuery"
-                    @keyup.enter="search" />
+                    @keyup.enter="search" v-focus />
                 <img class="search-icon" src="@/assets/images/icon_search_btn.svg" alt="dropdown icon" />
             </div>
         </header>
@@ -14,17 +14,18 @@
                 <img class="logo" src="@/assets/images/icon_logo.svg" alt="Survwey Logo" />
                 <div class="logo-name">Survwey</div>
             </div>
-            <v-infinite-scroll v-if="surveyList.length > 0" :items="surveyList" :onLoad="load" color="var(--primary)">
-                <template v-for="(item, index) in surveyList" :key="item">
-                    <div class="search-result-item-container" :class="{ 'last-item': index === surveyList.length - 1 }"
-                        v-ripple @click="goToDetail(item.surveyId)">
+            <v-infinite-scroll class="list-container" v-if="surveyList.length > 0" :items="surveyList" :onLoad="load" color="var(--primary)">
+                <template v-for="(item) in surveyList" :key="item">
+                    <div class="search-result-item-container" v-ripple @click="goToDetail(item.surveyId)">
                         <div class="item-header-container">
                             <div class="item-title">{{ item.title }}</div>
-                            <div class="item-expire" :class="{ 'expired': !item.expireDateValid }">{{ remainTime(item.expireDate) }}</div>
+                            <div class="item-expire" :class="{ 'expired': !item.expireDateValid }">{{
+                                remainTime(item.expireDate) }}</div>
                         </div>
                         <div class="item-description">{{ item.description }}</div>
                         <div class="item-footer-container">
-                            <img class="item-img-profile" src="@/assets/images/icon_profile_default.svg" alt="profile icon" />
+                            <img class="item-img-profile" src="@/assets/images/icon_profile_default.svg"
+                                alt="profile icon" />
                             <div class="item-userid">{{ item.creatorId }}</div>
                         </div>
                     </div>
@@ -32,6 +33,9 @@
                 <template v-slot:empty>
                 </template>
             </v-infinite-scroll>
+            <div v-if="onLoading" class="skeleton-container">
+                <v-skeleton-loader v-for="n in 12" :key="n" type="image" class="skeleton" />
+            </div>
             <div v-if="noResult" class="search-result-text">검색 결과가 없습니다.</div>
         </div>
     </div>
@@ -58,6 +62,7 @@ const size = 10;
 const surveyList = ref([]);
 const isFirstLoad = ref(true);
 const noResult = ref(false);
+const onLoading = ref(true);
 
 const goBack = () => {
     router.push("/");
@@ -68,12 +73,18 @@ const search = async () => {
         return;
     }
 
-    router.push({path: "/surveys", query: { title: searchQuery.value }});
+    router.push({
+        path: "/surveys",
+        query: {
+            title: searchQuery.value
+        }
+    });
 
     isFirstLoad.value = false;
     currentPage.value = 0;
     surveyList.value = [];
     noResult.value = false;
+    onLoading.value = true;
 
     window.scrollTo({
         top: 0,
@@ -105,6 +116,9 @@ const search = async () => {
         })
         .catch((error) => {
             console.error(error);
+        })
+        .finally(() => {
+            onLoading.value = false;
         });
 }
 
@@ -152,22 +166,22 @@ async function load({ done }) {
 
 const goToDetail = (surveyId) => {
     $axios.get(`/survey/inquiry/detail/${surveyId}`)
-    .then(() => {
-        router.push({
-            name: "survey-participation",
-            params : {id: encrypt(surveyId)}
-        })
-    })
-    .catch((error) => {
-        console.error(error);
-        if(error.response.status === 401) {
-            alert("세션이 만료되었습니다.");
+        .then(() => {
             router.push({
-                name : "Login",
-                query : {redirect : router.currentRoute.value.fullPath},
+                name: "survey-participation",
+                params: { id: encrypt(surveyId) }
             })
-        }
-    })
+        })
+        .catch((error) => {
+            console.error(error);
+            if (error.response.status === 401) {
+                alert("세션이 만료되었습니다.");
+                router.push({
+                    name: "Login",
+                    query: { redirect: router.currentRoute.value.fullPath },
+                })
+            }
+        })
 }
 
 const remainTime = (date) => {
@@ -296,7 +310,6 @@ onMounted(() => {
     flex-direction: column;
     height: 160px;
     padding: 20px;
-    margin: 0 20px 12px 20px;
     background-color: #FFF;
     border: 1px solid #EFF0F6;
     box-shadow: 0px 5px 16px rgba(8, 15, 52, 0.08);
@@ -305,27 +318,16 @@ onMounted(() => {
     cursor: pointer;
 }
 
-.border-not-expired {
-    border-color: var(--primary);
-}
-
-.border-expired {
-    border-color: #B0B0B0;
-}
-
-.last-item {
-    margin-bottom: 0;
+.list-container {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 0 20px 20px 20px;
 }
 
 .item-header-container {
     display: flex;
     align-items: center;
-}
-
-.item-img-expire {
-    width: 16px;
-    height: 16px;
-    flex-shrink: 0;
 }
 
 .item-img-profile {
@@ -387,5 +389,40 @@ onMounted(() => {
     overflow: hidden;
     word-break: break-word;
     white-space: nowrap;
+}
+
+.skeleton-container {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    width: 100%;
+    padding: 0 20px 12px 20px;
+
+}
+
+:deep(.v-skeleton-loader__image) {
+    width: 100%;
+    height: 160px;
+    border-radius: 12px;
+}
+
+@media screen and (min-width: 768px) {
+    .list-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .skeleton-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media screen and (min-width: 1200px) {
+    .list-container {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .skeleton-container {
+        grid-template-columns: repeat(3, 1fr);
+    }
 }
 </style>

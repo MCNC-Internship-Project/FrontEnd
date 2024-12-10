@@ -26,7 +26,7 @@
                 </ul>
 
                 <div v-else-if="onLoading" class="skeleton-container">
-                    <v-skeleton-loader v-for="n in 3" :key="n" type="image" class="skeleton" />
+                    <v-skeleton-loader v-for="n in 9" :key="n" type="image" class="skeleton" />
                 </div>
 
                 <div v-else class="empty-container">
@@ -116,19 +116,22 @@ onMounted(() => {
 
 .list-container {
     width: 100%;
+    padding: 16px 24px 80px 24px;
 }
 
 ul {
     margin: 0;
-    padding: 16px 24px 80px 24px;
+    padding: 0;
     list-style: none;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
 }
 
 .item-list {
     flex-shrink: 0;
     width: 100%;
     height: 108px;
-    margin-bottom: 16px;
     border-radius: 12px;
     background-color: #FFF;
     border: 1px solid #EFF0F6;
@@ -176,17 +179,16 @@ ul {
 }
 
 .skeleton-container {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
     width: 100%;
-    padding: 16px 24px;
 }
 
 :deep(.v-skeleton-loader__image) {
     width: 100%;
     height: 108px;
     border-radius: 12px;
-    margin-bottom: 16px;
 }
 
 .empty-container {
@@ -200,5 +202,25 @@ ul {
 .empty-text {
     font-size: 1.125rem;
     color: #7796E8;
+}
+
+@media screen and (min-width: 768px) {
+    ul {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .skeleton-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media screen and (min-width: 1200px) {
+    ul {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .skeleton-container {
+        grid-template-columns: repeat(3, 1fr);
+    }
 }
 </style>

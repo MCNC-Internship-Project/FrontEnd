@@ -68,7 +68,9 @@
     <ConfirmationModal v-model="isCloseModalVisible" message="설문을 종료하시겠습니까?" cancelText="취소" confirmText="종료"
         @cancel="handleModalCancel" @confirm="handleCloseConfirm" />
 
+    <default-dialog v-model="dialogs.showDefaultDialog.isVisible" :message="dialogs.showDefaultDialog.message" @confirm="dialogs.showDefaultDialog.isVisible = false" />
 
+    <share-survey-dialog v-model="dialogs.showShareDialog.isVisible" :surveyId="decrypt(props.id)" @confirm="showDialog(dialogs.showDefaultDialog, '이메일 전송이 완료되었습니다.')" />
 </template>
 
 <script setup>
@@ -81,6 +83,7 @@ import AgeChart from './AgeChart.vue';
 import GenderChart from './GenderChart.vue';
 import ResultRenderer from '@/components/survey-detail/ResultRenderer.vue';
 import ConfirmationModal from './ConfirmationModal.vue';
+import ShareSurveyDialog from './ShareSurveyDialog.vue';
 
 const surveyData = ref("");
 const isLoading = ref(true);
@@ -95,6 +98,21 @@ const responseErrorMessage = ref("");
 const props = defineProps({
     id: String,
 })
+
+const dialogs = ref({
+    showShareDialog: {
+        isVisible: false
+    },
+    showDefaultDialog: {
+        isVisible: false,
+        message: ''
+    }
+});
+
+const showDialog = (dialog, message) => {
+    dialog.message = message
+    dialog.isVisible = true
+}
 
 // 메뉴 버튼 리스트
 const items = [
@@ -129,7 +147,7 @@ async function fetchSurveyData() {
 
 // 공유 버튼 클릭
 function share() {
-    console.log('share button click');
+    showDialog(dialogs.value.showShareDialog, '');
 }
 
 // 수정 버튼 클릭
