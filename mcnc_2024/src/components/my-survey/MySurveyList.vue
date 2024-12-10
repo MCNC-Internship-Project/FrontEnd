@@ -89,8 +89,6 @@ async function load({ done }) {
         const res = await api();
         surveyList.value.push(...res.content);
 
-        console.log(surveyList.value);
-
         if (res.totalPages !== currentPage.value + 1) {
             currentPage.value++;
             done('ok');
@@ -146,6 +144,10 @@ async function load({ done }) {
     grid-template-columns: minmax(0, 1fr);
     gap: 12px;
     padding: 0 20px 20px 20px;
+}
+
+:deep(.v-infinite-scroll__side) {
+    grid-column: 1 / -1;
 }
 
 :deep(.v-infinite-scroll__side:first-child) {

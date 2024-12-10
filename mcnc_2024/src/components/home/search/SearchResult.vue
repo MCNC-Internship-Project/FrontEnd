@@ -301,6 +301,10 @@ onMounted(() => {
     overflow: hidden;
 }
 
+:deep(.v-infinite-scroll__side) {
+    grid-column: 1 / -1;
+}
+
 :deep(.v-infinite-scroll__side:first-child) {
     display: none;
 }
