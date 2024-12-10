@@ -14,7 +14,6 @@
     <div class="survey-section">
       <div class="survey-title-section">
         <div>
-          
           <h1 class="survey-title">{{ survey.title }}</h1>
           <p class="survey-description">{{ survey.description }}</p>
         </div>
@@ -25,25 +24,47 @@
         <div v-for="question in survey.questions" :key="question.quesId" class="survey-item-section">
           <div class="question-title">{{ question.body }}</div>
           <div class="response">
+            <!-- 객관식 단일 선택 (라디오 버튼) -->
             <template v-if="question.questionType === 'OBJ_SINGLE'">
               <div class="answer-options">
-                <label v-for="option in question.selectionList" :key="option.selectionId">
-                  <input type="radio" :name="`question-${question.quesId}`" :value="option.body" disabled v-model="userAnswers[question.quesId]" />
+                <label v-for="option in question.selectionList" :key="option.selectionId.sequence">
+                  <input
+                    type="radio"
+                    :name="`question-${question.quesId}`"
+                    :value="option.body"
+                    v-model="userAnswers[question.quesId]"  
+                    :checked="userAnswers[question.quesId] === option.body"
+                    disabled
+                  />
                   {{ option.body }}
                 </label>
               </div>
             </template>
+
+            <!-- 객관식 다중 선택 (체크박스) -->
             <template v-else-if="question.questionType === 'OBJ_MULTI'">
               <div class="answer-options">
-                <label v-for="option in question.selectionList" :key="option.selectionId">
-                  <input type="checkbox" :value="option.body" disabled v-model="userAnswers[question.quesId]" />
+                <label v-for="option in question.selectionList" :key="option.selectionId.sequence">
+                  <input
+                    type="checkbox"
+                    :value="option.body"
+                    v-model="userAnswers[question.quesId]"  
+                    :checked="userAnswers[question.quesId]?.includes(option.body)"
+                    disabled
+                  />
                   {{ option.body }}
                 </label>
               </div>
             </template>
-            <template v-if="question.questionType !== 'SUBJECTIVE' && question.selectionList && question.selectionList.length">
-              <div class="answer-options">
-                <!-- 기존 라디오/체크박스 렌더링 -->
+
+            <!-- 주관식 -->
+            <template v-else-if="question.questionType === 'SUBJECTIVE'">
+              <div class="answer-text">
+                <textarea
+                  readonly
+                  :value="userAnswers[question.quesId]"
+                  placeholder="주관식 답변이 없습니다."
+                ></textarea>
               </div>
             </template>
           </div>
@@ -56,7 +77,7 @@
 <script setup>
 import { ref, onMounted, defineProps } from 'vue';
 import { useRouter } from 'vue-router';
-import axios from 'axios'; // axios import
+import axios from 'axios'; 
 import { decrypt } from '@/utils/crypto';
 
 const router = useRouter();
@@ -77,72 +98,75 @@ const survey = ref({
 });
 const userAnswers = ref({});
 
-// // API에서 설문 데이터를 가져오는 함수
-// const fetchSurveyData = async () => {
-//   const decryptedId = decryptId(props.id)
-//   try {
-//     // 실제 API 요청
-//     const response = await axios.get(`/api/survey/response/${decryptedId}`);
-//     const fetchedSurvey = response.data;
-
-//     // 설문 정보 설정
-//     survey.value = {
-//     title: fetchedSurvey.title,
-//     description: fetchedSurvey.description,
-//     startDate: fetchedSurvey.createDate,
-//     endDate: fetchedSurvey.expireDate,
-//     isExpired: !fetchedSurvey.expireDateValid, // 설문 만료 여부 추가
-//     questions: fetchedSurvey.questionList,
-//   };
-
-
-//     // 사용자 답변 설정
-//     userAnswers.value = fetchedSurvey.questionList.reduce((acc, question) => {
-//       acc[question.quesId] = question.questionType === 'OBJ_MULTI' ? [] : '';
-//       return acc;
-//     }, {});
-//   } catch (error) {
-//     // 404 오류 처리
-//     if (error.response && error.response.status === 404) {
-//       console.error('설문을 찾을 수 없습니다.');
-//       router.push('/not-found'); // 'not-found' 페이지로 이동
-//     }
-//   }
-// };
-
-// 컴포넌트가 마운트되면 fetchSurveyData 호출
+// 컴포넌트가 마운트되면 API 호출
 onMounted(() => {
-  const decryptedId = decrypt(props.id)
-    // 실제 API 요청
-    axios.get(`${baseUrl}/survey/response/${decryptedId}`,{
-        withCredentials: true,
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    }).then((response) => {
+  const decryptedId = decrypt(props.id);
+  axios
+    .get(`${baseUrl}/survey/response/${decryptedId}`, {
+      withCredentials: true,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+    .then((response) => {
       const fetchedSurvey = response.data;
-          
-      console.log(fetchedSurvey)
+      console.log('API 응답 데이터:', fetchedSurvey);
+
       // 설문 정보 설정
       survey.value = {
-      title: fetchedSurvey.title,
-      description: fetchedSurvey.description,
-      startDate: fetchedSurvey.createDate,
-      endDate: fetchedSurvey.expireDate,
-      isExpired: !fetchedSurvey.expireDateValid, // 설문 만료 여부 추가
-      questions: fetchedSurvey.questionList,
-    };
+        title: fetchedSurvey.title,
+        description: fetchedSurvey.description,
+        startDate: fetchedSurvey.createDate,
+        endDate: fetchedSurvey.expireDate,
+        isExpired: !fetchedSurvey.expireDateValid,
+        questions: fetchedSurvey.questionList.map((question) => ({
+          ...question,
+          selectionList: question.selectionList.map((selection, seqIdx) => ({
+            selectionId: {
+              quesId: question.quesId,
+              sequence: seqIdx,
+            },
+            body: selection.body,
+            isEtc: selection.isEtc,
+          })),
+        })),
+      };
 
+      // responses 필드가 없거나 잘못된 경우 방어적 처리
+      const responses = fetchedSurvey.responses || [];
+      if (!Array.isArray(responses)) {
+        console.warn('responses가 배열이 아닙니다:', responses);
+      }
 
       // 사용자 답변 설정
       userAnswers.value = fetchedSurvey.questionList.reduce((acc, question) => {
-        acc[question.quesId] = question.questionType === 'OBJ_MULTI' ? [] : '';
+        // 주관식 답변 처리
+        if (question.questionType === 'SUBJECTIVE') {
+          acc[question.quesId] = question.subjAnswer || ''; // subjAnswer를 userAnswers에 저장
+        } else if (question.questionType === 'OBJ_SINGLE' || question.questionType === 'OBJ_MULTI') {
+          // 객관식 답변 처리 (단일 및 다중 선택)
+          const answer = responses.find(response => response.quesId === question.quesId);
+          
+          if (answer) {
+            if (question.questionType === 'OBJ_SINGLE') {
+              acc[question.quesId] = answer.response || ''; // 단일 선택
+            } else if (question.questionType === 'OBJ_MULTI') {
+              acc[question.quesId] = answer.response || []; // 다중 선택
+            }
+          } else {
+            // 답변이 없으면 빈 값 설정
+            acc[question.quesId] = question.questionType === 'OBJ_MULTI' ? [] : '';
+          }
+        }
         return acc;
       }, {});
     })
     .catch((error) => {
-      console.error(error);
-    })
+      console.error('API 요청 에러:', error);
+      if (error.response && error.response.status === 404) {
+        router.push('/not-found'); // 'not-found' 페이지로 이동
+      }
+    });
 });
 
 // 뒤로 가기 함수
@@ -156,6 +180,7 @@ const formatDate = (dateStr) => {
   return date.toISOString().split('T')[0];
 };
 </script>
+
 
 <style scoped>
 #survey-detail {
@@ -259,8 +284,6 @@ const formatDate = (dateStr) => {
   border-radius: 8px;
 }
 
-
-
 .answer-options {
   margin-top: 18px;
 }
@@ -352,6 +375,11 @@ textarea {
   border-radius: 8px;
   padding: 10px;
   box-sizing: border-box;
+}
+
+textarea:focus {
+  background-color: white; /* 포커스 시 배경색을 흰색으로 유지 */
+  outline: none; /* 포커스 시 테두리 스타일을 없앰 */
 }
 
 textarea::-webkit-scrollbar {
