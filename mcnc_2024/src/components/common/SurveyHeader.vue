@@ -28,7 +28,6 @@ defineEmits(["goSearch"]);
 }
 
 .title {
-    font-family: var(--font-noto-sans);
     color: #464748;
     font-size: 1.25rem;
     font-weight: bold;

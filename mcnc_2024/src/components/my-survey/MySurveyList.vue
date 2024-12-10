@@ -2,15 +2,14 @@
     <div class="root-container">
         <div class="background"></div>
 
-        <ToolBar @goBack="goBack" backgroundColor="#E6F4FF" zIndex="1000">
+        <ToolBar @goBack="goBack" backgroundColor="#FFFFFF" zIndex="1000">
             <SurveyHeader title="내 설문조사" @goSearch="goSearch" />
         </ToolBar>
 
         <div class="list-container">
             <v-infinite-scroll v-if="!noResult" :items="surveyList" :onLoad="load" color="var(--primary)">
-                <template v-for="(item, index) in surveyList" :key="item">
-                    <SurveyCard :survey="item" :class="{ 'last-item': index === surveyList.length - 1 }"
-                        @click="goDetail(item.surveyId)" />
+                <template v-for="(item) in surveyList" :key="item">
+                    <SurveyCard :survey="item" @click="goDetail(item.surveyId)" />
                 </template>
                 <template v-slot:empty>
                 </template>
@@ -90,8 +89,6 @@ async function load({ done }) {
         const res = await api();
         surveyList.value.push(...res.content);
 
-        console.log(surveyList.value);
-
         if (res.totalPages !== currentPage.value + 1) {
             currentPage.value++;
             done('ok');
@@ -115,14 +112,13 @@ async function load({ done }) {
 
 .background {
     position: fixed;
-    top: 0;
+    bottom: 0;
     left: 0;
     width: 100%;
     height: 100%;
     background-image: url('@/assets/images/background_sky.svg');
     background-repeat: repeat-x;
-    transform: translateZ(0);
-    will-change: transform;
+    background-position: bottom;
     z-index: -1;
 }
 
@@ -138,12 +134,20 @@ async function load({ done }) {
     flex-direction: column;
     justify-content: center;
     margin-top: 64px;
-    padding: 4px 0 80px 0;
+    padding: 4px 0 40px 0;
 }
 
 .v-infinite-scroll {
     width: 100%;
     overflow: hidden;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+    padding: 0 20px 20px 20px;
+}
+
+:deep(.v-infinite-scroll__side) {
+    grid-column: 1 / -1;
 }
 
 :deep(.v-infinite-scroll__side:first-child) {
@@ -158,10 +162,18 @@ async function load({ done }) {
     align-items: center;
     font-size: 1.125remrem;
     font-weight: bold;
-    color: #A2A2A3;
+    color: #1C3177;
 }
 
-.last-item {
-    margin-bottom: 0;
+@media screen and (min-width: 768px) {
+    .v-infinite-scroll {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media screen and (min-width: 1200px) {
+    .v-infinite-scroll {
+        grid-template-columns: repeat(3, 1fr);
+    }
 }
 </style>

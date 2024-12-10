@@ -11,22 +11,20 @@
                     모두보기
                 </div>
             </div>
-            <div class="list-container">
-                <ul v-if="surveys.length > 0">
-                    <li v-for="(survey, index) in surveys" :key="index" class="item-list" @click="onItemClick(survey)"
-                        v-ripple>
-                        <div class="item-container">
-                            <div class="item-title">{{ survey.title }}</div>
-                            <div class="item-description">{{ survey.description }}</div>
-                            <div class="footer-container">
-                                <div class="item-date">{{ formatDate(survey.createDate, survey.expireDate) }}</div>
-                            </div>
+            <div class="body-container">
+                <div v-if="surveys.length > 0" class="list-container">
+                    <div class="item-container" v-for="(survey, index) in surveys" :key="index"
+                        @click="onItemClick(survey)" v-ripple>
+                        <div class="item-title">{{ survey.title }}</div>
+                        <div class="item-description">{{ survey.description }}</div>
+                        <div class="footer-container">
+                            <div class="item-date">{{ formatDate(survey.createDate, survey.expireDate) }}</div>
                         </div>
-                    </li>
-                </ul>
+                    </div>
+                </div>
 
                 <div v-else-if="onLoading" class="skeleton-container">
-                    <v-skeleton-loader v-for="n in 3" :key="n" type="image" class="skeleton" />
+                    <v-skeleton-loader v-for="n in 9" :key="n" type="image" class="skeleton" />
                 </div>
 
                 <div v-else class="empty-container">
@@ -114,34 +112,28 @@ onMounted(() => {
     color: #B4B4B4;
 }
 
-.list-container {
+.body-container {
     width: 100%;
-}
-
-ul {
-    margin: 0;
     padding: 16px 24px 80px 24px;
-    list-style: none;
 }
 
-.item-list {
-    flex-shrink: 0;
-    width: 100%;
-    height: 108px;
-    margin-bottom: 16px;
-    border-radius: 12px;
-    background-color: #FFF;
-    border: 1px solid #EFF0F6;
-    box-shadow: 0px 5px 16px rgba(8, 15, 52, 0.08);
-    cursor: pointer;
+.list-container {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
 }
 
 .item-container {
     display: flex;
     flex-direction: column;
-    width: 100%;
-    height: 100%;
+    height: 108px;
     padding: 16px 16px 8px 16px;
+    border-radius: 12px;
+    background-color: #FFF;
+    border: 1px solid #EFF0F6;
+    box-shadow: 0px 5px 16px rgba(8, 15, 52, 0.08);
+    cursor: pointer;
+    min-width: 0;
 }
 
 .item-title {
@@ -176,17 +168,16 @@ ul {
 }
 
 .skeleton-container {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
     width: 100%;
-    padding: 16px 24px;
 }
 
 :deep(.v-skeleton-loader__image) {
     width: 100%;
     height: 108px;
     border-radius: 12px;
-    margin-bottom: 16px;
 }
 
 .empty-container {
@@ -200,5 +191,25 @@ ul {
 .empty-text {
     font-size: 1.125rem;
     color: #7796E8;
+}
+
+@media screen and (min-width: 768px) {
+    .list-container {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .skeleton-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media screen and (min-width: 1200px) {
+    .list-container {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .skeleton-container {
+        grid-template-columns: repeat(3, 1fr);
+    }
 }
 </style>
