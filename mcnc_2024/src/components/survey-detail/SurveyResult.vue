@@ -7,8 +7,7 @@
                 </template>
                 <v-list>
                     <v-list-item v-for="(item, i) in items" :key="i" @click="item.action">
-                        <v-list-item-title :class="{ deleteTitle: item.action === remove }">{{ item.title
-                            }}</v-list-item-title>
+                        <v-list-item-title :class="{ deleteTitle: item.action === remove }">{{ item.title }}</v-list-item-title>
                     </v-list-item>
                 </v-list>
             </v-menu>
@@ -103,7 +102,7 @@ onMounted(() => {
     fetchSurveyData();
 });
 
-// 설문 데이터 가져오기 (api 연결)
+// 설문 데이터 가져오기 api
 async function fetchSurveyData() {
     try {
         const decryptedId = decrypt(props.id);
@@ -155,7 +154,7 @@ function close() {
     isCloseModalVisible.value = true;
 }
 
-// 설문 종료 api 연결
+// 설문 종료 api
 async function handleCloseConfirm() {
     try {
         const decryptedId = decrypt(props.id);
@@ -175,15 +174,14 @@ async function handleCloseConfirm() {
 
 // 삭제 버튼 클릭
 function remove() {
-    isDeleteModalVisible.value = true; // 모달 표시
+    isDeleteModalVisible.value = true;
     console.log('삭제 버튼 클릭');
 }
 
-// 설문 삭제 api 연결 (서버x)
+// 설문 삭제 api
 async function handleDeleteConfirm() {
     try {
-        const decryptedId = decrypt(props.id); // 설문 ID 복호화
-        // 삭제 API 호출
+        const decryptedId = decrypt(props.id); 
         await axios.delete(`${baseUrl}/survey/manage/delete/${decryptedId}`, {
             withCredentials: true,
             headers: {
@@ -191,8 +189,8 @@ async function handleDeleteConfirm() {
             },
         });
         console.log('삭제 성공');
-        isDeleteModalVisible.value = false; // 모달 닫기
-        router.push('/my-survey'); // 목록 페이지로 이동
+        isDeleteModalVisible.value = false; 
+        router.push('/my-survey'); 
     } catch (error) {
         console.error('삭제 실패:', error);
         alert('삭제에 실패했습니다. 다시 시도해 주세요.');
@@ -211,7 +209,7 @@ async function downloadExcel() {
             },
         });
 
-        const data = response.data; // 설문 데이터
+        const data = response.data; 
 
         // 엑셀 워크북 생성
         const workbook = XLSX.utils.book_new();
@@ -329,7 +327,6 @@ async function downloadExcel() {
             }
             const endRow = questionData.length - 1; // 현재 질문 종료 행 번호
 
-            // 질문유형과 질문 열 병합 설정
             mergeRanges.push({ s: { r: startRow, c: 0 }, e: { r: endRow, c: 0 } }); // 질문유형 병합
             mergeRanges.push({ s: { r: startRow, c: 1 }, e: { r: endRow, c: 1 } }); // 질문 병합
         });
