@@ -301,6 +301,10 @@ onMounted(() => {
     overflow: hidden;
 }
 
+:deep(.v-infinite-scroll__side) {
+    grid-column: 1 / -1;
+}
+
 :deep(.v-infinite-scroll__side:first-child) {
     display: none;
 }
@@ -316,11 +320,12 @@ onMounted(() => {
     border-radius: 12px;
     background-color: #FFF;
     cursor: pointer;
+    min-width: 0;
 }
 
 .list-container {
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 12px;
     padding: 0 20px 20px 20px;
 }
