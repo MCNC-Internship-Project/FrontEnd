@@ -13,7 +13,7 @@
                 </v-list>
             </v-menu>
 
-            <button v-if="!expireDateBoolean && !isLoaing" class="delete-btn" @click="isCloseModalVisible = true" v-ripple>삭제</button>
+            <button v-if="!expireDateBoolean && !isLoaing" class="delete-btn" @click="isDeleteModalVisible = true" v-ripple>삭제</button>
         </ToolBar>
 
         <div v-if="surveyData" class="survey-container">
