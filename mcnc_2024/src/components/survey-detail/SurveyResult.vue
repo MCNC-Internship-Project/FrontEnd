@@ -65,9 +65,11 @@
         confirmButtonColor="#F77D7D" @confirm="handleCloseConfirm" />
 
     <!--삭제 모달-->
-    <ConfirmationModal v-model="isCloseModalVisible" message="설문을 종료하시겠습니까?" cancelText="취소" confirmText="종료"
-        @cancel="handleModalCancel" @confirm="handleCloseConfirm" />
+    <ConfirmDialog v-model="isDeleteModalVisible" message="설문을 정말 삭제하시겠습니까?" subMessage="*삭제 후에는 복구가 불가능합니다!"
+        confirmButtonText="삭제" confirmButtonColor="#F77D7D" @confirm="handleDeleteConfirm" />
 
+
+        <default-dialog v-model="dialogs.showDefaultDialog.isVisible" :message="dialogs.showDefaultDialog.message" @confirm="dialogs.showDefaultDialog.isVisible = false" />
 
     <share-survey-dialog v-model="dialogs.showShareDialog.isVisible" :surveyId="decrypt(props.id)" @confirm="showDialog(dialogs.showDefaultDialog, '이메일 전송이 완료되었습니다.')" />
 </template>
@@ -82,7 +84,8 @@ import ToolBar from '@/components/common/ToolBar.vue'
 import AgeChart from './AgeChart.vue';
 import GenderChart from './GenderChart.vue';
 import ResultRenderer from '@/components/survey-detail/ResultRenderer.vue';
-import ConfirmationModal from './ConfirmationModal.vue';
+import ConfirmDialog from '@/components/common/ConfirmDialog.vue';
+import ShareSurveyDialog from './ShareSurveyDialog.vue';
 
 const surveyData = ref("");
 const isLoading = ref(true);
