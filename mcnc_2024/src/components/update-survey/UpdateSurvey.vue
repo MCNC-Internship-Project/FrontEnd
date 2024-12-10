@@ -140,23 +140,17 @@
 </template>
 
 <script setup>
-import DefaultDialog from '../common/DefaultDialog.vue';
-import ConfirmDialog from '../common/ConfirmDialog.vue';
 import { useRouter } from 'vue-router'
 import { ref, nextTick, watch, onMounted, defineProps } from 'vue';
 import axios from 'axios';
-import { decrypt, encrypt } from '@/utils/crypto';
-
 import dayjs from 'dayjs'
-
+import { decrypt, encrypt } from '@/utils/crypto';
 import { checkEmptyValues } from '@/utils/checkEmptyValues';
-
 import UpdateSurveyItem from './update-survey-item/UpdateSurveyItem.vue';
 import TimePickerComponent from './update-survey-item/component/TimePickerComponent.vue';
 import { useSaveStatusStore } from '@/stores/saveStatusStore';
 
 const saveStatusStore = useSaveStatusStore();
-
 const props = defineProps({
     id: String,
 })
@@ -168,10 +162,8 @@ const totalComponent = ref([]);
 const surveyItems = ref([]);
 const surveyId = ref("");
 const createDate = ref("");
-
 const surveyTitle = ref("");
 const titleError = ref(false);
-
 const surveyDescription = ref("")
 
 const dateError = ref(false);
@@ -231,16 +223,14 @@ onMounted(() => {
     .then((response) => {
         if (response.status === 200) {
             apiResponse = response.data;
-            createDate.value = apiResponse.createDate;
 
+            createDate.value = apiResponse.createDate;
             surveyTitle.value = apiResponse.title;
             surveyDescription.value = apiResponse.description;
 
             for(let i=0; i<apiResponse.questionList.length; i++){
                 totalComponent.value.push({id : i, data:apiResponse.questionList[i]})
             }
-
-            if (!apiResponse.expireDate) return;
 
             const expireDate = dayjs(apiResponse.expireDate);
             date.value = new Date(apiResponse.expireDate);

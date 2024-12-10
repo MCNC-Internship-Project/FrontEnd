@@ -69,7 +69,8 @@
         confirmButtonText="삭제" confirmButtonColor="#F77D7D" @confirm="handleDeleteConfirm" />
 
 
-        <default-dialog v-model="dialogs.showDefaultDialog.isVisible" :message="dialogs.showDefaultDialog.message" @confirm="dialogs.showDefaultDialog.isVisible = false" />
+    <default-dialog v-model="dialogs.showDefaultDialog.isVisible" :message="dialogs.showDefaultDialog.message" @confirm="dialogs.showDefaultDialog.isVisible = false" />
+    <default-dialog v-model="dialogs.showSuccessRemoveDialog.isVisible" :message="dialogs.showSuccessRemoveDialog.message" @confirm="deleteConfirm" :isPersistent="true"/>
 
     <share-survey-dialog v-model="dialogs.showShareDialog.isVisible" :surveyId="decrypt(props.id)" @confirm="showDialog(dialogs.showDefaultDialog, '이메일 전송이 완료되었습니다.')" />
 </template>
@@ -84,7 +85,6 @@ import ToolBar from '@/components/common/ToolBar.vue'
 import AgeChart from './AgeChart.vue';
 import GenderChart from './GenderChart.vue';
 import ResultRenderer from '@/components/survey-detail/ResultRenderer.vue';
-import ConfirmDialog from '@/components/common/ConfirmDialog.vue';
 import ShareSurveyDialog from './ShareSurveyDialog.vue';
 
 const surveyData = ref("");
@@ -108,7 +108,11 @@ const dialogs = ref({
     showDefaultDialog: {
         isVisible: false,
         message: ''
-    }
+    },
+    showSuccessRemoveDialog: {
+        isVisible: false,
+        message: '',
+    },
 });
 
 const showDialog = (dialog, message) => {
@@ -203,7 +207,20 @@ async function handleCloseConfirm() {
 // 삭제 버튼 클릭
 function remove() {
     isDeleteModalVisible.value = true;
-    console.log('삭제 버튼 클릭');
+}
+
+function deleteConfirm() {
+    dialogs.value.showSuccessRemoveDialog.value = false;
+    router.go(-1);
+    setTimeout(() => {
+        const currentPath = router.currentRoute.value.path
+        
+        if (currentPath === '/') {
+            router.replace({ path: '/' });
+        } else if (currentPath === '/my-survey') {
+            router.replace({ name: 'MySurvey' });
+        }
+    }, 100);
 }
 
 // 설문 삭제 api
@@ -216,12 +233,10 @@ async function handleDeleteConfirm() {
                 'Content-Type': 'application/json',
             },
         });
-        console.log('삭제 성공');
-        isDeleteModalVisible.value = false; 
-        router.push('/my-survey'); 
+        showDialog(dialogs.value.showSuccessRemoveDialog, "성공적으로 삭제되었습니다.");
     } catch (error) {
-        console.error('삭제 실패:', error);
-        alert('삭제에 실패했습니다. 다시 시도해 주세요.');
+        console.error(error);
+        showDialog(dialogs.value.showDefaultDialog, "삭제 중 오류가 발생했습니다.");
     }
 }
 
