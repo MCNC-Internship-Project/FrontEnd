@@ -1,16 +1,6 @@
 <template>
+  <ToolBar @goBack="goBack" backgroundColor="#fff" zIndex="1000" />
   <div id="survey-detail" v-if="survey.title && survey.questions && survey.questions.length">
-    <header class="toolbar">
-      <div class="back-container">
-        <img
-          class="back"
-          src="../../assets/images/icon_arrow_left.svg"
-          alt="back"
-          @click="goBack"
-        />
-      </div>
-    </header>
-
     <div class="survey-section">
       <div class="survey-title-section">
         <div>
@@ -31,9 +21,8 @@
                   <input
                     type="radio"
                     :name="`question-${question.quesId}`"
-                    :value="option.body"
-                    v-model="userAnswers[question.quesId]"  
-                    :checked="userAnswers[question.quesId] === option.body"
+                    :value="option.selectionId.sequence"
+                    :checked="userAnswers[question.quesId] === option.selectionId.sequence"
                     disabled
                   />
                   {{ option.body }}
@@ -47,9 +36,8 @@
                 <label v-for="option in question.selectionList" :key="option.selectionId.sequence">
                   <input
                     type="checkbox"
-                    :value="option.body"
-                    v-model="userAnswers[question.quesId]"  
-                    :checked="userAnswers[question.quesId]?.includes(option.body)"
+                    :value="option.selectionId.sequence"
+                    :checked="userAnswers[question.quesId]?.includes(option.selectionId.sequence)"
                     disabled
                   />
                   {{ option.body }}
@@ -62,11 +50,12 @@
               <div class="answer-text">
                 <textarea
                   readonly
-                  :value="userAnswers[question.quesId]"
-                  placeholder="주관식 답변이 없습니다."
+                  :value="userAnswers[question.quesId]"  
+                  placeholder="주관식 답변이 없습니다."   
                 ></textarea>
               </div>
             </template>
+
           </div>
         </div>
       </div>
@@ -79,6 +68,7 @@ import { ref, onMounted, defineProps } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios'; 
 import { decrypt } from '@/utils/crypto';
+import ToolBar from '../common/ToolBar.vue';
 
 const router = useRouter();
 const baseUrl = process.env.VUE_APP_API_URL;
@@ -118,48 +108,60 @@ onMounted(() => {
         description: fetchedSurvey.description,
         startDate: fetchedSurvey.createDate,
         endDate: fetchedSurvey.expireDate,
+        creatorId: fetchedSurvey.creatorId,
         isExpired: !fetchedSurvey.expireDateValid,
         questions: fetchedSurvey.questionList.map((question) => ({
-          ...question,
+          quesId: question.quesId,
+          body: question.body,
+          questionType: question.questionType,
           selectionList: question.selectionList.map((selection, seqIdx) => ({
             selectionId: {
               quesId: question.quesId,
               sequence: seqIdx,
             },
             body: selection.body,
-            isEtc: selection.isEtc,
-          })),
+            isEtc: selection.isEtc || false,
+          })) || [], // selectionList가 없으면 빈 배열로 처리
         })),
       };
 
-      // responses 필드가 없거나 잘못된 경우 방어적 처리
-      const responses = fetchedSurvey.responses || [];
-      if (!Array.isArray(responses)) {
-        console.warn('responses가 배열이 아닙니다:', responses);
-      }
-
       // 사용자 답변 설정
       userAnswers.value = fetchedSurvey.questionList.reduce((acc, question) => {
-        // 주관식 답변 처리
-        if (question.questionType === 'SUBJECTIVE') {
-          acc[question.quesId] = question.subjAnswer || ''; // subjAnswer를 userAnswers에 저장
-        } else if (question.questionType === 'OBJ_SINGLE' || question.questionType === 'OBJ_MULTI') {
-          // 객관식 답변 처리 (단일 및 다중 선택)
-          const answer = responses.find(response => response.quesId === question.quesId);
-          
-          if (answer) {
-            if (question.questionType === 'OBJ_SINGLE') {
-              acc[question.quesId] = answer.response || ''; // 단일 선택
-            } else if (question.questionType === 'OBJ_MULTI') {
-              acc[question.quesId] = answer.response || []; // 다중 선택
-            }
-          } else {
-            // 답변이 없으면 빈 값 설정
-            acc[question.quesId] = question.questionType === 'OBJ_MULTI' ? [] : '';
+        const answer = fetchedSurvey.responses?.find(
+          (response) => response.quesId === question.quesId
+        );
+
+        if (answer) {
+          if (question.questionType === 'OBJ_SINGLE') {
+            // 객관식 단일 선택: 선택된 항목의 sequence 저장
+            const selectedOption = question.selectionList.find(
+              (option) => option.body === answer.response
+            );
+            acc[question.quesId] = selectedOption
+              ? selectedOption.selectionId.sequence
+              : null; // 선택된 항목이 없으면 null
+          } else if (question.questionType === 'OBJ_MULTI') {
+            // 객관식 다중 선택: 선택된 항목의 sequence 배열 저장
+            acc[question.quesId] = answer.response
+              ? answer.response.map((resBody) => {
+                  const option = question.selectionList.find(
+                    (option) => option.body === resBody
+                  );
+                  return option ? option.selectionId.sequence : null;
+                }).filter((seq) => seq !== null) // 유효하지 않은 항목 제거
+              : [];
+          } else if (question.questionType === 'SUBJECTIVE') {
+            // 주관식: response 필드에서 답변을 가져옴
+            acc[question.quesId] = answer.response || '주관식 답변이 없습니다.'; // 주관식 답변이 없으면 기본 메시지 표시
           }
+        } else {
+          // 답변이 없으면 빈 값 설정
+          acc[question.quesId] = question.questionType === 'OBJ_MULTI' ? [] : '';
         }
         return acc;
       }, {});
+
+
     })
     .catch((error) => {
       console.error('API 요청 에러:', error);
@@ -181,27 +183,12 @@ const formatDate = (dateStr) => {
 };
 </script>
 
-
 <style scoped>
 #survey-detail {
   width: 100%;
+  margin-top: 68px;
   display : flex;
   flex-direction: column;
-}
-
-.toolbar {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  height: 64px;
-}
-
-.back-container {
-  display: flex;
-  align-items: center;
-  padding-left: 24px;
 }
 
 .survey-section {
