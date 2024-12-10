@@ -322,7 +322,7 @@ onMounted(() => {
     display: grid;
     grid-template-columns: 1fr;
     gap: 12px;
-    padding: 0 20px;
+    padding: 0 20px 20px 20px;
 }
 
 .item-header-container {

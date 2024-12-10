@@ -67,6 +67,7 @@ const isEmailError = ref(false);
 const errorMessage = ref('');
 const isEmailSending = ref(false);
 
+// 이메일 리스트에 이메일 추가
 const addEmail = (inputEmail) => {
     isEmailError.value = false;
 
