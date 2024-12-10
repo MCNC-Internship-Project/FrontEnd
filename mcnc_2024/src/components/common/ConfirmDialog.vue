@@ -3,10 +3,10 @@
         <v-card>
             <div class="message">{{ message }}</div>
             <div v-if="subMessage?.trim()" class="sub-message">{{ subMessage }}</div>
-            <div class="dialog-actions">
-                <v-btn class="cancel-btn" @click="isVisible = false">취소</v-btn>
+                <div class="dialog-actions">
+                    <v-btn class="cancel-btn" @click="isVisible = false">취소</v-btn>
                 <v-btn class="confirm-btn" :color="confirmButtonColor" @click="onConfirm">{{ confirmButtonText }}</v-btn>
-            </div>
+                </div>
         </v-card>
     </v-dialog>
 </template>
