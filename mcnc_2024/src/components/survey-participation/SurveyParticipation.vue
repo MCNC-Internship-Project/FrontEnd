@@ -1,6 +1,8 @@
 <template>
   <div id="survey-participation">
-    <header class="toolbar"></header>
+    <header class="toolbar">
+      <img class="back" src="@/assets/images/icon_arrow_left.svg" alt="back" @click="goBack">
+    </header>
 
     <div class="survey-section">
       <div class="survey-title-section">
@@ -106,6 +108,11 @@ const answers = ref({});
 const showAlert = ref(false);
 const alertMessage = ref('');
 
+// 이전 페이지로 이동
+const goBack = () => {
+  router.back(); 
+};
+
 // 텍스트 영역 참조
 const textAreaRef = ref(null);
 
@@ -175,19 +182,38 @@ const handleCheckboxChange = (quesId) => {
     answers.value[quesId] = [];
   }
   answers.value[quesId] = [...new Set(selectedAnswers)];
+
+  // 체크박스를 선택할 때 에러 상태를 없앰
+  const question = survey.value.questionList.find(q => q.quesId === quesId);
+  if (question.hasError) {
+    question.hasError = false;
+  }
 };
 
 // 라디오 버튼 변경 처리
 const handleRadioChange = (quesId) => {
   const selectedAnswer = answers.value[quesId];
   answers.value[quesId] = selectedAnswer || '';
+
+  // 라디오 버튼을 선택할 때 에러 상태를 없앰
+  const question = survey.value.questionList.find(q => q.quesId === quesId);
+  if (question.hasError) {
+    question.hasError = false;
+  }
 };
 
 // 주관식 입력 변경 처리
 const handleTextInputChange = (quesId) => {
   const inputText = answers.value[quesId];
   answers.value[quesId] = inputText || '';
+
+  // 주관식 입력을 변경할 때 에러 상태를 없앰
+  const question = survey.value.questionList.find(q => q.quesId === quesId);
+  if (question.hasError) {
+    question.hasError = false;
+  }
 };
+
 
 // 에러 메시지 반환
 const getErrorMessage = (type) => {
@@ -197,9 +223,9 @@ const getErrorMessage = (type) => {
   return '';
 };
 
-// 설문 제출
 const submitSurvey = async () => {
-  const surveyId = decrypt(route.params.id); // URL 파라미터에서 surveyId 가져오기
+  const surveyId = decrypt(route.params.id);
+
   if (isSurveyExpired.value) {
     console.warn('설문 기간이 만료되었습니다.');
     return;
@@ -207,9 +233,9 @@ const submitSurvey = async () => {
 
   let hasUnanswered = false;
 
+  // 응답 검증
   survey.value.questionList.forEach((question) => {
     const answer = answers.value[question.quesId];
-
     if (
       (question.questionType === 'OBJ_SINGLE' && !answer) ||
       (question.questionType === 'OBJ_MULTI' && (!answer || answer.length === 0)) ||
@@ -229,61 +255,68 @@ const submitSurvey = async () => {
   }
 
   try {
-
     const payload = {
       surveyId: surveyId,
-      responseList: survey.value.questionList.map((question) => {
-        const response = answers.value[question.quesId];
-        
-        const baseResponse = {
-          quesId: question.quesId,
-          questionType: question.questionType,
-        };
+      responseList: survey.value.questionList.flatMap((question) => {
+  const response = answers.value[question.quesId];
 
-        // 주관식 처리
-        if (question.questionType === 'SUBJECTIVE') {
-          return {
-            ...baseResponse,
-            response: response
-            // selectionId를 제거
-          };
-        }
+  const baseResponse = {
+    quesId: question.quesId,
+    questionType: question.questionType,
+  };
 
-        // 단일 선택 처리
-        if (question.questionType === 'OBJ_SINGLE') {
-          const selectedOption = question.selectionList.find(opt => opt.body === response);
-          return {
-            ...baseResponse,
-            selectionId: {
-              quesId: question.quesId,
-              sequence: selectedOption ? selectedOption.selectionId.sequence : 0
-            }
-          };
-        }
-
-        // 다중 선택 처리
-        if (question.questionType === 'OBJ_MULTI') {
-          const selectedSequences = response
-            .map(res => 
-              question.selectionList.find(opt => opt.body === res)?.selectionId.sequence
-            )
-            .filter(seq => seq !== undefined);
-
-          return {
-            ...baseResponse,
-            selectionId: {
-              quesId: question.quesId,
-              sequence: selectedSequences[0] // 첫 번째 선택된 항목의 sequence
-            }
-          };
-        }
-
-        return baseResponse;
-      }),
+  // 주관식 (SUBJECTIVE)
+  if (question.questionType === 'SUBJECTIVE') {
+    return {
+      ...baseResponse,
+      response: response || "", // 응답
+      selectionId: null, // 주관식은 selectionId 없음
     };
+  }
+
+  // 단일 선택 (OBJ_SINGLE)
+  if (question.questionType === 'OBJ_SINGLE') {
+    const selectedOption = question.selectionList.find(opt => opt.body === response);
+    return {
+      ...baseResponse,
+      response,
+      selectionId: selectedOption
+        ? {
+            quesId: question.quesId,
+            sequence: selectedOption.selectionId.sequence,
+          }
+        : null,
+    };
+  }
+
+  // 다중 선택 (OBJ_MULTI)
+  if (question.questionType === 'OBJ_MULTI') {
+    return response.map((selectedAnswer) => {
+      const selectedOption = question.selectionList.find(opt => opt.body === selectedAnswer);
+      return {
+        ...baseResponse,
+        response: selectedAnswer, // 개별 응답
+        selectionId: selectedOption
+          ? {
+              quesId: question.quesId,
+              sequence: selectedOption.selectionId.sequence,
+            }
+          : null,
+      };
+    });
+  }
+
+  // 기타 처리
+  return {
+    ...baseResponse,
+    response: response || "",
+  };
+}),
+};
 
     console.log('Submitting payload:', JSON.stringify(payload, null, 2));
 
+    // 설문 응답 전송
     await axios.post(`${baseUrl}/survey/response`, payload, { withCredentials: true });
 
     alertMessage.value = '설문이 제출되었습니다.';
@@ -294,7 +327,6 @@ const submitSurvey = async () => {
     }, 1000);
   } catch (error) {
     console.error('설문 제출 중 오류 발생:', error);
-    console.error('에러 상세:', error.response?.data);
     alertMessage.value = '설문 제출 중 오류가 발생했습니다.';
     showAlert.value = true;
   }
@@ -321,12 +353,26 @@ min-height: 100vh;
 }
 
 .toolbar {
-width: 100%;
-height: 35px;
+  position: fixed;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 64px;
+  background-color: #fff;
+  z-index: 50;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+
+.toolbar {
+position: relative;
 display: flex;
 align-items: center;
 justify-content: space-between;
-padding: 0 12px;
+width: 100%;
+height: 64px;
 }
 
 .menu-container {
@@ -338,6 +384,13 @@ justify-content: end;
 padding-right: 24px;
 margin-top: auto;
 margin-bottom: 12px;
+}
+
+.back {
+  width: 20px;
+  height: 20px;
+  margin-left: 24px;
+  cursor: pointer;
 }
 
 .submit-btn {
