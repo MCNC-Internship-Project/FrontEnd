@@ -1,7 +1,7 @@
 <template>
     <div class="root-container">
         <div class="background"></div>
-        <ToolBar @goBack="goBack" backgroundColor="#FFE6EB" zIndex="1000">
+        <ToolBar @goBack="goBack" backgroundColor="#FFFFFF" zIndex="1000">
             <div class="search-box">
                 <input type="text" placeholder="설문 제목을 검색해보세요." v-model="searchQuery" @keyup.enter="searchSurvey" />
                 <button class="search-btn-section" @click="searchSurvey">
@@ -127,14 +127,13 @@ function goBack() {
 
 .background {
     position: fixed;
-    top: 0;
+    bottom: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: url('@/assets/images/background_pink.svg');
+    background-image: url('@/assets/images/background_ash.svg');
     background-repeat: repeat-x;
-    transform: translateZ(0);
-    will-change: transform;
+    background-position: bottom;
     z-index: -1;
 }
 
