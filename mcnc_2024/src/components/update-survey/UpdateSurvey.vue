@@ -435,7 +435,7 @@ const handleSubmit = () => {
         dialogs.value.showSaveDialog.isVisible = false;
     }
 
-    const values = surveyItems.value.map((item) => item.getValue()); // getValue()는 각 survey-item에서 필요한 값을 반환하는 메서드로 가정
+    const values = surveyItems.value.map((item) => item.getValue()); // getValue()는 각 survey-item에서 필요한 값을 반환하는 메서드
 
     const jsonData = { surveyId: surveyId.value, title: title,
                         description: description, questionList: values,
@@ -481,13 +481,17 @@ const handleSubmit = () => {
                 'Content-Type': 'application/json'
             }
         })
-            .then(() => {
-                saveStatusStore.setSaved();
-                showDialog(dialogs.value.showSuccessDialog, "설문조사가 수정되었습니다.");
-            })
-            .catch(() => {
-                showDialog(dialogs.value.showDefaultDialog, "설문조사 생성 중 오류가 발생했습니다.");
-            });
+        .then(() => {
+            saveStatusStore.setSaved();
+            showDialog(dialogs.value.showSuccessDialog, "설문조사가 수정되었습니다.");
+        })
+        .catch((error) => {
+            if(error.response.status === 400){
+                showDialog(dialogs.value.showDefaultDialog, error.response.data.errorMessage);
+            } else {
+                showDialog(dialogs.value.showDefaultDialog, "설문조사 수정 중 오류가 발생했습니다.");
+            }
+        });
     }
 };
 
