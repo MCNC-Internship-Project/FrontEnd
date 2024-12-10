@@ -46,7 +46,7 @@ defineProps({
     display: flex;
     align-items: center;
     justify-content: center;
-    height: calc(var(--vh, 1vh) * 100 - 65px);
+    height: calc(var(--vh, 1vh) * 100 - 72px);
 }
 
 .logo {
@@ -75,9 +75,11 @@ defineProps({
 }
 
 .search-result-text {
-    text-align: center;
     color: #a2a2a2;
-    margin-top: 16px;
+    height: calc(var(--vh, 1vh) * 100 - 72px);
+    display : flex;
+    justify-content: center;
+    align-items: center;
 }
 
 @media screen and (min-width: 768px) {

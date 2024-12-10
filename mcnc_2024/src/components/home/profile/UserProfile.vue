@@ -73,10 +73,10 @@ const onItemClick = (item) => {
             router.push({path : "/profile/edit"});
             break;
         case '생성한 설문 보기':
-            router.push({path : "/my-survey"});
+            router.push({path : "/my"});
             break;
         case '참여한 설문 보기':
-            router.push({path : "/joined-survey"});
+            router.push({path : "/respond"});
             break;
         case '로그아웃':
 

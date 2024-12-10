@@ -2,11 +2,10 @@
     <div class="root-container">
         <div class="background"></div>
         <ToolBar @goBack="goBack" backgroundColor="#FFFFFF" zIndex="1000">
-            <div class="search-box">
-                <input type="text" placeholder="설문 제목을 검색해보세요." v-model="searchQuery" @keyup.enter="searchSurvey" />
-                <button class="search-btn-section" @click="searchSurvey">
-                    <img class="search-btn" src="../../assets/images/icon_search_btn.svg" alt="search icon" />
-                </button>
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="설문 제목을 검색해보세요." v-model="searchQuery"
+                    @keyup.enter="searchSurvey" v-focus />
+                <img class="search-icon" src="@/assets/images/icon_search_btn.svg" alt="dropdown icon" @click="searchSurvey"/>
             </div>
         </ToolBar>
 
@@ -137,46 +136,26 @@ function goBack() {
     z-index: -1;
 }
 
-.search-box {
-    width: 80%;
-    display: flex;
+.search-container {
     flex: 1;
-    align-items: center;
-    background-color: #f2f6fc;
-    border-radius: 8px;
-    padding: 4px 12px;
-    margin-right: 20px;
-    margin-left: -12px;
-}
-
-.search-btn-section {
     display: flex;
     align-items: center;
-    justify-content: center;
+    margin: 0 20px 0 -4px;
+    border-radius: 12px;
+    background-color: #F3F3F3;
 }
 
-.search-btn {
-    text-indent: -999em;
-    width: 24px;
-    height: 24px;
-    background: url("../../assets/images/icon_search_btn.svg") no-repeat center center;
-    background-size: contain;
-    cursor: pointer;
-    margin-left: auto;
-}
-
-.search-box input {
+.search-input {
     width: 100%;
-    border: none;
+    height: 44px;
+    padding-left: 16px;
     outline: none;
-    background: none;
-    padding: 8px;
-    font-size: 1rem;
 }
 
-.search-box button {
-    background: none;
-    border: none;
+.search-icon {
+    width: 20px;
+    height: 20px;
+    margin: 0 16px;
     cursor: pointer;
 }
 </style>

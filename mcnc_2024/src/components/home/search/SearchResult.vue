@@ -65,7 +65,7 @@ const noResult = ref(false);
 const onLoading = ref(true);
 
 const goBack = () => {
-    router.push("/");
+    router.back();
 }
 
 const search = async () => {
@@ -73,7 +73,7 @@ const search = async () => {
         return;
     }
 
-    router.push({
+    router.replace({
         path: "/search",
         query: {
             q: searchQuery.value
@@ -211,7 +211,7 @@ const remainTime = (date) => {
 }
 
 onMounted(() => {
-    const initialQuery = router.currentRoute.value.query.title;
+    const initialQuery = router.currentRoute.value.query.q;
     if (initialQuery) {
         searchQuery.value = initialQuery;
         search(); // 초기 쿼리로 검색 실행
