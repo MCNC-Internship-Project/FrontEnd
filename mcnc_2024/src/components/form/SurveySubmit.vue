@@ -17,7 +17,7 @@ import { useRouter } from 'vue-router';
 const router = useRouter();
 
 const goBackToHome = () => {
-  router.push('/');  // 홈 페이지로 돌아가기
+  router.replace('/');  // 홈 페이지로 돌아가기
 };
 </script>
 

@@ -420,8 +420,8 @@ const handleSubmit = () => {
 };
 
 /**
- * 생성 후 리플레이스의 위치가 / 이면 / 으로 replcae,
- * /my-survey 이면 /my-survey로 replace.
+ * 생성 후 go(-1)의 위치가 / 이면 / 으로 replace,
+ * /my 이면 /my로 replace.
  */
 const redirectionToMySurvey = () => {
     dialogs.value.showSuccessDialog.isVisible = false;
@@ -431,7 +431,7 @@ const redirectionToMySurvey = () => {
         const currentPath = router.currentRoute.value.path;
 
         if (currentPath === '/') {
-            router.replace({ path: '/' });
+            router.replace({ name: 'Home' });
         } else if (currentPath === '/my') {
             router.replace({ name: 'MySurvey' });
         }
