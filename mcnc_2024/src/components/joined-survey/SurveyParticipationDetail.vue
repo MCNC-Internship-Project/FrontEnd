@@ -17,12 +17,21 @@
                         <!-- 객관식 단일 선택 (라디오 버튼) -->
                         <template v-if="question.questionType === 'OBJ_SINGLE'">
                             <div class="answer-options">
-                                <label v-for="option in question.selectionList" :key="option.selectionId.sequence">
-                                    <input type="radio" :name="`question-${question.quesId}`"
-                                        :value="option.selectionId.sequence"
-                                        :checked="userAnswers[question.quesId] === option.selectionId.sequence"
-                                        disabled />
-                                    {{ option.body }}
+                                <label v-for="option in question.selectionList" :key="option.selectionId.sequence"
+                                    class="option-container">
+                                    <div>
+                                        <input type="radio" :name="`question-${question.quesId}`"
+                                            :value="option.selectionId.sequence"
+                                            :checked="question.objAnswerList[0] === option.selectionId.sequence"
+                                            disabled />
+                                        {{ option.body }}
+                                    </div>
+
+                                    <div class="answer-text"
+                                        v-if="option.isEtc && question.objAnswerList.includes(option.selectionId.sequence)">
+                                        <div class="etc-answer">{{question.etcAnswer}}</div>
+                                    </div>
+
                                 </label>
                             </div>
                         </template>
@@ -30,12 +39,21 @@
                         <!-- 객관식 다중 선택 (체크박스) -->
                         <template v-else-if="question.questionType === 'OBJ_MULTI'">
                             <div class="answer-options">
-                                <label v-for="option in question.selectionList" :key="option.selectionId.sequence">
-                                    <input type="checkbox" :value="option.selectionId.sequence"
-                                        :checked="userAnswers[question.quesId]?.includes(option.selectionId.sequence)"
-                                        disabled />
-                                    {{ option.body }}
+                                <label v-for="option in question.selectionList" :key="option.selectionId.sequence"
+                                    class="option-container">
+                                    <div>
+                                        <input type="checkbox" :value="option.selectionId.sequence"
+                                            :checked="userAnswers[question.quesId]?.includes(option.selectionId.sequence)"
+                                            disabled />
+                                        {{ option.body }}
+                                    </div>
+
+                                    <div class="answer-text"
+                                        v-if="option.isEtc && question.objAnswerList.includes(option.selectionId.sequence)">
+                                        <div class="etc-answer">{{question.etcAnswer}}</div>
+                                    </div>
                                 </label>
+
                             </div>
                         </template>
 
@@ -60,6 +78,7 @@ import { useRouter } from 'vue-router';
 import axios from 'axios';
 import { decrypt } from '@/utils/crypto';
 import ToolBar from '../common/ToolBar.vue';
+
 
 const router = useRouter();
 const baseUrl = process.env.VUE_APP_API_URL;
@@ -101,6 +120,9 @@ const fetchSurveyResponses = async () => {
                 quesId: question.quesId,
                 body: question.body,
                 questionType: question.questionType,
+                subjAnswer: question.subjAnswer,
+                etcAnswer: question.etcAnswer,
+                objAnswerList: question.objAnswerList,
                 selectionList: question.selectionList.map((selection, seqIdx) => ({
                     selectionId: {
                         quesId: question.quesId,
@@ -126,6 +148,8 @@ const fetchSurveyResponses = async () => {
         console.error('설문 데이터를 가져오는 중 오류가 발생했습니다:', error);
     }
 };
+
+
 
 // 뒤로 가기 함수
 const goBack = () => {
@@ -235,10 +259,8 @@ const formatDate = (dateStr) => {
     font-size: 0.875rem;
     color: #464748;
     display: flex;
-    align-items: center;
     gap: 10px;
     margin-bottom: 12px;
-    cursor: pointer;
     padding-left: 12px;
     padding-right: 12px;
 }
@@ -329,5 +351,20 @@ textarea:focus {
 
 textarea::-webkit-scrollbar {
     width: 0px;
+}
+
+.option-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    width: 100%;
+}
+
+.etc-answer{
+    background-color: white;
+    border: 1px solid #D9D9D9;
+    border-radius: 8px;
+    padding: 10px;
+    width: 100%;
 }
 </style>
