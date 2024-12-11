@@ -15,7 +15,7 @@
                 </template>
             </v-infinite-scroll>
             <div class="list-none" v-else>
-                <p>아직 참여한 설문이 없습니다.</p>
+                <p>아직 참여한 설문이 없습니다.<br>설문에 참여해 의견을 남겨보세요!</p>
             </div>
         </div>
     </div>
@@ -150,11 +150,12 @@ function goToDetail(surveyId) {
 
 .list-none {
     width: 100%;
-    height: calc(var(--vh, 1vh) * 100 - 72px);
+    height: calc(var(--vh, 1vh) * 100 - 116px);
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 1.125remrem;
+    text-align: center;
+    font-size: 1.125rem;
     font-weight: bold;
     color: #6D6D6D;
 }
