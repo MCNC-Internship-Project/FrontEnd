@@ -2,7 +2,7 @@
     <div class="root-container">
         <form class="form-container" novalidate @submit.prevent="nextStep">
             <input type="text" class="form-input" :class="{ 'error': isUserIdError }" placeholder="아이디" v-model="userId"
-                @focus="isUserIdError = false" v-focus>
+                @focus="isUserIdError = false" maxlength="20" v-focus>
             <button class="form-btn" v-ripple>다음</button>
         </form>
 

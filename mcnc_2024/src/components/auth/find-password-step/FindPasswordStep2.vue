@@ -4,11 +4,11 @@
             <div class="email-hint">{{ hideEmail(store.email) }}</div>
             <div class="email-container">
                 <input type="email" class="form-input" :class="{ 'error': isEmailError }" placeholder="이메일"
-                    autocomplete="userEmail" v-model="email" @focus="isEmailError = false" v-focus>
+                    autocomplete="userEmail" v-model="email" maxlength="255" @focus="isEmailError = false" v-focus>
                 <button class="verify-btn" v-ripple @click="verifyCode" :disabled="isEmailSending">인증</button>
             </div>
             <input type="text" class="form-input" :class="{ 'error': isCodeError }" placeholder="인증번호" v-model="code"
-                @focus="isCodeError = false">
+                maxlength="8" @focus="isCodeError = false">
             <button class="form-btn" v-ripple @click="nextStep">다음</button>
         </div>
 
