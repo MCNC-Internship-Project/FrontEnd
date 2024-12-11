@@ -16,8 +16,8 @@
                 </div>
             </div>
             <div class="dialog-actions">
-                <v-btn v-if="!isEmailSending" class="cancel-btn" @click="isVisible = false">취소</v-btn>
-                <v-btn class="confirm-btn" color="var(--primary)" @click="sendEmail" :disabled="isEmailSending">
+                <v-btn v-if="!isEmailSending" class="btn cancel-btn" @click="isVisible = false">취소</v-btn>
+                <v-btn class="btn confirm-btn" color="var(--primary)" @click="sendEmail" :disabled="isEmailSending">
                     <div class="confirm-btn-container">
                         <div v-if="!isEmailSending" class="confirm-btn-txt">보내기</div>
                         <div v-else class="progress-container">
@@ -29,6 +29,15 @@
             </div>
         </v-card>
     </v-dialog>
+
+    <v-snackbar v-model="snackbar" timeout="5000">
+        <div>이메일 전송 중 오류가 발생했습니다.</div>
+        <template v-slot:actions>
+            <v-btn color="var(--primary)" variant="text" @click="snackbar = false">
+                확인
+            </v-btn>
+        </template>
+    </v-snackbar>
 </template>
 
 <script setup>
@@ -66,6 +75,8 @@ const emailList = ref([]);
 const isEmailError = ref(false);
 const errorMessage = ref('');
 const isEmailSending = ref(false);
+
+const snackbar = ref(false);
 
 // 이메일 리스트에 이메일 추가
 const addEmail = (inputEmail) => {
@@ -131,8 +142,8 @@ const sendEmail = () => {
         .then(() => {
             onConfirm();
         })
-        .catch((error) => {
-            console.error(error);
+        .catch(() => {
+            snackbar.value = true;
         })
         .finally(() => {
             isEmailSending.value = false;
@@ -146,6 +157,7 @@ watch(isVisible, (newValue) => {
         isEmailError.value = false;
         errorMessage.value = '';
         isEmailSending.value = false;
+        snackbar.value = false;
     }
 });
 </script>
@@ -244,7 +256,7 @@ watch(isVisible, (newValue) => {
     padding: 20px 40px;
 }
 
-.v-btn {
+.btn {
     flex: 1;
     height: 48px;
     font-size: 1rem;
@@ -287,7 +299,10 @@ watch(isVisible, (newValue) => {
 .error {
     border: 2px solid var(--accent);
     animation: shake 0.3s ease-in-out;
+}
 
+.v-overlay {
+    bottom: 40px;
 }
 
 @keyframes shake {
