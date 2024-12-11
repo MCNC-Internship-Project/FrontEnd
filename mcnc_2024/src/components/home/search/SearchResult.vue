@@ -168,7 +168,7 @@ const goToDetail = (surveyId) => {
     $axios.get(`/survey/inquiry/detail/${surveyId}`)
         .then(() => {
             router.push({
-                name: "survey-participation",
+                name: "Form",
                 params: { id: encrypt(surveyId) }
             })
         })

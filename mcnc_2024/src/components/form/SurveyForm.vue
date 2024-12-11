@@ -94,13 +94,11 @@
             <button class="submit-btn" @click="submitSurvey">제출</button>
         </div>
 
-        <!-- 중앙에 표시되는 알림 모달 -->
-        <div v-if="showAlert" class="alert-modal">
-            <div class="alert-content">
-                <p>{{ alertMessage }}</p>
-                <button @click="showAlert = false" class="alert-button">확인</button>
-            </div>
-        </div>
+        <default-dialog v-model="dialogs.showSuccessDialog.isVisible" :message="dialogs.showSuccessDialog.message"
+            @confirm="redirectionToSubmit" :isPersistent="true" />
+
+        <default-dialog v-model="dialogs.showDefaultDialog.isVisible" :message="dialogs.showDefaultDialog.message"
+            @confirm="dialogs.showDefaultDialog.isVisible = false"/>
     </div>
 </template>
 
@@ -124,9 +122,21 @@ const survey = ref({ title: "", description: "", questionList: [] });
 // survey.questionList에 답변을 설정
 const answers = ref({});
 const etcAnswers = ref({});
+const dialogs = ref({
+    showSuccessDialog: {
+        isVisible: false,
+        message: "",
+    },
+    showDefaultDialog: {
+        isVisible: false,
+        message: "",
+    },
+})
 
-const showAlert = ref(false);
-const alertMessage = ref("");
+const showDialog = (dialog, message) => {
+    dialog.message = message
+    dialog.isVisible = true
+}
 
 // 이전 페이지로 이동
 const goBack = () => {
@@ -313,8 +323,7 @@ const submitSurvey = async () => {
     });
 
     if (hasUnanswered) {
-        alertMessage.value = "미응답 설문이 있습니다.";
-        showAlert.value = true;
+        showDialog(dialogs.value.showDefaultDialog, "미응답 항목이 있습니다.")
         return;
     }
 
@@ -389,18 +398,21 @@ const submitSurvey = async () => {
             withCredentials: true,
         });
 
-        alertMessage.value = "설문이 제출되었습니다.";
-        showAlert.value = true;
+        showDialog(dialogs.value.showSuccessDialog, "제출되었습니다.")
 
-        setTimeout(() => {
-            router.push({ path: "/survey-completion" });
-        }, 1000);
     } catch (error) {
         console.error("설문 제출 중 오류 발생:", error);
-        alertMessage.value = "설문 제출 중 오류가 발생했습니다.";
-        showAlert.value = true;
+        showDialog(dialogs.value.showDefaultDialog, "설문 제출 중 오류가 발생했습니다.")
     }
 };
+
+const redirectionToSubmit = () => {
+    dialogs.value.showSuccessDialog.isVisible = false;
+
+    router.replace({
+        name: "Submit"
+    });
+}
 
 const toggleEtcCheckbox = (quesId) => {
     const question = survey.value.questionList.find((q) => q.quesId === quesId);

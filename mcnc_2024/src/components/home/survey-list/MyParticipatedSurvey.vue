@@ -55,7 +55,7 @@ const routeJoinSurvey = () => {
 const onItemClick = (survey) => {
     const id = survey.surveyId;
     router.push({
-        name: "SurveyParticipationDetail",
+        name: "RespondDetail",
         params: { id: encrypt(id) }
     })
 };
