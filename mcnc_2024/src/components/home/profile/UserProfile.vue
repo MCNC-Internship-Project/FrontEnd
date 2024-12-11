@@ -79,7 +79,6 @@ const onItemClick = (item) => {
             router.push({path : "/respond"});
             break;
         case '로그아웃':
-
             axios.post(`${baseUrl}/auth/logout`, null, {
                 withCredentials: true,
                 headers: {
@@ -88,6 +87,7 @@ const onItemClick = (item) => {
             })
             .then((response) => {
                 if (response.status === 200) {
+                    sessionStorage.setItem(btoa('isLoggedIn'), btoa(false));
                     router.replace("/login");
                 }
             })

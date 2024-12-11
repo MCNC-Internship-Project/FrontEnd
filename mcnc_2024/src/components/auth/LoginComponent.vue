@@ -96,6 +96,7 @@ const login = () => {
                 redirect = "/";
             }
 
+            sessionStorage.setItem(btoa('isLoggedIn'), btoa(true));
             router.replace(redirect);
         })
         .catch((error) => {

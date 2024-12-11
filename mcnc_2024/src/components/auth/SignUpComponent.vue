@@ -82,6 +82,7 @@ const login = () => {
         }
     })
         .then(() => {
+            sessionStorage.setItem(btoa('isLoggedIn'), btoa(true));
             // 로그인 성공 시 홈으로 이동
             router.replace("/");
         })
