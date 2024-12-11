@@ -40,14 +40,14 @@ router.beforeEach((to, from, next) => {
                 if (response.status === 200) {
                     localStorage.setItem(isLoggedInKey, isLoggedInValue); // Base64로 저장
 
-                    if (to.path.includes("/create-survey") || to.path.includes("/update-survey")) {
+                    if (to.path.includes("/create") || to.path.includes("/update")) {
                         window.addEventListener('beforeunload', handleBeforeUnload);
                     } else {
                         window.removeEventListener('beforeunload', handleBeforeUnload);
                     }
 
                     const confirmationMessage = '정말 나가시겠습니까? 변경사항이 저장되지 않을 수 있습니다.';
-                    if (from.name === 'create-survey' || from.name === 'update-survey') {
+                    if (from.name === 'Create' || from.name === 'Update') {
                         if(saveStore.isSaved) {
                             saveStore.resetStatus();
                             next();
@@ -78,7 +78,7 @@ router.beforeEach((to, from, next) => {
 
 // 새로고침 시 beforeunload 핸들러 활성화 보장
 window.addEventListener('beforeunload', (event) => {
-    const isCreateOrUpdate = location.pathname.includes("/create-survey") || location.pathname.includes("/update-survey");
+    const isCreateOrUpdate = location.pathname.includes("/create") || location.pathname.includes("/update");
     if (isCreateOrUpdate) {
         handleBeforeUnload(event); // 핸들러 강제 호출
     }

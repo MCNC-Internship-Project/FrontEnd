@@ -197,7 +197,7 @@ async function handleCloseConfirm() {
             },
         });
         isCloseModalVisible.value = false;
-        router.push('/my-survey');
+        router.push('/my');
     } catch (error) {
         console.error('설문 종료 실패:', error);
         alert('설문 종료 실패')

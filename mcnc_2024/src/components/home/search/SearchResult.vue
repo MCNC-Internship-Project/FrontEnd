@@ -5,7 +5,7 @@
             <div class="search-container">
                 <input type="text" class="search-input" placeholder="설문 제목을 검색해보세요." v-model="searchQuery"
                     @keyup.enter="search" v-focus />
-                <img class="search-icon" src="@/assets/images/icon_search_btn.svg" alt="dropdown icon" />
+                <img class="search-icon" src="@/assets/images/icon_search_btn.svg" alt="dropdown icon" @click="search" />
             </div>
         </header>
 
@@ -62,10 +62,10 @@ const size = 10;
 const surveyList = ref([]);
 const isFirstLoad = ref(true);
 const noResult = ref(false);
-const onLoading = ref(true);
+const onLoading = ref(false);
 
 const goBack = () => {
-    router.push("/");
+    router.back();
 }
 
 const search = async () => {
@@ -73,7 +73,7 @@ const search = async () => {
         return;
     }
 
-    router.push({
+    router.replace({
         path: "/search",
         query: {
             q: searchQuery.value
@@ -211,7 +211,7 @@ const remainTime = (date) => {
 }
 
 onMounted(() => {
-    const initialQuery = router.currentRoute.value.query.title;
+    const initialQuery = router.currentRoute.value.query.q;
     if (initialQuery) {
         searchQuery.value = initialQuery;
         search(); // 초기 쿼리로 검색 실행
@@ -264,6 +264,7 @@ onMounted(() => {
     width: 20px;
     height: 20px;
     margin: 0 16px;
+    cursor: pointer;
 }
 
 .search-result-container {
@@ -275,7 +276,7 @@ onMounted(() => {
 }
 
 .search-result-text {
-    height: calc(var(--vh, 1vh) * 100 - 72px);
+    height: calc(var(--vh, 1vh) * 100 - 80px);
     display: flex;
     justify-content: center;
     align-items: center;

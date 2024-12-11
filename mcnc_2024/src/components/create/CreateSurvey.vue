@@ -432,7 +432,7 @@ const redirectionToMySurvey = () => {
 
         if (currentPath === '/') {
             router.replace({ path: '/' });
-        } else if (currentPath === '/my-survey') {
+        } else if (currentPath === '/my') {
             router.replace({ name: 'MySurvey' });
         }
     }, 100);
