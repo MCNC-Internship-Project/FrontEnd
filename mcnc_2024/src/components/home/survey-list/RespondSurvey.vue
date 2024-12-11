@@ -114,7 +114,7 @@ onMounted(() => {
 
 .body-container {
     width: 100%;
-    padding: 16px 24px 80px 24px;
+    padding: 16px 24px 92px 24px;
 }
 
 .list-container {

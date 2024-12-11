@@ -13,7 +13,7 @@
 
         <my-survey />
 
-        <my-participated-survey />
+        <respond-survey />
 
         <v-fab icon="mdi-plus" color="#7796E8" size="48" absolute @click="routeCreateSurvey" />
     </div>
@@ -22,7 +22,7 @@
 <script setup>
 import { useRouter } from 'vue-router'
 import MySurvey from './survey-list/MySurvey.vue';
-import MyParticipatedSurvey from './survey-list/MyParticipatedSurvey.vue';
+import RespondSurvey from './survey-list/RespondSurvey.vue';
 
 const router = useRouter();
 
