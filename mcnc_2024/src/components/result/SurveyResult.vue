@@ -200,7 +200,7 @@ async function handleCloseConfirm() {
         router.push('/my');
     } catch (error) {
         console.error('설문 종료 실패:', error);
-        alert('설문 종료 실패')
+        showDialog(dialogs.value.showDefaultDialog, "종료 중 오류가 발생했습니다.");
     }
 }
 
@@ -336,11 +336,12 @@ async function downloadExcel() {
             // 객관식 질문 처리
             if (question.questionType === 'OBJ_SINGLE' || question.questionType === 'OBJ_MULTI') {
                 question.selectionList.forEach((selection, selectionIndex) => {
+                    const isEtcOption = selection.etc;
                     questionData.push([
                         selectionIndex === 0 ? questionType : '',
                         selectionIndex === 0 ? question.body : '',
                         selection.body,
-                        '',
+                        isEtcOption ? selection.etcAnswer : '',
                         selection.responseCount,
                     ]);
                 });
@@ -392,7 +393,7 @@ async function downloadExcel() {
         XLSX.writeFile(workbook, fileName);
     } catch (error) {
         console.error('엑셀 다운로드 실패:', error);
-        alert('엑셀 다운로드에 실패했습니다.');
+        showDialog(dialogs.value.showDefaultDialog, "다운로드 중 오류가 발생했습니다.");
     }
 }
 
