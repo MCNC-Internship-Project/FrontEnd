@@ -122,9 +122,11 @@ const hideEmail = (email) => {
         return '';
 
     const [id, domain] = email.split('@');
-    const formattedId = id.charAt(0) + '****';
-    const formattedDomain = domain.charAt(0) + '****';
-    return `${formattedId}@${formattedDomain}`;
+    const idHint = id.charAt(0) + '****';
+
+    const [domain1, domain2] = domain.split('.');
+    const domainHint = domain1.charAt(0) + '****';
+    return `${idHint}@${domainHint}.${domain2}`;
 }
 </script>
 

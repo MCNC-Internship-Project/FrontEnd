@@ -103,15 +103,20 @@
 
                         <template v-slot:default>
                             <v-card>
-                                <div class="picker-container">
-                                    <div class="highlight"></div>
-                                    <time-picker-component :items="ampmList" v-model:value="selectedAmPm"
-                                        :initial-value="selectedAmPm" />
-                                    <time-picker-component :items="hourList" v-model:value="selectedHour"
-                                        :initial-value="selectedHour" />
-                                    <img src="@/assets/images/icon_colon.svg" alt=":" class="time-separator" />
-                                    <time-picker-component :items="minuteList" v-model:value="selectedMinute"
-                                        :initial-value="selectedMinute" />
+                                <div class="time-picker-container">
+                                    <div class="picker-container">
+                                        <div class="highlight"></div>
+                                        <time-picker-component :items="ampmList" v-model:value="selectedAmPm"
+                                            :initial-value="selectedAmPm" />
+                                        <time-picker-component :items="hourList" v-model:value="selectedHour"
+                                            :initial-value="selectedHour" />
+                                        <img src="@/assets/images/icon_colon.svg" alt=":" class="time-separator" />
+                                        <time-picker-component :items="minuteList" v-model:value="selectedMinute"
+                                            :initial-value="selectedMinute" />
+                                    </div>
+                                    <v-btn class="time-picker-btn" @click="isTimeMenuOpen = false; onTimePickerClose(false)">
+                                        확인
+                                    </v-btn>
                                 </div>
                             </v-card>
                         </template>
@@ -409,13 +414,13 @@ const handleSubmit = () => {
                 'Content-Type': 'application/json'
             }
         })
-        .then(() => {
-            saveStatusStore.setSaved();
-            showDialog(dialogs.value.showSuccessDialog, "설문이 성공적으로 생성되었습니다!");
-        })
-        .catch(() => {
-            showDialog(dialogs.value.showDefaultDialog, "설문조사 생성 중 오류가 발생했습니다.");
-        });
+            .then(() => {
+                saveStatusStore.setSaved();
+                showDialog(dialogs.value.showSuccessDialog, "설문이 성공적으로 생성되었습니다!");
+            })
+            .catch(() => {
+                showDialog(dialogs.value.showDefaultDialog, "설문조사 생성 중 오류가 발생했습니다.");
+            });
     }
 };
 
@@ -425,7 +430,7 @@ const handleSubmit = () => {
  */
 const redirectionToMySurvey = () => {
     dialogs.value.showSuccessDialog.isVisible = false;
-    
+
     router.go(-1);
     setTimeout(() => {
         const currentPath = router.currentRoute.value.path;
@@ -639,13 +644,27 @@ input {
     border-radius: 16px !important;
 }
 
+.time-picker-container {
+    display: flex;
+    flex-direction: column;
+}
+
 .picker-container {
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
-    height: 120px;
-    padding: 4px 24px;
+    padding: 12px 24px;
+}
+
+.time-picker-btn {
+    height: 40px;
+    margin: 0 24px 24px 24px;
+    background-color: var(--primary);
+    color: #FFFFFF !important;
+    border-radius: 12px;
+    font-size: 0.875rem;
+    box-shadow: 0px 5px 16px rgba(8, 15, 52, 0.06);
 }
 
 .time-separator {
