@@ -63,6 +63,14 @@ function createGenderChart(chartElement, data) {
                         },
                     },
                 },
+                tooltip: {
+                    callbacks: {
+                        label: function (context) {
+                            const value = context.raw; 
+                            return `${value}명`;
+                        },
+                    },
+                },
                 datalabels: {
                     anchor: "center",
                     align: "center",
@@ -114,7 +122,7 @@ function createNoResponseChart(chartElement) {
                         label: function (tooltipItem) {
                             // 툴팁 값이 1일 때 0으로 표시
                             const value = tooltipItem.raw;
-                            return `${value === 1 ? "0" : value}`;
+                            return `${value === 1 ? "0" : value}명`;
                         },
                     },
                 },
