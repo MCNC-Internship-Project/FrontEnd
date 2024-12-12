@@ -85,7 +85,6 @@ function createChart(chartElement, question) {
                             return `${value}명`;
                         },
                         title: function (tooltipItems) {
-                            console.log(tooltipItems[0])
                             const label = tooltipItems[0].label || ""; // 보기 내용
                             const maxLineLength = 20; // 한 줄에 표시할 최대 글자 수
                             const wrappedLabel = wrapText(label, maxLineLength);
