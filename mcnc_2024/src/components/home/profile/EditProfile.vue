@@ -134,9 +134,6 @@ const editProfile = () => {
         return;
     }
 
-    console.log(profileData.value.name, originalProfileData.value.name);
-    console.log(profileData.value.email, originalProfileData.value.email);
-
     if (profileData.value.name === originalProfileData.value.name && profileData.value.email === originalProfileData.value.email) {
         showDialog(dialogs.value.defaultDialog, '수정된 정보가 없습니다.');
         return;
