@@ -97,7 +97,7 @@ async function loadSurveys({ done }) {
 // 설문 상세로 가기
 function goToDetail(surveyId) {
     router.push({
-        name: "SurveyParticipationDetail",
+        name: "RespondDetail",
         params: { id: encrypt(surveyId) },
     });
 }

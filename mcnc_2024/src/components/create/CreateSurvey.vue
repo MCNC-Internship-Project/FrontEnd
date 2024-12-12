@@ -382,7 +382,7 @@ const handleSubmit = () => {
     const description = surveyDescription.value.trim();
     let valid = true;
 
-    if (!title || title.length === 0) {
+    if (!title) {
         titleError.value = true
         surveyTitle.value = "";
         valid = false;
