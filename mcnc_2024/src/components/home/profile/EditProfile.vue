@@ -2,7 +2,7 @@
     <div class="root-container">
         <header class="toolbar">
             <img class="back" src="@/assets/images/icon_arrow_left.svg" alt="back" @click="goBack">
-            <div class="complete" @click="editComplete">완료</div>
+            <div class="complete" @click="editProfile">완료</div>
         </header>
 
         <div class="profile-image-container">
@@ -13,7 +13,7 @@
             <div class="profile-container">
                 <div class="text">사용자명</div>
                 <div class="input-container">
-                    <input class="input" type="text" placeholder="사용자명" v-model="profileData.name" />
+                    <input class="input" type="text" placeholder="사용자명" v-model="profileData.name" maxlength="50" />
                     <v-divider></v-divider>
                 </div>
             </div>
@@ -21,7 +21,7 @@
             <div class="profile-container">
                 <div class="text">이메일</div>
                 <div class="input-container">
-                    <input class="input" type="text" placeholder="이메일" v-model="profileData.email" />
+                    <input class="input" type="text" placeholder="이메일" v-model="profileData.email" maxlength="255" />
                     <v-divider></v-divider>
                 </div>
             </div>
@@ -52,31 +52,14 @@
             </div>
         </div>
 
-        <v-dialog v-model="showDialog" max-width="400">
-            <v-card>
-                <div class="dialog-container">
-                    <div class="dialog-error-message">{{ dialogMessage }}</div>
-                </div>
-                <v-card-actions>
-                    <v-btn color="primary" text @click="showDialog = false">
-                        확인
-                    </v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
+        <default-dialog v-model="dialogs.defaultDialog.isVisible" :message="dialogs.defaultDialog.message"
+            @confirm="dialogs.defaultDialog.isVisible = false" />
 
-        <v-dialog v-model="showCompleteDialog" max-width="400">
-            <v-card>
-                <div class="dialog-container">
-                    <div class="dialog-error-message">{{ dialogMessage }}</div>
-                </div>
-                <v-card-actions>
-                    <v-btn color="primary" text @click="showCompleteDialog = false; goBack()">
-                        확인
-                    </v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
+        <default-dialog v-model="dialogs.defaultDialogSuccess.isVisible" :message="dialogs.defaultDialogSuccess.message"
+            :isPersistent="true" @confirm="dialogs.defaultDialogSuccess.isVisible = false; goBack()" />
+
+        <default-dialog v-model="dialogs.defaultDialogSessionExpired.isVisible" :message="dialogs.defaultDialogSessionExpired.message" :isPersistent="true"
+            @confirm="dialogs.defaultDialogSessionExpired.isVisible = false; goLogin()" />
     </div>
 </template>
 
@@ -90,22 +73,31 @@ import { encrypt, decrypt } from '@/utils/crypto';
 const baseUrl = process.env.VUE_APP_API_URL;
 const router = useRouter();
 
-const showDialog = ref(false)
-const showCompleteDialog = ref(false)
-const dialogMessage = ref("")
+const dialogs = ref({
+    defaultDialog: {
+        isVisible: false,
+        message: "",
+    },
+    defaultDialogSuccess: {
+        isVisible: false,
+        message: "",
+    },
+    defaultDialogSessionExpired: {
+        isVisible: false,
+        message: "",
+    }
+})
 
-const showErrorDialog = (message) => {
-    dialogMessage.value = message
-    showDialog.value = true
-}
-
-const showCompletedDialog = (message) => {
-    dialogMessage.value = message
-    showCompleteDialog.value = true
+const showDialog = (dialog, message) => {
+    dialog.message = message
+    dialog.isVisible = true
 }
 
 const goBack = () => {
-    router.back();
+    router.go(-1);
+    setTimeout(() => {
+        router.replace('/profile');
+    }, 100);
 }
 
 const profileData = ref({
@@ -116,24 +108,37 @@ const profileData = ref({
     gender: null
 });
 
-const editComplete = () => {
+const originalProfileData = ref({
+    name: null,
+    email: null
+});
+
+const editProfile = () => {
     if (!profileData.value.name || profileData.value.name.trim() === "") {
-        showErrorDialog('사용자명을 입력해주세요.');
+        showDialog(dialogs.value.defaultDialog, '사용자명을 입력해주세요.');
         return;
     }
 
     if (!profileData.value.name.match(/^[a-zA-Z가-힣 ]{2,50}$/)) {
-        showErrorDialog('사용자명은 특수문자를 제외한 2~50자로 입력해주세요.');
+        showDialog(dialogs.value.defaultDialog, '사용자명은 특수문자를 제외한 2~50자로 입력해주세요.');
         return;
     }
 
     if (!profileData.value.email || profileData.value.email.trim() === "") {
-        showErrorDialog('이메일을 입력해주세요.');
+        showDialog(dialogs.value.defaultDialog, '이메일을 입력해주세요.');
         return;
     }
 
-    if (!profileData.value.email.match(/^[_A-Za-z0-9-+]+(\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\.[A-Za-z0-9]+)*(\.[A-Za-z]{2,})$/)) {
-        showErrorDialog('이메일 형식이 올바르지 않습니다.');
+    if (!profileData.value.email.match(/^(?=.{1,255}$)[_A-Za-z0-9-+]+(\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\.[A-Za-z0-9]+)*(\.[A-Za-z]{2,})$/)) {
+        showDialog(dialogs.value.defaultDialog, '이메일 형식이 올바르지 않습니다.');
+        return;
+    }
+
+    console.log(profileData.value.name, originalProfileData.value.name);
+    console.log(profileData.value.email, originalProfileData.value.email);
+
+    if (profileData.value.name === originalProfileData.value.name && profileData.value.email === originalProfileData.value.email) {
+        showDialog(dialogs.value.defaultDialog, '수정된 정보가 없습니다.');
         return;
     }
 
@@ -149,11 +154,25 @@ const editComplete = () => {
         }
     })
         .then(() => {
-            showCompletedDialog("프로필 수정이 완료되었습니다.");
+            showDialog(dialogs.value.defaultDialogSuccess, "프로필 수정이 완료되었습니다.");
         })
-        .catch(() => {
-            showErrorDialog("프로필 수정에 실패했습니다.");
+        .catch((error) => {
+            if (error.response.status === 401) {
+                showDialog(dialogs.value.defaultDialogSessionExpired, '세션이 만료되었습니다. 로그인 후 다시 시도해주세요.');
+                return;
+            }
+
+            showDialog(dialogs.value.defaultDialog, error.response.data.errorMessage);
         });
+}
+
+const goLogin = () => {
+    router.replace({
+        path: '/login',
+        query: {
+            redirect: '/profile/edit'
+        }
+    })
 }
 
 onMounted(() => {
@@ -174,9 +193,18 @@ onMounted(() => {
                 gender: data.gender
             }
 
+            originalProfileData.value = {
+                name: data.name,
+                email: decrypt(data.email)
+            }
         })
         .catch((error) => {
-            console.error(error);
+            if (error.response.status === 401) {
+                showDialog(dialogs.value.defaultDialogSessionExpired, '세션이 만료되었습니다. 로그인 후 다시 시도해주세요.');
+                return;
+            }
+
+            showDialog(dialogs.value.defaultDialog, '프로필 정보를 불러오는데 실패했습니다.');
         });
 });
 </script>
@@ -282,44 +310,5 @@ onMounted(() => {
     width: 100%;
     height: 1px;
     background-color: #D4D6DD;
-}
-
-.v-card {
-    padding: 0;
-    border-radius: 16px !important;
-}
-
-.dialog-background {
-    background-color: #FAF8F8;
-    border: 1px solid #EFF0F6;
-}
-
-.dialog-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 12px 32px 20px 32px;
-}
-
-.dialog-error-message {
-    margin: 32px 0 16px 0;
-    font-size: 1.125rem;
-    font-weight: bold;
-    color: #757576;
-}
-
-.v-card-actions {
-    padding: 20px;
-}
-
-.v-btn {
-    width: 100%;
-    margin: 0;
-    color: #FFFFFF !important;
-    background-color: var(--primary);
-    border-radius: 16px;
-    height: 48px;
-    font-size: 0.875rem;
 }
 </style>
