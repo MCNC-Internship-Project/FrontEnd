@@ -162,38 +162,4 @@ function goBack() {
     margin: 0 16px;
     cursor: pointer;
 }
-
-.logo-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: calc(var(--vh, 1vh) * 100 - 65px);
-}
-
-.logo {
-    width: 42px;
-    height: 80vh;
-}
-
-.logo-name {
-    padding-left: 4px;
-    color: var(--primary);
-    font-family: var(--font-mont);
-    font-size: 1.25rem;
-}
-
-.v-infinite-scroll {
-    width: 100%;
-    overflow: hidden;
-}
-
-:deep(.v-infinite-scroll__side:first-child) {
-    display: none;
-}
-
-.search-result-text {
-    text-align: center;
-    color: #a2a2a2;
-    margin-top: 16px;
-}
 </style>

@@ -30,6 +30,7 @@ const formatDate = (createDate, expireDate) => {
     flex-direction: column;
     height: 160px;
     padding: 20px;
+    margin-bottom: 12px;
     border-radius: 12px;
     background-color: #FFF;
     border: 1px solid #EFF0F6;
