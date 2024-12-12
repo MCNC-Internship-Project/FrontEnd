@@ -372,7 +372,7 @@ onMounted(() => {
 .item-description {
     display: -webkit-box;
     width: 100%;
-    margin-top: 8px;
+    margin-top: 4px;
     font-size: 1rem;
     color: #8D8D8D;
     text-overflow: ellipsis;
