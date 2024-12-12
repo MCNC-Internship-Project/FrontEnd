@@ -5,7 +5,10 @@
             <div class="item-expire" :class="{ 'expired': !survey.expireDateValid }">{{ survey.expireDateValid ? '진행중' : '종료' }}</div>
         </div>
         <div class="item-description">{{ survey.description }}</div>
-        <div class="item-date">{{ formatDate(survey.createDate, survey.expireDate) }}</div>
+        <div class="item-footer-container">
+            <div class="item-date">{{ formatDate(survey.createDate, survey.expireDate) }}</div>
+            <div class="item-count" v-if="survey.respondCount >= 0">{{ survey.respondCount }}명 참여</div>
+        </div>
     </div>
 </template>
 
@@ -47,7 +50,7 @@ const formatDate = (createDate, expireDate) => {
 .item-title {
     width: 100%;
     margin-right: 12px;
-    font-size: 1rem;
+    font-size: 1.125rem;
     font-weight: bold;
     color: #464748;
     text-overflow: ellipsis;
@@ -71,7 +74,7 @@ const formatDate = (createDate, expireDate) => {
 .item-description {
     display: -webkit-box;
     width: 100%;
-    margin-top: 8px;
+    margin-top: 4px;
     font-size: 1rem;
     color: #8D8D8D;
     text-overflow: ellipsis;
@@ -83,9 +86,19 @@ const formatDate = (createDate, expireDate) => {
     -webkit-box-orient: vertical;
 }
 
-.item-date {
+.item-footer-container {
+    display: flex;
+    align-items: center;
     margin-top: auto;
     font-size: 0.875rem;
+}
+
+.item-date {
     color: #8D8D8D;
+}
+
+.item-count {
+    margin-left: auto;
+    color: var(--primary);
 }
 </style>
