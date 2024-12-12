@@ -9,10 +9,11 @@
                         <input type="text" v-model="item.value" class="item-input" 
                             :placeholder="`항목 ${index + 1}`" maxlength="255"
                             :disabled="item.id === 'etcId'" :ref="el => itemInputs[index] = el"
-                            @focus="clearError(index)" />
+                            @focus="clearError(index)" @input="handleInput($event, index)" @blur="handleBlur(index)" />
                         <img class="item-icon" src="@/assets/images/icon_x.svg" alt="delete icon"
                             v-show="showDeleteIcon(item.id)" @click="deleteItem(item.id)" />
                     </div>
+                    <div class="duplicate-container" v-if="item.isDuplicated" :class="{'duplicated': item.isDuplicated}">*중복된 항목이 있습니다.</div>
                 </li>
             </transition-group>
         </div>
@@ -113,6 +114,48 @@ const addEtcItem = () => {
     }
 }
 
+const handleInput = (event, index) => {
+    const newValue = event.target.value;
+    totalItem.value[index].value = newValue;
+    isDuplicateValue(index);
+};
+
+const isDuplicateValue = (index) => {
+    const currentValue = totalItem.value[index].value;
+    
+    // 빈 값 체크
+    if (!currentValue || currentValue.trim() === '') {
+        totalItem.value[index].isDuplicated = false; // 중복 상태 초기화
+        totalItem.value[index].hasError = false; // 에러 상태 초기화
+        return false;
+    }
+
+    // 중복 체크
+    const isDuplicate = totalItem.value.some((item, i) => {
+        if (i === index) return false;
+        return item.value === currentValue;
+    });
+
+    totalItem.value[index].isDuplicated = isDuplicate;
+
+    // 즉시 에러 상태 업데이트
+    totalItem.value[index].hasError = isDuplicate;
+    return isDuplicate;
+}
+
+const handleBlur = (index) => {
+    // 포커스 해제 시 중복 확인
+    if (isDuplicateValue(index)) {
+        totalItem.value[index].value = ''; // 값을 비움
+        totalItem.value[index].hasError = false;
+        totalItem.value[index].isDuplicated = false; // 중복 상태 유지
+    } else {
+        // 중복이 아니면 공백 제거
+        totalItem.value[index].value = totalItem.value[index].value.trim();
+        totalItem.value[index].isDuplicated = false; // 중복 상태 초기화
+    }
+}
+
 const getValue = () => {
     totalItem.value.forEach(item => item.hasError = false);
 
@@ -198,6 +241,11 @@ defineExpose({
     border-radius: 4px;
     outline: none;
     box-shadow: 0 0 0 1.5px #F76C6A;
+}
+
+.duplicate-container.duplicated {
+    color: #F76C6A;
+    font-size : 0.75rem;
 }
 
 :deep(.v-selection-control) {
