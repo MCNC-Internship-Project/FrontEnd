@@ -137,7 +137,7 @@ onMounted(() => {
 }
 
 .item-title {
-    font-size: 0.875rem;
+    font-size: 1rem;
     font-weight: bold;
     color: #464748;
     text-overflow: ellipsis;
@@ -148,7 +148,7 @@ onMounted(() => {
 
 .item-description {
     margin-top: 2px;
-    font-size: 0.875rem;
+    font-size: 1rem;
     color: #8D8D8D;
     text-overflow: ellipsis;
     overflow: hidden;
