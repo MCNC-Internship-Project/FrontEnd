@@ -55,6 +55,14 @@ function createChart(chartElement, ageCountList) {
             plugins: {
                 legend: {
                     display: false,
+                }, 
+                tooltip: {
+                    callbacks: {
+                        label: function (context) {
+                            const value = context.raw; 
+                            return `${value}명`;
+                        },
+                    },
                 },
                 datalabels: {
                     anchor: "center",
@@ -73,7 +81,7 @@ function createChart(chartElement, ageCountList) {
                 },
                 y: {
                     grid: { display: false },
-                    ticks: {callback: (value) => (Number.isInteger(value) ? value : ""), font: { size: 10 } },
+                    ticks: { callback: (value) => (Number.isInteger(value) ? value : ""), font: { size: 10 } },
                 },
             },
         },
