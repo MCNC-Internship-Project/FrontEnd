@@ -13,7 +13,8 @@
                 </v-list>
             </v-menu>
 
-            <button v-if="!expireDateBoolean && !isLoaing" class="delete-btn" @click="isDeleteModalVisible = true" v-ripple>삭제</button>
+            <button v-if="!expireDateBoolean && !isLoaing" class="delete-btn" @click="isDeleteModalVisible = true"
+                v-ripple>삭제</button>
         </ToolBar>
 
         <div v-if="surveyData" class="survey-container">
@@ -69,10 +70,13 @@
         confirmButtonText="삭제" confirmButtonColor="#F77D7D" @confirm="handleDeleteConfirm" />
 
 
-    <default-dialog v-model="dialogs.showDefaultDialog.isVisible" :message="dialogs.showDefaultDialog.message" @confirm="dialogs.showDefaultDialog.isVisible = false" />
-    <default-dialog v-model="dialogs.showSuccessRemoveDialog.isVisible" :message="dialogs.showSuccessRemoveDialog.message" @confirm="deleteConfirm" :isPersistent="true"/>
+    <default-dialog v-model="dialogs.showDefaultDialog.isVisible" :message="dialogs.showDefaultDialog.message"
+        @confirm="dialogs.showDefaultDialog.isVisible = false" />
+    <default-dialog v-model="dialogs.showSuccessRemoveDialog.isVisible"
+        :message="dialogs.showSuccessRemoveDialog.message" @confirm="deleteConfirm" :isPersistent="true" />
 
-    <share-survey-dialog v-model="dialogs.showShareDialog.isVisible" :surveyId="decrypt(props.id)" @confirm="showDialog(dialogs.showDefaultDialog, '이메일 전송이 완료되었습니다.')" />
+    <share-survey-dialog v-model="dialogs.showShareDialog.isVisible" :surveyId="decrypt(props.id)"
+        @confirm="showDialog(dialogs.showDefaultDialog, '이메일 전송이 완료되었습니다.')" />
 </template>
 
 <script setup>
@@ -214,7 +218,7 @@ function deleteConfirm() {
     router.go(-1);
     setTimeout(() => {
         const currentPath = router.currentRoute.value.path
-        
+
         if (currentPath === '/') {
             router.replace({ path: '/' });
         } else if (currentPath === '/my-survey') {
@@ -226,7 +230,7 @@ function deleteConfirm() {
 // 설문 삭제 api
 async function handleDeleteConfirm() {
     try {
-        const decryptedId = decrypt(props.id); 
+        const decryptedId = decrypt(props.id);
         await axios.delete(`${baseUrl}/survey/manage/delete/${decryptedId}`, {
             withCredentials: true,
             headers: {
@@ -252,7 +256,7 @@ async function downloadExcel() {
             },
         });
 
-        const data = response.data; 
+        const data = response.data;
 
         // 엑셀 워크북 생성
         const workbook = XLSX.utils.book_new();
@@ -337,18 +341,37 @@ async function downloadExcel() {
             if (question.questionType === 'OBJ_SINGLE' || question.questionType === 'OBJ_MULTI') {
                 question.selectionList.forEach((selection, selectionIndex) => {
                     const isEtcOption = selection.etc;
-                    questionData.push([
-                        selectionIndex === 0 ? questionType : '',
-                        selectionIndex === 0 ? question.body : '',
-                        selection.body,
-                        isEtcOption ? selection.etcAnswer : '',
-                        selection.responseCount,
-                    ]);
+                    if (isEtcOption && selection.etcAnswer.length > 0) {
+                        const etcStartRow = questionData.length;
+                        selection.etcAnswer.forEach((etcAnswer, etcIndex) => {
+                            questionData.push([
+                                etcIndex === 0 && selectionIndex === 0 ? questionType : '',
+                                etcIndex === 0 && selectionIndex === 0 ? question.body : '',
+                                selection.body,
+                                etcAnswer,
+                                selection.responseCount,
+                            ]);
+                        });
+                        const etcEndRow = questionData.length - 1;
+
+                        // 병합 범위 추가
+                        mergeRanges.push({ s: { r: etcStartRow, c: 2 }, e: { r: etcEndRow, c: 2 } }); // "보기" 병합
+                        mergeRanges.push({ s: { r: etcStartRow, c: 4 }, e: { r: etcEndRow, c: 4 } }); // "응답자수" 병합
+                    } else {
+                        questionData.push([
+                            selectionIndex === 0 ? questionType : '',
+                            selectionIndex === 0 ? question.body : '',
+                            selection.body,
+                            '',
+                            selection.responseCount,
+                        ]);
+                    }
                 });
             }
 
             // 주관식 질문 처리
             if (question.questionType === 'SUBJECTIVE') {
+                const subjStart = questionData.length;
                 if (question.subjAnswerList.length > 0) {
                     question.subjAnswerList.forEach((answer, answerIndex) => {
                         questionData.push([
@@ -356,7 +379,7 @@ async function downloadExcel() {
                             answerIndex === 0 ? question.body : '',
                             '',
                             answer,
-                            '',
+                            data.responseCount,
                         ]);
                     });
                 } else {
@@ -368,6 +391,8 @@ async function downloadExcel() {
                         '',
                     ]);
                 }
+                const subjEnd = questionData.length - 1;
+                mergeRanges.push({ s: { r: subjStart, c: 4 }, e: { r: subjEnd, c: 4 } });
             }
             const endRow = questionData.length - 1; // 현재 질문 종료 행 번호
 
