@@ -74,7 +74,16 @@ function createGenderChart(chartElement, data) {
                 datalabels: {
                     anchor: "center",
                     align: "center",
-                    formatter: (value) => (value === 0 ? "" : value),
+                    formatter: (value, context) => {
+                        if (value === 0) {
+                            return ""; 
+                        }
+                        const data = context.chart.data.datasets[0].data; // 데이터 배열
+                        const total = data.reduce((sum, val) => sum + val, 0); // 전체 합계 계산
+                        const percentage = ((value / total) * 100).toFixed(1); // 비율 계산 (소수점 1자리)
+
+                        return `${percentage}%`; // 퍼센트 값 출력
+                    },
                     display: (context) => context.dataset.data.some((value) => value > 0),
                 },
             },
@@ -115,7 +124,7 @@ function createNoResponseChart(chartElement) {
                 datalabels: {
                     anchor: "center",
                     align: "center",
-                    formatter: () => "0",
+                    formatter: () => "0%",
                 },
                 tooltip: {
                     callbacks: {
