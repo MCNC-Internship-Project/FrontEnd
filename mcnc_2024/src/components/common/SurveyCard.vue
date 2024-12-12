@@ -2,12 +2,17 @@
     <div class="item-container" v-ripple>
         <div class="item-header-container">
             <div class="item-title">{{ survey.title }}</div>
-            <div class="item-expire" :class="{ 'expired': !survey.expireDateValid }">{{ survey.expireDateValid ? '진행중' : '종료' }}</div>
+            <div v-if="isMySurvey" class="item-expire" :class="{ 'expired': !survey.expireDateValid }">{{ survey.expireDateValid ? '진행중' : '종료' }}</div>
+            <div v-else class="item-profile-container">
+                <img class="item-img-profile" src="@/assets/images/icon_profile_default.svg" alt="profile icon" />
+                <div class="item-userid">{{ survey.creatorId }}</div>
+            </div>
         </div>
         <div class="item-description">{{ survey.description }}</div>
         <div class="item-footer-container">
-            <div class="item-date">{{ formatDate(survey.createDate, survey.expireDate) }}</div>
-            <div class="item-count" v-if="survey.respondCount >= 0">{{ survey.respondCount }}명 참여</div>
+            <div v-if="isMySurvey" class="item-date">{{ formatDate(survey.createDate, survey.expireDate) }}</div>
+            <div v-else class="item-date">{{ formatDate(survey.respondDate) }}</div>
+            <div v-if="isMySurvey" class="item-count">{{ survey.respondCount }}명 참여</div>
         </div>
     </div>
 </template>
@@ -20,10 +25,17 @@ defineProps({
     survey: {
         type: Object,
     },
+    isMySurvey: {
+        type: Boolean
+    },
 });
 
-const formatDate = (createDate, expireDate) => {
-    return dayjs(createDate).format('YYYY.MM.DD') + ' ~ ' + dayjs(expireDate).format('YYYY.MM.DD');
+const formatDate = (date1, date2 = null) => {
+    if (date2) {
+        return dayjs(date1).format('YYYY.MM.DD') + ' ~ ' + dayjs(date2).format('YYYY.MM.DD');
+    } else {
+        return dayjs(date1).format('YYYY.MM.DD');
+    }
 }
 </script>
 
@@ -71,6 +83,11 @@ const formatDate = (createDate, expireDate) => {
     color: #757575;
 }
 
+.item-profile-container {
+    display: flex;
+    align-items: center;
+}
+
 .item-description {
     display: -webkit-box;
     width: 100%;
@@ -100,5 +117,21 @@ const formatDate = (createDate, expireDate) => {
 .item-count {
     margin-left: auto;
     color: var(--primary);
+}
+
+.item-userid {
+    margin-left: 8px;
+    font-size: 0.875rem;
+    color: #919191;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    word-break: break-word;
+    white-space: nowrap;
+}
+
+.item-img-profile {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
 }
 </style>

@@ -9,7 +9,7 @@
         <div class="list-container">
             <v-infinite-scroll v-if="!noResult" :items="surveyList" :onLoad="load" color="var(--primary)">
                 <template v-for="(item, index) in surveyList" :key="item">
-                    <SurveyCard :survey="item" :class="{ 'last-item': index === surveyList.length - 1 }" @click="goDetail(item.surveyId)" />
+                    <SurveyCard :survey="item" :class="{ 'last-item': index === surveyList.length - 1 }" :isMySurvey="true" @click="goDetail(item.surveyId)" />
                 </template>
                 <template v-slot:empty>
                 </template>
@@ -160,11 +160,12 @@ async function load({ done }) {
 
 .list-none {
     width: 100%;
-    height: calc(var(--vh, 1vh) * 100 - 72px);
+    height: calc(var(--vh, 1vh) * 100 - 116px);
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 1.125remrem;
+    text-align: center;
+    font-size: 1.125rem;
     font-weight: bold;
     color: #1C3177;
 }
