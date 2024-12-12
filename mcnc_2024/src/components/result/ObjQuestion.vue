@@ -4,6 +4,16 @@
         <div class="chart-wrapper">
             <canvas ref="barChartCanvas"></canvas>
         </div>
+        <div v-if="question.selectionList.some(option => option.etc && option.etcAnswer.length > 0)">
+            <div class="text">기타</div>
+            <div v-for="option in question.selectionList" :key="option.sequence">
+                <div v-if="option.etc && option.etcAnswer.length > 0">
+                    <div v-for="(answer, index) in option.etcAnswer" :key="index" class="answer-box">
+                        {{ answer }}
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -46,10 +56,18 @@ function createChart(chartElement, question) {
                 legend: {
                     display: false,
                 },
+                tooltip: {
+                    callbacks: {
+                        label: function (context) {
+                            const value = context.raw;
+                            return `${value}명`;
+                        },
+                    },
+                },
                 datalabels: {
                     anchor: "center",
                     align: "center",
-                    formatter: (value) => (value === 0 ? "" : value), 
+                    formatter: (value) => (value === 0 ? "" : value),
                     color: "#555",
                     font: {
                         size: 12,
@@ -110,9 +128,27 @@ function createChart(chartElement, question) {
     margin-top: 12px;
     margin-bottom: 12px;
 }
-canvas{
+
+canvas {
     width: 100%;
     max-width: 600px;
     height: auto;
+}
+
+.text {
+    color: #8C8C8C;
+    font-weight: bold;
+    font-size: 1rem;
+    padding-left: 4px;
+    margin-bottom: 4px;
+}
+
+.answer-box {
+    padding: 12px;
+    margin-bottom: 8px;
+    border: 1px solid #D9D9D9;
+    border-radius: 8px;
+    background-color: #FFFFFF;
+    font-size: 0.875rem;
 }
 </style>

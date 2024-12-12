@@ -9,7 +9,7 @@
         <!-- 검색 결과가 있을 때 -->
         <v-infinite-scroll v-else-if="!noResult" :items="surveys" :onLoad="loadSurveys" color="var(--primary)">
             <template v-for="(survey, index) in surveys" :key="survey.id">
-                <SurveyCard :survey="survey" :class="{ 'last-item': index === surveys.length - 1 }" @click="goToDetail(survey.surveyId)" />
+                <SurveyCard :survey="survey" :class="{ 'last-item': index === surveys.length - 1 }" :isMySurvey="isMySurvey" @click="goToDetail(survey.surveyId)" />
             </template>
             <template v-slot:empty></template>
         </v-infinite-scroll>
@@ -29,6 +29,7 @@ defineProps({
     noResult: Boolean,
     loadSurveys: Function,
     goToDetail: Function,
+    isMySurvey: Boolean,
 });
 </script>
 

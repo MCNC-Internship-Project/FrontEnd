@@ -348,7 +348,7 @@ onMounted(() => {
 .item-title {
     width: 100%;
     margin-right: 12px;
-    font-size: 1rem;
+    font-size: 1.125rem;
     font-weight: bold;
     color: #464748;
     text-overflow: ellipsis;
