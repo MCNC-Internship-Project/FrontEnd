@@ -17,7 +17,7 @@
 
 <script setup>
 import { useRouter } from 'vue-router';
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import { encrypt } from '@/utils/crypto';
 import ToolBar from '../common/ToolBar.vue';
@@ -39,14 +39,6 @@ onMounted(() => {
     if (query) {
         searchQuery.value = query; // 이전 검색어 설정
         searchSurvey(); // 검색 결과 로드
-    }
-});
-
-watch(searchQuery, (newValue) => {
-    if (!newValue.trim()) {
-        surveys.value = []; // 검색 결과 초기화
-        noResult.value = false; // '검색 결과 없음' 메시지 숨기기
-        isFirstLoad.value = true; // 초기 로고 상태로 되돌리기
     }
 });
 

@@ -3,7 +3,7 @@
         <header class="toolbar">
             <img class="back" src="@/assets/images/icon_arrow_left.svg" alt="back" @click="goBack">
             <div class="search-container">
-                <input type="text" class="search-input" placeholder="설문 제목을 검색해보세요." v-model="searchQuery"
+                <input type="text" class="search-input" placeholder="참여 가능한 설문조사 검색" v-model="searchQuery"
                     @keyup.enter="search" v-focus />
                 <img class="search-icon" src="@/assets/images/icon_search_btn.svg" alt="dropdown icon" @click="search" />
             </div>
@@ -15,8 +15,8 @@
                 <div class="logo-name">Survwey</div>
             </div>
             <v-infinite-scroll class="list-container" v-if="surveyList.length > 0" :items="surveyList" :onLoad="load" color="var(--primary)">
-                <template v-for="(item) in surveyList" :key="item">
-                    <div class="search-result-item-container" v-ripple @click="goToDetail(item.surveyId)">
+                <template v-for="(item, index) in surveyList" :key="item">
+                    <div class="search-result-item-container" :class="{ 'last-item': index === surveyList.length - 1 }" v-ripple @click="goToDetail(item.surveyId)">
                         <div class="item-header-container">
                             <div class="item-title">{{ item.title }}</div>
                             <div class="item-expire" :class="{ 'expired': !item.expireDateValid }">{{
@@ -69,10 +69,6 @@ const goBack = () => {
 }
 
 const search = async () => {
-    if (!searchQuery.value.trim()) {
-        return;
-    }
-
     router.replace({
         path: "/search",
         query: {
@@ -102,24 +98,24 @@ const search = async () => {
             size: size,
         }
     })
-    .then((response) => {
-        if (response.data.content.length === 0) {
-            noResult.value = true;
-            return;
-        }
+        .then((response) => {
+            if (response.data.content.length === 0) {
+                noResult.value = true;
+                return;
+            }
 
-        surveyList.value.push(...response.data.content);
+            surveyList.value.push(...response.data.content);
 
-        if (response.data.totalPages !== currentPage.value + 1) {
-            currentPage.value++;
-        }
-    })
-    .catch((error) => {
-        console.error(error);
-    })
-    .finally(() => {
-        onLoading.value = false;
-    });
+            if (response.data.totalPages !== currentPage.value + 1) {
+                currentPage.value++;
+            }
+        })
+        .catch((error) => {
+            console.error(error);
+        })
+        .finally(() => {
+            onLoading.value = false;
+        });
 }
 
 async function api() {
@@ -143,7 +139,7 @@ async function api() {
 }
 
 async function load({ done }) {
-    if (!searchQuery.value.trim() || currentPage.value === 0) {
+    if (currentPage.value === 0) {
         done('empty');
         return;
     }
@@ -215,6 +211,8 @@ onMounted(() => {
     if (initialQuery) {
         searchQuery.value = initialQuery;
         search(); // 초기 쿼리로 검색 실행
+    } else {
+        search();
     }
 });
 </script>
@@ -310,11 +308,19 @@ onMounted(() => {
     display: none;
 }
 
+.list-container {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    column-gap: 12px;
+    padding: 0 20px;
+}
+
 .search-result-item-container {
     display: flex;
     flex-direction: column;
     height: 160px;
     padding: 20px;
+    margin-bottom: 12px;
     background-color: #FFF;
     border: 1px solid #EFF0F6;
     box-shadow: 0px 5px 16px rgba(8, 15, 52, 0.08);
@@ -324,11 +330,8 @@ onMounted(() => {
     min-width: 0;
 }
 
-.list-container {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: 12px;
-    padding: 0 20px 20px 20px;
+.last-item {
+    margin-bottom: 0;
 }
 
 .item-header-container {

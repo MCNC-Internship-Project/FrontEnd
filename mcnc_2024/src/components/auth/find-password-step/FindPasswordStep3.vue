@@ -1,10 +1,17 @@
 <template>
     <div class="root-container">
         <form class="form-container" novalidate @submit.prevent="changePassword">
-            <input type="password" class="form-input" :class="{ 'error': isPasswordError }" placeholder="새로운 비밀번호"
-                v-model="password" @focus="isPasswordError = false" v-focus>
-            <input type="password" class="form-input" :class="{ 'error': isPasswordConfirmError }" placeholder="비밀번호 확인"
-                v-model="passwordConfirm" @focus="isPasswordConfirmError = false">
+            <div class="password-container" :class="{ 'error': isPasswordError }">
+                <input v-model="password" :type="passwordInputType" class="form-input-password" placeholder="비밀번호"
+                    autocomplete="new-password" maxlength="100" @focus="isPasswordError = false">
+                <img class="form-input-icon" :src="passwordIcon" @click="changePasswordInputType" />
+            </div>
+
+            <div class="password-container" :class="{ 'error': isPasswordConfirmError }">
+                <input v-model="passwordConfirm" :type="passwordConfirmInputType" class="form-input-password" placeholder="비밀번호 확인" 
+                    autocomplete="new-password" maxlength="100" @focus="isPasswordConfirmError = false">
+                <img class="form-input-icon" :src="passwordConfirmIcon" @click="changePasswordConfirmInputType" />
+            </div>
             <button class="form-btn" v-ripple>확인</button>
         </form>
 
@@ -16,10 +23,13 @@
 </template>
 
 <script setup>
-import { ref, defineEmits } from 'vue'
+import { ref, defineEmits, computed } from 'vue'
 import { useFindPasswordStore } from '@/stores/FindPasswordStore';
 import axios from 'axios';
 import { encrypt } from '@/utils/crypto';
+
+import imgEyeClose from '@/assets/images/icon_eye_close.svg';
+import imgEyeOpen from '@/assets/images/icon_eye_open.svg';
 
 const baseUrl = process.env.VUE_APP_API_URL;
 const store = useFindPasswordStore();
@@ -29,6 +39,9 @@ const passwordConfirm = ref("");
 
 const isPasswordError = ref(false);
 const isPasswordConfirmError = ref(false);
+
+const passwordInputType = ref("password");
+const passwordConfirmInputType = ref("password");
 
 const emit = defineEmits("changePassword");
 
@@ -42,6 +55,22 @@ const dialogs = ref({
         message: "",
     }
 })
+
+const changePasswordInputType = () => {
+    passwordInputType.value = passwordInputType.value === "password" ? "text" : "password";
+}
+
+const changePasswordConfirmInputType = () => {
+    passwordConfirmInputType.value = passwordConfirmInputType.value === "password" ? "text" : "password";
+}
+
+const passwordIcon = computed(() => {
+    return passwordInputType.value === "password" ? imgEyeClose : imgEyeOpen;
+});
+
+const passwordConfirmIcon = computed(() => {
+    return passwordConfirmInputType.value === "password" ? imgEyeClose : imgEyeOpen;
+});
 
 const showDialog = (type, message) => {
     dialogs.value[type].message = message;
@@ -104,19 +133,35 @@ const changePasswordSuccess = () => {
     padding: 0 24px;
 }
 
-.form-input {
+.password-container {
     width: 100%;
     height: 56px;
     margin-bottom: 12px;
+    display: flex;
+    align-items: center;
     padding: 0 16px;
-    border: solid 2px var(--primary);
+    border: 2px solid var(--primary);
     border-radius: 12px;
-    outline: none;
     font-size: 0.875rem;
+    outline: none;
 }
 
-.form-input::placeholder {
+.form-input-password {
+    width: 100%;
+    height: 100%;
+    padding-right: 16px;
+    font-size: 0.875rem;
+    outline: none;
+}
+
+.form-input-password::placeholder {
     color: #C6C6C6;
+}
+
+.form-input-icon {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
 }
 
 .form-btn {

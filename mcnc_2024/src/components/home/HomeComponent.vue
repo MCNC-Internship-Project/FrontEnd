@@ -7,13 +7,13 @@
         </header>
 
         <div class="search-container" @click="routeSearch" v-ripple>
-            <span class="search-text">설문조사 검색</span>
+            <span class="search-text">참여 가능한 설문조사 검색</span>
             <img class="search-icon" src="@/assets/images/icon_search.svg" alt="dropdown icon" />
         </div>
 
         <my-survey />
 
-        <my-participated-survey />
+        <respond-survey />
 
         <v-fab icon="mdi-plus" color="#7796E8" size="48" absolute @click="routeCreateSurvey" />
     </div>
@@ -22,7 +22,7 @@
 <script setup>
 import { useRouter } from 'vue-router'
 import MySurvey from './survey-list/MySurvey.vue';
-import MyParticipatedSurvey from './survey-list/MyParticipatedSurvey.vue';
+import RespondSurvey from './survey-list/RespondSurvey.vue';
 
 const router = useRouter();
 

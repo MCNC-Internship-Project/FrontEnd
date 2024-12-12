@@ -8,8 +8,8 @@
 
         <!-- 검색 결과가 있을 때 -->
         <v-infinite-scroll v-else-if="!noResult" :items="surveys" :onLoad="loadSurveys" color="var(--primary)">
-            <template v-for="(survey) in surveys" :key="survey.id">
-                <SurveyCard :survey="survey" @click="goToDetail(survey.surveyId)" />
+            <template v-for="(survey, index) in surveys" :key="survey.id">
+                <SurveyCard :survey="survey" :class="{ 'last-item': index === surveys.length - 1 }" @click="goToDetail(survey.surveyId)" />
             </template>
             <template v-slot:empty></template>
         </v-infinite-scroll>
@@ -62,16 +62,19 @@ defineProps({
 }
 
 .v-infinite-scroll {
-    width: 100%;
     overflow: hidden;
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    gap: 12px;
-    padding: 4px 20px 20px 20px;
+    column-gap: 12px;
+    padding: 4px 20px;
 }
 
 :deep(.v-infinite-scroll__side:first-child) {
     display: none;
+}
+
+.last-item {
+    margin-bottom: 0;
 }
 
 .search-result-text {
