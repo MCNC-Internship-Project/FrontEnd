@@ -92,7 +92,7 @@ const nextStep = () => {
             if (error?.response?.data?.errorMessage) {
                 showDialog(error.response.data.errorMessage);
             } else {
-                showDialog("회원가입 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+                showDialog("오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
             }
         });
 }

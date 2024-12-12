@@ -28,8 +28,8 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import axios from '@/utils/axiosInstance';
 import { encrypt } from '@/utils/crypto';
+import axios from '@/utils/axiosInstance';
 import imgEyeClose from '@/assets/images/icon_eye_close.svg';
 import imgEyeOpen from '@/assets/images/icon_eye_open.svg';
 
@@ -96,7 +96,7 @@ const login = () => {
             if (error?.response?.data?.errorMessage) {
                 showDialog(error.response.data.errorMessage);
             } else {
-                showDialog("로그인 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+                showDialog("오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
             }
         });
 }

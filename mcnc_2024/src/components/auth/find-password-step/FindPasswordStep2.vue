@@ -21,10 +21,9 @@
 <script setup>
 import { ref } from 'vue'
 import { useFindPasswordStore } from '@/stores/FindPasswordStore';
-import axios from 'axios';
 import { encrypt } from '@/utils/crypto';
+import axios from '@/utils/axiosInstance';
 
-const baseUrl = process.env.VUE_APP_API_URL;
 const store = useFindPasswordStore();
 
 const email = ref("");
@@ -73,16 +72,16 @@ const verifyCode = () => {
     showDialog('progressDialog', '인증번호 발송 중...');
 
     // 인증번호 발송 API 호출
-    axios.post(`${baseUrl}/auth/password/send`, JSON.stringify(requestBody), {
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    })
+    axios.post(`/auth/password/send`, JSON.stringify(requestBody))
         .then(() => {
             showDialog('defaultDialog', '인증번호가 발송되었습니다.');
         })
         .catch((error) => {
-            showDialog('defaultDialog', error.response.data.errorMessage);
+            if (error?.response?.data?.errorMessage) {
+                showDialog('defaultDialog', error.response.data.errorMessage);
+            } else {
+                showDialog('defaultDialog', "오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+            }
         })
         .finally(() => {
             isEmailSending.value = false;
@@ -103,16 +102,16 @@ const nextStep = () => {
     }
 
     // 인증번호 확인 API 호출
-    axios.post(`${baseUrl}/auth/password/check`, JSON.stringify(requestBody), {
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    })
+    axios.post(`/auth/password/check`, JSON.stringify(requestBody))
         .then(() => {
             store.nextStep();
         })
         .catch((error) => {
-            showDialog('defaultDialog', error.response.data.errorMessage);
+            if (error?.response?.data?.errorMessage) {
+                showDialog('defaultDialog', error.response.data.errorMessage);
+            } else {
+                showDialog('defaultDialog', "오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+            }
         });
 }
 
