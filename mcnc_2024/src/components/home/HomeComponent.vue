@@ -7,7 +7,7 @@
         </header>
 
         <div class="search-container" @click="routeSearch" v-ripple>
-            <span class="search-text">설문조사 검색</span>
+            <span class="search-text">참여 가능한 설문조사 검색</span>
             <img class="search-icon" src="@/assets/images/icon_search.svg" alt="dropdown icon" />
         </div>
 
