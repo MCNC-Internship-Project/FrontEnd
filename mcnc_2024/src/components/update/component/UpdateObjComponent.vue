@@ -153,7 +153,7 @@ const isDuplicateValue = (index) => {
         return false;
     }
 
-    // 중복 체크 (대소문자 구분 없이)
+    // 중복 체크
     const isDuplicate = totalItem.value.some((item, i) => {
         if (i === index) return false;
         return item.value === currentValue;
