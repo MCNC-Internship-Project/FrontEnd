@@ -6,10 +6,10 @@
                     <div class="item-selection-container" :class="{ 'error': item.hasError }">
                         <v-radio v-if="props.surveyType === 'OBJ_SINGLE'" color="#7796E8" disabled />
                         <v-checkbox-btn v-else color="#7796E8" disabled />
-                        <input type="text" v-model="item.value" class="item-input"
+                        <input type="text" v-model="item.value" class="item-input" 
                             :placeholder="`항목 ${index + 1}`" maxlength="255"
                             :disabled="item.id === 'etcId'" :ref="el => itemInputs[index] = el"
-                            @focus="clearError(index)" />
+                            @focus="clearError(index)" @input="handleInput($event, index)" @blur="handleBlur(index)" />
                         <img class="item-icon" src="@/assets/images/icon_x.svg" alt="delete icon"
                             v-show="showDeleteIcon(item.id)" @click="deleteItem(item.id)" />
                     </div>
@@ -133,6 +133,43 @@ const addEtcItem = () => {
     if (!isExistEtc.value) {
         isExistEtc.value = true;
         totalItem.value.push({ id: "etcId", value: "기타..." });
+    }
+}
+
+const handleInput = (event, index) => {
+    const newValue = event.target.value;
+    totalItem.value[index].value = newValue;
+    isDuplicateValue(index);
+};
+
+const isDuplicateValue = (index) => {
+    const currentValue = totalItem.value[index].value;
+    
+    // 빈 값 체크
+    if (!currentValue || currentValue.trim() === '') {
+        totalItem.value[index].hasError = false;
+        return false;
+    }
+
+    // 중복 체크 (대소문자 구분 없이)
+    const isDuplicate = totalItem.value.some((item, i) => {
+        if (i === index) return false;
+        return item.value.toLowerCase() === currentValue.toLowerCase();
+    });
+
+    // 즉시 에러 상태 업데이트
+    totalItem.value[index].hasError = isDuplicate;
+    return isDuplicate;
+}
+
+const handleBlur = (index) => {
+    // 포커스 해제 시 값이 중복이면
+    if (isDuplicateValue(index)) {
+        totalItem.value[index].value = ''; // 값을 비움
+        totalItem.value[index].hasError = false; // 에러 상태 초기화
+    } else {
+        // 중복이 아니면 공백 제거
+        totalItem.value[index].value = totalItem.value[index].value.trim();
     }
 }
 
