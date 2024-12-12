@@ -57,7 +57,7 @@ const displayItems = computed(() => {
 });
 
 const addItem = () => {
-    if (totalItem.value.length >= 15) {
+    if (totalItem.value.length >= 100) {
         return;
     }
 

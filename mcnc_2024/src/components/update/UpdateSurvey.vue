@@ -438,6 +438,7 @@ const handleSubmit = () => {
 
     if (!title) {
         titleError.value = true
+        surveyTitle.value = "";
         valid = false;
         dialogs.value.showSaveDialog.isVisible = false;
     }
