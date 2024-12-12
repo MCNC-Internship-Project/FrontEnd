@@ -2,17 +2,16 @@
     <div class="item-container" v-ripple>
         <div class="item-header-container">
             <div class="item-title">{{ survey.title }}</div>
-            <div v-if="showStatusBadge" class="item-expire" :class="{ 'expired': !survey.expireDateValid }">{{ survey.expireDateValid ? '진행중' :
+            <div v-if="context === 'MySurvey'" class="item-expire" :class="{ 'expired': !survey.expireDateValid }">{{ survey.expireDateValid ? '진행중' :
                 '종료' }}</div>
-            <div v-else-if="showProfile" class="item-footer-container">
+            <div v-else-if="context === 'RespondSurvey'" class="item-footer-container">
                 <img class="item-img-profile" src="@/assets/images/icon_profile_default.svg" alt="profile icon" />
                 <div class="item-userid">{{ survey.creatorId }}</div>
             </div>
         </div>
         <div class="item-description">{{ survey.description }}</div>
-        <div v-if="createDate && expireDate" class="item-date">{{ formatDate(survey.createDate, survey.expireDate) }}
-        </div>
-        <div v-else-if="respondDate" class="item-date">{{ formatDate(survey.respondDate) }}</div>
+        <div v-if="context === 'MySurvey'" class="item-date">{{ formatDate(survey.createDate, survey.expireDate) }}</div>
+        <div v-else-if="context === 'RespondSurvey'" class="item-date">{{ formatDate(survey.respondDate) }}</div>
     </div>
 </template>
 
@@ -24,23 +23,10 @@ defineProps({
     survey: {
         type: Object,
     },
-    respondDate: {
+    context: {
         type: String,
+        default: 'default', 
     },
-    createDate: {
-        type: String,
-    },
-    expireDate: {
-        type: String,
-    },
-    showStatusBadge: {
-        type: Boolean,
-        default: false
-    },
-    showProfile: {
-        type: Boolean,
-        default: false
-    }
 });
 
 const formatDate = (date1, date2 = null) => {

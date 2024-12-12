@@ -9,8 +9,7 @@
         <div class="list-container">
             <v-infinite-scroll v-if="!noResult" :items="surveyList" :onLoad="load" color="var(--primary)">
                 <template v-for="(item) in surveyList" :key="item">
-                    <SurveyCard :survey="item" :respondDate="item.respondDate" :showStatusBadge="false"
-                        :showProfile="true" @click="goToDetail(item.surveyId)" />
+                    <SurveyCard :survey="item" @click="goToDetail(item.surveyId)" context="RespondSurvey"/>
                 </template>
                 <template v-slot:empty>
                 </template>

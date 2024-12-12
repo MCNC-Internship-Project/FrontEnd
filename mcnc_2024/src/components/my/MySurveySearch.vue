@@ -10,7 +10,7 @@
         </ToolBar>
 
         <SearchResult :surveys="surveys" :isFirstLoad="isFirstLoad" :noResult="noResult" :loadSurveys="loadSurveys"
-            :goToDetail="goToDetail" />
+            :goToDetail="goToDetail" context="MySurvey" />
     </div>
 </template>
 
