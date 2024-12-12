@@ -72,8 +72,9 @@
 
     <default-dialog v-model="dialogs.showDefaultDialog.isVisible" :message="dialogs.showDefaultDialog.message"
         @confirm="dialogs.showDefaultDialog.isVisible = false" />
-    <default-dialog v-model="dialogs.showSuccessRemoveDialog.isVisible"
-        :message="dialogs.showSuccessRemoveDialog.message" @confirm="deleteConfirm" :isPersistent="true" />
+
+    <default-dialog v-model="dialogs.showSuccessDialog.isVisible"
+        :message="dialogs.showSuccessDialog.message" @confirm="confirm" :isPersistent="true" />
 
     <share-survey-dialog v-model="dialogs.showShareDialog.isVisible" :surveyId="decrypt(props.id)"
         @confirm="showDialog(dialogs.showDefaultDialog, '이메일 전송이 완료되었습니다.')" />
@@ -113,7 +114,7 @@ const dialogs = ref({
         isVisible: false,
         message: ''
     },
-    showSuccessRemoveDialog: {
+    showSuccessDialog: {
         isVisible: false,
         message: '',
     },
@@ -200,8 +201,7 @@ async function handleCloseConfirm() {
                 'Content-Type': 'application/json',
             },
         });
-        isCloseModalVisible.value = false;
-        router.push('/my');
+        showDialog(dialogs.value.showSuccessDialog, "설문이 종료되었습니다.");
     } catch (error) {
         console.error('설문 종료 실패:', error);
         showDialog(dialogs.value.showDefaultDialog, "종료 중 오류가 발생했습니다.");
@@ -213,8 +213,8 @@ function remove() {
     isDeleteModalVisible.value = true;
 }
 
-function deleteConfirm() {
-    dialogs.value.showSuccessRemoveDialog.value = false;
+function confirm() {
+    dialogs.value.showSuccessDialog.value = false;
     router.go(-1);
     setTimeout(() => {
         const currentPath = router.currentRoute.value.path
@@ -237,7 +237,7 @@ async function handleDeleteConfirm() {
                 'Content-Type': 'application/json',
             },
         });
-        showDialog(dialogs.value.showSuccessRemoveDialog, "성공적으로 삭제되었습니다.");
+        showDialog(dialogs.value.showSuccessDialog, "성공적으로 삭제되었습니다.");
     } catch (error) {
         console.error(error);
         showDialog(dialogs.value.showDefaultDialog, "삭제 중 오류가 발생했습니다.");
