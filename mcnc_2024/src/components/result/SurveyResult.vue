@@ -379,7 +379,7 @@ async function downloadExcel() {
                             answerIndex === 0 ? question.body : '',
                             '',
                             answer,
-                            data.responseCount,
+                            question.subjAnswerList.length,
                         ]);
                     });
                 } else {
