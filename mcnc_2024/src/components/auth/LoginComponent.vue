@@ -7,10 +7,10 @@
 
         <form class="form-container" @submit.prevent="login">
             <input v-model="userId" type="text" class="form-input" :class="{ 'error': isUserIdError }" placeholder="아이디"
-                @focus="isUserIdError = false">
+                maxlength="20" @focus="isUserIdError = false">
             <div class="form-password-container" :class="{ 'error': isPasswordError }">
                 <input v-model="password" :type="passwordInputType" class="form-input-password" placeholder="비밀번호"
-                    @focus="isPasswordError = false">
+                    maxlength="100" @focus="isPasswordError = false">
                 <img class="form-input-password-icon" :src="passwordIcon" @click="changePasswordInputType" />
             </div>
             <button class="form-btn" v-ripple>로그인</button>
@@ -96,6 +96,7 @@ const login = () => {
                 redirect = "/";
             }
 
+            sessionStorage.setItem(btoa('isLoggedIn'), btoa(true));
             router.replace(redirect);
         })
         .catch((error) => {

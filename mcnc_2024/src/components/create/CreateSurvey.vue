@@ -8,15 +8,37 @@
         <div class="survey-container">
             <div class="survey-title-section">
                 <div class="input-section" :class="{ 'title-error': titleError }">
-                    <input type="text" name="survey-title" class="survey-title" v-model="surveyTitle"
-                        :placeholder="titleError ? '(제목 없음)' : '설문조사 제목'" maxlength="255" @focus="titleError = false" />
+                        <v-textarea
+                            v-model="surveyTitle"
+                            class="survey-title"
+                            rows="1"
+                            auto-grow
+                            variant="none"
+                            color="#464748"
+                            @focus="titleError = false; titlePlaceholderVisible = false"
+                            @blur="titlePlaceholderVisible = true"
+                            maxlength="255"
+                            hide-details="false"
+                            :class="{ 'title-error': titleError }"
+                            :placeholder="titlePlaceholderVisible ? (titleError ? '(제목 없음)' : '설문조사 제목') : ''"
+                        />
                 </div>
 
                 <div class="input-section">
-                    <input type="text" name="survey-description" class="survey-description" v-model="surveyDescription"
-                        placeholder="설문조사 설명" maxlength="512">
+                    <v-textarea
+                            v-model="surveyDescription"
+                            class="survey-description" 
+                            rows="1"
+                            auto-grow
+                            variant="none"
+                            color="#C1C3C5"
+                            @focus="descriptionPlaceholderVisible = false"
+                            @blur="descriptionPlaceholderVisible = true"
+                            maxlength="512"
+                            hide-details="false"
+                            :placeholder="descriptionPlaceholderVisible ? '설문조사 설명' : ''"
+                        />
                 </div>
-
                 <div class="select-deadline-section">
                     <div class="deadline">설문 기간</div>
 
@@ -161,8 +183,10 @@ const totalComponent = ref([{ id: 0 },]);
 const surveyItems = ref([]);
 
 const surveyTitle = ref("");
+const titlePlaceholderVisible = ref(true);
 const titleError = ref(false);
-const surveyDescription = ref("")
+const surveyDescription = ref("");
+const descriptionPlaceholderVisible = ref(true);
 
 const dateError = ref(false);
 const isDateError = ref(false);
@@ -358,7 +382,7 @@ const handleSubmit = () => {
     const description = surveyDescription.value.trim();
     let valid = true;
 
-    if (!title || title.length === 0) {
+    if (!title) {
         titleError.value = true
         surveyTitle.value = "";
         valid = false;
@@ -438,7 +462,7 @@ const redirectionToMySurvey = () => {
         if (currentPath === '/') {
             router.replace({ name: 'Home' });
         } else if (currentPath === '/my') {
-            router.replace({ name: 'MySurvey' });
+            router.replace({ name: 'My' });
         }
     }, 100);
 }
@@ -454,12 +478,13 @@ const redirectionToMySurvey = () => {
 
 .toolbar {
     position: fixed;
+    top: 0;
     display: flex;
     align-items: center;
     width: 100%;
     height: 64px;
     background-color: #fff;
-    z-index: 1000;
+    z-index: 50;
 }
 
 .back {
@@ -503,37 +528,54 @@ const redirectionToMySurvey = () => {
 }
 
 .survey-title {
-    margin-top: 12px;
     border: none;
-    font-size: 1.25rem;
-    font-weight: bold;
+    width: 100%;
+    outline: none;
     color: #464748;
+    font-weight: bold;
+    resize: none; /* 사용자가 크기 조절 못하도록 */
 }
 
-.survey-title::placeholder {
-    color: #787a7c;
+:deep(.v-field) {
+    font-size : 1.25rem;
+    --v-disabled-opacity: 1 !important;
 }
 
-.survey-title:focus::placeholder {
-    color: transparent;
+.title-error:deep(.v-field) {
+    color : #F77D7D;
 }
 
-.survey-description {
-    margin-top: 12px;
-    font-size: 1rem;
-    color: #868686;
+:deep(.v-input--density-default),
+:deep(.v-field--variant-outlined),
+:deep(.v-input--density-default),
+:deep(.v-field--single-line),
+:deep(.v-input--density-default),
+:deep(.v-field--no-label) {
+    --v-input-padding-top: 8px;
+    --v-input-padding-bottom: 0px;
+    --v-field-padding-bottom: 8px;
 }
 
-.survey-description::placeholder {
+:deep(.v-textarea) {
+    --v-input-control-height: 40px;
+}
+
+.survey-description:deep(.v-field) {
+    font-size : 1rem;
+    font-weight : bold;
     color: #C1C3C5;
 }
 
-.survey-description:focus::placeholder {
-    color: transparent;
+.survey-description {
+    border: none;
+    width: 100%;
+    outline: none;
+    font-size: 1rem;
+    color: #C1C3C5;
 }
 
 .select-deadline-section {
-    margin: 32px 12px 0 12px;
+    margin: 24px 12px 0 12px;
     padding: 0 4px;
     height: 32px;
     display: flex;
@@ -590,10 +632,6 @@ input {
     margin: 0 16px;
     outline: none;
     transition: all 0.3s;
-}
-
-.title-error .survey-title::placeholder {
-    color: #F77D7D;
 }
 
 .error {
@@ -859,6 +897,4 @@ input {
         margin-bottom: -2px;
     }
 }
-
-/* Rest of the styles remain the same */
 </style>

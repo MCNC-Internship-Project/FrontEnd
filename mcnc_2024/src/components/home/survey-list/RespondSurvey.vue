@@ -114,7 +114,7 @@ onMounted(() => {
 
 .body-container {
     width: 100%;
-    padding: 16px 24px 80px 24px;
+    padding: 16px 24px 92px 24px;
 }
 
 .list-container {
@@ -126,7 +126,7 @@ onMounted(() => {
 .item-container {
     display: flex;
     flex-direction: column;
-    height: 108px;
+    height: 120px;
     padding: 16px 16px 8px 16px;
     border-radius: 12px;
     background-color: #FFF;
@@ -137,7 +137,7 @@ onMounted(() => {
 }
 
 .item-title {
-    font-size: 0.875rem;
+    font-size: 1rem;
     font-weight: bold;
     color: #464748;
     text-overflow: ellipsis;
@@ -148,7 +148,7 @@ onMounted(() => {
 
 .item-description {
     margin-top: 2px;
-    font-size: 0.875rem;
+    font-size: 1rem;
     color: #8D8D8D;
     text-overflow: ellipsis;
     overflow: hidden;
@@ -160,11 +160,11 @@ onMounted(() => {
     display: flex;
     justify-content: flex-end;
     margin-top: auto;
-    font-size: 0.75rem;
 }
 
 .item-date {
     color: #B7B7B7;
+    font-size: 0.875rem;
 }
 
 .skeleton-container {
@@ -176,7 +176,7 @@ onMounted(() => {
 
 :deep(.v-skeleton-loader__image) {
     width: 100%;
-    height: 108px;
+    height: 120px;
     border-radius: 12px;
 }
 

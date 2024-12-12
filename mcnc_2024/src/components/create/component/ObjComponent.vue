@@ -21,7 +21,7 @@
             <v-radio v-if="surveyType === 'OBJ_SINGLE'" color="#7796E8" disabled />
             <v-checkbox-btn v-else color="#7796E8" disabled />
             <div class="add-item-option" @click="addItem">항목 추가</div>
-            <div class="add-item-or" v-if="!isExistEtc">&nbsp;또는&nbsp;</div>
+            <div v-if="!isExistEtc">&nbsp;또는&nbsp;</div>
             <div class="add-item-etc" @click="addEtcItem" v-if="!isExistEtc">'기타' 추가</div>
         </div>
     </div>
@@ -57,7 +57,7 @@ const displayItems = computed(() => {
 });
 
 const addItem = () => {
-    if (totalItem.value.length >= 15) {
+    if (totalItem.value.length >= 100) {
         return;
     }
 
@@ -109,7 +109,7 @@ const deleteItem = (id) => {
 const addEtcItem = () => {
     if (!isExistEtc.value) {
         isExistEtc.value = true;
-        totalItem.value.push({ id: "etcId", value: "기타..." });
+        totalItem.value.push({ id: "etcId", value: "기타" });
     }
 }
 
@@ -206,6 +206,7 @@ defineExpose({
 }
 
 .item-input {
+    font-size : 1rem;
     margin: 0 auto;
     outline: none;
     width: 100%;
@@ -214,7 +215,7 @@ defineExpose({
 
 .item-input[disabled] {
     color: #939393;
-    font-size: 0.875rem;
+    font-size: 1rem;
 }
 
 .item-input:focus::placeholder {
@@ -233,23 +234,18 @@ defineExpose({
     align-items: center;
     margin-top: 5px;
     padding-left: 8px;
+    font-size : 1rem;
 }
 
 .add-item-option {
     color: #A4A4A4;
     cursor: pointer;
     margin-left: 16px;
-    font-size: 0.875rem;
-}
-
-.add-item-or {
-    font-size: 0.875rem;
 }
 
 .add-item-etc {
     color: #7796E8;
     cursor: pointer;
-    font-size: 0.875rem;
 }
 
 .list-enter-active,

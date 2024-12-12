@@ -2,9 +2,9 @@
     <div class="root-container">
         <form class="form-container" novalidate @submit.prevent="nextStep">
             <input type="text" class="form-input" :class="{ 'error': isUserIdError }" placeholder="아이디" v-model="userId"
-                @focus="isUserIdError = false" v-focus>
+                @focus="isUserIdError = false" maxlength="20" v-focus>
             <input type="email" class="form-input" :class="{ 'error': isEmailError }" placeholder="이메일" v-model="email"
-                autocomplete="new-password" @focus="isEmailError = false">
+                autocomplete="new-password" maxlength="255" @focus="isEmailError = false">
             <button class="form-btn" v-ripple>다음</button>
         </form>
 
@@ -55,7 +55,7 @@ const nextStep = () => {
         return;
     }
 
-    if (!email.value.match(/^[_A-Za-z0-9-+]+(\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\.[A-Za-z0-9]+)*(\.[A-Za-z]{2,})$/)) {
+    if (!email.value.match(/^(?=.{1,255}$)[_A-Za-z0-9-+]+(\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\.[A-Za-z0-9]+)*(\.[A-Za-z]{2,})$/)) {
         isEmailError.value = true;
         showDialog('이메일 형식이 올바르지 않습니다.');
         return;

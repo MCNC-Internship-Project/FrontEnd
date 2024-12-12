@@ -1,8 +1,20 @@
 <template>
     <div class="root-container">
         <div class="header-container">
-            <input type="text" v-model="surveyTitle" class="header-input" :class="{ 'error': titleError }"
-                :placeholder="`질문 ${itemNumber}`" maxlength="255" @focus="clearTitleError" />
+            <div class="header-input" :class="{ 'error': titleError }" >
+                <v-textarea
+                    v-model="surveyTitle"
+                    rows="1"
+                    auto-grow
+                    variant="none"
+                    color="#464748"
+                    @focus="titleError = false; titlePlaceholderVisible = false"
+                    @blur="titlePlaceholderVisible = true"
+                    maxlength="255"
+                    hide-details="false"
+                    :placeholder="titlePlaceholderVisible ? `질문 ${itemNumber}` : ''"
+                />
+            </div>
             <img class="header-icon" :class="{ 'disabled': isSingle, 'hidden': isSingle }"
                 src="@/assets/images/icon_trash.svg" alt="trash icon" @click="deleteItem" />
         </div>
@@ -53,6 +65,7 @@ const subjComponentRef = ref(null);
 const objComponentRef = ref(null);
 
 const surveyTitle = ref("");
+const titlePlaceholderVisible = ref(true);
 const surveyTypes = ["OBJ_SINGLE", "OBJ_MULTI", "SUBJECTIVE"];
 const surveyTypeTexts = ["단일 선택", "다중 선택", "주관식"];
 const surveyType = ref(surveyTypes[0]);
@@ -67,7 +80,6 @@ const surveyTypeMenuOptions = [
 const showTypeMenu = ref(false);
 
 const titleError = ref(false);
-const hasError = ref(false);
 
 const props = defineProps({
     isSingle: {
@@ -131,11 +143,6 @@ watch(surveyTypeText, (type) => {
     }
 });
 
-const clearTitleError = () => {
-    titleError.value = false;
-    hasError.value = false;
-};
-
 const getValue = () => {
     let isValid = true;
     let values = {};
@@ -143,7 +150,7 @@ const getValue = () => {
     // 제목 검사
     if (!surveyTitle.value.trim()) {
         titleError.value = true;
-        hasError.value = true;
+        surveyTitle.value = "";
         isValid = false;
     }
 
@@ -194,28 +201,27 @@ defineExpose({
     display: flex;
     align-items: center;
     width: 100%;
-    height: 52px;
 }
 
 .header-input {
+    border: none;
     width: 100%;
-    height: 100%;
-    margin: auto;
-    font-size: 1rem;
-    font-weight: bold;
-    background-color: #FFF;
-    border-radius: 12px;
-    padding: 0 20px;
+    background-color: #fff;
+    border-radius : 12px;
+    overflow-wrap: break-word;
     outline: none;
+    font-size: 1rem;
+    color: #464748;
 }
 
-.header-input::placeholder {
+.header-input:deep(.v-field) {
+    font-size : 1rem;
+    font-weight : bold;
     color: #8C8C8C;
 }
 
 .header-input.error {
-    border-radius: 12px;
-    box-shadow: 0 0 0 1px #F77D7D;
+    box-shadow: 0 0 0 2px #F76C6A;
 }
 
 .header-input.error input {
@@ -303,11 +309,6 @@ defineExpose({
 
 .footer-container {
     width: 100%;
-}
-
-.error {
-    border: 1px solid #F76C6A;
-    box-shadow: 0 0 0 1px #F76C6A;
 }
 
 .hidden {

@@ -15,7 +15,7 @@ const routes = [
         path: '/:pathMatch(.*)*',
         name: 'NotFound',
         component: () => import("@/components/error/NotFound.vue"),
-        meta: { requiresAuth: true },
+        meta: { requiresAuth: false },
     }
 ];
 
@@ -30,15 +30,12 @@ const router = createRouter({
 // 라우트 가드 설정
 router.beforeEach((to, from, next) => {
     const saveStore = useSaveStatusStore();
-    const isLoggedInKey = btoa('isLoggedIn'); // Base64 인코딩된 키
-    const isLoggedInValue = btoa('true');    // Base64 인코딩된 값
-    const isFirstAccess = !localStorage.getItem(isLoggedInKey); // 첫 접근 여부 확인
     
     if (to.meta.requiresAuth) {
         axiosInstance.get(`/auth/session`)
             .then((response) => {
                 if (response.status === 200) {
-                    localStorage.setItem(isLoggedInKey, isLoggedInValue); // Base64로 저장
+                    sessionStorage.setItem(btoa('isLoggedIn'), btoa(true)); // Base64로 저장
 
                     if (to.path.includes("/create") || to.path.includes("/update")) {
                         window.addEventListener('beforeunload', handleBeforeUnload);
@@ -46,13 +43,14 @@ router.beforeEach((to, from, next) => {
                         window.removeEventListener('beforeunload', handleBeforeUnload);
                     }
 
-                    const confirmationMessage = '정말 나가시겠습니까? 변경사항이 저장되지 않을 수 있습니다.';
+                    console.log(saveStore.isSaved)
                     if (from.name === 'Create' || from.name === 'Update') {
                         if(saveStore.isSaved) {
                             saveStore.resetStatus();
                             next();
                             return;
                         } else {
+                            const confirmationMessage = '정말 나가시겠습니까? 변경사항이 저장되지 않을 수 있습니다.';
                             if (!window.confirm(confirmationMessage)) {
                                 return next(false); // 이동 취소
                             }
@@ -61,14 +59,13 @@ router.beforeEach((to, from, next) => {
                     next();
                 }
             })
-            .catch(error => {
-                console.log(error);
-
-                if (!isFirstAccess) { // 이전에 로그인한 적이 있는 경우에만 알림 표시
+            .catch(() => {
+                if (sessionStorage.getItem(btoa('isLoggedIn')) === null || sessionStorage.getItem(btoa('isLoggedIn')) === btoa(false)) {
+                    alert("로그인이 필요합니다.");
+                } else if (sessionStorage.getItem(btoa('isLoggedIn')) === btoa(true)) {
                     alert("세션이 만료되었습니다.");
                 }
 
-                localStorage.removeItem(isLoggedInKey); // Base64로 저장된 키 삭제
                 next({ path: '/login', query: { redirect: to.fullPath } });
             });
     } else {
@@ -85,10 +82,8 @@ window.addEventListener('beforeunload', (event) => {
 });
 
 function handleBeforeUnload(event) {
-    const confirmationMessage = 'Are you sure you want to leave this page? Changes may not be saved.';
     event.preventDefault();
-    event.returnValue = confirmationMessage;
-    return confirmationMessage;
+    return '';
 }
 
 export default router;

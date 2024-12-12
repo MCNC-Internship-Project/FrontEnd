@@ -2,16 +2,18 @@
     <div class="item-container" v-ripple>
         <div class="item-header-container">
             <div class="item-title">{{ survey.title }}</div>
-            <div v-if="context === 'MySurvey'" class="item-expire" :class="{ 'expired': !survey.expireDateValid }">{{ survey.expireDateValid ? '진행중' :
-                '종료' }}</div>
-            <div v-else-if="context === 'RespondSurvey'" class="item-footer-container">
+            <div v-if="isMySurvey" class="item-expire" :class="{ 'expired': !survey.expireDateValid }">{{ survey.expireDateValid ? '진행중' : '종료' }}</div>
+            <div v-else class="item-profile-container">
                 <img class="item-img-profile" src="@/assets/images/icon_profile_default.svg" alt="profile icon" />
                 <div class="item-userid">{{ survey.creatorId }}</div>
             </div>
         </div>
         <div class="item-description">{{ survey.description }}</div>
-        <div v-if="context === 'MySurvey'" class="item-date">{{ formatDate(survey.createDate, survey.expireDate) }}</div>
-        <div v-else-if="context === 'RespondSurvey'" class="item-date">{{ formatDate(survey.respondDate) }}</div>
+        <div class="item-footer-container">
+            <div v-if="isMySurvey" class="item-date">{{ formatDate(survey.createDate, survey.expireDate) }}</div>
+            <div v-else class="item-date">{{ formatDate(survey.respondDate) }}</div>
+            <div v-if="isMySurvey" class="item-count">{{ survey.respondCount }}명 참여</div>
+        </div>
     </div>
 </template>
 
@@ -23,9 +25,8 @@ defineProps({
     survey: {
         type: Object,
     },
-    context: {
-        type: String,
-        default: 'default', 
+    isMySurvey: {
+        type: Boolean
     },
 });
 
@@ -44,6 +45,7 @@ const formatDate = (date1, date2 = null) => {
     flex-direction: column;
     height: 160px;
     padding: 20px;
+    margin-bottom: 12px;
     border-radius: 12px;
     background-color: #FFF;
     border: 1px solid #EFF0F6;
@@ -60,7 +62,7 @@ const formatDate = (date1, date2 = null) => {
 .item-title {
     width: 100%;
     margin-right: 12px;
-    font-size: 1rem;
+    font-size: 1.125rem;
     font-weight: bold;
     color: #464748;
     text-overflow: ellipsis;
@@ -81,10 +83,15 @@ const formatDate = (date1, date2 = null) => {
     color: #757575;
 }
 
+.item-profile-container {
+    display: flex;
+    align-items: center;
+}
+
 .item-description {
     display: -webkit-box;
     width: 100%;
-    margin-top: 8px;
+    margin-top: 4px;
     font-size: 1rem;
     color: #8D8D8D;
     text-overflow: ellipsis;
@@ -96,17 +103,20 @@ const formatDate = (date1, date2 = null) => {
     -webkit-box-orient: vertical;
 }
 
-.item-date {
-    margin-top: auto;
-    font-size: 0.875rem;
-    color: #8D8D8D;
-}
-
-
 .item-footer-container {
     display: flex;
     align-items: center;
     margin-top: auto;
+    font-size: 0.875rem;
+}
+
+.item-date {
+    color: #8D8D8D;
+}
+
+.item-count {
+    margin-left: auto;
+    color: var(--primary);
 }
 
 .item-userid {

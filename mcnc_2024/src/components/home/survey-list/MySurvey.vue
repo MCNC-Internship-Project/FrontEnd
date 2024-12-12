@@ -193,7 +193,7 @@ ul {
     display: -webkit-box;
     width: 100%;
     margin-top: 4px;
-    font-size: 0.875rem;
+    font-size: 1rem;
     color: #8D8D8D;
     text-overflow: ellipsis;
     overflow: hidden;
