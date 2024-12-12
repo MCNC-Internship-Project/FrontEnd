@@ -8,9 +8,8 @@
 
         <div class="list-container">
             <v-infinite-scroll v-if="!noResult" :items="surveyList" :onLoad="load" color="var(--primary)">
-                <template v-for="(item) in surveyList" :key="item">
-                    <SurveyCard :survey="item" :createDate="item.createDate" :expireDate="item.expireDate"
-                        :showStatusBadge="true" :showProfile="false" @click="goDetail(item.surveyId)" />
+                <template v-for="(item, index) in surveyList" :key="item">
+                    <SurveyCard :survey="item" :class="{ 'last-item': index === surveyList.length - 1 }" :isMySurvey="true" @click="goDetail(item.surveyId)" />
                 </template>
                 <template v-slot:empty>
                 </template>
@@ -135,7 +134,7 @@ async function load({ done }) {
     flex-direction: column;
     justify-content: center;
     margin-top: 64px;
-    padding: 4px 0 40px 0;
+    padding: 4px 0 80px 0;
 }
 
 .v-infinite-scroll {
@@ -143,8 +142,8 @@ async function load({ done }) {
     overflow: hidden;
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    gap: 12px;
-    padding: 0 20px 20px 20px;
+    column-gap: 12px;
+    padding: 0 20px;
 }
 
 :deep(.v-infinite-scroll__side) {
@@ -153,6 +152,10 @@ async function load({ done }) {
 
 :deep(.v-infinite-scroll__side:first-child) {
     display: none;
+}
+
+.last-item {
+    margin-bottom: 0;
 }
 
 .list-none {

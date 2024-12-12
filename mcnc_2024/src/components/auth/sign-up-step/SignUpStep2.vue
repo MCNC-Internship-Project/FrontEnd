@@ -2,17 +2,17 @@
     <div class="root-container">
         <form class="form-container" novalidate @submit.prevent="nextStep">
             <input type="text" class="form-input" :class="{ 'error': isUserNameError }" placeholder="사용자명"
-                v-model="userName" @focus="isUserNameError = false" v-focus>
+                v-model="userName" maxlength="50" @focus="isUserNameError = false" v-focus>
 
             <div class="password-container" :class="{ 'error': isPasswordError }">
                 <input v-model="password" :type="passwordInputType" class="form-input-password" placeholder="비밀번호"
-                    autocomplete="new-password" @focus="isPasswordError = false">
+                    autocomplete="new-password" maxlength="100" @focus="isPasswordError = false">
                 <img class="form-input-icon" :src="passwordIcon" @click="changePasswordInputType" />
             </div>
 
             <div class="password-container" :class="{ 'error': isPasswordConfirmError }">
                 <input v-model="passwordConfirm" :type="passwordConfirmInputType" class="form-input-password"
-                    placeholder="비밀번호 확인" autocomplete="new-password" @focus="isPasswordConfirmError = false">
+                    placeholder="비밀번호 확인" autocomplete="new-password" maxlength="100" @focus="isPasswordConfirmError = false">
                 <img class="form-input-icon" :src="passwordConfirmIcon" @click="changePasswordConfirmInputType" />
             </div>
 
@@ -88,7 +88,7 @@ const nextStep = () => {
         return;
     }
 
-    if (!password.value.match(/^(?=.*[A-Za-z])(?=.*[0-9])(?=.*[!@#$%^&*()_+]).{8,}$/)) {
+    if (!password.value.match(/^(?=.*[A-Za-z])(?=.*[0-9])(?=.*[!@#$%^&*()_+]).{8,100}$/)) {
         isPasswordError.value = true;
         showDialog('비밀번호는 최소 8자, 숫자, 특수문자 및 대소문자를 포함해야 합니다.');
         return;
