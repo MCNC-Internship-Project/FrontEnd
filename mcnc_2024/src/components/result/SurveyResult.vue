@@ -71,6 +71,7 @@
 
     <default-dialog v-model="dialogs.showDefaultDialog.isVisible" :message="dialogs.showDefaultDialog.message" @confirm="dialogs.showDefaultDialog.isVisible = false" />
     <default-dialog v-model="dialogs.showSuccessRemoveDialog.isVisible" :message="dialogs.showSuccessRemoveDialog.message" @confirm="deleteConfirm" :isPersistent="true"/>
+    <default-dialog v-model="dialogs.showSuccessCloseDialog.isVisible" :message="dialogs.showSuccessCloseDialog.message" @confirm="closeConfirm" :isPersistent="true"/>
 
     <share-survey-dialog v-model="dialogs.showShareDialog.isVisible" :surveyId="decrypt(props.id)" @confirm="showDialog(dialogs.showDefaultDialog, '이메일 전송이 완료되었습니다.')" />
 </template>
@@ -110,6 +111,10 @@ const dialogs = ref({
         message: ''
     },
     showSuccessRemoveDialog: {
+        isVisible: false,
+        message: '',
+    },
+    showSuccessCloseDialog: {
         isVisible: false,
         message: '',
     },
@@ -186,6 +191,21 @@ function close() {
     isCloseModalVisible.value = true;
 }
 
+function closeConfirm() {
+    dialogs.value.showSuccessCloseDialog.isVisible = false;
+
+    router.go(-1);
+    setTimeout(() => {
+        const currentPath = router.currentRoute.value.path
+        
+        if (currentPath === '/') {
+            router.replace({ path: '/' });
+        } else if (currentPath === '/my') {
+            router.replace({ name: 'My' });
+        }
+    }, 100);
+}
+
 // 설문 종료 api
 async function handleCloseConfirm() {
     try {
@@ -196,8 +216,7 @@ async function handleCloseConfirm() {
                 'Content-Type': 'application/json',
             },
         });
-        isCloseModalVisible.value = false;
-        router.push('/my');
+        showDialog(dialogs.value.showSuccessCloseDialog, "설문이 종료되었습니다.");
     } catch (error) {
         console.error('설문 종료 실패:', error);
         alert('설문 종료 실패')
@@ -217,8 +236,8 @@ function deleteConfirm() {
         
         if (currentPath === '/') {
             router.replace({ path: '/' });
-        } else if (currentPath === '/my-survey') {
-            router.replace({ name: 'MySurvey' });
+        } else if (currentPath === '/my') {
+            router.replace({ name: 'My' });
         }
     }, 100);
 }

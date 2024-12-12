@@ -43,13 +43,14 @@ router.beforeEach((to, from, next) => {
                         window.removeEventListener('beforeunload', handleBeforeUnload);
                     }
 
-                    const confirmationMessage = '정말 나가시겠습니까? 변경사항이 저장되지 않을 수 있습니다.';
+                    console.log(saveStore.isSaved)
                     if (from.name === 'Create' || from.name === 'Update') {
                         if(saveStore.isSaved) {
                             saveStore.resetStatus();
                             next();
                             return;
                         } else {
+                            const confirmationMessage = '정말 나가시겠습니까? 변경사항이 저장되지 않을 수 있습니다.';
                             if (!window.confirm(confirmationMessage)) {
                                 return next(false); // 이동 취소
                             }
