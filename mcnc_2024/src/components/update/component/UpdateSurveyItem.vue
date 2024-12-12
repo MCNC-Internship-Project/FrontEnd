@@ -150,6 +150,7 @@ const getValue = () => {
     // 제목 검사
     if (!surveyTitle.value.trim()) {
         titleError.value = true;
+        surveyTitle.value = "";
         isValid = false;
     }
 
