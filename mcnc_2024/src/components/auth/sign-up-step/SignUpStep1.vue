@@ -66,7 +66,7 @@ const nextStep = () => {
     }
 
     // 아이디 이메일 중복 체크 API 호출
-    axios.post(`/account/join/check`, JSON.stringify(requestBody))
+    axios.post(`/account/join/check`, JSON.stringify(requestBody), { withCredentials: false })
         .then((response) => {
             if (response.data.id == true && response.data.email == true) {
                 showDialog('아이디와 이메일이 이미 사용 중입니다.');

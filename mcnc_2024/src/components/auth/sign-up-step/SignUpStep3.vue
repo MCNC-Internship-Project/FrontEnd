@@ -113,7 +113,7 @@ const goToSignUp = () => {
     };
 
     // 회원가입 API 호출
-    axios.post(`/account/join`, JSON.stringify(requestBody))
+    axios.post(`/account/join`, JSON.stringify(requestBody), { withCredentials: false })
         .then(() => {
             emit("signUp");
         })
