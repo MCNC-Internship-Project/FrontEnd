@@ -43,17 +43,11 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import axios from 'axios';
+import axios from '@/utils/axiosInstance';
 import { useRouter } from 'vue-router';
-import { getCurrentInstance } from "vue";
 import { encrypt } from '@/utils/crypto';
 
-const { appContext } = getCurrentInstance();
-const $axios = appContext.config.globalProperties.$axios;
-
 const router = useRouter();
-
-const baseUrl = process.env.VUE_APP_API_URL;
 
 const searchQuery = ref('');
 const currentPage = ref(0);
@@ -87,11 +81,7 @@ const search = async () => {
         behavior: 'instant'
     });
 
-    axios.get(`${baseUrl}/survey/inquiry/search`, {
-        withCredentials: true,
-        headers: {
-            'Content-Type': 'application/json',
-        },
+    axios.get(`/survey/inquiry/search`, {
         params: {
             title: searchQuery.value,
             page: currentPage.value,
@@ -120,11 +110,7 @@ const search = async () => {
 
 async function api() {
     try {
-        const response = await axios.get(`${baseUrl}/survey/inquiry/search`, {
-            withCredentials: true,
-            headers: {
-                'Content-Type': 'application/json',
-            },
+        const response = await axios.get(`/survey/inquiry/search`, {
             params: {
                 title: searchQuery.value,
                 page: currentPage.value,
@@ -161,7 +147,7 @@ async function load({ done }) {
 }
 
 const goToDetail = (surveyId) => {
-    $axios.get(`/survey/inquiry/detail/${surveyId}`)
+    axios.get(`/survey/inquiry/detail/${surveyId}`)
         .then(() => {
             router.push({
                 name: "Form",

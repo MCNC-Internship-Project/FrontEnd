@@ -165,7 +165,7 @@
 <script setup>
 import { useRouter } from 'vue-router'
 import { ref, nextTick, watch, onMounted, defineProps } from 'vue';
-import axios from 'axios';
+import axios from '@/utils/axiosInstance';
 import dayjs from 'dayjs'
 import { decrypt, encrypt } from '@/utils/crypto';
 import { checkEmptyValues } from '@/utils/checkEmptyValues';
@@ -174,12 +174,10 @@ import TimePickerComponent from './component/TimePickerComponent.vue';
 import { useSaveStatusStore } from '@/stores/saveStatusStore';
 
 const saveStatusStore = useSaveStatusStore();
+const router = useRouter();
 const props = defineProps({
     id: String,
 })
-
-const baseUrl = process.env.VUE_APP_API_URL;
-const router = useRouter();
 
 const totalComponent = ref([]);
 const surveyItems = ref([]);
@@ -239,12 +237,7 @@ let apiResponse = null;
 onMounted(() => {
     surveyId.value = decrypt(props.id);
 
-    axios.get(`${baseUrl}/survey/inquiry/detail/${surveyId.value}`, {
-        withCredentials: true,
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    })
+    axios.get(`/survey/inquiry/detail/${surveyId.value}`)
     .then((response) => {
         if (response.status === 200) {
             apiResponse = response.data;
@@ -489,12 +482,7 @@ const handleSubmit = () => {
 
         jsonData.expireDate = dateTime;
 
-        axios.post(`${baseUrl}/survey/manage/modify`, JSON.stringify(jsonData), {
-            withCredentials: true,
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
+        axios.post(`/survey/manage/modify`, JSON.stringify(jsonData))
         .then(() => {
             saveStatusStore.setSaved();
             showDialog(dialogs.value.showSuccessDialog, "설문조사가 수정되었습니다.");

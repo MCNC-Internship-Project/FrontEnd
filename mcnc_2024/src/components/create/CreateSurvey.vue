@@ -169,7 +169,7 @@
 <script setup>
 import { useRouter } from 'vue-router'
 import { ref, nextTick, watch } from 'vue';
-import axios from 'axios';
+import axios from '@/utils/axiosInstance';
 import dayjs from 'dayjs'
 import { checkEmptyValues } from '@/utils/checkEmptyValues';
 import SurveyItem from './component/SurveyItem.vue';
@@ -177,7 +177,6 @@ import TimePickerComponent from './component/TimePickerComponent.vue';
 import { useSaveStatusStore } from '@/stores/saveStatusStore';
 
 const saveStatusStore = useSaveStatusStore();
-const baseUrl = process.env.VUE_APP_API_URL;
 const router = useRouter();
 const totalComponent = ref([{ id: 0 },]);
 const surveyItems = ref([]);
@@ -432,12 +431,7 @@ const handleSubmit = () => {
 
         jsonData.expireDate = dateTime;
 
-        axios.post(`${baseUrl}/survey/manage/create`, JSON.stringify(jsonData), {
-            withCredentials: true,
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
+        axios.post(`/survey/manage/create`, JSON.stringify(jsonData))
             .then(() => {
                 saveStatusStore.setSaved();
                 showDialog(dialogs.value.showSuccessDialog, "설문이 성공적으로 생성되었습니다!");

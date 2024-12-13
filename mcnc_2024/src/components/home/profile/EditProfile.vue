@@ -66,11 +66,10 @@
 <script setup>
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import axios from 'axios';
+import axios from '@/utils/axiosInstance';
 import dayjs from 'dayjs';
 import { encrypt, decrypt } from '@/utils/crypto';
 
-const baseUrl = process.env.VUE_APP_API_URL;
 const router = useRouter();
 
 const dialogs = ref({
@@ -144,12 +143,7 @@ const editProfile = () => {
         email: encrypt(profileData.value.email)
     }
 
-    axios.post(`${baseUrl}/account/modify/profile`, JSON.stringify(requestBody), {
-        withCredentials: true,
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    })
+    axios.post(`/account/modify/profile`, JSON.stringify(requestBody))
         .then(() => {
             showDialog(dialogs.value.defaultDialogSuccess, "프로필 수정이 완료되었습니다.");
         })
@@ -173,12 +167,7 @@ const goLogin = () => {
 }
 
 onMounted(() => {
-    axios.get(`${baseUrl}/account/profile`, {
-        withCredentials: true,
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    })
+    axios.get(`/account/profile`)
         .then((response) => {
             const data = response.data;
 
