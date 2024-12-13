@@ -7,7 +7,7 @@
                     <h1 class="survey-title">{{ survey.title }}</h1>
                     <p class="survey-description">{{ survey.description }}</p>
                 </div>
-                <p class="survey-period">{{ formatDate(survey.startDate) }} ~ {{ formatDate(survey.endDate) }}</p>
+                <p class="survey-period">설문기간 &nbsp; {{ formatDate(survey.startDate) }} ~ {{ formatDate(survey.endDate) }}</p>
             </div>
 
             <div class="survey-item-container">
@@ -19,17 +19,19 @@
                             <div class="answer-options">
                                 <label v-for="option in question.selectionList" :key="option.selectionId.sequence"
                                     class="option-container">
-                                    <div>
-                                        <input type="radio" :name="`question-${question.quesId}`"
-                                            :value="option.selectionId.sequence"
-                                            :checked="question.objAnswerList[0] === option.selectionId.sequence"
-                                            disabled />
-                                        {{ option.body }}
+                                    <div class="option-section">
+                                        <div class="btn-container">
+                                            <input type="radio" :name="`question-${question.quesId}`"
+                                                :value="option.selectionId.sequence"
+                                                :checked="question.objAnswerList[0] === option.selectionId.sequence"
+                                                disabled />
+                                        </div>
+                                        <div class="question-text">{{ option.body }}</div>
                                     </div>
 
                                     <div class="answer-text"
                                         v-if="option.isEtc && question.objAnswerList.includes(option.selectionId.sequence)">
-                                        <div class="etc-answer">{{question.etcAnswer}}</div>
+                                        {{ question.etcAnswer }}
                                     </div>
 
                                 </label>
@@ -41,16 +43,18 @@
                             <div class="answer-options">
                                 <label v-for="option in question.selectionList" :key="option.selectionId.sequence"
                                     class="option-container">
-                                    <div>
-                                        <input type="checkbox" :value="option.selectionId.sequence"
-                                            :checked="userAnswers[question.quesId]?.includes(option.selectionId.sequence)"
-                                            disabled />
-                                        {{ option.body }}
+                                    <div class="option-section">
+                                        <div class="btn-container">
+                                            <input type="checkbox" :value="option.selectionId.sequence"
+                                                :checked="userAnswers[question.quesId]?.includes(option.selectionId.sequence)"
+                                                disabled />
+                                        </div>
+                                        <div class="question-text">{{ option.body }}</div>
                                     </div>
 
                                     <div class="answer-text"
                                         v-if="option.isEtc && question.objAnswerList.includes(option.selectionId.sequence)">
-                                        <div class="etc-answer">{{question.etcAnswer}}</div>
+                                        {{ question.etcAnswer }}
                                     </div>
                                 </label>
 
@@ -60,8 +64,7 @@
                         <!-- 주관식 -->
                         <template v-else-if="question.questionType === 'SUBJECTIVE'">
                             <div class="answer-text">
-                                <textarea readonly :value="userAnswers[question.quesId]"
-                                    placeholder="주관식 답변이 없습니다."></textarea>
+                                {{ userAnswers[question.quesId] }}
                             </div>
                         </template>
 
@@ -182,16 +185,17 @@ const formatDate = (dateStr) => {
 .survey-title-section {
     width: 100%;
     background-color: #F8FBFF;
+    border: solid 1px #EFF0F6;
     border-radius: 15px;
     margin-bottom: 20px;
-    padding: 16px;
+    padding: 8px 24px;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
     max-width: 800px;
     min-height: 126px;
     justify-content: space-between;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 1px 3px 1px rgba(0, 0, 0, 0.15);
 }
 
 .survey-title {
@@ -200,9 +204,12 @@ const formatDate = (dateStr) => {
     font-size: 1.25rem;
     font-weight: bold;
     color: #464748;
-    margin-bottom: 4px;
+    margin-top: 12px;
     position: relative;
     display: inline-block;
+    white-space: pre-wrap; /* 줄바꿈 허용 */
+    word-break: break-word; /* 긴 단어 줄바꿈 */
+    overflow-wrap: break-word; /* 줄바꿈 처리 */
 }
 
 .underline {
@@ -215,16 +222,21 @@ const formatDate = (dateStr) => {
 }
 
 .survey-description {
+    margin-top: 12px;
     font-size: 1rem;
     font-weight: bold;
-    color: #C1C3C5;
-    margin-bottom: 12px;
+    color: #868686;
+    white-space: pre-wrap; /* 줄바꿈 허용 */
+    word-break: break-word; /* 긴 단어 줄바꿈 */
+    overflow-wrap: break-word; /* 줄바꿈 처리 */
 }
 
 .survey-period {
+    margin-top: 25px;
     font-size: 0.75rem;
     font-weight: bold;
     color: #8c8c8c;
+    margin-bottom: 12px;
 }
 
 .survey-item-container {
@@ -238,17 +250,20 @@ const formatDate = (dateStr) => {
     padding: 16px;
     border: solid 1px #eff0f6;
     border-radius: 15px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 1px 3px 1px rgba(0, 0, 0, 0.15);
 }
 
 .question-title {
     font-size: 1rem;
     font-weight: bold;
-    color: #8C8C8C;
+    color: #2c2b2b;
     margin-bottom: 8px;
     background-color: white;
     padding: 8px 12px;
     border-radius: 8px;
+    white-space: pre-wrap; /* 줄바꿈 허용 */
+    word-break: break-word; /* 긴 단어 줄바꿈 */
+    overflow-wrap: break-word; /* 줄바꿈 처리 */
 }
 
 .answer-options {
@@ -258,11 +273,7 @@ const formatDate = (dateStr) => {
 .answer-options label {
     font-size: 0.875rem;
     color: #464748;
-    display: flex;
-    gap: 10px;
     margin-bottom: 12px;
-    padding-left: 12px;
-    padding-right: 12px;
 }
 
 .answer-options label:hover {
@@ -275,16 +286,17 @@ input[type="radio"] {
     -webkit-appearance: none;
     width: 16px;
     height: 16px;
-    border: 1px solid #8C8C8C;
+    border: 2px solid #8C8C8C;
     border-radius: 50%;
     outline: none;
     margin-right: 8px;
     position: relative;
+    vertical-align: middle;
 }
 
 input[type="radio"]:checked {
     background-color: white;
-    border: 1px solid #8C8C8C;
+    border: 2px solid #8C8C8C;
     width: 16px;
     height: 16px;
 }
@@ -307,15 +319,17 @@ input[type="checkbox"] {
     -webkit-appearance: none;
     width: 16px;
     height: 16px;
-    border: 1px solid #8C8C8C;
+    border: 2px solid #8C8C8C;
     border-radius: 3px;
     outline: none;
     margin-right: 8px;
     position: relative;
+    vertical-align: middle;
 }
 
 input[type="checkbox"]:checked {
     background-color: #374957;
+    border: 1px solid #374957;
 }
 
 input[type="checkbox"]:checked::after {
@@ -354,17 +368,39 @@ textarea::-webkit-scrollbar {
 }
 
 .option-container {
-    display: flex;
-    flex-direction: column;
-    justify-content: start;
     width: 100%;
 }
 
-.etc-answer{
+.option-section {
+    display : flex;
+    margin-bottom : 8px;
+}
+
+.btn-container {
+    display: flex;
+    align-items: center;
+}
+
+.etc-answer {
+    width: 100%;
+    min-height: 80px;
+    height: auto;
+    resize: none;
     background-color: white;
     border: 1px solid #D9D9D9;
     border-radius: 8px;
     padding: 10px;
-    width: 100%;
+    box-sizing: border-box;
+    white-space: pre-wrap;
+    word-break: break-word;
+    overflow-wrap: break-word;
+}
+
+.answer-text {
+    background-color: #fff;
+    border-radius: 8px;
+    border : solid 1px #d9d9d9;
+    padding : 8px 12px;
+    font-size: 0.875rem;
 }
 </style>
