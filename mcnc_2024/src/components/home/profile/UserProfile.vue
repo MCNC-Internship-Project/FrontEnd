@@ -45,10 +45,9 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import axios from 'axios';
+import axios from '@/utils/axiosInstance';
 import { decrypt } from '@/utils/crypto';
 
-const baseUrl = process.env.VUE_APP_API_URL;
 const router = useRouter();
 
 const dialogMessage = ref("");
@@ -79,12 +78,7 @@ const onItemClick = (item) => {
             router.push({path : "/respond"});
             break;
         case '로그아웃':
-            axios.post(`${baseUrl}/auth/logout`, null, {
-                withCredentials: true,
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            })
+            axios.post(`/auth/logout`, null)
             .then((response) => {
                 if (response.status === 200) {
                     sessionStorage.setItem(btoa('isLoggedIn'), btoa(false));
@@ -106,12 +100,7 @@ const showErrorDialog = (message) => {
 }
 
 onMounted(() => {
-    axios.get(`${baseUrl}/account/profile`, {
-        withCredentials: true,
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    })
+    axios.get(`/account/profile`)
     .then((response) => {
         name.value = response.data.name;
         email.value = decrypt(response.data.email);
