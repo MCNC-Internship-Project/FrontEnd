@@ -108,6 +108,7 @@ const nextStep = () => {
         })
         .catch((error) => {
             if (error?.response?.data?.errorMessage) {
+                isCodeError.value = true;
                 showDialog('defaultDialog', error.response.data.errorMessage);
             } else {
                 showDialog('defaultDialog', "오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
