@@ -51,11 +51,10 @@
 <script setup>
 import { ref, defineEmits, watch } from 'vue'
 import { useSignUpStore } from '@/stores/SignUpStore';
-import axios from 'axios';
-import dayjs from 'dayjs'
 import { encrypt } from '@/utils/crypto';
+import axios from '@/utils/axiosInstance';
+import dayjs from 'dayjs'
 
-const baseUrl = process.env.VUE_APP_API_URL;
 const store = useSignUpStore();
 
 const birth = ref(store.birth);
@@ -114,16 +113,16 @@ const goToSignUp = () => {
     };
 
     // 회원가입 API 호출
-    axios.post(`${baseUrl}/account/join`, JSON.stringify(requestBody), {
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    })
+    axios.post(`/account/join`, JSON.stringify(requestBody), { withCredentials: false })
         .then(() => {
             emit("signUp");
         })
         .catch((error) => {
-            showDialog(error.response.data.errorMessage);
+            if (error?.response?.data?.errorMessage) {
+                showDialog(error.response.data.errorMessage);
+            } else {
+                showDialog("오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+            }
         });
 }
 

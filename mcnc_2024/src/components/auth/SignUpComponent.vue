@@ -30,13 +30,12 @@
 import { ref, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useSignUpStore } from '@/stores/SignUpStore';
-import axios from 'axios';
+import { encrypt } from '@/utils/crypto';
+import axios from '@/utils/axiosInstance';
 import SignUpStep1 from './sign-up-step/SignUpStep1.vue';
 import SignUpStep2 from './sign-up-step/SignUpStep2.vue';
 import SignUpStep3 from './sign-up-step/SignUpStep3.vue';
-import { encrypt } from '@/utils/crypto';
 
-const baseUrl = process.env.VUE_APP_API_URL;
 const store = useSignUpStore(); // pinia store - 회원가입 정보 임시 저장
 const router = useRouter();
 
@@ -75,12 +74,7 @@ const login = () => {
     }
 
     // 로그인 API 호출
-    axios.post(`${baseUrl}/auth/login`, JSON.stringify(requestBody), {
-        withCredentials: true,
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    })
+    axios.post(`/auth/login`, JSON.stringify(requestBody))
         .then(() => {
             sessionStorage.setItem(btoa('isLoggedIn'), btoa(true));
             // 로그인 성공 시 홈으로 이동

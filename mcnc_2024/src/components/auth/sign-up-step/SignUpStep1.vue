@@ -15,9 +15,8 @@
 <script setup>
 import { ref } from 'vue'
 import { useSignUpStore } from '@/stores/SignUpStore';
-import axios from 'axios';
+import axios from '@/utils/axiosInstance';
 
-const baseUrl = process.env.VUE_APP_API_URL;
 const store = useSignUpStore();
 
 const userId = ref(store.userId);
@@ -67,11 +66,7 @@ const nextStep = () => {
     }
 
     // 아이디 이메일 중복 체크 API 호출
-    axios.post(`${baseUrl}/account/join/check`, JSON.stringify(requestBody), {
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    })
+    axios.post(`/account/join/check`, JSON.stringify(requestBody), { withCredentials: false })
         .then((response) => {
             if (response.data.id == true && response.data.email == true) {
                 showDialog('아이디와 이메일이 이미 사용 중입니다.');
@@ -93,8 +88,12 @@ const nextStep = () => {
             store.setEmail(email.value);
             store.nextStep();
         })
-        .catch(() => {
-            showDialog("회원가입 중 오류가 발생했습니다.");
+        .catch((error) => {
+            if (error?.response?.data?.errorMessage) {
+                showDialog(error.response.data.errorMessage);
+            } else {
+                showDialog("오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+            }
         });
 }
 </script>

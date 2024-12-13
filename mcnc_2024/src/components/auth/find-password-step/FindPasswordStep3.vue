@@ -25,13 +25,11 @@
 <script setup>
 import { ref, defineEmits, computed } from 'vue'
 import { useFindPasswordStore } from '@/stores/FindPasswordStore';
-import axios from 'axios';
 import { encrypt } from '@/utils/crypto';
-
+import axios from '@/utils/axiosInstance';
 import imgEyeClose from '@/assets/images/icon_eye_close.svg';
 import imgEyeOpen from '@/assets/images/icon_eye_open.svg';
 
-const baseUrl = process.env.VUE_APP_API_URL;
 const store = useFindPasswordStore();
 
 const password = ref("");
@@ -102,16 +100,16 @@ const changePassword = () => {
     }
 
     // 비밀번호 변경 API 호출
-    axios.post(`${baseUrl}/account/modify/password`, JSON.stringify(requestBody), {
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    })
+    axios.post(`/account/modify/password`, JSON.stringify(requestBody))
         .then(() => {
             showDialog('defaultDialog', '비밀번호가 변경되었습니다.');
         })
         .catch((error) => {
-            showDialog('errorDialog', error.response.data.errorMessage);
+            if (error?.response?.data?.errorMessage) {
+                showDialog('errorDialog', error.response.data.errorMessage);
+            } else {
+                showDialog('errorDialog', "오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+            }
         });
 }
 
