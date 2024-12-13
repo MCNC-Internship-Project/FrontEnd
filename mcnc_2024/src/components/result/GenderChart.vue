@@ -82,7 +82,7 @@ function createGenderChart(chartElement, data) {
                         const total = data.reduce((sum, val) => sum + val, 0); // 전체 합계 계산
                         const percentage = ((value / total) * 100).toFixed(1); // 비율 계산 (소수점 1자리)
 
-                        return `${percentage}%`; // 퍼센트 값 출력
+                        return `${value}명 (${percentage}%)`; // 퍼센트 값 출력
                     },
                     display: (context) => context.dataset.data.some((value) => value > 0),
                 },

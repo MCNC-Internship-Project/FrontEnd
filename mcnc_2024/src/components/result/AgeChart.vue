@@ -78,7 +78,7 @@ function createChart(chartElement, ageCountList) {
                         const total = data.reduce((sum, val) => sum + val, 0); // 전체 합계 계산
                         const percentage = ((value / total) * 100).toFixed(1); // 비율 계산 (소수점 1자리)
 
-                        return `${percentage}%`; // 퍼센트 값 출력
+                        return `${value}명 (${percentage}%)`; // 퍼센트 값 출력
                     },
                     color: "#555",
                     font: { size: 12 },
@@ -94,6 +94,10 @@ function createChart(chartElement, ageCountList) {
                 y: {
                     grid: { display: false },
                     ticks: { font: { size: 12 } },
+                    // Y축 레이블 영역의 고정 폭
+                    afterFit: function (scale) {
+                        scale.width = 80; 
+                    },
                 },
             },
         },
@@ -103,7 +107,6 @@ function createChart(chartElement, ageCountList) {
 
 <style scoped>
 .chart-wrapper {
-    display: flex;
     justify-content: center;
     align-items: center;
     width: 100%;
@@ -114,7 +117,7 @@ function createChart(chartElement, ageCountList) {
 
 canvas {
     width: 100%;
-    max-width: 90%;
+    max-width: 95%;
     height: auto;
 }
 </style>

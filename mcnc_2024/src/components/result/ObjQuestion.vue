@@ -48,10 +48,10 @@ function getChartHeight(optionCount) {
     return Math.max(optionCount * baseHeight, minHeight);
 }
 
-// 보기 내용 줄바꿈꿈
+// 보기 내용 줄바꿈
 function wrapText(text, maxLineLength) {
-    const regex = new RegExp(`.{1,${maxLineLength}}`, "g"); 
-    return text.match(regex).join("\n"); 
+    const regex = new RegExp(`.{1,${maxLineLength}}`, "g");
+    return text.match(regex).join("\n");
 }
 
 function createChart(chartElement, question) {
@@ -85,11 +85,11 @@ function createChart(chartElement, question) {
                             return `${value}명`;
                         },
                         title: function (tooltipItems) {
-                            const label = tooltipItems[0].label || ""; // 보기 내용
-                            const maxLineLength = 20; // 한 줄에 표시할 최대 글자 수
+                            const label = tooltipItems[0].label || "";
+                            const maxLineLength = 20;
                             const wrappedLabel = wrapText(label, maxLineLength);
 
-                            return wrappedLabel.split("\n"); 
+                            return wrappedLabel.split("\n");
                         },
                     },
                 },
@@ -100,11 +100,11 @@ function createChart(chartElement, question) {
                         if (value === 0) {
                             return "";
                         }
-                        const data = context.chart.data.datasets[0].data; 
-                        const total = data.reduce((sum, val) => sum + val, 0); 
-                        const percentage = ((value / total) * 100).toFixed(1); 
+                        const data = context.chart.data.datasets[0].data;
+                        const total = data.reduce((sum, val) => sum + val, 0);
+                        const percentage = ((value / total) * 100).toFixed(1);
 
-                        return `${percentage}%`; 
+                        return `${value}명 (${percentage}%)`;
                     },
                     color: "#555",
                     font: {
@@ -121,26 +121,32 @@ function createChart(chartElement, question) {
                         callback: (value) => (Number.isInteger(value) ? value : ""),
                         font: { size: 10 },
                     },
-                    min: 0,
                 },
                 y: {
                     grid: { display: false },
                     ticks: {
-                        autoSkip: false,
+                        autoSkip: false, // 레이블 생략 방지
                         font: { size: 12 },
                         callback: function (value, index) {
                             const label = this.getLabelForValue(index);
-                            if (label.length > 5) {
-                                return label.substring(0, 5) + "..."; // 길이 제한 후 말줄임표 추가
+                            const maxLength = 5; // 최대 글자 길이 제한
+                            if (label.length > maxLength) {
+                                return label.substring(0, maxLength) + "...";
                             }
                             return label;
                         },
                     },
-                    categoryPercentage: 0.8, 
-                    barPercentage: 0.9,
+                    title: {
+                        display: false,
+                    },
+                    // Y축 레이블 영역의 고정 폭
+                    afterFit: function (scale) {
+                        scale.width = 80; 
+                    },
                 },
             },
         },
+
     });
 }
 </script>
@@ -172,7 +178,6 @@ function createChart(chartElement, question) {
 }
 
 .chart-wrapper {
-    display: flex;
     justify-content: center;
     align-items: center;
     width: 100%;
@@ -188,7 +193,7 @@ function createChart(chartElement, question) {
 
 canvas {
     width: 100%;
-    max-width: 90%;
+    max-width: 95%;
     height: auto;
 }
 
@@ -210,11 +215,12 @@ canvas {
 }
 
 .etc-list {
-    max-height: 300px; 
-    overflow-y: auto; 
-    padding: 10px; 
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 10px;
     margin-bottom: 12px;
 }
+
 .etc-list .answer-box:last-child {
     margin-bottom: 0;
 }
