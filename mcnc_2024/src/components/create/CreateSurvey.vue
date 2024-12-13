@@ -525,9 +525,15 @@ const redirectionToMySurvey = () => {
     border: none;
     width: 100%;
     outline: none;
-    color: #464748;
+    color: #000;
     font-weight: bold;
     resize: none; /* 사용자가 크기 조절 못하도록 */
+}
+
+.survey-title:deep(.v-field__input::placeholder) {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #B0B0B0;
 }
 
 :deep(.v-field) {
@@ -557,15 +563,18 @@ const redirectionToMySurvey = () => {
 .survey-description:deep(.v-field) {
     font-size : 1rem;
     font-weight : bold;
-    color: #C1C3C5;
+}
+
+.survey-description:deep(.v-field__input::placeholder) {
+    font-size: 1rem;
+    font-weight: bold;
+    color: #B0B0B0;
 }
 
 .survey-description {
     border: none;
     width: 100%;
     outline: none;
-    font-size: 1rem;
-    color: #C1C3C5;
 }
 
 .select-deadline-section {
