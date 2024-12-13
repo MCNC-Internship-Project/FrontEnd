@@ -510,14 +510,15 @@ onMounted(() => {
             fetchSurveyData(id);
         })
         .catch((error) => {
-            if(error.response.status === 400) {
+            console.error(error)
+            if(error.status === 400) {
                 //
-            } else if(error.response.status === 409) {
+            } else if(error.status === 409) {
                 router.push({
                     name: "RespondDetail",
                     params: { id: encrypt(id) }
                 })
-            } else if(error.response.status === 410) {
+            } else if(error.status === 410) {
                 // 종료창으로
             }
         })

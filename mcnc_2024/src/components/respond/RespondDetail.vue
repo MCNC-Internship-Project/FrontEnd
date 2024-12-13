@@ -19,13 +19,15 @@
                             <div class="answer-options">
                                 <label v-for="option in question.selectionList" :key="option.selectionId.sequence"
                                     class="option-container">
-                                    <div class="btn-container">
-                                        <input type="radio" :name="`question-${question.quesId}`"
-                                            :value="option.selectionId.sequence"
-                                            :checked="question.objAnswerList[0] === option.selectionId.sequence"
-                                            disabled />
+                                    <div class="option-section">
+                                        <div class="btn-container">
+                                            <input type="radio" :name="`question-${question.quesId}`"
+                                                :value="option.selectionId.sequence"
+                                                :checked="question.objAnswerList[0] === option.selectionId.sequence"
+                                                disabled />
+                                        </div>
+                                        <div class="question-text">{{ option.body }}</div>
                                     </div>
-                                    <div class="question-text">{{ option.body }}</div>
 
                                     <div class="answer-text"
                                         v-if="option.isEtc && question.objAnswerList.includes(option.selectionId.sequence)">
@@ -41,12 +43,14 @@
                             <div class="answer-options">
                                 <label v-for="option in question.selectionList" :key="option.selectionId.sequence"
                                     class="option-container">
-                                    <div class="btn-container">
-                                        <input type="checkbox" :value="option.selectionId.sequence"
-                                            :checked="userAnswers[question.quesId]?.includes(option.selectionId.sequence)"
-                                            disabled />
+                                    <div class="option-section">
+                                        <div class="btn-container">
+                                            <input type="checkbox" :value="option.selectionId.sequence"
+                                                :checked="userAnswers[question.quesId]?.includes(option.selectionId.sequence)"
+                                                disabled />
+                                        </div>
+                                        <div class="question-text">{{ option.body }}</div>
                                     </div>
-                                    <div class="question-text">{{ option.body }}</div>
 
                                     <div class="answer-text"
                                         v-if="option.isEtc && question.objAnswerList.includes(option.selectionId.sequence)">
@@ -364,9 +368,12 @@ textarea::-webkit-scrollbar {
 }
 
 .option-container {
-    display: flex;
-    flex-direction: row;
     width: 100%;
+}
+
+.option-section {
+    display : flex;
+    margin-bottom : 8px;
 }
 
 .btn-container {
@@ -392,6 +399,7 @@ textarea::-webkit-scrollbar {
 .answer-text {
     background-color: #fff;
     border-radius: 8px;
+    border : solid 1px #d9d9d9;
     padding : 8px 12px;
     font-size: 0.875rem;
 }
