@@ -153,7 +153,11 @@ const editProfile = () => {
                 return;
             }
 
-            showDialog(dialogs.value.defaultDialog, error.response.data.errorMessage);
+            if (error?.response?.data?.errorMessage) {
+                showDialog(dialogs.value.defaultDialog, error.response.data.errorMessage);
+            } else {
+                showDialog(dialogs.value.defaultDialog, "오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+            }
         });
 }
 
