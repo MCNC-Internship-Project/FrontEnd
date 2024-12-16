@@ -124,7 +124,7 @@ function createNoResponseChart(chartElement) {
                 datalabels: {
                     anchor: "center",
                     align: "center",
-                    formatter: () => "0%",
+                    formatter: () => "0명 (0.0%)",
                 },
                 tooltip: {
                     callbacks: {
