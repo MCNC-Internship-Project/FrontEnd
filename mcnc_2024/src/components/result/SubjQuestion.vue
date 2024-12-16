@@ -35,11 +35,12 @@ defineProps({
 .question-title {
     font-size: 1rem;
     font-weight: bold;
-    color: #8C8C8C;
+    color: #2C2B2B;
     margin-bottom: 8px;
     background-color: #FFFFFF;
     padding: 8px 12px;
     border-radius: 8px;
+    white-space: pre-wrap;
 }
 
 .answer-box {
