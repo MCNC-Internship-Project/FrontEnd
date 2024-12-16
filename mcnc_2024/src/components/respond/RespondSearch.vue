@@ -3,7 +3,7 @@
         <div class="background"></div>
         <ToolBar @goBack="goBack" backgroundColor="#FFFFFF" zIndex="1000">
             <div class="search-container">
-                <input type="text" class="search-input" placeholder="설문 제목을 검색해보세요." v-model="searchQuery"
+                <input type="text" class="search-input" placeholder="설문 제목을 검색해보세요." v-model.trim="searchQuery"
                     @keyup.enter="searchSurvey" maxlength="255" v-focus />
                 <img class="search-icon" src="@/assets/images/icon_search_btn.svg" alt="dropdown icon" @click="searchSurvey"/>
             </div>
@@ -43,7 +43,7 @@ onMounted(() => {
 });
 
 async function searchSurvey() {
-    if (!searchQuery.value.trim()) {
+    if (!searchQuery.value) {
         return;
     }
     isFirstLoad.value = false;
