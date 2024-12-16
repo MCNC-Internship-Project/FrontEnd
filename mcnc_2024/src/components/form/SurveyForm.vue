@@ -47,8 +47,12 @@
                                         placeholder="기타 내용을 입력하세요."
                                         :class="{ error: question.hasEtcError }"
                                         maxlength="2000"
-                                        @focus="question.hasEtcError = false; question.hasError = false"
-                                        @input="handleEtcInputChange(question.quesId, option.selectionId.sequence)"
+                                         @input="(event) => {
+                                            autoResize(event.target)
+                                            handleEtcInputChange(question.quesId, option.selectionId.sequence, event.target.value)
+                                         }
+                                         "
+                                         @focus="question.hasEtcError = false; question.hasError = false"
                                         ></textarea>
                                         <p class="char-counter">{{ question.etcAnswer.length }}/2000</p>
                                     </template>
@@ -80,7 +84,10 @@
                                         :class="{ error: question.hasEtcError }"
                                         placeholder="기타 내용을 입력하세요."
                                         maxlength="2000"
-                                        @input="handleEtcInputChange(question.quesId, option.selectionId.sequence)"
+                                        @input="(event) => {
+                                            autoResize(event.target)
+                                            handleEtcInputChange(question.quesId, option.selectionId.sequence, event.target.value)
+                                        }"
                                         @focus="question.hasEtcError = false; question.hasError = false"
                                     ></textarea>
                                     <p class="char-counter">{{ question.etcAnswer.length }}/2000</p>
@@ -90,11 +97,12 @@
                         <!-- 주관식 -->
                         <div v-if="question.questionType === 'SUBJECTIVE'" class="answer-options">
                             <textarea v-model="answers[question.quesId]" :placeholder="'답변을 입력해주세요.'"
-                                :class="{ 'error-placeholder': question.hasError }" ref="textAreaRef"
+                                :class="{ 'error-placeholder': question.hasError }" ref="textAreaRefs"
                                     maxlength="2000"
                                     @input="(event) => {
-                                    if (textAreaRef.value) autoResize();
-                                    handleTextInputChange(question.quesId);}"
+                                        autoResize(event.target);
+                                        handleTextInputChange(question.quesId, event.target.value);
+                                    }"
                                     @focus="question.hasEtcError = false; question.hasError = false"
                                     ></textarea>
                                     <p class="char-counter">{{ answers[question.quesId]?.length || 0 }}/2000</p>
@@ -104,7 +112,7 @@
                 <!-- 메뉴 컨테이너를 section 외부로 이동 -->
             <div class="menu-container">
                 <!-- 제출 버튼 비활성화 -->
-                <button class="submit-btn" @click="submitSurvey">제출</button>
+                <button class="submit-btn" @click="submitSurvey" v-ripple>제출</button>
             </div>
             </div>
 
@@ -165,7 +173,7 @@ const goBack = () => {
 };
 
 // 텍스트 영역 참조
-const textAreaRef = ref(null);
+const textAreaRefs = ref([]);
 
 // 설문 만료 여부 확인
 const isSurveyExpired = computed(() => {
@@ -175,11 +183,9 @@ const isSurveyExpired = computed(() => {
 });
 
 // 자동 크기 조정 함수
-const autoResize = () => {
-    if (textAreaRef.value) {
-        textAreaRef.value.style.height = "auto"; // 높이를 auto로 리셋
-        textAreaRef.value.style.height = `${textAreaRef.value.scrollHeight}px`; // scrollHeight로 높이 설정
-    }
+const autoResize = (textarea) => {
+    textarea.style.height = 'auto';
+    textarea.style.height = `${textarea.scrollHeight}px`;
 };
 
 // 설문 데이터 불러오기
@@ -303,8 +309,8 @@ const handleRadioChange = (quesId, sequence) => {
 
 
 // 주관식 입력 변경 처리
-const handleTextInputChange = (quesId) => {
-    const inputText = answers.value[quesId];
+const handleTextInputChange = (quesId, inputText) => {
+
     answers.value[quesId] = inputText || "";
 
     // 주관식 입력을 변경할 때 에러 상태를 없앰
@@ -334,7 +340,7 @@ const submitSurvey = async () => {
             etcAnswer = "";
         }
 
-        if(answer === undefined) {
+        if(answer === undefined || answer === null) {
             answer = "";
         }
 
@@ -480,9 +486,11 @@ const toggleEtcCheckbox = (quesId) => {
     }
 };
 
-const handleEtcInputChange = (quesId, sequence) => {
+const handleEtcInputChange = (quesId, sequence, inputText) => {
     const question = survey.value.questionList.find((q) => q.quesId === quesId);
     if (question) {
+        question.etcAnswer = inputText || "";
+
         if (question.questionType === 'OBJ_SINGLE') {
             answers.value[quesId] = sequence;
         } else if (question.questionType === 'OBJ_MULTI') {
@@ -543,6 +551,7 @@ onMounted(() => {
     height: 36px;
     border: none;
     border-radius: 8px;
+    box-shadow: 0 1px 3px 1px rgba(0, 0, 0, 0.15);
     background-color: #7796E8;
     color: white;
     font-size: 0.8125rem;
@@ -678,19 +687,6 @@ onMounted(() => {
     flex-direction: column;
 }
 
-textarea {
-    width: 100%;
-    min-height: 80px;
-    height: auto;
-    resize: none;
-    background-color: white;
-    border: 1px solid #d9d9d9;
-    border-radius: 8px;
-    padding: 10px;
-    box-sizing: border-box;
-    margin-top : 4px;
-}
-
 textarea::-webkit-scrollbar {
     width: 0px;
 }
@@ -744,19 +740,16 @@ textarea::-webkit-scrollbar {
 }
 
 .answer-options textarea {
-    display: block;
     width: 100%;
-    min-height: 80px;
     height: auto;
-    resize: vertical;
+    resize: none;
+    outline : none;
     background-color: white;
-    border: 1px solid #d9d9d9;
+    border: none;
     border-radius: 8px;
     padding: 10px;
     box-sizing: border-box;
-    font-size: 0.875rem;
-    color: #464748;
-    outline: none;
+    margin-top : 4px;
     white-space: pre-wrap;
     overflow-wrap: break-word;
     word-break: break-word;

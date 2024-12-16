@@ -30,7 +30,7 @@
                                     </div>
 
                                     <div class="answer-text"
-                                        v-if="option.isEtc && question.objAnswerList.includes(option.selectionId.sequence)">
+                                        v-if="option.isEtc && question.objAnswerList.includes(option.selectionId.sequence)" style="white-space: pre-wrap;">
                                         {{ question.etcAnswer }}
                                     </div>
 
@@ -63,7 +63,7 @@
 
                         <!-- 주관식 -->
                         <template v-else-if="question.questionType === 'SUBJECTIVE'">
-                            <div class="answer-text">
+                            <div class="answer-text" style="white-space: pre-wrap;">
                                 {{ userAnswers[question.quesId] }}
                             </div>
                         </template>
@@ -396,5 +396,6 @@ textarea::-webkit-scrollbar {
     border : solid 1px #d9d9d9;
     padding : 8px 12px;
     font-size: 0.875rem;
+    white-space: pre-wrap;
 }
 </style>

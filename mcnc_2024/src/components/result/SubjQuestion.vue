@@ -7,7 +7,7 @@
             </div>
         </div>
         <div v-else class="no-answer-box">
-            아직 등록된 답변이 없습니다
+            아직 등록된 답변이 없습니다!
         </div>
     </div>
 </template>
@@ -35,20 +35,22 @@ defineProps({
 .question-title {
     font-size: 1rem;
     font-weight: bold;
-    color: #8C8C8C;
+    color: #2C2B2B;
     margin-bottom: 8px;
     background-color: #FFFFFF;
     padding: 8px 12px;
     border-radius: 8px;
+    white-space: pre-wrap;
 }
 
 .answer-box {
-  padding: 12px;
-  margin-bottom: 8px;
-  border: 1px solid #D9D9D9;
-  border-radius: 8px;
-  background-color: #FFFFFF;
-  font-size: 0.875rem;
+    padding: 12px;
+    margin-bottom: 8px;
+    border: 1px solid #D9D9D9;
+    border-radius: 8px;
+    background-color: #FFFFFF;
+    font-size: 0.875rem;
+    white-space: pre-wrap;
 }
 
 .no-answer-box {
