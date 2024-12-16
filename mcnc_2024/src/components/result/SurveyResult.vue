@@ -379,7 +379,7 @@ async function downloadExcel() {
                             answerIndex === 0 ? question.body : '',
                             '',
                             answer,
-                            data.responseCount,
+                            question.subjAnswerList.length,
                         ]);
                     });
                 } else {
@@ -518,14 +518,16 @@ function formatPeriod(startDate, endDate) {
     text-underline-position: under;
     margin: 12px 16px 0px;
     word-break: break-all;
+    white-space: pre-wrap;
 }
 
 .description {
     font-size: 1rem;
-    color: #C1C3C5;
+    color: #868686;
     margin: 12px 16px 0px;
     font-weight: bold;
     word-break: break-all;
+    white-space: pre-wrap;
 }
 
 .period {
@@ -577,7 +579,7 @@ function formatPeriod(startDate, endDate) {
 }
 
 .text {
-    color: #8C8C8C;
+    color: #2C2B2B;
     font-weight: bold;
     font-size: 1rem;
     padding-left: 4px;
