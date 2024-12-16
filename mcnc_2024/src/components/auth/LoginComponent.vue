@@ -6,10 +6,10 @@
         </div>
 
         <form class="form-container" @submit.prevent="login">
-            <input v-model="userId" type="text" class="form-input" :class="{ 'error': isUserIdError }" placeholder="아이디"
+            <input v-model.trim="userId" type="text" class="form-input" :class="{ 'error': isUserIdError }" placeholder="아이디"
                 maxlength="20" @focus="isUserIdError = false">
             <div class="form-password-container" :class="{ 'error': isPasswordError }">
-                <input v-model="password" :type="passwordInputType" class="form-input-password" placeholder="비밀번호"
+                <input v-model.trim="password" :type="passwordInputType" class="form-input-password" placeholder="비밀번호"
                     maxlength="100" @focus="isPasswordError = false">
                 <img class="form-input-password-icon" :src="passwordIcon" @click="changePasswordInputType" />
             </div>
@@ -62,13 +62,13 @@ const passwordIcon = computed(() => {
 });
 
 const login = () => {
-    if (userId.value.trim() === "") {
+    if (!userId.value) {
         isUserIdError.value = true;
         showDialog("아이디를 입력해주세요.");
         return;
     }
 
-    if (password.value.trim() === "") {
+    if (!password.value) {
         isPasswordError.value = true;
         showDialog("비밀번호를 입력해주세요.");
         return;

@@ -2,13 +2,13 @@
     <div class="root-container">
         <form class="form-container" novalidate @submit.prevent="changePassword">
             <div class="password-container" :class="{ 'error': isPasswordError }">
-                <input v-model="password" :type="passwordInputType" class="form-input-password" placeholder="비밀번호"
+                <input v-model.trim="password" :type="passwordInputType" class="form-input-password" placeholder="비밀번호"
                     autocomplete="new-password" maxlength="100" @focus="isPasswordError = false">
                 <img class="form-input-icon" :src="passwordIcon" @click="changePasswordInputType" />
             </div>
 
             <div class="password-container" :class="{ 'error': isPasswordConfirmError }">
-                <input v-model="passwordConfirm" :type="passwordConfirmInputType" class="form-input-password" placeholder="비밀번호 확인" 
+                <input v-model.trim="passwordConfirm" :type="passwordConfirmInputType" class="form-input-password" placeholder="비밀번호 확인" 
                     autocomplete="new-password" maxlength="100" @focus="isPasswordConfirmError = false">
                 <img class="form-input-icon" :src="passwordConfirmIcon" @click="changePasswordConfirmInputType" />
             </div>
@@ -76,7 +76,7 @@ const showDialog = (type, message) => {
 }
 
 const changePassword = () => {
-    if (!password.value || password.value.trim() === "") {
+    if (!password.value) {
         isPasswordError.value = true;
         showDialog('errorDialog', '비밀번호를 입력해주세요.');
         return;
