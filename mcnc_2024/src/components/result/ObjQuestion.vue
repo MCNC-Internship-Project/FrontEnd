@@ -48,7 +48,7 @@ function getChartHeight(optionCount) {
     return Math.max(optionCount * baseHeight, minHeight);
 }
 
-// 보기 내용 줄바꿈
+// tooltip 줄바꿈
 function wrapText(text, maxLineLength) {
     const regex = new RegExp(`.{1,${maxLineLength}}`, "g");
     return text.match(regex).join("\n");
@@ -73,6 +73,10 @@ function createChart(chartElement, question) {
 
         },
         options: {
+            interaction: {
+                mode: 'y',
+                intersect: false,
+            },
             indexAxis: 'y',
             plugins: {
                 legend: {
@@ -141,7 +145,7 @@ function createChart(chartElement, question) {
                     },
                     // Y축 레이블 영역의 고정 폭
                     afterFit: function (scale) {
-                        scale.width = 80; 
+                        scale.width = 80;
                     },
                 },
             },
@@ -169,12 +173,13 @@ function createChart(chartElement, question) {
 .question-title {
     font-size: 1rem;
     font-weight: bold;
-    color: #8C8C8C;
+    color: #2C2B2B;
     margin-bottom: 12px;
     background-color: #FFF;
     padding: 8px 12px;
     border-radius: 8px;
     border: 1px solid #EFF0F6;
+    white-space: pre-wrap;
 }
 
 .chart-wrapper {
