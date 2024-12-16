@@ -262,6 +262,7 @@ const formatDate = (dateStr) => {
 
 .answer-options {
     margin-top: 18px;
+    margin-left: 8px;
 }
 
 .answer-options label {
