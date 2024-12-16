@@ -2,13 +2,13 @@
     <div class="root-container">
         <form class="form-container" novalidate @submit.prevent="changePassword">
             <div class="password-container" :class="{ 'error': isPasswordError }">
-                <input v-model="password" :type="passwordInputType" class="form-input-password" placeholder="비밀번호"
+                <input v-model.trim="password" :type="passwordInputType" class="form-input-password" placeholder="비밀번호"
                     autocomplete="new-password" maxlength="100" @focus="isPasswordError = false">
                 <img class="form-input-icon" :src="passwordIcon" @click="changePasswordInputType" />
             </div>
 
             <div class="password-container" :class="{ 'error': isPasswordConfirmError }">
-                <input v-model="passwordConfirm" :type="passwordConfirmInputType" class="form-input-password" placeholder="비밀번호 확인" 
+                <input v-model.trim="passwordConfirm" :type="passwordConfirmInputType" class="form-input-password" placeholder="비밀번호 확인" 
                     autocomplete="new-password" maxlength="100" @focus="isPasswordConfirmError = false">
                 <img class="form-input-icon" :src="passwordConfirmIcon" @click="changePasswordConfirmInputType" />
             </div>
@@ -25,13 +25,11 @@
 <script setup>
 import { ref, defineEmits, computed } from 'vue'
 import { useFindPasswordStore } from '@/stores/FindPasswordStore';
-import axios from 'axios';
 import { encrypt } from '@/utils/crypto';
-
+import axios from '@/utils/axiosInstance';
 import imgEyeClose from '@/assets/images/icon_eye_close.svg';
 import imgEyeOpen from '@/assets/images/icon_eye_open.svg';
 
-const baseUrl = process.env.VUE_APP_API_URL;
 const store = useFindPasswordStore();
 
 const password = ref("");
@@ -78,7 +76,7 @@ const showDialog = (type, message) => {
 }
 
 const changePassword = () => {
-    if (!password.value || password.value.trim() === "") {
+    if (!password.value) {
         isPasswordError.value = true;
         showDialog('errorDialog', '비밀번호를 입력해주세요.');
         return;
@@ -102,16 +100,16 @@ const changePassword = () => {
     }
 
     // 비밀번호 변경 API 호출
-    axios.post(`${baseUrl}/account/modify/password`, JSON.stringify(requestBody), {
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    })
+    axios.post(`/account/modify/password`, JSON.stringify(requestBody))
         .then(() => {
             showDialog('defaultDialog', '비밀번호가 변경되었습니다.');
         })
         .catch((error) => {
-            showDialog('errorDialog', error.response.data.errorMessage);
+            if (error?.response?.data?.errorMessage) {
+                showDialog('errorDialog', error.response.data.errorMessage);
+            } else {
+                showDialog('errorDialog', "오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+            }
         });
 }
 

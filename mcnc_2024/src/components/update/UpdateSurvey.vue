@@ -8,7 +8,7 @@
 
         <div class="survey-container">
             <div class="survey-title-section">
-                <div class="input-section" :class="{ 'title-error': titleError }">
+                <div class="input-section">
                         <v-textarea
                             v-model="surveyTitle"
                             class="survey-title"
@@ -165,7 +165,7 @@
 <script setup>
 import { useRouter } from 'vue-router'
 import { ref, nextTick, watch, onMounted, defineProps } from 'vue';
-import axios from 'axios';
+import axios from '@/utils/axiosInstance';
 import dayjs from 'dayjs'
 import { decrypt, encrypt } from '@/utils/crypto';
 import { checkEmptyValues } from '@/utils/checkEmptyValues';
@@ -174,12 +174,10 @@ import TimePickerComponent from './component/TimePickerComponent.vue';
 import { useSaveStatusStore } from '@/stores/saveStatusStore';
 
 const saveStatusStore = useSaveStatusStore();
+const router = useRouter();
 const props = defineProps({
     id: String,
 })
-
-const baseUrl = process.env.VUE_APP_API_URL;
-const router = useRouter();
 
 const totalComponent = ref([]);
 const surveyItems = ref([]);
@@ -239,12 +237,7 @@ let apiResponse = null;
 onMounted(() => {
     surveyId.value = decrypt(props.id);
 
-    axios.get(`${baseUrl}/survey/inquiry/detail/${surveyId.value}`, {
-        withCredentials: true,
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    })
+    axios.get(`/survey/inquiry/detail/${surveyId.value}`)
     .then((response) => {
         if (response.status === 200) {
             apiResponse = response.data;
@@ -366,15 +359,6 @@ watch(isTimeMenuOpen, (isOpen) => {
     }
 });
 
-const scrollToBottom = () => {
-    nextTick(() => {
-        window.scrollTo({
-            top: document.documentElement.scrollHeight,
-            behavior: 'smooth'
-        });
-    });
-};
-
 const addComponent = () => {
     const lastIndex = totalComponent.value.length > 0
         ? totalComponent.value[totalComponent.value.length - 1].id
@@ -399,11 +383,18 @@ const addComponent = () => {
 
     totalComponent.value.push(newObj);
 
-    nextTick(() => {
-        // surveyItems.value = surveyItems.value.slice();
-        scrollToBottom();
-    });
+    // surveyItems.value = surveyItems.value.slice();
+    scrollToBottom();
 }
+
+const scrollToBottom = () => {
+    nextTick(() => {
+        window.scrollTo({
+            top: document.documentElement.scrollHeight,
+            behavior: 'smooth'
+        });
+    });
+};
 
 const removeComponent = (id) => {
     if (totalComponent.value.length === 1)
@@ -489,12 +480,7 @@ const handleSubmit = () => {
 
         jsonData.expireDate = dateTime;
 
-        axios.post(`${baseUrl}/survey/manage/modify`, JSON.stringify(jsonData), {
-            withCredentials: true,
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
+        axios.post(`/survey/manage/modify`, JSON.stringify(jsonData))
         .then(() => {
             saveStatusStore.setSaved();
             showDialog(dialogs.value.showSuccessDialog, "설문조사가 수정되었습니다.");
@@ -585,9 +571,15 @@ const redirectionToMySurvey = () => {
     border: none;
     width: 100%;
     outline: none;
-    color: #464748;
+    color: #000;
     font-weight: bold;
     resize: none; /* 사용자가 크기 조절 못하도록 */
+}
+
+.survey-title:deep(.v-field__input::placeholder) {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #B0B0B0;
 }
 
 :deep(.v-field) {
@@ -595,7 +587,7 @@ const redirectionToMySurvey = () => {
     --v-disabled-opacity: 1 !important;
 }
 
-.title-error:deep(.v-field) {
+.title-error:deep(.v-field__input::placeholder) {
     color : #F77D7D;
 }
 
@@ -617,15 +609,18 @@ const redirectionToMySurvey = () => {
 .survey-description:deep(.v-field) {
     font-size : 1rem;
     font-weight : bold;
-    color: #C1C3C5;
+}
+
+.survey-description:deep(.v-field__input::placeholder) {
+    font-size: 1rem;
+    font-weight: bold;
+    color: #B0B0B0;
 }
 
 .survey-description {
     border: none;
     width: 100%;
     outline: none;
-    font-size: 1rem;
-    color: #C1C3C5;
 }
 
 .select-deadline-section {

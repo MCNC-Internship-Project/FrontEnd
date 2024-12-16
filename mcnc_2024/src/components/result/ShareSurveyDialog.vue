@@ -4,7 +4,7 @@
             <div class="dialog-container">
                 <div class="dialog-title">이메일 초대</div>
                 <input class="dialog-input" :class="{ 'error': isEmailError }" type="email"
-                    placeholder="example@email.com" v-model="email" maxlength="255" @keyup.enter="addEmail(email)"
+                    placeholder="example@email.com" v-model.trim="email" maxlength="255" @keyup.enter="addEmail(email)"
                     @input="isEmailError = false" @click="isEmailError = false" v-focus />
                 <div class="error-message" v-if="isEmailError">{{ errorMessage }}</div>
                 <div class="list-container" v-if="emailList.length > 0">
@@ -42,10 +42,8 @@
 
 <script setup>
 import { defineProps, defineEmits, computed, ref, nextTick, watch } from 'vue';
-import axios from 'axios';
 import { encrypt } from '@/utils/crypto';
-
-const baseUrl = process.env.VUE_APP_API_URL;
+import axios from '@/utils/axiosInstance';
 
 const props = defineProps({
     modelValue: {
@@ -82,24 +80,22 @@ const snackbar = ref(false);
 const addEmail = (inputEmail) => {
     isEmailError.value = false;
 
-    const trimmedEmail = inputEmail.trim();
-
-    if (!trimmedEmail) {
+    if (!inputEmail) {
         showErrorMessage('*이메일을 입력해주세요.');
         return;
     }
 
-    if (!trimmedEmail.match(/^(?=.{1,255}$)[_A-Za-z0-9-+]+(\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\.[A-Za-z0-9]+)*(\.[A-Za-z]{2,})$/)) {
+    if (!inputEmail.match(/^(?=.{1,255}$)[_A-Za-z0-9-+]+(\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\.[A-Za-z0-9]+)*(\.[A-Za-z]{2,})$/)) {
         showErrorMessage('*이메일 형식이 올바르지 않습니다.');
         return;
     }
 
-    if (emailList.value.includes(trimmedEmail)) {
+    if (emailList.value.includes(inputEmail)) {
         showErrorMessage('*이미 추가된 이메일입니다.');
         return;
     }
 
-    emailList.value.push(trimmedEmail);
+    emailList.value.push(inputEmail);
     email.value = '';
 
     scrollToBottom();
@@ -133,12 +129,7 @@ const sendEmail = () => {
 
     isEmailSending.value = true;
 
-    axios.post(`${baseUrl}/mail/send/${props.surveyId}`, JSON.stringify(encryptedEmailList), {
-        withCredentials: true,
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    })
+    axios.post(`/mail/send/${props.surveyId}`, JSON.stringify(encryptedEmailList))
         .then(() => {
             onConfirm();
         })

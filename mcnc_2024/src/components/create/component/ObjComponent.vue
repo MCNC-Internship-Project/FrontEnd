@@ -3,7 +3,7 @@
         <div class="item-container">
             <transition-group name="list" tag="ul" class="survey-list">
                 <li v-for="(item, index) in displayItems" :key="item.id">
-                    <div class="item-selection-container" :class="{ 'error': item.hasError }">
+                    <div class="item-selection-container" :class="{ 'error': item.hasError, 'last-item' : totalItem.length === 100 && index === totalItem.length - 1 }">
                         <v-radio v-if="props.surveyType === 'OBJ_SINGLE'" color="#7796E8" disabled />
                         <v-checkbox-btn v-else color="#7796E8" disabled />
                         <input type="text" v-model="item.value" class="item-input" 
@@ -18,7 +18,7 @@
             </transition-group>
         </div>
 
-        <div class="add-item-container">
+        <div class="add-item-container" v-if="totalItem.length < 100">
             <v-radio v-if="surveyType === 'OBJ_SINGLE'" color="#7796E8" disabled />
             <v-checkbox-btn v-else color="#7796E8" disabled />
             <div class="add-item-option" @click="addItem">항목 추가</div>
@@ -108,6 +108,10 @@ const deleteItem = (id) => {
 }
 
 const addEtcItem = () => {
+    if (totalItem.value.length >= 100) {
+        return;
+    }
+
     if (!isExistEtc.value) {
         isExistEtc.value = true;
         totalItem.value.push({ id: "etcId", value: "기타" });
@@ -234,6 +238,10 @@ defineExpose({
     align-items: center;
     padding-left: 8px;
     margin-bottom: 8px;
+}
+
+.last-item {
+    margin-bottom: 0;
 }
 
 .item-selection-container.error {

@@ -1,17 +1,17 @@
 <template>
-    <div v-if="isExpiredValid">
+    <div v-if="isValid">
         <ToolBar @goBack="goBack" backgroundColor="#fff" zIndex="1000" />
         <div id="survey-participation">
             <div class="survey-section">
                 <div class="survey-title-section">
                     <div>
                         <!-- 제목이 없으면 기본 메시지 표시 -->
-                        <h1 class="survey-title">{{ survey.title }}</h1>
+                        <h1 class="survey-title">{{ survey.title || " " }}</h1>
 
                         <!-- 설명이 없으면 빈칸으로 표시 -->
-                        <p class="survey-description">{{ survey.description || "" }}</p>
+                        <p class="survey-description">{{ survey.description || " " }}</p>
                     </div>
-                    <p class="survey-period">설문기간 &nbsp; {{ formattedDate }}</p>
+                    <p class="survey-period">설문기간 &nbsp; {{ `${dayjs(survey.createDate).format("YYYY.MM.DD")} ~ ${dayjs(survey.expireDate).format("YYYY.MM.DD")}` }}</p>
                 </div>
 
                 <div class="survey-item-container">
@@ -78,6 +78,7 @@
                                 :key="option.selectionId.sequence"  >
                                 <input type="radio" :name="`question_${question.quesId}`" :checked="question.isEtcChecked"
                                     @change="toggleEtcCheckbox(question.quesId)" class="etc-text"/> 기타
+                                    <div class="textarea-container">
                                     <template v-if="question.isEtcChecked">
                                     <textarea
                                         v-model="question.etcAnswer"
@@ -92,6 +93,7 @@
                                     ></textarea>
                                     <p class="char-counter">{{ question.etcAnswer.length }}/2000</p>
                                 </template>
+                            </div>
                             </label>
                         </div>
                         <!-- 주관식 -->
@@ -125,23 +127,26 @@
                 @confirm="dialogs.showDefaultDialog.isVisible = false"/>
         </div>
     </div>
-    <survey-expired v-else />
+    <survey-expired :surveyValues="{title : survey.title, description : survey.description,
+        createDate : survey.createDate, expireDate : survey.expireDate
+    }" v-if="isExpired" />
+
+    <survey-removed v-if="isRemoved"/>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router"; // 라우터 추가
-import axios from "axios";
 import { encrypt, decrypt } from "@/utils/crypto";
+import axios from '@/utils/axiosInstance';
+import dayjs from "dayjs";
 import ToolBar from "../common/ToolBar.vue";
 import SurveyExpired from "./SurveyExpired.vue";
+import SurveyRemoved from "./SurveyRemoved.vue";
 
 // 라우터 사용
 const router = useRouter();
 const route = useRoute(); // 현재 URL 파라미터에서 surveyId 가져오기
-
-// Constants
-const baseUrl = process.env.VUE_APP_API_URL;
 
 // survey 데이터
 const survey = ref({ title: "", description: "", questionList: [] });
@@ -160,7 +165,9 @@ const dialogs = ref({
     },
 })
 
-const isExpiredValid = ref(true);
+const isValid = ref(false);
+const isExpired = ref(false);
+const isRemoved = ref(false);
 
 const showDialog = (dialog, message) => {
     dialog.message = message
@@ -175,13 +182,6 @@ const goBack = () => {
 // 텍스트 영역 참조
 const textAreaRefs = ref([]);
 
-// 설문 만료 여부 확인
-const isSurveyExpired = computed(() => {
-    const now = new Date();
-    const expireDate = new Date(survey.value.expireDate);
-    return expireDate < now;
-});
-
 // 자동 크기 조정 함수
 const autoResize = (textarea) => {
     textarea.style.height = 'auto';
@@ -191,13 +191,10 @@ const autoResize = (textarea) => {
 // 설문 데이터 불러오기
 const fetchSurveyData = async (surveyId) => {
     try {
-        const response = await axios.get(
-            `${baseUrl}/survey/inquiry/detail/${surveyId}`,
-            { withCredentials: true }
-        );
+        const response = await axios.get(`/survey/inquiry/detail/${surveyId}`);
         const data = response.data;
 
-        isExpiredValid.value = data.expireDateValid;
+        data.expireDateValid ? isValid.value = true : isExpired.value = true;
 
         survey.value = {
             title: data.title,
@@ -226,27 +223,7 @@ const fetchSurveyData = async (surveyId) => {
     } catch (error) {
         console.error("설문 데이터를 불러오는 데 오류가 발생했습니다.", error);
     }
-
-    console.log(survey.value)
 };
-
-
-
-// 날짜 포맷팅
-const formattedDate = computed(() => {
-    const startDate = new Date(survey.value.createDate);
-    const endDate = new Date(survey.value.expireDate);
-
-    if (isNaN(startDate) || isNaN(endDate)) {
-        return "날짜가 유효하지 않습니다";
-    }
-
-    const options = { year: "numeric", month: "numeric", day: "numeric" };
-    const formattedStartDate = startDate.toLocaleDateString("ko-KR", options);
-    const formattedEndDate = endDate.toLocaleDateString("ko-KR", options);
-
-    return `${formattedStartDate} ~ ${formattedEndDate}`;
-});
 
 // 체크박스 변경 처리
 const handleCheckboxChange = (quesId, sequence) => {
@@ -285,7 +262,6 @@ const handleRadioChange = (quesId, sequence) => {
     if (question.hasError) {
         question.hasError = false;
     }
-    console.log("question, ", JSON.stringify(question, null, 2))
     if (question) {
         // 기타 항목 체크 상태 초기화
         if (question.isEtcChecked) {
@@ -295,7 +271,6 @@ const handleRadioChange = (quesId, sequence) => {
 
         // 선택된 값 저장
         answers.value[quesId] = sequence; // 선택한 항목의 sequence 저장
-        console.log("Updated answers:", answers.value);
 
          // 기타 항목 체크되었을 경우 내용 입력되지 않으면 오류 표시
          if (question.isEtcChecked && !question.etcAnswer) {
@@ -323,19 +298,12 @@ const handleTextInputChange = (quesId, inputText) => {
 const submitSurvey = async () => {
     const surveyId = decrypt(route.params.id);
 
-    if (isSurveyExpired.value) {
-        console.warn("설문 기간이 만료되었습니다.");
-        return;
-    }
-
     let hasUnanswered = false;
 
     // 응답 검증
     survey.value.questionList.forEach((question) => {
         let answer = answers.value[question.quesId];
         let etcAnswer = etcAnswers.value[question.quesId];
-        console.log(etcAnswer)
-        console.log("answer", answer)
         if(etcAnswer === undefined) {
             etcAnswer = "";
         }
@@ -380,7 +348,6 @@ const submitSurvey = async () => {
             responseList: survey.value.questionList.flatMap((question) => {
                 const response = answers.value[question.quesId];
                 const etcAnswer = etcAnswers.value[question.quesId];
-                console.log("response: ", response)
                 const baseResponse = {
                     quesId: question.quesId,
                     questionType: question.questionType,
@@ -438,12 +405,8 @@ const submitSurvey = async () => {
             }),
         };
 
-        console.log("Submitting payload:", JSON.stringify(payload, null, 2));
-
         // 설문 응답 전송
-        await axios.post(`${baseUrl}/survey/response`, payload, {
-            withCredentials: true,
-        });
+        await axios.post(`/survey/response`, payload);
 
         showDialog(dialogs.value.showSuccessDialog, "제출되었습니다.")
 
@@ -508,26 +471,23 @@ const handleEtcInputChange = (quesId, sequence, inputText) => {
 onMounted(() => {
     const id = decrypt(route.params.id);
 
-    axios.get(`${baseUrl}/survey/response/verify/${id}`,{
-        withCredentials : true,
-        headers: {
-                'Content-Type': 'application/json'
-        }
-    })
+    isValid.value = false;
+    isExpired.value = false;
+    isRemoved.value = false;
+
+    axios.get(`/survey/response/verify/${id}`)
         .then(() => {
             fetchSurveyData(id);
         })
         .catch((error) => {
             console.error(error)
-            if(error.status === 400) {
-                //
+            if(error.status === 400 || error.status === 404) {
+                isRemoved.value = true;
             } else if(error.status === 409) {
-                router.push({
+                router.replace({
                     name: "RespondDetail",
                     params: { id: encrypt(id) }
                 })
-            } else if(error.status === 410) {
-                // 종료창으로
             }
         })
 
@@ -581,6 +541,7 @@ onMounted(() => {
     border-radius: 15px;
     padding: 8px 8px;
     box-sizing: border-box;
+    margin-bottom : 12px;
 }
 
 .survey-title {
@@ -619,7 +580,6 @@ onMounted(() => {
 }
 
 .survey-item-section {
-    margin-top: 12px;
     background-color: #faf8f8;
     margin-bottom: 12px;
     padding: 16px;
@@ -648,6 +608,10 @@ onMounted(() => {
     /* 주관식 입력창의 테두리는 기존 색상 */
 }
 
+.char-counter {
+    padding : 4px 0 0 8px;
+}
+
 .question-title {
     font-size: 1rem;
     font-weight: bold;
@@ -666,13 +630,13 @@ onMounted(() => {
     margin-top: 16px;
     display : flex;
     flex-direction: column;
-    margin-left: 8px;
 }
 
 .answer-options .answer-options-item {
     display : flex;
     flex-direction: row;
     margin-bottom : 8px;
+    margin-left: 8px;
 }
 
 .answer-options-content {
@@ -681,11 +645,13 @@ onMounted(() => {
 
 .etc-text {
     margin-right : 4px;
+    margin-left : 8px;
 }
 
 .textarea-container {
     display : flex;
     flex-direction: column;
+    margin-left : 8px;
 }
 
 textarea::-webkit-scrollbar {

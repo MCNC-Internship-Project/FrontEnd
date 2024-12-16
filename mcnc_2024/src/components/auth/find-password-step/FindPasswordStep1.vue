@@ -1,7 +1,7 @@
 <template>
     <div class="root-container">
         <form class="form-container" novalidate @submit.prevent="nextStep">
-            <input type="text" class="form-input" :class="{ 'error': isUserIdError }" placeholder="아이디" v-model="userId"
+            <input type="text" class="form-input" :class="{ 'error': isUserIdError }" placeholder="아이디" v-model.trim="userId"
                 @focus="isUserIdError = false" maxlength="20" v-focus>
             <button class="form-btn" v-ripple>다음</button>
         </form>
@@ -13,10 +13,9 @@
 <script setup>
 import { ref } from 'vue'
 import { useFindPasswordStore } from '@/stores/FindPasswordStore';
-import axios from 'axios';
 import { decrypt } from '@/utils/crypto';
+import axios from '@/utils/axiosInstance';
 
-const baseUrl = process.env.VUE_APP_API_URL;
 const store = useFindPasswordStore();
 
 const userId = ref("");
@@ -34,18 +33,14 @@ const showDialog = (message) => {
 }
 
 const nextStep = () => {
-    if (!userId.value || userId.value.trim() === "") {
+    if (!userId.value) {
         isUserIdError.value = true;
         showDialog('아이디를 입력해주세요.');
         return;
     }
 
     // 아이디 확인 API 호출
-    axios.get(`${baseUrl}/account/modify/password/email/${userId.value}`, {
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    })
+    axios.get(`/account/modify/password/email/${userId.value}`)
         .then((response) => {
             // store에 아이디 이메일 저장
             store.userId = userId.value;
@@ -53,7 +48,11 @@ const nextStep = () => {
             store.nextStep();
         })
         .catch((error) => {
-            showDialog(error.response.data.errorMessage);
+            if (error?.response?.data?.errorMessage) {
+                showDialog(error.response.data.errorMessage);
+            } else {
+                showDialog("오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+            }
         });
 }
 </script>

@@ -210,14 +210,18 @@ defineExpose({
     border-radius : 12px;
     overflow-wrap: break-word;
     outline: none;
-    font-size: 1rem;
-    color: #464748;
 }
 
 .header-input:deep(.v-field) {
     font-size : 1rem;
     font-weight : bold;
-    color: #8C8C8C;
+    padding : 8px 0;
+}
+
+.header-input:deep(.v-field__input::placeholder) {
+    font-size: 1rem;
+    font-weight: bold;
+    color: #B0B0B0;
 }
 
 .header-input.error {

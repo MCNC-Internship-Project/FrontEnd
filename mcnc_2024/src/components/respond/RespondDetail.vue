@@ -11,7 +11,8 @@
             </div>
 
             <div class="survey-item-container">
-                <div v-for="question in survey.questions" :key="question.quesId" class="survey-item-section">
+                <div v-for="(question, index) in survey.questions" :key="question.quesId" class="survey-item-section"
+                    :class="{'last-item' : index === survey.questions.length - 1}">
                     <div class="question-title">{{ question.body }}</div>
                     <div class="response">
                         <!-- 객관식 단일 선택 (라디오 버튼) -->
@@ -78,13 +79,12 @@
 <script setup>
 import { ref, onMounted, defineProps } from 'vue';
 import { useRouter } from 'vue-router';
-import axios from 'axios';
 import { decrypt } from '@/utils/crypto';
+import axios from '@/utils/axiosInstance';
 import ToolBar from '../common/ToolBar.vue';
 
 
 const router = useRouter();
-const baseUrl = process.env.VUE_APP_API_URL;
 
 // id를 props로 받아옴
 const props = defineProps({
@@ -103,12 +103,7 @@ onMounted(async () => {
 const fetchSurveyResponses = async () => {
     try {
         const decryptedId = decrypt(props.id);
-        const response = await axios.get(`${baseUrl}/survey/response/${decryptedId}`, {
-            withCredentials: true,
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
+        const response = await axios.get(`/survey/response/${decryptedId}`);
         const data = response.data;
 
         // 설문 데이터 매핑
@@ -251,6 +246,10 @@ const formatDate = (dateStr) => {
     border: solid 1px #eff0f6;
     border-radius: 15px;
     box-shadow: 0 1px 3px 1px rgba(0, 0, 0, 0.15);
+}
+
+.survey-item-section.last-item {
+    margin-bottom : 20px;
 }
 
 .question-title {

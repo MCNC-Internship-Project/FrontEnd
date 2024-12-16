@@ -19,7 +19,7 @@
                         <div class="item-description">{{ survey.description }}</div>
 
                         <div class="footer-container">
-                            <div class="item-participated" :class="{ 'expired': !survey.expireDateValid }" >{{ survey.respondCount }}명 참여</div>
+                            <div class="item-participated" :class="{ 'expired': !survey.expireDateValid }">{{ survey.respondCount }}명 참여</div>
                             <v-progress-linear class="survey-progress" bg-color="#D9D9D9" bg-opacity="1"
                                 :color="survey.expireDateValid ? 'var(--primary)' : '#707070'" rounded rounded-bar height="4"
                                 :model-value="calculateProgress(survey.createDate, survey.expireDate)"></v-progress-linear>
@@ -46,12 +46,10 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import axios from 'axios';
 import { encrypt } from '@/utils/crypto';
-
+import axios from '@/utils/axiosInstance';
 import dayjs from 'dayjs'
 
-const baseUrl = process.env.VUE_APP_API_URL;
 const router = useRouter();
 
 const surveys = ref([])
@@ -98,11 +96,7 @@ const formatDate = (dateStr) => {
 };
 
 onMounted(() => {
-    axios.get(`${baseUrl}/survey/inquiry/created`, {
-        withCredentials: true,
-        headers: {
-            'Content-Type': 'application/json'
-        },
+    axios.get(`/survey/inquiry/created`, {
         params: {
             page: 0,
             size: 10

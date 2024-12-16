@@ -25,16 +25,12 @@
 
 <script setup>
 import { ref } from 'vue'
-import axios from 'axios';
 import { useRouter } from 'vue-router';
-
+import { encrypt } from '@/utils/crypto';
+import axios from '@/utils/axiosInstance';
 import ToolBar from '@/components/common/ToolBar.vue'
 import SurveyHeader from '@/components/common/SurveyHeader.vue';
 import SurveyCard from '@/components/common/SurveyCard.vue';
-
-import { encrypt } from '@/utils/crypto';
-
-const baseUrl = process.env.VUE_APP_API_URL;
 
 const router = useRouter();
 
@@ -65,11 +61,7 @@ const goDetail = (surveyId) => {
 
 async function api() {
     try {
-        const response = await axios.get(`${baseUrl}/survey/inquiry/created`, {
-            withCredentials: true,
-            headers: {
-                'Content-Type': 'application/json',
-            },
+        const response = await axios.get(`/survey/inquiry/created`, {
             params: {
                 page: currentPage.value,
                 size: size,
