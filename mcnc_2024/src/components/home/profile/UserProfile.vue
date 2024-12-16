@@ -27,19 +27,7 @@
         </div>
     </div>
 
-    <v-dialog v-model="showCancelDialog" max-width="400">
-        <v-card class="dialog-background">
-            <div class="dialog-container">
-                <div class="dialog-error-message">{{ dialogMessage }}</div>
-            </div>
-
-            <v-card-actions>
-                <v-btn class="dialog-close-btn" @click="showCancelDialog = false">
-                    확인
-                </v-btn>
-            </v-card-actions>
-        </v-card>
-    </v-dialog>
+    <default-dialog v-model="dialog.isVisible" :message="dialog.message" @confirm="dialog.isVisible = false" />
 </template>
 
 <script setup>
@@ -50,11 +38,18 @@ import { decrypt } from '@/utils/crypto';
 
 const router = useRouter();
 
-const dialogMessage = ref("");
-const showCancelDialog = ref(false);
-
 const goBack = () => {
     router.back();
+}
+
+const dialog = ref({
+    isVisible: false,
+    message: ""
+});
+
+const showDialog = (message) => {
+    dialog.value.message = message;
+    dialog.value.isVisible = true;
 }
 
 const name = ref("ㅤ");
@@ -79,35 +74,33 @@ const onItemClick = (item) => {
             break;
         case '로그아웃':
             axios.post(`/auth/logout`, null)
-            .then((response) => {
-                if (response.status === 200) {
-                    sessionStorage.setItem(btoa('isLoggedIn'), btoa(false));
-                    router.replace("/login");
-                }
-            })
-            .catch(error => {
-                console.error(error);
-                showCancelDialog.value = true;
-                showErrorDialog("로그아웃 중 오류가 발생했습니다.");
-            })
+                .then((response) => {
+                    if (response.status === 200) {
+                        sessionStorage.setItem(btoa('isLoggedIn'), btoa(false));
+                        router.replace("/login");
+                    }
+                })
+                .catch((error) => {
+                    if (error?.response?.data?.errorMessage) {
+                        showDialog(error.response.data.errorMessage);
+                    } else {
+                        showDialog("오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+                    }
+                })
             break;
     }
 };
 
-const showErrorDialog = (message) => {
-    dialogMessage.value = message
-    showCancelDialog.value = true
-}
-
 onMounted(() => {
     axios.get(`/account/profile`)
-    .then((response) => {
-        name.value = response.data.name;
-        email.value = decrypt(response.data.email);
-    })
-    .catch((error) => {
-        console.error(error);
-    });
+        .then((response) => {
+            name.value = response.data.name;
+            email.value = decrypt(response.data.email);
+        })
+        .catch(() => {
+            name.value = "알 수 없음";
+            email.value = "알 수 없음";
+        });
 })
 </script>
 
