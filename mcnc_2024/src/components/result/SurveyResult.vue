@@ -84,7 +84,7 @@
 import { useRouter } from 'vue-router';
 import { ref, defineProps, onMounted } from 'vue';
 import { decrypt, encrypt } from '@/utils/crypto';
-import axios from 'axios';
+import axios from '@/utils/axiosInstance';
 import * as XLSX from 'xlsx-js-style';
 import ToolBar from '@/components/common/ToolBar.vue'
 import AgeChart from './AgeChart.vue';
@@ -95,7 +95,6 @@ import ShareSurveyDialog from './ShareSurveyDialog.vue';
 const surveyData = ref("");
 const isLoading = ref(true);
 const expireDateBoolean = ref(true);
-const baseUrl = process.env.VUE_APP_API_URL;
 const router = useRouter();
 const showDisabledModifyDialog = ref(false);
 const isDeleteModalVisible = ref(false);
@@ -141,12 +140,7 @@ onMounted(() => {
 async function fetchSurveyData() {
     try {
         const decryptedId = decrypt(props.id);
-        const response = await axios.get(`${baseUrl}/survey/response/result/${decryptedId}`, {
-            withCredentials: true,
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
+        const response = await axios.get(`/survey/response/result/${decryptedId}`);
         surveyData.value = response.data;
         expireDateBoolean.value = surveyData.value.expireDateValid;
     } catch (error) {
@@ -165,12 +159,7 @@ function share() {
 function edit() {
     const decryptedId = decrypt(props.id)
 
-    axios.get(`${baseUrl}/survey/manage/modify/check/${decryptedId}`, {
-        withCredentials: true,
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    })
+    axios.get(`/survey/manage/modify/check/${decryptedId}`)
         .then((response) => {
             if (response.status === 200) {
                 router.push({
@@ -195,12 +184,7 @@ function close() {
 async function handleCloseConfirm() {
     try {
         const decryptedId = decrypt(props.id);
-        await axios.patch(`${baseUrl}/survey/manage/expire/${decryptedId}`, null, {
-            withCredentials: true,
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
+        await axios.patch(`/survey/manage/expire/${decryptedId}`, null);
         showDialog(dialogs.value.showSuccessDialog, "설문이 종료되었습니다.");
     } catch (error) {
         console.error('설문 종료 실패:', error);
@@ -231,12 +215,7 @@ function confirm() {
 async function handleDeleteConfirm() {
     try {
         const decryptedId = decrypt(props.id);
-        await axios.delete(`${baseUrl}/survey/manage/delete/${decryptedId}`, {
-            withCredentials: true,
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
+        await axios.delete(`/survey/manage/delete/${decryptedId}`);
         showDialog(dialogs.value.showSuccessDialog, "성공적으로 삭제되었습니다.");
     } catch (error) {
         console.error(error);
@@ -249,12 +228,7 @@ async function downloadExcel() {
     try {
         // 설문 데이터를 API로부터 가져오기
         const decryptedId = decrypt(props.id);
-        const response = await axios.get(`${baseUrl}/survey/response/result/${decryptedId}`, {
-            withCredentials: true,
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
+        const response = await axios.get(`/survey/response/result/${decryptedId}`);
 
         const data = response.data;
 

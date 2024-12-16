@@ -18,12 +18,10 @@
 <script setup>
 import { useRouter } from 'vue-router';
 import { ref, onMounted } from 'vue';
-import axios from 'axios';
 import { encrypt } from '@/utils/crypto';
+import axios from '@/utils/axiosInstance';
 import ToolBar from '../common/ToolBar.vue';
 import SearchResult from '../common/SearchResult.vue';
-
-const baseUrl = process.env.VUE_APP_API_URL;
 
 const router = useRouter();
 const searchQuery = ref('');
@@ -60,15 +58,11 @@ async function searchSurvey() {
 
 async function loadSurveys({ done }) {
     try {
-        const response = await axios.get(`${baseUrl}/survey/inquiry/search/respond`, {
+        const response = await axios.get(`/survey/inquiry/search/respond`, {
             params: {
                 title: searchQuery.value,
                 page: currentPage.value,
                 size,
-            },
-            withCredentials: true,
-            headers: {
-                'Content-Type': 'application/json'
             }
         });
         const { content, totalPages } = response.data;

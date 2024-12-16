@@ -78,13 +78,12 @@
 <script setup>
 import { ref, onMounted, defineProps } from 'vue';
 import { useRouter } from 'vue-router';
-import axios from 'axios';
 import { decrypt } from '@/utils/crypto';
+import axios from '@/utils/axiosInstance';
 import ToolBar from '../common/ToolBar.vue';
 
 
 const router = useRouter();
-const baseUrl = process.env.VUE_APP_API_URL;
 
 // id를 props로 받아옴
 const props = defineProps({
@@ -103,12 +102,7 @@ onMounted(async () => {
 const fetchSurveyResponses = async () => {
     try {
         const decryptedId = decrypt(props.id);
-        const response = await axios.get(`${baseUrl}/survey/response/${decryptedId}`, {
-            withCredentials: true,
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
+        const response = await axios.get(`/survey/response/${decryptedId}`);
         const data = response.data;
 
         // 설문 데이터 매핑
