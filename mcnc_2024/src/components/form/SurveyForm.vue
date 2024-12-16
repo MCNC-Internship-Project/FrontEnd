@@ -131,17 +131,14 @@
 <script setup>
 import { ref, computed, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router"; // 라우터 추가
-import axios from "axios";
 import { encrypt, decrypt } from "@/utils/crypto";
+import axios from '@/utils/axiosInstance';
 import ToolBar from "../common/ToolBar.vue";
 import SurveyExpired from "./SurveyExpired.vue";
 
 // 라우터 사용
 const router = useRouter();
 const route = useRoute(); // 현재 URL 파라미터에서 surveyId 가져오기
-
-// Constants
-const baseUrl = process.env.VUE_APP_API_URL;
 
 // survey 데이터
 const survey = ref({ title: "", description: "", questionList: [] });
@@ -191,10 +188,7 @@ const autoResize = (textarea) => {
 // 설문 데이터 불러오기
 const fetchSurveyData = async (surveyId) => {
     try {
-        const response = await axios.get(
-            `${baseUrl}/survey/inquiry/detail/${surveyId}`,
-            { withCredentials: true }
-        );
+        const response = await axios.get(`/survey/inquiry/detail/${surveyId}`);
         const data = response.data;
 
         isExpiredValid.value = data.expireDateValid;
@@ -441,9 +435,7 @@ const submitSurvey = async () => {
         console.log("Submitting payload:", JSON.stringify(payload, null, 2));
 
         // 설문 응답 전송
-        await axios.post(`${baseUrl}/survey/response`, payload, {
-            withCredentials: true,
-        });
+        await axios.post(`/survey/response`, payload);
 
         showDialog(dialogs.value.showSuccessDialog, "제출되었습니다.")
 
@@ -508,12 +500,7 @@ const handleEtcInputChange = (quesId, sequence, inputText) => {
 onMounted(() => {
     const id = decrypt(route.params.id);
 
-    axios.get(`${baseUrl}/survey/response/verify/${id}`,{
-        withCredentials : true,
-        headers: {
-                'Content-Type': 'application/json'
-        }
-    })
+    axios.get(`/survey/response/verify/${id}`)
         .then(() => {
             fetchSurveyData(id);
         })
