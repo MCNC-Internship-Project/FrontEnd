@@ -53,6 +53,10 @@ function createChart(chartElement, ageCountList) {
             ],
         },
         options: {
+            interaction: {
+                mode: 'y',
+                intersect: false,
+            },
             indexAxis: 'y', 
             plugins: {
                 legend: {
