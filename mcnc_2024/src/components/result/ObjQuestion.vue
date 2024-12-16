@@ -217,6 +217,7 @@ canvas {
     border-radius: 8px;
     background-color: #FFFFFF;
     font-size: 0.875rem;
+    white-space: pre-wrap;
 }
 
 .etc-list {
