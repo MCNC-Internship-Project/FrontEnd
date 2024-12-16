@@ -11,7 +11,8 @@
             </div>
 
             <div class="survey-item-container">
-                <div v-for="question in survey.questions" :key="question.quesId" class="survey-item-section">
+                <div v-for="(question, index) in survey.questions" :key="question.quesId" class="survey-item-section"
+                    :class="{'last-item' : index === survey.questions.length - 1}">
                     <div class="question-title">{{ question.body }}</div>
                     <div class="response">
                         <!-- 객관식 단일 선택 (라디오 버튼) -->
@@ -245,6 +246,10 @@ const formatDate = (dateStr) => {
     border: solid 1px #eff0f6;
     border-radius: 15px;
     box-shadow: 0 1px 3px 1px rgba(0, 0, 0, 0.15);
+}
+
+.survey-item-section.last-item {
+    margin-bottom : 20px;
 }
 
 .question-title {

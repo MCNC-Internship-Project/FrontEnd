@@ -1,17 +1,12 @@
 <template>
   <div class="survey-completion">
-
-    <header class="toolbar">
-          <img class="back" src="@/assets/images/icon_arrow_left.svg" alt="back" @click="goBack">
-    </header>
-      
     <!-- 설문 정보 섹션 추가 -->
     <div class="survey-section">
       <div class="survey-title-section">
         <h1 class="survey-title">
-          {{ survey.title }}
+          {{ surveyValues.title }}
         </h1>
-        <p class="survey-description">{{ survey.description }}</p>
+        <p class="survey-description">{{ surveyValues.description }}</p>
       </div>
       <p class="survey-period">{{ dayjs(surveyValues.createDate).format("YYYY.MM.DD") }} ~ {{ dayjs(surveyValues.expireDate).format("YYYY.MM.DD") }}</p>
     </div>
@@ -22,30 +17,20 @@
 
     <img src="@/assets/images/icon_puppy.svg" alt="아이콘" class="survey-icon" />
 
-    <p><button @click="goBackToHome">홈 바로가기</button></p>
+    <p><button @click="goBackToHome">홈으로 이동</button></p>
   </div>
 </template>
 
 <script setup>
 import { useRouter } from 'vue-router';
-import { ref, defineProps } from 'vue';
+import { defineProps } from 'vue';
 import dayjs from 'dayjs';
 
-const props = defineProps({
+defineProps({
   surveyValues : Object,
 })
 
-// 설문 정보 추가
-const survey = ref({
-  title: props.surveyValues.title,
-  description: props.surveyValues.description,
-});
-
 const router = useRouter();
-
-const goBack = () => {
-  router.back();
-}
 
 const goBackToHome = () => {
   router.replace('/');
@@ -75,12 +60,16 @@ const goBackToHome = () => {
 }
 
 .survey-completion {
-  text-align: center;
-  margin-top: 92px;
+  display : flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items : center;
+  margin-top: 80px;
   padding: 0 24px;
 }
 
 .survey-section {
+  width : 100%;
   background-color: #F8FBFF;
   padding: 16px;
   border-radius: 15px;
@@ -92,6 +81,7 @@ const goBackToHome = () => {
   min-height: 126px;
   justify-content: space-between;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  max-width : 600px;
 }
 
 .survey-title {
@@ -130,6 +120,10 @@ const goBackToHome = () => {
 
 .p1 {
   font-weight: bold;
+}
+
+.survey-icon {
+  width : 160px;
 }
 
 button {

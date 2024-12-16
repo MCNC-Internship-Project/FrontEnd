@@ -40,7 +40,8 @@
                 <div class="text">응답자 연령</div>
                 <AgeChart :ageCountList="surveyData.ageCountList" />
             </div>
-            <div v-for="question in surveyData.questionList" :key="question.quesId" class="question-container">
+            <div v-for="(question, index) in surveyData.questionList" :key="question.quesId" class="question-container"
+                :class="{'last-item' : index === surveyData.questionList.length - 1}">
                 <ResultRenderer :question="question" />
             </div>
         </div>
@@ -550,6 +551,10 @@ function formatPeriod(startDate, endDate) {
     box-shadow: 0 1px 3px 1px rgba(0, 0, 0, 0.15);
     margin-bottom: 16px;
     padding: 20px 16px 0px 16px;
+}
+
+.question-container.last-item {
+    margin-bottom : 4px;
 }
 
 .text {

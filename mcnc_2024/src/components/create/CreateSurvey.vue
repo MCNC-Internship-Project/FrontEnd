@@ -7,7 +7,7 @@
 
         <div class="survey-container">
             <div class="survey-title-section">
-                <div class="input-section" :class="{ 'title-error': titleError }">
+                <div class="input-section">
                         <v-textarea
                             v-model="surveyTitle"
                             class="survey-title"
@@ -537,7 +537,7 @@ const redirectionToMySurvey = () => {
     --v-disabled-opacity: 1 !important;
 }
 
-.title-error:deep(.v-field) {
+.title-error:deep(.v-field__input::placeholder) {
     color : #F77D7D;
 }
 
