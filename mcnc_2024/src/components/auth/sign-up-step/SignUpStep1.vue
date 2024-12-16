@@ -1,9 +1,9 @@
 <template>
     <div class="root-container">
         <form class="form-container" novalidate @submit.prevent="nextStep">
-            <input type="text" class="form-input" :class="{ 'error': isUserIdError }" placeholder="아이디" v-model="userId"
+            <input type="text" class="form-input" :class="{ 'error': isUserIdError }" placeholder="아이디" v-model.trim="userId"
                 @focus="isUserIdError = false" maxlength="20" v-focus>
-            <input type="email" class="form-input" :class="{ 'error': isEmailError }" placeholder="이메일" v-model="email"
+            <input type="email" class="form-input" :class="{ 'error': isEmailError }" placeholder="이메일" v-model.trim="email"
                 autocomplete="new-password" maxlength="255" @focus="isEmailError = false">
             <button class="form-btn" v-ripple>다음</button>
         </form>
@@ -36,7 +36,7 @@ const showDialog = (message) => {
 }
 
 const nextStep = () => {
-    if (!userId.value || userId.value.trim() === "") {
+    if (!userId.value) {
         isUserIdError.value = true;
         showDialog('아이디를 입력해주세요.');
         return;
@@ -48,7 +48,7 @@ const nextStep = () => {
         return;
     }
 
-    if (!email.value || email.value.trim() === "") {
+    if (!email.value) {
         isEmailError.value = true;
         showDialog('이메일을 입력해주세요.');
         return;
@@ -69,16 +69,20 @@ const nextStep = () => {
     axios.post(`/account/join/check`, JSON.stringify(requestBody), { withCredentials: false })
         .then((response) => {
             if (response.data.id == true && response.data.email == true) {
+                isUserIdError.value = true;
+                isEmailError.value = true;
                 showDialog('아이디와 이메일이 이미 사용 중입니다.');
                 return;
             }
 
             if (response.data.id == true) {
+                isUserIdError.value = true;
                 showDialog('아이디가 이미 사용 중입니다.');
                 return;
             }
 
             if (response.data.email == true) {
+                isEmailError.value = true;
                 showDialog('이메일이 이미 사용 중입니다.');
                 return;
             }

@@ -4,10 +4,10 @@
             <div class="email-hint">{{ hideEmail(store.email) }}</div>
             <div class="email-container">
                 <input type="email" class="form-input" :class="{ 'error': isEmailError }" placeholder="이메일"
-                    autocomplete="userEmail" v-model="email" maxlength="255" @focus="isEmailError = false" v-focus>
+                    autocomplete="userEmail" v-model.trim="email" maxlength="255" @focus="isEmailError = false" v-focus>
                 <button class="verify-btn" v-ripple @click="verifyCode" :disabled="isEmailSending">인증</button>
             </div>
-            <input type="text" class="form-input" :class="{ 'error': isCodeError }" placeholder="인증번호" v-model="code"
+            <input type="text" class="form-input" :class="{ 'error': isCodeError }" placeholder="인증번호" v-model.trim="code"
                 maxlength="8" @focus="isCodeError = false">
             <button class="form-btn" v-ripple @click="nextStep">다음</button>
         </div>
@@ -51,7 +51,7 @@ const showDialog = (type, message) => {
 const isEmailSending = ref(false);
 
 const verifyCode = () => {
-    if (!email.value || email.value.trim() === "") {
+    if (!email.value) {
         isEmailError.value = true;
         showDialog('defaultDialog', '이메일을 입력해주세요.');
         return;
@@ -90,7 +90,7 @@ const verifyCode = () => {
 }
 
 const nextStep = () => {
-    if (!code.value || code.value.trim() === "") {
+    if (!code.value) {
         isCodeError.value = true;
         showDialog('defaultDialog', '인증번호를 입력해주세요.');
         return;
@@ -108,6 +108,7 @@ const nextStep = () => {
         })
         .catch((error) => {
             if (error?.response?.data?.errorMessage) {
+                isCodeError.value = true;
                 showDialog('defaultDialog', error.response.data.errorMessage);
             } else {
                 showDialog('defaultDialog', "오류가 발생했습니다. 잠시 후 다시 시도해주세요.");

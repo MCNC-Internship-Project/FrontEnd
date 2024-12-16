@@ -13,7 +13,7 @@
             <div class="profile-container">
                 <div class="text">사용자명</div>
                 <div class="input-container">
-                    <input class="input" type="text" placeholder="사용자명" v-model="profileData.name" maxlength="50" />
+                    <input class="input" type="text" placeholder="사용자명" v-model.trim="profileData.name" maxlength="50" />
                     <v-divider></v-divider>
                 </div>
             </div>
@@ -21,7 +21,7 @@
             <div class="profile-container">
                 <div class="text">이메일</div>
                 <div class="input-container">
-                    <input class="input" type="text" placeholder="이메일" v-model="profileData.email" maxlength="255" />
+                    <input class="input" type="text" placeholder="이메일" v-model.trim="profileData.email" maxlength="255" />
                     <v-divider></v-divider>
                 </div>
             </div>
@@ -113,7 +113,7 @@ const originalProfileData = ref({
 });
 
 const editProfile = () => {
-    if (!profileData.value.name || profileData.value.name.trim() === "") {
+    if (!profileData.value.name) {
         showDialog(dialogs.value.defaultDialog, '사용자명을 입력해주세요.');
         return;
     }
@@ -123,7 +123,7 @@ const editProfile = () => {
         return;
     }
 
-    if (!profileData.value.email || profileData.value.email.trim() === "") {
+    if (!profileData.value.email) {
         showDialog(dialogs.value.defaultDialog, '이메일을 입력해주세요.');
         return;
     }

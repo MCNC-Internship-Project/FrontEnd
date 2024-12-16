@@ -3,7 +3,7 @@
         <header class="toolbar">
             <img class="back" src="@/assets/images/icon_arrow_left.svg" alt="back" @click="goBack">
             <div class="search-container">
-                <input type="text" class="search-input" placeholder="참여 가능한 설문조사 검색" v-model="searchQuery"
+                <input type="text" class="search-input" placeholder="참여 가능한 설문조사 검색" v-model.trim="searchQuery"
                     @keyup.enter="search" maxlength="255" v-focus />
                 <img class="search-icon" src="@/assets/images/icon_search_btn.svg" alt="dropdown icon" @click="search" />
             </div>
