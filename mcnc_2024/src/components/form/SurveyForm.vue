@@ -666,6 +666,7 @@ onMounted(() => {
     margin-top: 16px;
     display : flex;
     flex-direction: column;
+    margin-left: 8px;
 }
 
 .answer-options .answer-options-item {
