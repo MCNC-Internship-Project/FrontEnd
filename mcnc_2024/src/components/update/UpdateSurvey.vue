@@ -359,15 +359,6 @@ watch(isTimeMenuOpen, (isOpen) => {
     }
 });
 
-const scrollToBottom = () => {
-    nextTick(() => {
-        window.scrollTo({
-            top: document.documentElement.scrollHeight,
-            behavior: 'smooth'
-        });
-    });
-};
-
 const addComponent = () => {
     const lastIndex = totalComponent.value.length > 0
         ? totalComponent.value[totalComponent.value.length - 1].id
@@ -392,11 +383,18 @@ const addComponent = () => {
 
     totalComponent.value.push(newObj);
 
-    nextTick(() => {
-        // surveyItems.value = surveyItems.value.slice();
-        scrollToBottom();
-    });
+    // surveyItems.value = surveyItems.value.slice();
+    scrollToBottom();
 }
+
+const scrollToBottom = () => {
+    nextTick(() => {
+        window.scrollTo({
+            top: document.documentElement.scrollHeight,
+            behavior: 'smooth'
+        });
+    });
+};
 
 const removeComponent = (id) => {
     if (totalComponent.value.length === 1)

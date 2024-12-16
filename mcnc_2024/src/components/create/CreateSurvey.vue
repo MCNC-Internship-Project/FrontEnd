@@ -325,15 +325,6 @@ watch(isTimeMenuOpen, (isOpen) => {
     }
 });
 
-const scrollToBottom = () => {
-    nextTick(() => {
-        window.scrollTo({
-            top: document.documentElement.scrollHeight,
-            behavior: 'smooth'
-        });
-    });
-};
-
 const addComponent = () => {
     const lastIndex = totalComponent.value.length > 0
         ? totalComponent.value[totalComponent.value.length - 1].id
@@ -342,13 +333,18 @@ const addComponent = () => {
     const newObj = { id: lastIndex + 1 }
 
     totalComponent.value.push(newObj);
+    scrollToBottom();
+}
 
+const scrollToBottom = () => {
     // nextTick으로 DOM 업데이트 후에 스크롤 이동
     nextTick(() => {
-        // surveyItems.value = surveyItems.value.slice(); // 새로운 참조로 배열을 갱신
-        scrollToBottom();
+        window.scrollTo({
+            top: document.documentElement.scrollHeight,
+            behavior: 'smooth'
+        });
     });
-}
+};
 
 const removeComponent = (id) => {
     if (totalComponent.value.length === 1)
