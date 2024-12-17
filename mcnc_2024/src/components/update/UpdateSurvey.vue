@@ -168,8 +168,8 @@
 </template>
 
 <script setup>
-import { useRouter } from 'vue-router'
-import { ref, nextTick, watch, onMounted, defineProps } from 'vue';
+import { useRouter, onBeforeRouteLeave } from 'vue-router'
+import { ref, nextTick, watch, defineProps, onMounted, onBeforeUnmount } from 'vue';
 import axios from '@/utils/axiosInstance';
 import dayjs from 'dayjs'
 import { decrypt, encrypt } from '@/utils/crypto';
@@ -178,7 +178,7 @@ import UpdateSurveyItem from './component/UpdateSurveyItem.vue';
 import TimePickerComponent from './component/TimePickerComponent.vue';
 import { useSaveStatusStore } from '@/stores/saveStatusStore';
 
-const saveStatusStore = useSaveStatusStore();
+const saveStore = useSaveStatusStore();
 const router = useRouter();
 const props = defineProps({
     id: String,
@@ -239,7 +239,17 @@ const time = ref(null);
 
 let apiResponse = null;
 
+const handleBeforeUnload = (event) => {
+  event.preventDefault();
+  return ''; // 페이지 새로고침 혹은 종료 전에 경고 메시지를 표시하려면 이렇게 설정합니다.
+};
+
+onBeforeUnmount(() => {
+    window.removeEventListener('beforeunload', handleBeforeUnload);
+})
+
 onMounted(() => {
+    window.addEventListener('beforeunload', handleBeforeUnload);
     surveyId.value = decrypt(props.id);
 
     axios.get(`/survey/inquiry/detail/${surveyId.value}`)
@@ -267,6 +277,20 @@ onMounted(() => {
         console.error(error);
     })
 })
+
+// 라우터를 떠나기 전에 확인
+onBeforeRouteLeave((to, from, next) => {
+  if (!saveStore.isSaved) {
+    const confirmationMessage = '정말 나가시겠습니까? 변경사항이 저장되지 않을 수 있습니다.';
+    if (window.confirm(confirmationMessage)) {
+      next(); // 저장하지 않고 나갈 경우, 라우팅을 진행
+    } else {
+      next(false); // 이동을 취소
+    }
+  } else {
+    next(); // 이미 저장된 경우, 그냥 이동
+  }
+});
 
 const cancel = () => {
     showDatePickerDialog.value = false;
@@ -487,7 +511,6 @@ const handleSubmit = () => {
 
         axios.post(`/survey/manage/modify`, JSON.stringify(jsonData))
         .then(() => {
-            saveStatusStore.setSaved();
             showDialog(dialogs.value.showSuccessDialog, "설문조사가 수정되었습니다.");
         })
         .catch((error) => {
@@ -503,6 +526,8 @@ const handleSubmit = () => {
 const redirectionToMySurvey = () => {
     showSuccessDialog.value = false;
     router.go(-1);
+    saveStore.setSaved();
+    
     setTimeout(() => {
             router.replace({
             name: "Result",

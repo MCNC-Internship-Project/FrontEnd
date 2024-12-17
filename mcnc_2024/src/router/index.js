@@ -27,37 +27,19 @@ const router = createRouter({
     },
 });
 
-// 라우트 가드 설정
+// 라우터 가드 설정
 router.beforeEach((to, from, next) => {
     const saveStore = useSaveStatusStore();
-    
+
     if (to.meta.requiresAuth) {
         axiosInstance.get(`/auth/session`)
-            .then((response) => {
-                if (response.status === 200) {
-                    sessionStorage.setItem(btoa('isLoggedIn'), btoa(true)); // Base64로 저장
+            .then(() => {
+                sessionStorage.setItem(btoa('isLoggedIn'), btoa(true)); // Base64로 저장
 
-                    if (to.path.includes("/create") || to.path.includes("/update")) {
-                        window.addEventListener('beforeunload', handleBeforeUnload);
-                    } else {
-                        window.removeEventListener('beforeunload', handleBeforeUnload);
-                    }
-
-                    console.log(saveStore.isSaved)
-                    if (from.name === 'Create' || from.name === 'Update') {
-                        if(saveStore.isSaved) {
-                            saveStore.resetStatus();
-                            next();
-                            return;
-                        } else {
-                            const confirmationMessage = '정말 나가시겠습니까? 변경사항이 저장되지 않을 수 있습니다.';
-                            if (!window.confirm(confirmationMessage)) {
-                                return next(false); // 이동 취소
-                            }
-                        }
-                    }
-                    next();
+                if(saveStore.isSaved) {
+                    saveStore.resetStatus();
                 }
+                next();
             })
             .catch(() => {
                 if (sessionStorage.getItem(btoa('isLoggedIn')) === null || sessionStorage.getItem(btoa('isLoggedIn')) === btoa(false)) {
@@ -72,18 +54,5 @@ router.beforeEach((to, from, next) => {
         next();
     }
 });
-
-// 새로고침 시 beforeunload 핸들러 활성화 보장
-window.addEventListener('beforeunload', (event) => {
-    const isCreateOrUpdate = location.pathname.includes("/create") || location.pathname.includes("/update");
-    if (isCreateOrUpdate) {
-        handleBeforeUnload(event); // 핸들러 강제 호출
-    }
-});
-
-function handleBeforeUnload(event) {
-    event.preventDefault();
-    return '';
-}
 
 export default router;
