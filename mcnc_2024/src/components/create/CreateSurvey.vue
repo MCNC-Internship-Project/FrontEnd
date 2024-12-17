@@ -167,8 +167,8 @@
 </template>
 
 <script setup>
-import { useRouter } from 'vue-router'
-import { ref, nextTick, watch } from 'vue';
+import { useRouter, onBeforeRouteLeave } from 'vue-router'
+import { ref, nextTick, watch, onMounted, onBeforeUnmount } from 'vue';
 import axios from '@/utils/axiosInstance';
 import dayjs from 'dayjs'
 import { checkEmptyValues } from '@/utils/checkEmptyValues';
@@ -176,7 +176,7 @@ import SurveyItem from './component/SurveyItem.vue';
 import TimePickerComponent from './component/TimePickerComponent.vue';
 import { useSaveStatusStore } from '@/stores/saveStatusStore';
 
-const saveStatusStore = useSaveStatusStore();
+const saveStore = useSaveStatusStore();
 const router = useRouter();
 const totalComponent = ref([{ id: 0 },]);
 const surveyItems = ref([]);
@@ -228,6 +228,33 @@ const selectedMinute = ref('00');
 
 const date = ref(null);
 const time = ref(null);
+
+const handleBeforeUnload = (event) => {
+  event.preventDefault();
+  return ''; // 페이지 새로고침 혹은 종료 전에 경고 메시지를 표시하려면 이렇게 설정합니다.
+};
+
+onMounted(() => {
+    window.addEventListener('beforeunload', handleBeforeUnload);
+})
+
+onBeforeUnmount(() => {
+    window.removeEventListener('beforeunload', handleBeforeUnload);
+})
+
+// 라우터를 떠나기 전에 확인
+onBeforeRouteLeave((to, from, next) => {
+  if (!saveStore.isSaved) {
+    const confirmationMessage = '정말 나가시겠습니까? 변경사항이 저장되지 않을 수 있습니다.';
+    if (window.confirm(confirmationMessage)) {
+      next(); // 저장하지 않고 나갈 경우, 라우팅을 진행
+    } else {
+      next(false); // 이동을 취소
+    }
+  } else {
+    next(); // 이미 저장된 경우, 그냥 이동
+  }
+});
 
 const cancel = () => {
     showDatePickerDialog.value = false;
@@ -429,7 +456,7 @@ const handleSubmit = () => {
 
         axios.post(`/survey/manage/create`, JSON.stringify(jsonData))
             .then(() => {
-                saveStatusStore.setSaved();
+                saveStore.setSaved();
                 showDialog(dialogs.value.showSuccessDialog, "설문이 성공적으로 생성되었습니다!");
             })
             .catch(() => {

@@ -125,6 +125,9 @@
 
             <default-dialog v-model="dialogs.showDefaultDialog.isVisible" :message="dialogs.showDefaultDialog.message"
                 @confirm="dialogs.showDefaultDialog.isVisible = false"/>
+
+            <default-dialog v-model="dialogs.showErrorDialog.isVisible" :message="dialogs.showErrorDialog.message"
+                @confirm="redirectionToExpired" :isPersistent="true"/>
         </div>
     </div>
     <survey-expired :surveyValues="{title : survey.title, description : survey.description,
@@ -163,6 +166,10 @@ const dialogs = ref({
         isVisible: false,
         message: "",
     },
+    showErrorDialog: {
+        isVisible: false,
+        message: "",
+    }
 })
 
 const isValid = ref(false);
@@ -412,7 +419,10 @@ const submitSurvey = async () => {
 
     } catch (error) {
         console.error("설문 제출 중 오류 발생:", error);
-        showDialog(dialogs.value.showDefaultDialog, "설문 제출 중 오류가 발생했습니다.")
+        // 제출 전에 종료된 설문인 경우
+        if(error.status === 400) {
+            showDialog(dialogs.value.showErrorDialog, error.response.data.errorMessage)
+        }
     }
 };
 
@@ -422,6 +432,14 @@ const redirectionToSubmit = () => {
     router.replace({
         name: "Submit"
     });
+}
+
+const redirectionToExpired = () => {
+    dialogs.value.showErrorDialog.isVisible = false;
+
+    isValid.value = false;
+    isRemoved.value = false;
+    isExpired.value = true;
 }
 
 const toggleEtcCheckbox = (quesId) => {

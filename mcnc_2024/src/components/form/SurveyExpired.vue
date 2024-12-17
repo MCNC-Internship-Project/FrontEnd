@@ -124,6 +124,7 @@ const goBackToHome = () => {
 
 .survey-icon {
   width : 160px;
+  margin : 48px 0 48px 0;
 }
 
 button {
@@ -132,7 +133,6 @@ button {
   font-size : 1rem;
   font-weight : bold;
   padding: 12px 24px;
-  margin-top: 50px;
   border: none;
   border-radius: 15px;
   cursor: pointer;
