@@ -3,7 +3,7 @@
         <div class="background"></div>
         <ToolBar @goBack="goBack" backgroundColor="#FFFFFF" zIndex="1000">
             <div class="search-container">
-                <input type="text" class="search-input" placeholder="설문 제목을 검색해보세요." v-model="searchQuery"
+                <input type="text" class="search-input" placeholder="설문 제목을 검색해보세요." v-model.trim="searchQuery"
                     @keyup.enter="searchSurvey" maxlength="255" v-focus />
                 <img class="search-icon" src="@/assets/images/icon_search_btn.svg" alt="dropdown icon" @click="searchSurvey"/>
             </div>
@@ -18,12 +18,10 @@
 <script setup>
 import { useRouter } from 'vue-router';
 import { ref, onMounted } from 'vue';
-import axios from 'axios';
 import { encrypt } from '@/utils/crypto';
+import axios from '@/utils/axiosInstance';
 import ToolBar from '../common/ToolBar.vue';
 import SearchResult from '../common/SearchResult.vue';
-
-const baseUrl = process.env.VUE_APP_API_URL;
 
 const router = useRouter();
 const searchQuery = ref('');
@@ -43,7 +41,7 @@ onMounted(() => {
 });
 
 async function searchSurvey() {
-    if (!searchQuery.value.trim()) {
+    if (!searchQuery.value) {
         return;
     }
     isFirstLoad.value = false;
@@ -60,15 +58,11 @@ async function searchSurvey() {
 
 async function loadSurveys({ done }) {
     try {
-        const response = await axios.get(`${baseUrl}/survey/inquiry/search/respond`, {
+        const response = await axios.get(`/survey/inquiry/search/respond`, {
             params: {
                 title: searchQuery.value,
                 page: currentPage.value,
                 size,
-            },
-            withCredentials: true,
-            headers: {
-                'Content-Type': 'application/json'
             }
         });
         const { content, totalPages } = response.data;

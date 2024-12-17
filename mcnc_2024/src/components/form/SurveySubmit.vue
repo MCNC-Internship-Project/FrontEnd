@@ -7,7 +7,7 @@
       <p class="completion-message">응답이 제출되었습니다!</p>
       <p class="p1">설문에 참여해 주셔서 감사합니다.</p>
 
-    <p><button @click="goBackToHome">홈 바로가기</button></p>
+    <p><button @click="goBackToHome">홈으로 이동</button></p>
   </div>
 </template>
 

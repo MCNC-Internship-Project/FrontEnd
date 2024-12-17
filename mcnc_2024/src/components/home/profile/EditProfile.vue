@@ -13,7 +13,7 @@
             <div class="profile-container">
                 <div class="text">사용자명</div>
                 <div class="input-container">
-                    <input class="input" type="text" placeholder="사용자명" v-model="profileData.name" maxlength="50" />
+                    <input class="input" type="text" placeholder="사용자명" v-model.trim="profileData.name" maxlength="50" />
                     <v-divider></v-divider>
                 </div>
             </div>
@@ -21,7 +21,7 @@
             <div class="profile-container">
                 <div class="text">이메일</div>
                 <div class="input-container">
-                    <input class="input" type="text" placeholder="이메일" v-model="profileData.email" maxlength="255" />
+                    <input class="input" type="text" placeholder="이메일" v-model.trim="profileData.email" maxlength="255" />
                     <v-divider></v-divider>
                 </div>
             </div>
@@ -66,11 +66,10 @@
 <script setup>
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import axios from 'axios';
+import axios from '@/utils/axiosInstance';
 import dayjs from 'dayjs';
 import { encrypt, decrypt } from '@/utils/crypto';
 
-const baseUrl = process.env.VUE_APP_API_URL;
 const router = useRouter();
 
 const dialogs = ref({
@@ -114,7 +113,7 @@ const originalProfileData = ref({
 });
 
 const editProfile = () => {
-    if (!profileData.value.name || profileData.value.name.trim() === "") {
+    if (!profileData.value.name) {
         showDialog(dialogs.value.defaultDialog, '사용자명을 입력해주세요.');
         return;
     }
@@ -124,7 +123,7 @@ const editProfile = () => {
         return;
     }
 
-    if (!profileData.value.email || profileData.value.email.trim() === "") {
+    if (!profileData.value.email) {
         showDialog(dialogs.value.defaultDialog, '이메일을 입력해주세요.');
         return;
     }
@@ -144,12 +143,7 @@ const editProfile = () => {
         email: encrypt(profileData.value.email)
     }
 
-    axios.post(`${baseUrl}/account/modify/profile`, JSON.stringify(requestBody), {
-        withCredentials: true,
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    })
+    axios.post(`/account/modify/profile`, JSON.stringify(requestBody))
         .then(() => {
             showDialog(dialogs.value.defaultDialogSuccess, "프로필 수정이 완료되었습니다.");
         })
@@ -159,7 +153,11 @@ const editProfile = () => {
                 return;
             }
 
-            showDialog(dialogs.value.defaultDialog, error.response.data.errorMessage);
+            if (error?.response?.data?.errorMessage) {
+                showDialog(dialogs.value.defaultDialog, error.response.data.errorMessage);
+            } else {
+                showDialog(dialogs.value.defaultDialog, "오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+            }
         });
 }
 
@@ -173,12 +171,7 @@ const goLogin = () => {
 }
 
 onMounted(() => {
-    axios.get(`${baseUrl}/account/profile`, {
-        withCredentials: true,
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    })
+    axios.get(`/account/profile`)
         .then((response) => {
             const data = response.data;
 

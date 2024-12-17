@@ -6,10 +6,10 @@
         </div>
 
         <form class="form-container" @submit.prevent="login">
-            <input v-model="userId" type="text" class="form-input" :class="{ 'error': isUserIdError }" placeholder="아이디"
+            <input v-model.trim="userId" type="text" class="form-input" :class="{ 'error': isUserIdError }" placeholder="아이디"
                 maxlength="20" @focus="isUserIdError = false">
             <div class="form-password-container" :class="{ 'error': isPasswordError }">
-                <input v-model="password" :type="passwordInputType" class="form-input-password" placeholder="비밀번호"
+                <input v-model.trim="password" :type="passwordInputType" class="form-input-password" placeholder="비밀번호"
                     maxlength="100" @focus="isPasswordError = false">
                 <img class="form-input-password-icon" :src="passwordIcon" @click="changePasswordInputType" />
             </div>
@@ -28,12 +28,10 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import axios from 'axios';
 import { encrypt } from '@/utils/crypto';
+import axios from '@/utils/axiosInstance';
 import imgEyeClose from '@/assets/images/icon_eye_close.svg';
 import imgEyeOpen from '@/assets/images/icon_eye_open.svg';
-
-const baseUrl = process.env.VUE_APP_API_URL;
 
 const route = useRoute();
 const router = useRouter();
@@ -64,13 +62,13 @@ const passwordIcon = computed(() => {
 });
 
 const login = () => {
-    if (userId.value.trim() === "") {
+    if (!userId.value) {
         isUserIdError.value = true;
         showDialog("아이디를 입력해주세요.");
         return;
     }
 
-    if (password.value.trim() === "") {
+    if (!password.value) {
         isPasswordError.value = true;
         showDialog("비밀번호를 입력해주세요.");
         return;
@@ -81,12 +79,7 @@ const login = () => {
         password: encrypt(password.value)
     }
 
-    axios.post(`${baseUrl}/auth/login`, JSON.stringify(requestBody), {
-        withCredentials: true,
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    })
+    axios.post(`/auth/login`, JSON.stringify(requestBody))
         .then(() => {
             // 리다이렉션 route가 없으면 "/"로 이동
             let redirect = route.query.redirect || "/";
@@ -100,7 +93,11 @@ const login = () => {
             router.replace(redirect);
         })
         .catch((error) => {
-            showDialog(error.response.data.errorMessage);
+            if (error?.response?.data?.errorMessage) {
+                showDialog(error.response.data.errorMessage);
+            } else {
+                showDialog("오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+            }
         });
 }
 </script>

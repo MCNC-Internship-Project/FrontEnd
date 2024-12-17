@@ -38,11 +38,10 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router';
-import axios from 'axios';
 import { encrypt } from '@/utils/crypto';
+import axios from '@/utils/axiosInstance';
 import dayjs from 'dayjs'
 
-const baseUrl = process.env.VUE_APP_API_URL;
 const router = useRouter();
 
 const surveys = ref([])
@@ -65,11 +64,7 @@ const formatDate = (startDate, endDate) => {
 };
 
 onMounted(() => {
-    axios.get(`${baseUrl}/survey/inquiry/respond`, {
-        withCredentials: true,
-        headers: {
-            'Content-Type': 'application/json'
-        },
+    axios.get(`/survey/inquiry/respond`, {
         params: {
             page: 0,
             size: 10

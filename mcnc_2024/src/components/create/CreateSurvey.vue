@@ -7,7 +7,7 @@
 
         <div class="survey-container">
             <div class="survey-title-section">
-                <div class="input-section" :class="{ 'title-error': titleError }">
+                <div class="input-section">
                         <v-textarea
                             v-model="surveyTitle"
                             class="survey-title"
@@ -167,17 +167,16 @@
 </template>
 
 <script setup>
-import { useRouter } from 'vue-router'
-import { ref, nextTick, watch } from 'vue';
-import axios from 'axios';
+import { useRouter, onBeforeRouteLeave } from 'vue-router'
+import { ref, nextTick, watch, onMounted, onBeforeUnmount } from 'vue';
+import axios from '@/utils/axiosInstance';
 import dayjs from 'dayjs'
 import { checkEmptyValues } from '@/utils/checkEmptyValues';
 import SurveyItem from './component/SurveyItem.vue';
 import TimePickerComponent from './component/TimePickerComponent.vue';
 import { useSaveStatusStore } from '@/stores/saveStatusStore';
 
-const saveStatusStore = useSaveStatusStore();
-const baseUrl = process.env.VUE_APP_API_URL;
+const saveStore = useSaveStatusStore();
 const router = useRouter();
 const totalComponent = ref([{ id: 0 },]);
 const surveyItems = ref([]);
@@ -229,6 +228,33 @@ const selectedMinute = ref('00');
 
 const date = ref(null);
 const time = ref(null);
+
+const handleBeforeUnload = (event) => {
+  event.preventDefault();
+  return ''; // 페이지 새로고침 혹은 종료 전에 경고 메시지를 표시하려면 이렇게 설정합니다.
+};
+
+onMounted(() => {
+    window.addEventListener('beforeunload', handleBeforeUnload);
+})
+
+onBeforeUnmount(() => {
+    window.removeEventListener('beforeunload', handleBeforeUnload);
+})
+
+// 라우터를 떠나기 전에 확인
+onBeforeRouteLeave((to, from, next) => {
+  if (!saveStore.isSaved) {
+    const confirmationMessage = '정말 나가시겠습니까? 변경사항이 저장되지 않을 수 있습니다.';
+    if (window.confirm(confirmationMessage)) {
+      next(); // 저장하지 않고 나갈 경우, 라우팅을 진행
+    } else {
+      next(false); // 이동을 취소
+    }
+  } else {
+    next(); // 이미 저장된 경우, 그냥 이동
+  }
+});
 
 const cancel = () => {
     showDatePickerDialog.value = false;
@@ -326,15 +352,6 @@ watch(isTimeMenuOpen, (isOpen) => {
     }
 });
 
-const scrollToBottom = () => {
-    nextTick(() => {
-        window.scrollTo({
-            top: document.documentElement.scrollHeight,
-            behavior: 'smooth'
-        });
-    });
-};
-
 const addComponent = () => {
     const lastIndex = totalComponent.value.length > 0
         ? totalComponent.value[totalComponent.value.length - 1].id
@@ -343,13 +360,18 @@ const addComponent = () => {
     const newObj = { id: lastIndex + 1 }
 
     totalComponent.value.push(newObj);
+    scrollToBottom();
+}
 
+const scrollToBottom = () => {
     // nextTick으로 DOM 업데이트 후에 스크롤 이동
     nextTick(() => {
-        // surveyItems.value = surveyItems.value.slice(); // 새로운 참조로 배열을 갱신
-        scrollToBottom();
+        window.scrollTo({
+            top: document.documentElement.scrollHeight,
+            behavior: 'smooth'
+        });
     });
-}
+};
 
 const removeComponent = (id) => {
     if (totalComponent.value.length === 1)
@@ -432,14 +454,9 @@ const handleSubmit = () => {
 
         jsonData.expireDate = dateTime;
 
-        axios.post(`${baseUrl}/survey/manage/create`, JSON.stringify(jsonData), {
-            withCredentials: true,
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
+        axios.post(`/survey/manage/create`, JSON.stringify(jsonData))
             .then(() => {
-                saveStatusStore.setSaved();
+                saveStore.setSaved();
                 showDialog(dialogs.value.showSuccessDialog, "설문이 성공적으로 생성되었습니다!");
             })
             .catch(() => {
@@ -531,9 +548,15 @@ const redirectionToMySurvey = () => {
     border: none;
     width: 100%;
     outline: none;
-    color: #464748;
+    color: #000;
     font-weight: bold;
     resize: none; /* 사용자가 크기 조절 못하도록 */
+}
+
+.survey-title:deep(.v-field__input::placeholder) {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #B0B0B0;
 }
 
 :deep(.v-field) {
@@ -541,7 +564,7 @@ const redirectionToMySurvey = () => {
     --v-disabled-opacity: 1 !important;
 }
 
-.title-error:deep(.v-field) {
+.title-error:deep(.v-field__input::placeholder) {
     color : #F77D7D;
 }
 
@@ -563,15 +586,18 @@ const redirectionToMySurvey = () => {
 .survey-description:deep(.v-field) {
     font-size : 1rem;
     font-weight : bold;
-    color: #C1C3C5;
+}
+
+.survey-description:deep(.v-field__input::placeholder) {
+    font-size: 1rem;
+    font-weight: bold;
+    color: #B0B0B0;
 }
 
 .survey-description {
     border: none;
     width: 100%;
     outline: none;
-    font-size: 1rem;
-    color: #C1C3C5;
 }
 
 .select-deadline-section {

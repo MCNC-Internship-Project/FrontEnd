@@ -4,10 +4,10 @@
             <div class="email-hint">{{ hideEmail(store.email) }}</div>
             <div class="email-container">
                 <input type="email" class="form-input" :class="{ 'error': isEmailError }" placeholder="이메일"
-                    autocomplete="userEmail" v-model="email" maxlength="255" @focus="isEmailError = false" v-focus>
+                    autocomplete="userEmail" v-model.trim="email" maxlength="255" @focus="isEmailError = false" v-focus>
                 <button class="verify-btn" v-ripple @click="verifyCode" :disabled="isEmailSending">인증</button>
             </div>
-            <input type="text" class="form-input" :class="{ 'error': isCodeError }" placeholder="인증번호" v-model="code"
+            <input type="text" class="form-input" :class="{ 'error': isCodeError }" placeholder="인증번호" v-model.trim="code"
                 maxlength="8" @focus="isCodeError = false">
             <button class="form-btn" v-ripple @click="nextStep">다음</button>
         </div>
@@ -21,10 +21,9 @@
 <script setup>
 import { ref } from 'vue'
 import { useFindPasswordStore } from '@/stores/FindPasswordStore';
-import axios from 'axios';
 import { encrypt } from '@/utils/crypto';
+import axios from '@/utils/axiosInstance';
 
-const baseUrl = process.env.VUE_APP_API_URL;
 const store = useFindPasswordStore();
 
 const email = ref("");
@@ -52,7 +51,7 @@ const showDialog = (type, message) => {
 const isEmailSending = ref(false);
 
 const verifyCode = () => {
-    if (!email.value || email.value.trim() === "") {
+    if (!email.value) {
         isEmailError.value = true;
         showDialog('defaultDialog', '이메일을 입력해주세요.');
         return;
@@ -73,16 +72,16 @@ const verifyCode = () => {
     showDialog('progressDialog', '인증번호 발송 중...');
 
     // 인증번호 발송 API 호출
-    axios.post(`${baseUrl}/auth/password/send`, JSON.stringify(requestBody), {
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    })
+    axios.post(`/auth/password/send`, JSON.stringify(requestBody))
         .then(() => {
             showDialog('defaultDialog', '인증번호가 발송되었습니다.');
         })
         .catch((error) => {
-            showDialog('defaultDialog', error.response.data.errorMessage);
+            if (error?.response?.data?.errorMessage) {
+                showDialog('defaultDialog', error.response.data.errorMessage);
+            } else {
+                showDialog('defaultDialog', "오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+            }
         })
         .finally(() => {
             isEmailSending.value = false;
@@ -91,7 +90,7 @@ const verifyCode = () => {
 }
 
 const nextStep = () => {
-    if (!code.value || code.value.trim() === "") {
+    if (!code.value) {
         isCodeError.value = true;
         showDialog('defaultDialog', '인증번호를 입력해주세요.');
         return;
@@ -103,16 +102,17 @@ const nextStep = () => {
     }
 
     // 인증번호 확인 API 호출
-    axios.post(`${baseUrl}/auth/password/check`, JSON.stringify(requestBody), {
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    })
+    axios.post(`/auth/password/check`, JSON.stringify(requestBody))
         .then(() => {
             store.nextStep();
         })
         .catch((error) => {
-            showDialog('defaultDialog', error.response.data.errorMessage);
+            if (error?.response?.data?.errorMessage) {
+                isCodeError.value = true;
+                showDialog('defaultDialog', error.response.data.errorMessage);
+            } else {
+                showDialog('defaultDialog', "오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+            }
         });
 }
 
