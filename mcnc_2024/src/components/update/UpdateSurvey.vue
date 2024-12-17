@@ -1,5 +1,5 @@
 <template>
-    <div class="root-container">
+    <div class="root-container" v-if="isValid">
         <header class="toolbar">
             <img class="back" src="@/assets/images/icon_arrow_left.svg" alt="back"
             @click="stepBack">
@@ -155,21 +155,27 @@
                 </div>
             </v-card>
         </v-dialog>
+    </div>
 
-        <default-dialog v-model="dialogs.showDefaultDialog.isVisible" :message="dialogs.showDefaultDialog.message"
+    <default-dialog v-model="dialogs.showDefaultDialog.isVisible" :message="dialogs.showDefaultDialog.message"
         @confirm="dialogs.showDefaultDialog.isVisible = false" />
-        
-        <confirm-dialog v-model="dialogs.showSaveDialog.isVisible" :message="dialogs.showSaveDialog.message"
+
+    <default-dialog v-model="dialogs.showInvalid.isVisible" :message="dialogs.showInvalid.message"
+        @confirm="stepBack" :isPersistent="true"/>
+
+    <default-dialog v-model="dialogs.showInvalidSessionDialog.isVisible" :message="dialogs.showInvalidSessionDialog.message"
+        @confirm="redirectionToLogin"/>
+    
+    <confirm-dialog v-model="dialogs.showSaveDialog.isVisible" :message="dialogs.showSaveDialog.message"
         @confirm="handleSubmit" />
 
-        <default-dialog v-model="dialogs.showSuccessDialog.isVisible" :message="dialogs.showSuccessDialog.message"
+    <default-dialog v-model="dialogs.showSuccessDialog.isVisible" :message="dialogs.showSuccessDialog.message"
         @confirm="redirectionToMySurvey" :isPersistent="true"/>
-    </div>
 </template>
 
 <script setup>
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
-import { ref, nextTick, watch, defineProps, onMounted, onBeforeUnmount } from 'vue';
+import { ref, nextTick, watch, defineProps, onMounted, onUnmounted } from 'vue';
 import axios from '@/utils/axiosInstance';
 import dayjs from 'dayjs'
 import { decrypt, encrypt } from '@/utils/crypto';
@@ -180,6 +186,8 @@ import { useSaveStatusStore } from '@/stores/saveStatusStore';
 
 const saveStore = useSaveStatusStore();
 const router = useRouter();
+const isSessionValid = ref(true);
+const isValid = ref(false);
 const props = defineProps({
     id: String,
 })
@@ -217,6 +225,14 @@ const dialogs = ref({
         isVisible : false,
         message : "",
     },
+    showInvalidSessionDialog: {
+        isVisible: false,
+        message: "",
+    },
+    showInvalid: {
+        isVisible: false,
+        message: "",
+    },
 })
 
 const showDialog = (dialog, message) => {
@@ -240,57 +256,9 @@ const time = ref(null);
 let apiResponse = null;
 
 const handleBeforeUnload = (event) => {
-  event.preventDefault();
-  return ''; // 페이지 새로고침 혹은 종료 전에 경고 메시지를 표시하려면 이렇게 설정합니다.
+    event.preventDefault();
+    return ''; // 페이지 새로고침 혹은 종료 전에 경고 메시지를 표시하려면 이렇게 설정합니다.
 };
-
-onBeforeUnmount(() => {
-    window.removeEventListener('beforeunload', handleBeforeUnload);
-})
-
-onMounted(() => {
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    surveyId.value = decrypt(props.id);
-
-    axios.get(`/survey/inquiry/detail/${surveyId.value}`)
-    .then((response) => {
-        if (response.status === 200) {
-            apiResponse = response.data;
-
-            createDate.value = apiResponse.createDate;
-            surveyTitle.value = apiResponse.title;
-            surveyDescription.value = apiResponse.description;
-
-            for(let i=0; i<apiResponse.questionList.length; i++){
-                totalComponent.value.push({id : i, data:apiResponse.questionList[i]})
-            }
-
-            const expireDate = dayjs(apiResponse.expireDate);
-            date.value = new Date(apiResponse.expireDate);
-            const hours = expireDate.hour();
-            const ampm = hours >= 12 ? '오후' : '오전';
-            const hourIn12 = hours % 12 === 0 ? 12 : hours % 12;
-            time.value = `${ampm} ${String(hourIn12).padStart(2, '0')}:${String(expireDate.minute()).padStart(2, '0')}`;
-        }
-    })
-    .catch(error => {
-        console.error(error);
-    })
-})
-
-// 라우터를 떠나기 전에 확인
-onBeforeRouteLeave((to, from, next) => {
-  if (!saveStore.isSaved) {
-    const confirmationMessage = '정말 나가시겠습니까? 변경사항이 저장되지 않을 수 있습니다.';
-    if (window.confirm(confirmationMessage)) {
-      next(); // 저장하지 않고 나갈 경우, 라우팅을 진행
-    } else {
-      next(false); // 이동을 취소
-    }
-  } else {
-    next(); // 이미 저장된 경우, 그냥 이동
-  }
-});
 
 const cancel = () => {
     showDatePickerDialog.value = false;
@@ -432,6 +400,10 @@ const removeComponent = (id) => {
 };
 
 const stepBack = () => {
+    if (!isValid.value || !isSessionValid.value) {
+        window.removeEventListener('beforeunload', handleBeforeUnload);
+    }
+    
     router.back();
 }
 
@@ -448,6 +420,15 @@ const parseTime = (timeStr) => {
     }
 
     return `${hour.toString().padStart(2, '0')}:${minutes}:00`;
+}
+
+const redirectionToLogin = () => {
+    dialogs.value.showInvalidSessionDialog.isVisible = true;
+    const currentPath = router.currentRoute.value.path;
+
+    window.removeEventListener('beforeunload', handleBeforeUnload);
+    
+    router.replace({ path: '/login', query: { redirect: currentPath } })
 }
 
 const handleSubmit = () => {
@@ -517,7 +498,12 @@ const handleSubmit = () => {
             if(error.response.status === 400){
                 showDialog(dialogs.value.showDefaultDialog, error.response.data.errorMessage);
             } else {
-                showDialog(dialogs.value.showDefaultDialog, "설문조사 수정 중 오류가 발생했습니다.");
+                if(error.status === 401) {
+                    isSessionValid.value = false;
+                    showDialog(dialogs.value.showInvalidSessionDialog, "세션이 만료되었습니다. 다시 로그인해주세요.")
+                } else {
+                    showDialog(dialogs.value.showDefaultDialog, "설문조사 생성 중 오류가 발생했습니다.");
+                }
             }
         });
     }
@@ -535,6 +521,83 @@ const redirectionToMySurvey = () => {
         });
     }, 100);
 }
+
+// 라우터를 떠나기 전에 확인
+onBeforeRouteLeave((to, from, next) => {
+    console.log(isValid.value)
+
+    if(!isSessionValid.value || !isValid.value){
+        window.removeEventListener('beforeunload', handleBeforeUnload);
+        next();
+        return;
+    }
+
+    if (!saveStore.isSaved) {
+        const confirmationMessage = '정말 나가시겠습니까? 변경사항이 저장되지 않을 수 있습니다.';
+        if (window.confirm(confirmationMessage)) {
+            next(); // 저장하지 않고 나갈 경우, 라우팅을 진행
+        } else {
+            next(false); // 이동을 취소
+        }
+    } else {
+        next(); // 이미 저장된 경우, 그냥 이동
+    }
+});
+
+onUnmounted(() => {
+    window.removeEventListener('beforeunload', handleBeforeUnload);
+})
+
+onMounted(() => {
+    surveyId.value = decrypt(props.id);
+
+    axios.get(`/survey/inquiry/detail/${surveyId.value}`)
+        .then((response) => {
+            if (response.status === 200) {
+                apiResponse = response.data;
+
+                if(!apiResponse.expireDateValid) {
+                    showDialog(dialogs.value.showInvalid, "이미 종료된 설문입니다.");
+                    return
+                }
+
+                axios.get(`/survey/manage/modify/check/${surveyId.value}`)
+                    .then(() => {
+                        window.addEventListener('beforeunload', handleBeforeUnload);
+
+                        isValid.value = true;
+
+                        createDate.value = apiResponse.createDate;
+                        surveyTitle.value = apiResponse.title;
+                        surveyDescription.value = apiResponse.description;
+
+                        for(let i=0; i<apiResponse.questionList.length; i++){
+                            totalComponent.value.push({id : i, data:apiResponse.questionList[i]})
+                        }
+
+                        const expireDate = dayjs(apiResponse.expireDate);
+                        date.value = new Date(apiResponse.expireDate);
+                        const hours = expireDate.hour();
+                        const ampm = hours >= 12 ? '오후' : '오전';
+                        const hourIn12 = hours % 12 === 0 ? 12 : hours % 12;
+                        time.value = `${ampm} ${String(hourIn12).padStart(2, '0')}:${String(expireDate.minute()).padStart(2, '0')}`;
+                    })
+                    .catch((error) => {
+                        if(error.status === 401) {
+                            showDialog(dialogs.value.showDefaultDialog, "세션이 만료되었습니다. 다시 로그인 해주세요.");
+                        } else if(error.status === 409) {
+                            isValid.value = false;
+                            showDialog(dialogs.value.showInvalid, error.response.data.errorMessage);
+                        } else {
+                            showDialog(dialogs.value.showDefaultDialog, error.response.data.errorMessage)
+                        }
+                    })
+            }
+        })
+        .catch(error => {
+            console.error(error);
+        })
+})
 </script>
 
 <style scoped>
@@ -998,6 +1061,4 @@ input {
         margin-bottom: -2px;
     }
 }
-
-/* Rest of the styles remain the same */
 </style>
