@@ -1,13 +1,13 @@
 <template>
-    <ToolBar @goBack="goBack" backgroundColor="#fff" zIndex="1000" />
-    <div id="survey-detail" v-if="survey.title && survey.questions && survey.questions.length">
+    <ToolBar @goBack="goBack" backgroundColor="#fff" zIndex="1000" v-if="isValid"/>
+    <div id="survey-detail" v-if="isValid">
         <div class="survey-section">
             <div class="survey-title-section">
                 <div>
                     <h1 class="survey-title">{{ survey.title }}</h1>
                     <p class="survey-description">{{ survey.description }}</p>
                 </div>
-                <p class="survey-period">설문기간 &nbsp; {{ formatDate(survey.startDate) }} ~ {{ formatDate(survey.endDate) }}</p>
+                <p class="survey-period">설문기간 &nbsp; {{ `${dayjs(survey.startDate).format("YYYY.MM.DD")} ~ ${dayjs(survey.endDate).format("YYYY.MM.DD")}` }}</p>
             </div>
 
             <div class="survey-item-container">
@@ -73,7 +73,12 @@
                 </div>
             </div>
         </div>
+
+        <default-dialog v-model="dialogs.showInvalid.isVisible" :message="dialogs.showInvalid.message"
+            @confirm="goBack" :isPersistent="true"/>
     </div>
+
+    <survey-removed v-else/>
 </template>
 
 <script setup>
@@ -81,7 +86,9 @@ import { ref, onMounted, defineProps } from 'vue';
 import { useRouter } from 'vue-router';
 import { decrypt } from '@/utils/crypto';
 import axios from '@/utils/axiosInstance';
+import dayjs from 'dayjs';
 import ToolBar from '../common/ToolBar.vue';
+import SurveyRemoved from '../form/SurveyRemoved.vue';
 
 
 const router = useRouter();
@@ -94,6 +101,19 @@ const props = defineProps({
 // survey 객체와 사용자 답변 객체
 const survey = ref({});
 const userAnswers = ref({});
+const isValid = ref(true);
+
+const dialogs = ref({
+    showInvalid: {
+        isVisible: false,
+        message: "",
+    },
+})
+
+const showDialog = (dialog, message) => {
+    dialog.message = message
+    dialog.isVisible = true
+}
 
 // 컴포넌트가 마운트되면 API 호출
 onMounted(async () => {
@@ -144,6 +164,16 @@ const fetchSurveyResponses = async () => {
         });
     } catch (error) {
         console.error('설문 데이터를 가져오는 중 오류가 발생했습니다:', error);
+        switch(error?.status) {
+            case 400:
+                showDialog(dialogs.value.showInvalid, error?.response?.data?.errorMessage || "해당 설문이 존재하지 않습니다.")
+                break;
+
+            case 404:
+                isValid.value = false;
+
+
+        }
     }
 };
 
@@ -152,12 +182,6 @@ const fetchSurveyResponses = async () => {
 // 뒤로 가기 함수
 const goBack = () => {
     router.back(); // 홈 페이지로 이동
-};
-
-// 날짜 포맷 함수
-const formatDate = (dateStr) => {
-    const date = new Date(dateStr);
-    return date.toISOString().split('T')[0];
 };
 </script>
 

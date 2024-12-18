@@ -57,13 +57,17 @@
     <ConfirmDialog v-model="isDeleteModalVisible" message="설문을 정말 삭제하시겠습니까?" subMessage="*삭제 후에는 복구가 불가능합니다!"
         confirmButtonText="삭제" confirmButtonColor="#F77D7D" @confirm="handleDeleteConfirm" />
 
-
+    <!-- 기본 메세지 표시 다이얼로그 -->
     <default-dialog v-model="dialogs.showDefaultDialog.isVisible" :message="dialogs.showDefaultDialog.message"
         @confirm="dialogs.showDefaultDialog.isVisible = false" />
 
-    <!--종료,삭제 시 세션 무효 모달-->
+    <!-- 종료,삭제 시 세션 무효 다이얼로그 -->
     <default-dialog v-model="dialogs.showInvalidSessionDialog.isVisible" :message="dialogs.showInvalidSessionDialog.message"
         @confirm="redirectionToLogin" />
+
+    <!-- 본인이 생성한 계정이 아닐때 -->
+    <default-dialog v-model="dialogs.showForbidden.isVisible" :message="dialogs.showForbidden.message"
+        @confirm="redirectionToHome" />
 
     <default-dialog v-model="dialogs.showSuccessDialog.isVisible"
         :message="dialogs.showSuccessDialog.message" @confirm="confirm" :isPersistent="true" />
@@ -113,6 +117,10 @@ const dialogs = ref({
         isVisible: false,
         message: "",
     },
+    showForbidden: {
+        isVisible: false,
+        message: "",
+    }
 });
 
 const showDialog = (dialog, message) => {
@@ -141,8 +149,24 @@ async function fetchSurveyData() {
         expireDateBoolean.value = surveyData.value.expireDateValid;
     } catch (error) {
         console.error('설문 데이터를 불러오는 중 오류 발생:', error);
-        if(error.status === 404) {
-            isValid.value = false;
+        switch(error?.status) {
+            case 400:
+                showDialog(dialogs.value.showForbidden, error?.response?.data?.errorMessage
+                                                                || "설문 데이터를 불러오는 중 오류가 발생했습니다.");
+                break;
+
+            case 403:
+                showDialog(dialogs.value.showForbidden, error?.response?.data?.errorMessage
+                                                                || "설문 데이터를 불러오는 중 오류가 발생했습니다.");
+                break;
+
+            case 404:
+                isValid.value = false;
+                break;
+
+            default:
+                showDialog(dialogs.value.showDefaultDialog, "설문 데이터를 불러오는 중 오류가 발생했습니다.");
+                break;
         }
     } finally {
         isLoading.value = false;
@@ -188,6 +212,12 @@ async function handleCloseConfirm() {
 // 삭제 버튼 클릭
 function remove() {
     isDeleteModalVisible.value = true;
+}
+
+const redirectionToHome = () => {
+    dialogs.value.showInvalidSessionDialog.isVisible = true;
+
+    router.replace({ path: '/' })
 }
 
 const redirectionToLogin = () => {

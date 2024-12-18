@@ -481,12 +481,20 @@ const handleSubmit = () => {
                 showDialog(dialogs.value.showSuccessDialog, "설문이 성공적으로 생성되었습니다!");
             })
             .catch((error) => {
+                switch(error?.status) {
+                    case 400:
+                        isSessionValid.value = false;
+                        showDialog(dialogs.value.showInvalidSessionDialog, "해당 아이디의 사용자가 존재하지 않습니다.");
+                        break;
+                    
+                    case 401:
+                        isSessionValid.value = false;
+                        showDialog(dialogs.value.showInvalidSessionDialog, "세션이 만료되었습니다. 다시 로그인해주세요.")
+                        break;
 
-                if(error.status === 401) {
-                    isSessionValid.value = false;
-                    showDialog(dialogs.value.showInvalidSessionDialog, "세션이 만료되었습니다. 다시 로그인해주세요.")
-                } else {
-                    showDialog(dialogs.value.showDefaultDialog, "설문조사 생성 중 오류가 발생했습니다.");
+                    default:
+                        showDialog(dialogs.value.showDefaultDialog, "설문조사 생성 중 오류가 발생했습니다.");
+                        break;
                 }
             });
     }
