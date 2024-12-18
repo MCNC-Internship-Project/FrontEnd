@@ -379,7 +379,7 @@ const submitSurvey = async () => {
     });
 
     if (hasUnanswered) {
-        showDialog(dialogs.value.showDefaultDialog, "미응답 항목이 있습니다.")
+        showDialog(dialogs.value.defaultDialog, "미응답 항목이 있습니다.")
         return;
     }
 
