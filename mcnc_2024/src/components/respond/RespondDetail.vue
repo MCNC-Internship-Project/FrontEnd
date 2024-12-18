@@ -74,8 +74,8 @@
             </div>
         </div>
 
-        <default-dialog v-model="dialogs.showInvalid.isVisible" :message="dialogs.showInvalid.message"
-            @confirm="goBack" :isPersistent="true"/>
+        <default-dialog v-model="dialogs.defaultDialog.isVisible" :message="dialogs.defaultDialog.message"
+            @confirm="defaultDialogConfirm" :isPersistent="dialogs.defaultDialog.isPersistent"/>
     </div>
 
     <survey-removed v-else/>
@@ -104,16 +104,44 @@ const userAnswers = ref({});
 const isValid = ref(true);
 
 const dialogs = ref({
-    showInvalid: {
+    defaultDialog: {
         isVisible: false,
         message: "",
+        isPersistent: false,
+        callback: null
     },
 })
 
-const showDialog = (dialog, message) => {
-    dialog.message = message
+const showDialog = (dialog, message, isPersistent = false, callback = null) => {
+    dialog.message = message;
+    dialog.isPersistent = isPersistent;
+    dialog.callback = callback;
     dialog.isVisible = true
 }
+
+const defaultDialogConfirm = () => {
+    if (dialogs.value.defaultDialog.callback) {
+        dialogs.value.defaultDialog.callback();
+    }
+
+    dialogs.value.defaultDialog.isVisible = false;
+}
+
+const handleError = (error) => {
+    switch (error.status) {
+        case 400: // 해당 설문이 존재하지 않음
+            showDialog(dialogs.value.defaultDialog, error?.response?.data?.errorMessage, true, goBack);
+            break;
+        case 404:  // 해당 설문이 존재하지 않음
+            isValid.value = false;
+            break;
+        default: // 그 외
+            if (error?.response?.data?.errorMessage)
+                showDialog(dialogs.value.defaultDialog, error?.response?.data?.errorMessage, false, null);
+            else
+                showDialog(dialogs.value.defaultDialog, "설문 데이터를 불러오는 중 오류가 발생했습니다.", false, null);
+    }
+};
 
 // 컴포넌트가 마운트되면 API 호출
 onMounted(async () => {
@@ -163,17 +191,7 @@ const fetchSurveyResponses = async () => {
             }
         });
     } catch (error) {
-        console.error('설문 데이터를 가져오는 중 오류가 발생했습니다:', error);
-        switch(error?.status) {
-            case 400:
-                showDialog(dialogs.value.showInvalid, error?.response?.data?.errorMessage || "해당 설문이 존재하지 않습니다.")
-                break;
-
-            case 404:
-                isValid.value = false;
-
-
-        }
+        handleError(error);
     }
 };
 
@@ -181,7 +199,11 @@ const fetchSurveyResponses = async () => {
 
 // 뒤로 가기 함수
 const goBack = () => {
-    router.back(); // 홈 페이지로 이동
+    if (window.history.length > 1) {
+        router.back(); // 히스토리가 있으면 뒤로가기
+    } else {
+        router.replace('/'); // 히스토리가 없으면 홈으로 이동
+    }
 };
 </script>
 

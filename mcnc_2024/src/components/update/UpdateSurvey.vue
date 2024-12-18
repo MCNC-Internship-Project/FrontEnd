@@ -522,7 +522,7 @@ const handleError = (error) => {
             if (error?.response?.data?.errorMessage)
                 showDialog(dialogs.value.defaultDialog, error?.response?.data?.errorMessage, false, null);
             else
-                showDialog(dialogs.value.defaultDialog, "설문조사 수정 중 오류가 발생했습니다.", false, null);
+                showDialog(dialogs.value.defaultDialog, "오류가 발생했습니다.", false, null);
     }
 };
 
