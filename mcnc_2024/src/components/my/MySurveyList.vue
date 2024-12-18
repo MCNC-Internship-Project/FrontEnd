@@ -152,7 +152,7 @@ async function load({ done }) {
 
 .list-none {
     width: 100%;
-    height: calc(var(--vh, 1vh) * 100 - 116px);
+    height: calc(var(--vh, 1vh) * 100 - 148px);
     display: flex;
     justify-content: center;
     align-items: center;
