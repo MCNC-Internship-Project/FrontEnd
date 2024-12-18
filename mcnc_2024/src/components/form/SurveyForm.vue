@@ -126,6 +126,9 @@
             <default-dialog v-model="dialogs.showDefaultDialog.isVisible" :message="dialogs.showDefaultDialog.message"
                 @confirm="dialogs.showDefaultDialog.isVisible = false"/>
 
+            <default-dialog v-model="dialogs.showInvalidSessionDialog.isVisible" :message="dialogs.showInvalidSessionDialog.message"
+                @confirm="redirectionToLogin"/>
+
             <default-dialog v-model="dialogs.showErrorDialog.isVisible" :message="dialogs.showErrorDialog.message"
                 @confirm="redirectionToExpired" :isPersistent="true"/>
         </div>
@@ -169,7 +172,11 @@ const dialogs = ref({
     showErrorDialog: {
         isVisible: false,
         message: "",
-    }
+    },
+    showInvalidSessionDialog: {
+        isVisible: false,
+        message: "",
+    },
 })
 
 const isValid = ref(false);
@@ -423,6 +430,10 @@ const submitSurvey = async () => {
         if(error.status === 400) {
             showDialog(dialogs.value.showErrorDialog, error.response.data.errorMessage)
         }
+
+        if(error.status === 401) {
+            showDialog(dialogs.value.showInvalidSessionDialog, "세션이 만료되었습니다. 다시 로그인해주세요.")
+        }
     }
 };
 
@@ -440,6 +451,13 @@ const redirectionToExpired = () => {
     isValid.value = false;
     isRemoved.value = false;
     isExpired.value = true;
+}
+
+const redirectionToLogin = () => {
+    dialogs.value.showInvalidSessionDialog.isVisible = true;
+    const currentPath = router.currentRoute.value.path
+    
+    router.replace({ path: '/login', query: { redirect: currentPath } })
 }
 
 const toggleEtcCheckbox = (quesId) => {

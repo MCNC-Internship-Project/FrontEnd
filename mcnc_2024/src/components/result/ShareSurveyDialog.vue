@@ -21,7 +21,7 @@
                     <div class="confirm-btn-container">
                         <div v-if="!isEmailSending" class="confirm-btn-txt">보내기</div>
                         <div v-else class="progress-container">
-                            <v-progress-circular class="progress" indeterminate color="var(--primary)"></v-progress-circular>
+                            <v-progress-circular class="progress" indeterminate color="var(--accent)"></v-progress-circular>
                             <div class="progress-text">이메일 전송 중...</div>
                         </div>
                     </div>
@@ -31,7 +31,7 @@
     </v-dialog>
 
     <v-snackbar v-model="snackbar" timeout="5000">
-        <div>이메일 전송 중 오류가 발생했습니다.</div>
+        <div>{{ errorMessage }}</div>
         <template v-slot:actions>
             <v-btn color="var(--primary)" variant="text" @click="snackbar = false">
                 확인
@@ -133,7 +133,18 @@ const sendEmail = () => {
         .then(() => {
             onConfirm();
         })
-        .catch(() => {
+        .catch((error) => {
+            if (error.status === 401) {
+                errorMessage.value = '세션이 만료되었습니다. 로그인 후 다시 시도해주세요.';
+                snackbar.value = true;
+                return;
+            }
+
+            if (error?.response?.data?.errorMessage)
+                errorMessage.value = error.response.data.errorMessage;
+            else
+                errorMessage.value = '이메일 전송 중 오류가 발생했습니다.';
+
             snackbar.value = true;
         })
         .finally(() => {
@@ -273,7 +284,7 @@ watch(isVisible, (newValue) => {
 }
 
 .confirm-btn:disabled {
-    background-color: #F5F5F5 !important;
+    background-color: #FFFFFF !important;
     cursor: not-allowed;
 }
 

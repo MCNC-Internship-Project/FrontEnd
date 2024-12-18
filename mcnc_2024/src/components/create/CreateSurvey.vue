@@ -158,6 +158,9 @@
         <default-dialog v-model="dialogs.showDefaultDialog.isVisible" :message="dialogs.showDefaultDialog.message"
             @confirm="dialogs.showDefaultDialog.isVisible = false" />
 
+        <default-dialog v-model="dialogs.showInvalidSessionDialog.isVisible" :message="dialogs.showInvalidSessionDialog.message"
+            @confirm="redirectionToLogin"/>
+
         <confirm-dialog v-model="dialogs.showSaveDialog.isVisible" :message="dialogs.showSaveDialog.message"
             @confirm="handleSubmit" />
 
@@ -178,6 +181,7 @@ import { useSaveStatusStore } from '@/stores/saveStatusStore';
 
 const saveStore = useSaveStatusStore();
 const router = useRouter();
+const isSessionValid = ref(true);
 const totalComponent = ref([{ id: 0 },]);
 const surveyItems = ref([]);
 
@@ -206,6 +210,10 @@ const dialogs = ref({
         message: "",
     },
     showSaveDialog: {
+        isVisible: false,
+        message: "",
+    },
+    showInvalidSessionDialog: {
         isVisible: false,
         message: "",
     },
@@ -244,16 +252,20 @@ onBeforeUnmount(() => {
 
 // 라우터를 떠나기 전에 확인
 onBeforeRouteLeave((to, from, next) => {
-  if (!saveStore.isSaved) {
-    const confirmationMessage = '정말 나가시겠습니까? 변경사항이 저장되지 않을 수 있습니다.';
-    if (window.confirm(confirmationMessage)) {
-      next(); // 저장하지 않고 나갈 경우, 라우팅을 진행
-    } else {
-      next(false); // 이동을 취소
+    if(!isSessionValid.value){
+        next();
+        return;
     }
-  } else {
-    next(); // 이미 저장된 경우, 그냥 이동
-  }
+    if (!saveStore.isSaved) {
+        const confirmationMessage = '정말 나가시겠습니까? 변경사항이 저장되지 않을 수 있습니다.';
+        if (window.confirm(confirmationMessage)) {
+            next(); // 저장하지 않고 나갈 경우, 라우팅을 진행
+        } else {
+            next(false); // 이동을 취소
+        }
+    } else {
+        next(); // 이미 저장된 경우, 그냥 이동
+    }
 });
 
 const cancel = () => {
@@ -398,6 +410,15 @@ const parseTime = (timeStr) => {
     return `${hour.toString().padStart(2, '0')}:${minutes}:00`;
 }
 
+const redirectionToLogin = () => {
+    dialogs.value.showInvalidSessionDialog.isVisible = true;
+    const currentPath = router.currentRoute.value.path;
+
+    window.removeEventListener('beforeunload', handleBeforeUnload);
+    
+    router.replace({ path: '/login', query: { redirect: currentPath } })
+}
+
 const handleSubmit = () => {
     // survey-item의 모든 값을 가져오기
     const title = surveyTitle.value.trim();
@@ -459,8 +480,22 @@ const handleSubmit = () => {
                 saveStore.setSaved();
                 showDialog(dialogs.value.showSuccessDialog, "설문이 성공적으로 생성되었습니다!");
             })
-            .catch(() => {
-                showDialog(dialogs.value.showDefaultDialog, "설문조사 생성 중 오류가 발생했습니다.");
+            .catch((error) => {
+                switch(error?.status) {
+                    case 400:
+                        isSessionValid.value = false;
+                        showDialog(dialogs.value.showInvalidSessionDialog, "해당 아이디의 사용자가 존재하지 않습니다.");
+                        break;
+                    
+                    case 401:
+                        isSessionValid.value = false;
+                        showDialog(dialogs.value.showInvalidSessionDialog, "세션이 만료되었습니다. 다시 로그인해주세요.")
+                        break;
+
+                    default:
+                        showDialog(dialogs.value.showDefaultDialog, "설문조사 생성 중 오류가 발생했습니다.");
+                        break;
+                }
             });
     }
 };

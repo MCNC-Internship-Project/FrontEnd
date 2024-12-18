@@ -1,50 +1,32 @@
 <template>
-    <div class="root-container">
+    <div class="root-container" v-if="isValid">
         <header class="toolbar">
-            <img class="back" src="@/assets/images/icon_arrow_left.svg" alt="back"
-            @click="stepBack">
-            <button class="submit-btn" @click="showDialog(dialogs.showSaveDialog, '수정하시겠습니까?')" v-ripple>수정</button>
+            <img class="back" src="@/assets/images/icon_arrow_left.svg" alt="back" @click="goBack">
+            <button class="submit-btn" @click="showDialog(dialogs.confirmDialog, '수정하시겠습니까?', false, handleSubmit)" v-ripple>수정</button>
         </header>
 
         <div class="survey-container">
             <div class="survey-title-section">
                 <div class="input-section">
-                        <v-textarea
-                            v-model="surveyTitle"
-                            class="survey-title"
-                            rows="1"
-                            auto-grow
-                            variant="none"
-                            color="#464748"
-                            @focus="titleError = false; titlePlaceholderVisible = false"
-                            @blur="titlePlaceholderVisible = true"
-                            maxlength="255"
-                            hide-details="false"
-                            :class="{ 'title-error': titleError }"
-                            :placeholder="titlePlaceholderVisible ? (titleError ? '(제목 없음)' : '설문조사 제목') : ''"
-                        />
+                    <v-textarea v-model="surveyTitle" class="survey-title" rows="1" auto-grow variant="none"
+                        color="#464748" @focus="titleError = false; titlePlaceholderVisible = false"
+                        @blur="titlePlaceholderVisible = true" maxlength="255" hide-details="false"
+                        :class="{ 'title-error': titleError }"
+                        :placeholder="titlePlaceholderVisible ? (titleError ? '(제목 없음)' : '설문조사 제목') : ''" />
                 </div>
 
                 <div class="input-section">
-                    <v-textarea
-                            v-model="surveyDescription"
-                            class="survey-description" 
-                            rows="1"
-                            auto-grow
-                            variant="none"
-                            color="#C1C3C5"
-                            @focus="descriptionPlaceholderVisible = false"
-                            @blur="descriptionPlaceholderVisible = true"
-                            maxlength="512"
-                            hide-details="false"
-                            :placeholder="descriptionPlaceholderVisible ? '설문조사 설명' : ''"
-                        />
+                    <v-textarea v-model="surveyDescription" class="survey-description" rows="1" auto-grow variant="none"
+                        color="#C1C3C5" @focus="descriptionPlaceholderVisible = false"
+                        @blur="descriptionPlaceholderVisible = true" maxlength="512" hide-details="false"
+                        :placeholder="descriptionPlaceholderVisible ? '설문조사 설명' : ''" />
                 </div>
 
                 <div class="select-deadline-section">
                     <div class="deadline">설문 기간</div>
 
-                    <div class="datetime-container" @click="showDatePickerDialog = true; dateError = false" :class="{ 'date-error': dateError }">
+                    <div class="datetime-container" @click="showDatePickerDialog = true; dateError = false"
+                        :class="{ 'date-error': dateError }">
                         <span class="datetime-text"
                             v-html="date === null && time === null ? (dateError ? '마감 기한을 설정해주세요.' : '미설정') : ` ~&nbsp;${dayjs(date).format('YYYY.MM.DD')}&nbsp;&nbsp;${time}`"></span>
                         <img src="@/assets/images/icon_calendar3.svg" class="datetime-icon" alt="calendar icon" />
@@ -57,9 +39,8 @@
                 <transition-group name="survey-delete" tag="div" class="survey-items-wrapper">
                     <div class="survey-item-container" v-for="(com, index) in totalComponent" :key="com.id">
                         <update-survey-item ref="surveyItems" @delete-item="removeComponent(com.id)"
-                            :is-single="totalComponent.length === 1"
-                            :item-number="index + 1"
-                            :questionList="totalComponent[index].data"/>
+                            :is-single="totalComponent.length === 1" :item-number="index + 1"
+                            :questionList="totalComponent[index].data" />
                     </div>
                 </transition-group>
             </div>
@@ -137,7 +118,8 @@
                                         <time-picker-component :items="minuteList" v-model:value="selectedMinute"
                                             :initial-value="selectedMinute" />
                                     </div>
-                                    <v-btn class="time-picker-btn" @click="isTimeMenuOpen = false; onTimePickerClose(false)">
+                                    <v-btn class="time-picker-btn"
+                                        @click="isTimeMenuOpen = false; onTimePickerClose(false)">
                                         확인
                                     </v-btn>
                                 </div>
@@ -149,40 +131,42 @@
                     <div class="error-text" v-if="isTimeBeforeNowError">*종료 시간은 현재보다 이전으로 설정할 수 없습니다.</div>
 
                     <div class="dialog-actions">
-                        <v-btn class="dialog-cancel-btn" @click="cancel">취소</v-btn>
-                        <v-btn class="dialog-confirm-btn" color="#7796E8" @click="confirm">확인</v-btn>
+                        <v-btn class="dialog-cancel-btn" @click="datePickerCancel">취소</v-btn>
+                        <v-btn class="dialog-confirm-btn" color="#7796E8" @click="datePickerConfirm">확인</v-btn>
                     </div>
                 </div>
             </v-card>
         </v-dialog>
-
-        <default-dialog v-model="dialogs.showDefaultDialog.isVisible" :message="dialogs.showDefaultDialog.message"
-        @confirm="dialogs.showDefaultDialog.isVisible = false" />
-        
-        <confirm-dialog v-model="dialogs.showSaveDialog.isVisible" :message="dialogs.showSaveDialog.message"
-        @confirm="handleSubmit" />
-
-        <default-dialog v-model="dialogs.showSuccessDialog.isVisible" :message="dialogs.showSuccessDialog.message"
-        @confirm="redirectionToMySurvey" :isPersistent="true"/>
     </div>
+
+    <survey-removed v-if="surveyRemoved" />
+
+    <default-dialog v-model="dialogs.defaultDialog.isVisible" :message="dialogs.defaultDialog.message"
+        :isPersistent="dialogs.defaultDialog.isPersistent" @confirm="defaultDialogConfirm" />
+
+    <confirm-dialog v-model="dialogs.confirmDialog.isVisible" :message="dialogs.confirmDialog.message"
+        :isPersistent="dialogs.confirmDialog.isPersistent" @confirm="handleSubmit" />
+
 </template>
 
 <script setup>
+import { ref, nextTick, watch, defineProps, onMounted, onUnmounted } from 'vue';
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
-import { ref, nextTick, watch, defineProps, onMounted, onBeforeUnmount } from 'vue';
-import axios from '@/utils/axiosInstance';
-import dayjs from 'dayjs'
 import { decrypt, encrypt } from '@/utils/crypto';
 import { checkEmptyValues } from '@/utils/checkEmptyValues';
+import axios from '@/utils/axiosInstance';
+import dayjs from 'dayjs'
 import UpdateSurveyItem from './component/UpdateSurveyItem.vue';
 import TimePickerComponent from './component/TimePickerComponent.vue';
-import { useSaveStatusStore } from '@/stores/saveStatusStore';
+// eslint-disable-next-line no-unused-vars
+import SurveyRemoved from '../form/SurveyRemoved.vue';
 
-const saveStore = useSaveStatusStore();
 const router = useRouter();
+const isValid = ref(false);
 const props = defineProps({
     id: String,
 })
+const surveyRemoved = ref(false);
 
 const totalComponent = ref([]);
 const surveyItems = ref([]);
@@ -199,29 +183,45 @@ const isDateError = ref(false);
 const isTimeError = ref(false);
 const isTimeBeforeNowError = ref(false);
 
-const showSuccessDialog = ref(false);
 const showDatePickerDialog = ref(false);
 const isDateMenuOpen = ref(false);
 const isTimeMenuOpen = ref(false);
 
+const successModify = ref(false);
+
+const handleBeforeUnload = (event) => {
+    event.preventDefault();
+    return '';
+};
+
 const dialogs = ref({
-    showDefaultDialog : {
-        isVisible : false,
-        message : "",
+    defaultDialog: {
+        isVisible: false,
+        message: "",
+        isPersistent: false,
+        callback: null
     },
-    showSuccessDialog : {
-        isVisible : false,
-        message : "",
-    },
-    showSaveDialog : {
-        isVisible : false,
-        message : "",
-    },
+    confirmDialog: {
+        isVisible: false,
+        message: "",
+        isPersistent: false,
+        callback: null
+    }
 })
 
-const showDialog = (dialog, message) => {
-    dialog.message = message
+const showDialog = (dialog, message, isPersistent = false, callback = null) => {
+    dialog.message = message;
+    dialog.isPersistent = isPersistent;
+    dialog.callback = callback;
     dialog.isVisible = true
+}
+
+const defaultDialogConfirm = () => {
+    if (dialogs.value.defaultDialog.callback) {
+        dialogs.value.defaultDialog.callback();
+    }
+
+    dialogs.value.defaultDialog.isVisible = false;
 }
 
 const ampmList = ref(['오전', '오후']);
@@ -237,62 +237,44 @@ const selectedMinute = ref('00');
 const date = ref(null);
 const time = ref(null);
 
-let apiResponse = null;
-
-const handleBeforeUnload = (event) => {
-  event.preventDefault();
-  return ''; // 페이지 새로고침 혹은 종료 전에 경고 메시지를 표시하려면 이렇게 설정합니다.
-};
-
-onBeforeUnmount(() => {
-    window.removeEventListener('beforeunload', handleBeforeUnload);
-})
-
-onMounted(() => {
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    surveyId.value = decrypt(props.id);
-
-    axios.get(`/survey/inquiry/detail/${surveyId.value}`)
-    .then((response) => {
-        if (response.status === 200) {
-            apiResponse = response.data;
-
-            createDate.value = apiResponse.createDate;
-            surveyTitle.value = apiResponse.title;
-            surveyDescription.value = apiResponse.description;
-
-            for(let i=0; i<apiResponse.questionList.length; i++){
-                totalComponent.value.push({id : i, data:apiResponse.questionList[i]})
-            }
-
-            const expireDate = dayjs(apiResponse.expireDate);
-            date.value = new Date(apiResponse.expireDate);
-            const hours = expireDate.hour();
-            const ampm = hours >= 12 ? '오후' : '오전';
-            const hourIn12 = hours % 12 === 0 ? 12 : hours % 12;
-            time.value = `${ampm} ${String(hourIn12).padStart(2, '0')}:${String(expireDate.minute()).padStart(2, '0')}`;
-        }
-    })
-    .catch(error => {
-        console.error(error);
-    })
-})
-
-// 라우터를 떠나기 전에 확인
-onBeforeRouteLeave((to, from, next) => {
-  if (!saveStore.isSaved) {
-    const confirmationMessage = '정말 나가시겠습니까? 변경사항이 저장되지 않을 수 있습니다.';
-    if (window.confirm(confirmationMessage)) {
-      next(); // 저장하지 않고 나갈 경우, 라우팅을 진행
-    } else {
-      next(false); // 이동을 취소
+// 응답한 사람이 있어 수정 불가능, 이미 종료된 설문, 뒤로가기 버튼 클릭 시
+const goBack = () => {
+    if (!isValid.value) {
+        window.removeEventListener('beforeunload', handleBeforeUnload);
     }
-  } else {
-    next(); // 이미 저장된 경우, 그냥 이동
-  }
-});
 
-const cancel = () => {
+    router.back();
+}
+
+// 세션이 만료되었을 경우 로그인 페이지로 이동
+const goLogin = () => {
+    // window.removeEventListener('beforeunload', handleBeforeUnload);
+    const currentPath = router.currentRoute.value.path;
+    router.replace({ path: '/login', query: { redirect: currentPath } })
+}
+
+// 내 설문조사가 아닌 경우 홈으로 이동
+const goHome = () => {
+    window.removeEventListener('beforeunload', handleBeforeUnload);
+    router.replace({ name: 'Home' });
+}
+
+// 수정 완료 후 통계 페이지로 이동
+const goMySurvey = () => {
+    window.removeEventListener('beforeunload', handleBeforeUnload);
+
+    router.go(-1);
+
+    setTimeout(() => {
+        router.replace({
+            name: "Result",
+            params: { id: encrypt(surveyId.value) }
+        });
+    }, 100);
+}
+
+
+const datePickerCancel = () => {
     showDatePickerDialog.value = false;
 
     if (selectedDate.value !== null) {
@@ -307,7 +289,7 @@ const cancel = () => {
     }
 };
 
-const confirm = () => {
+const datePickerConfirm = () => {
     if (selectedDate.value === null) {
         isDateError.value = true;
     }
@@ -350,8 +332,8 @@ const onTimePickerClose = (value) => {
     }
 };
 
-watch(showDatePickerDialog, (show) => {
-    if (show) {
+watch(showDatePickerDialog, (isVisible) => {
+    if (isVisible) {
         if (date.value) {
             selectedDate.value = date.value;
         }
@@ -405,7 +387,7 @@ const addComponent = () => {
         ]
     };
 
-    const newObj = { 
+    const newObj = {
         id: lastIndex + 1,
         data: newQuestionData  // 새로운 질문 데이터 추가
     }
@@ -430,10 +412,6 @@ const removeComponent = (id) => {
         return;
     totalComponent.value = totalComponent.value.filter(item => item.id !== id);
 };
-
-const stepBack = () => {
-    router.back();
-}
 
 const parseTime = (timeStr) => {
     if (!timeStr) return null;
@@ -471,9 +449,11 @@ const handleSubmit = () => {
 
     const values = surveyItems.value.map((item) => item.getValue()); // getValue()는 각 survey-item에서 필요한 값을 반환하는 메서드
 
-    const jsonData = { surveyId: surveyId.value, title: title,
-                        description: description, questionList: values,
-                        createDate : createDate.value }
+    const jsonData = {
+        surveyId: surveyId.value, title: title,
+        description: description, questionList: values,
+        createDate: createDate.value
+    }
 
     const emptyPath = checkEmptyValues(jsonData);
 
@@ -487,12 +467,9 @@ const handleSubmit = () => {
      * 
      */
     if (isExistQuestionList.length > 0 || !valid) {
-        dialogs.value.showSaveDialog.isVisible = false;
-        showDialog(dialogs.value.showDefaultDialog, '입력되지 않은 항목이 있습니다.');
+        showDialog(dialogs.value.defaultDialog, "입력되지 않은 항목이 있습니다.", false, null);
         return;
     } else {
-        dialogs.value.showSaveDialog.isVisible = false;
-
         const dateFormatted = dayjs(date.value).format('YYYY-MM-DD');
         const timeFormatted = parseTime(time.value);
 
@@ -503,38 +480,114 @@ const handleSubmit = () => {
 
         if (selectedDateTime.isBefore(currentDateTime)) {
             dateError.value = true;
-            showDialog(dialogs.value.showDefaultDialog, '종료 시간은 현재보다 이전으로 설정할 수 없습니다.');
+            showDialog(dialogs.value.defaultDialog, "종료 시간은 현재보다 이전으로 설정할 수 없습니다.", false, null);
             return;
         }
 
         jsonData.expireDate = dateTime;
 
         axios.post(`/survey/manage/modify`, JSON.stringify(jsonData))
-        .then(() => {
-            showDialog(dialogs.value.showSuccessDialog, "설문조사가 수정되었습니다.");
-        })
-        .catch((error) => {
-            if(error.response.status === 400){
-                showDialog(dialogs.value.showDefaultDialog, error.response.data.errorMessage);
-            } else {
-                showDialog(dialogs.value.showDefaultDialog, "설문조사 수정 중 오류가 발생했습니다.");
-            }
-        });
+            .then(() => {
+                successModify.value = true;
+                showDialog(dialogs.value.defaultDialog, "설문조사가 수정되었습니다.", true, goMySurvey);
+            })
+            .catch((error) => {
+                handleError(error);
+            });
     }
 };
 
-const redirectionToMySurvey = () => {
-    showSuccessDialog.value = false;
-    router.go(-1);
-    saveStore.setSaved();
-    
-    setTimeout(() => {
-            router.replace({
-            name: "Result",
-            params: {id : encrypt(surveyId.value)}
+const handleError = (error) => {
+    switch (error.status) {
+        case 400: // 해당 설문이 존재하지 않음
+            surveyRemoved.value = true;
+            break;
+        case 401: // 세션이 만료됨
+            showDialog(dialogs.value.defaultDialog, "세션이 만료되었습니다. 다시 로그인 해주세요.", true, goLogin);
+            break;
+        case 403: // 내 설문이 아님
+            showDialog(dialogs.value.defaultDialog, error.response.data.errorMessage, true, goHome);
+            break;
+        case 404:  // 해당 설문이 존재하지 않음
+            surveyRemoved.value = true;
+            break;
+        case 409: // 응답한 사람이 있어 설문 수정 불가능
+            isValid.value = false;
+            showDialog(dialogs.value.defaultDialog, error.response.data.errorMessage, true, goBack);
+            break;
+        case 410: // 이미 종료된 설문
+            showDialog(dialogs.value.defaultDialog, error.response.data.errorMessage, true, goBack);
+            break;
+        default: // 그 외
+            if (error?.response?.data?.errorMessage)
+                showDialog(dialogs.value.defaultDialog, error?.response?.data?.errorMessage, false, null);
+            else
+                showDialog(dialogs.value.defaultDialog, "설문조사 수정 중 오류가 발생했습니다.", false, null);
+    }
+};
+
+// 라우터를 떠나기 전에 확인
+onBeforeRouteLeave((to, from, next) => {
+    if (!isValid.value) {
+        window.removeEventListener('beforeunload', handleBeforeUnload);
+        next();
+        return;
+    }
+
+    if (successModify.value) {
+        next();
+        return;
+    }
+
+    const confirmAlert = window.confirm("정말 나가시겠습니까? 변경사항이 저장되지 않을 수 있습니다.");
+    if (confirmAlert) {
+        next(); // 저장하지 않고 나갈 경우, 라우팅을 진행
+    } else {
+        next(false); // 이동을 취소
+    }
+});
+
+onUnmounted(() => {
+    // 컴포넌트가 제거될 때 beforeunload 이벤트 제거
+    window.removeEventListener('beforeunload', handleBeforeUnload);
+})
+
+onMounted(() => {
+    surveyId.value = decrypt(props.id);
+
+    // 설문 수정 가능 여부 확인 API 호출
+    axios.get(`/survey/manage/modify/check/${surveyId.value}`)
+        .then(() => { // 내가 생성한 설문, 응답한 사람 없음, 종료되지 않음
+            // 설문 상세 정보 API 호출
+            axios.get(`/survey/inquiry/detail/${surveyId.value}`)
+                .then((response) => {
+                    // 설문 수정이 가능한 경우, beforeunload 이벤트 추가
+                    window.addEventListener('beforeunload', handleBeforeUnload);
+
+                    isValid.value = true;
+
+                    const apiResponse = response.data;
+
+                    createDate.value = apiResponse.createDate;
+                    surveyTitle.value = apiResponse.title;
+                    surveyDescription.value = apiResponse.description;
+
+                    for (let i = 0; i < apiResponse.questionList.length; i++) {
+                        totalComponent.value.push({ id: i, data: apiResponse.questionList[i] })
+                    }
+
+                    const expireDate = dayjs(apiResponse.expireDate);
+                    date.value = new Date(apiResponse.expireDate);
+                    const hours = expireDate.hour();
+                    const ampm = hours >= 12 ? '오후' : '오전';
+                    const hourIn12 = hours % 12 === 0 ? 12 : hours % 12;
+                    time.value = `${ampm} ${String(hourIn12).padStart(2, '0')}:${String(expireDate.minute()).padStart(2, '0')}`;
+                })
+        })
+        .catch((error) => {
+            handleError(error);
         });
-    }, 100);
-}
+})
 </script>
 
 <style scoped>
@@ -603,7 +656,8 @@ const redirectionToMySurvey = () => {
     outline: none;
     color: #000;
     font-weight: bold;
-    resize: none; /* 사용자가 크기 조절 못하도록 */
+    resize: none;
+    /* 사용자가 크기 조절 못하도록 */
 }
 
 .survey-title:deep(.v-field__input::placeholder) {
@@ -613,12 +667,12 @@ const redirectionToMySurvey = () => {
 }
 
 :deep(.v-field) {
-    font-size : 1.25rem;
+    font-size: 1.25rem;
     --v-disabled-opacity: 1 !important;
 }
 
 .title-error:deep(.v-field__input::placeholder) {
-    color : #F77D7D;
+    color: #F77D7D;
 }
 
 :deep(.v-input--density-default),
@@ -637,8 +691,8 @@ const redirectionToMySurvey = () => {
 }
 
 .survey-description:deep(.v-field) {
-    font-size : 1rem;
-    font-weight : bold;
+    font-size: 1rem;
+    font-weight: bold;
 }
 
 .survey-description:deep(.v-field__input::placeholder) {
@@ -723,7 +777,7 @@ input {
 }
 
 .date-error {
-    color : #F77D7D;
+    color: #F77D7D;
 }
 
 .create-btn-container {
