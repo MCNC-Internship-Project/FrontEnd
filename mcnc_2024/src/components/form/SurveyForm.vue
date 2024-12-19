@@ -18,7 +18,7 @@
                     <div v-for="question in survey.questionList" :key="question.quesId"
                         class="survey-item-section" :class="{ error: question.hasError }">
                         <!-- 에러 메시지: 주관식 제외 -->
-                        <div v-if="question.hasError && question.questionType !== 'SUBJECTIVE'" class="error-message">
+                        <div v-if="question.hasError && question.questionType !== 'SUBJECTIVE' && !etcAnswers.length" class="error-message">
                             *입력되지 않은 항목이 있습니다.
                         </div>
 
@@ -117,11 +117,12 @@
                 <button class="submit-btn" @click="submitSurvey" v-ripple>제출</button>
             </div>
             </div>
-
-            <default-dialog v-model="dialogs.defaultDialog.isVisible" :message="dialogs.defaultDialog.message"
-                :isPersistent="dialogs.defaultDialog.isPersistent" @confirm="defaultDialogConfirm" />
         </div>
     </div>
+
+    <default-dialog v-model="dialogs.defaultDialog.isVisible" :message="dialogs.defaultDialog.message"
+            :isPersistent="dialogs.defaultDialog.isPersistent" @confirm="defaultDialogConfirm" />
+
     <survey-expired :surveyValues="{title : survey.title, description : survey.description,
         createDate : survey.createDate, expireDate : survey.expireDate
     }" v-if="isExpired" />
@@ -193,14 +194,13 @@ const handleError = (error) => {
         case 401: // 세션이 만료됨
             showDialog(dialogs.value.defaultDialog, "세션이 만료되었습니다. 다시 로그인 해주세요.", true, goLogin);
             break;
-        case 404:  // 해당 설문이 존재하지 않음
+        case 404: // 해당 설문이 존재하지 않음
             isRemoved.value = true;
             break;
-        case 409:  // 이미 응답한 설문
-            isValid.value = true;
+        case 409: // 이미 응답한 설문
             showDialog(dialogs.value.defaultDialog, error.response.data.errorMessage, true, goRespond);
             break;
-        case 410:
+        case 410: // 이미 종료된 설문
             showDialog(dialogs.value.defaultDialog, error.response.data.errorMessage, true, goExpired);
             break;
         default: // 그 외
@@ -362,7 +362,7 @@ const submitSurvey = async () => {
         ) {
             question.hasError = true;
             hasUnanswered = true;
-            
+
             // 라디오 버튼의 경우 answers를 초기화하지 않음
             if (question.questionType !== "OBJ_SINGLE") {
                 answers.value[question.quesId] = "";
@@ -491,6 +491,11 @@ const goExpired = () => {
 
 const toggleEtcCheckbox = (quesId) => {
     const question = survey.value.questionList.find((q) => q.quesId === quesId);
+
+    if(question.hasEtcError) { 
+        question.hasEtcError = false;
+    }
+
     if (question) {
         question.isEtcChecked = !question.isEtcChecked;
 
@@ -516,6 +521,7 @@ const toggleEtcCheckbox = (quesId) => {
 
 const handleEtcInputChange = (quesId, sequence, inputText) => {
     const question = survey.value.questionList.find((q) => q.quesId === quesId);
+
     if (question) {
         question.etcAnswer = inputText || "";
 
@@ -646,7 +652,7 @@ onMounted(() => {
 }
 
 .survey-item-section.error {
-    border: 2px solid #f77d7d;
+    box-shadow: 0 0 0 2px #F77D7D;
 }
 
 .error-message {

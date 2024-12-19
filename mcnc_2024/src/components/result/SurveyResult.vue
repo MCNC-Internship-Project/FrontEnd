@@ -138,13 +138,13 @@ const handleError = (error) => {
         case 400: // 해당 설문이 존재하지 않음
             showDialog(dialogs.value.defaultDialog, error.response.data.errorMessage, true, goBack)
             break;
-        case 401:
+        case 401: // 세션이 만료됨
             showDialog(dialogs.value.defaultDialog, "세션이 만료되었습니다. 다시 로그인 해주세요.", true, redirectionToLogin)
             break;
         case 403: // 내 설문이 아님
             showDialog(dialogs.value.defaultDialog, error.response.data.errorMessage, true, redirectionToHome)
             break;
-        case 404:  // 해당 설문이 존재하지 않음
+        case 404: // 해당 설문이 존재하지 않음
             isValid.value = false;
             break;
         case 410: // 이미 종료된 설문
