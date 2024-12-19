@@ -40,11 +40,12 @@
             <v-card style="background-color: #FFF;">
                 <v-date-picker hide-header v-model="birth" width="320" max-width="400"
                     @update:model-value="showDatePicker = false; isBirthError = false;" color="#1088E3"
-                    :max="new Date()"></v-date-picker>
+                    :max="today"></v-date-picker>
             </v-card>
         </v-dialog>
 
-        <default-dialog v-model="dialog.isVisible" :message="dialog.message" @confirm="dialog.isVisible = false" />
+        <default-dialog v-model="dialogs.defaultDialog.isVisible" :message="dialogs.defaultDialog.message"
+            :isPersistent="dialogs.defaultDialog.isPersistent" @confirm="dialogConfirm(dialogs.defaultDialog)" />
     </div>
 </template>
 
@@ -68,16 +69,33 @@ const genderOptions = ['남성', '여성'];
 const showDatePicker = ref(false);
 const showGenderMenu = ref(false);
 
+const today = new Date();
+today.setDate(today.getDate() - 1);
+
 const emit = defineEmits("signUp");
 
-const dialog = ref({
-    isVisible: false,
-    message: ""
-});
+const dialogs = ref({
+    defaultDialog: {
+        isVisible: false,
+        message: "",
+        isPersistent: false,
+        callback: null
+    }
+})
 
-const showDialog = (message) => {
-    dialog.value.message = message;
-    dialog.value.isVisible = true;
+const showDialog = (dialog, message, isPersistent = false, callback = null) => {
+    dialog.isVisible = true
+    dialog.message = message;
+    dialog.isPersistent = isPersistent;
+    dialog.callback = callback;
+}
+
+const dialogConfirm = (dialog) => {
+    if (dialog.callback) {
+        dialog.callback();
+    }
+
+    dialog.isVisible = false;
 }
 
 const selectGender = (value) => {
@@ -89,13 +107,13 @@ const selectGender = (value) => {
 const goToSignUp = () => {
     if (!birth.value) {
         isBirthError.value = true;
-        showDialog('생년월일을 입력해주세요.');
+        showDialog(dialogs.value.defaultDialog, "생년월일을 선택해주세요.", false, null);
         return;
     }
 
     if (!gender.value) {
         isGenderError.value = true;
-        showDialog('성별을 선택해주세요.');
+        showDialog(dialogs.value.defaultDialog, "성별을 선택해주세요.", false, null);
         return;
     }
 
@@ -118,10 +136,16 @@ const goToSignUp = () => {
             emit("signUp");
         })
         .catch((error) => {
+            if (error.status === 403) {
+                showDialog(dialogs.value.defaultDialog, "유효시간이 만료되었습니다. 다시 시도해주세요.", true, () => {
+                    store.stepTo1();
+                });
+            }
+
             if (error?.response?.data?.errorMessage) {
-                showDialog(error.response.data.errorMessage);
+                showDialog(dialogs.value.defaultDialog, error.response.data.errorMessage, false, null);
             } else {
-                showDialog("오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+                showDialog(dialogs.value.defaultDialog, "오류가 발생했습니다. 잠시 후 다시 시도해주세요.", false, null);
             }
         });
 }
