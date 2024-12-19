@@ -55,7 +55,7 @@ const showDialog = (message) => {
 const name = ref("ㅤ");
 const email = ref("ㅤ");
 const items = ref([
-    { title: '프로필 수정' },
+    { title: '내 정보' },
     { title: '생성한 설문 보기' },
     { title: '참여한 설문 보기' },
     { title: '로그아웃' }
@@ -63,8 +63,8 @@ const items = ref([
 
 const onItemClick = (item) => {
     switch (item.title) {
-        case '프로필 수정':
-            router.push({path : "/profile/edit"});
+        case '내 정보':
+            router.push({path : "/profile/info"});
             break;
         case '생성한 설문 보기':
             router.push({path : "/my"});
