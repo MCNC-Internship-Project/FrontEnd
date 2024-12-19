@@ -41,11 +41,13 @@ router.beforeEach((to, from, next) => {
                 }
                 next();
             })
-            .catch(() => {
-                if (sessionStorage.getItem(btoa('isLoggedIn')) === null || sessionStorage.getItem(btoa('isLoggedIn')) === btoa(false)) {
-                    alert("로그인이 필요합니다.");
-                } else if (sessionStorage.getItem(btoa('isLoggedIn')) === btoa(true)) {
-                    alert("세션이 만료되었습니다.");
+            .catch((error) => {
+                if (error.status === 401) {
+                    if (sessionStorage.getItem(btoa('isLoggedIn')) === null || sessionStorage.getItem(btoa('isLoggedIn')) === btoa(false)) {
+                        alert("로그인이 필요합니다.");
+                    } else if (sessionStorage.getItem(btoa('isLoggedIn')) === btoa(true)) {
+                        alert("세션이 만료되었습니다.");
+                    }
                 }
 
                 next({ path: '/login', query: { redirect: to.fullPath } });
