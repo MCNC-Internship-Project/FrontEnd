@@ -143,6 +143,9 @@ watch(surveyTypeText, (type) => {
     }
 });
 
+/**
+ * 각 항목의 값 유효성 및 반환하는 함수
+ */
 const getValue = () => {
     let isValid = true;
     let values = {};

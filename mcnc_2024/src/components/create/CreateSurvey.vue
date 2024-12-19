@@ -237,9 +237,10 @@ const selectedMinute = ref('00');
 const date = ref(null);
 const time = ref(null);
 
+/** 페이지 새로고침 혹은 종료 전에 경고 메시지를 표시 */
 const handleBeforeUnload = (event) => {
   event.preventDefault();
-  return ''; // 페이지 새로고침 혹은 종료 전에 경고 메시지를 표시하려면 이렇게 설정합니다.
+  return '';
 };
 
 onMounted(() => {
@@ -250,6 +251,10 @@ onBeforeUnmount(() => {
     window.removeEventListener('beforeunload', handleBeforeUnload);
 })
 
+/**
+ * 호출 실패 상태 코드에 따른 다이얼로그 반환
+ * @param error api 호출 실패 error 객체
+ */
 const handleError = (error) => {
     switch (error.status) {
         case 401: // 세션이 만료됨
@@ -264,12 +269,15 @@ const handleError = (error) => {
     }
 };
 
-// 라우터를 떠나기 전에 확인
+/** 라우터를 떠나기 전에 확인 */
 onBeforeRouteLeave((to, from, next) => {
+    // 세션이 만료됐으면 경고 메세지 출력x
     if(!isSessionValid.value){
         next();
         return;
     }
+
+    // 설문을 생성, 수정에 성공하지 않았을 때
     if (!saveStore.isSaved) {
         const confirmationMessage = '정말 나가시겠습니까? 변경사항이 저장되지 않을 수 있습니다.';
         if (window.confirm(confirmationMessage)) {
@@ -282,6 +290,10 @@ onBeforeRouteLeave((to, from, next) => {
     }
 });
 
+/**
+ *  설문기간 설정 다이얼로그 끄는 함수
+ *  선택했던 날짜, 시간값이 있으면 초기화
+ */
 const cancel = () => {
     showDatePickerDialog.value = false;
 
@@ -297,6 +309,9 @@ const cancel = () => {
     }
 };
 
+/**
+ * 설문기간 설정 시 유효성 검사
+ */
 const confirm = () => {
     if (selectedDate.value === null) {
         isDateError.value = true;
@@ -334,12 +349,20 @@ const confirm = () => {
     }
 };
 
+/**
+ * type : Boolean
+ * 타임피커 컴포넌트 닫힐 때 선택한 시간 포맷팅
+ * @param value 
+ */
 const onTimePickerClose = (value) => {
     if (!value) {
         selectedTime.value = `${selectedAmPm.value} ${String(selectedHour.value).padStart(2, '0')}:${String(selectedMinute.value).padStart(2, '0')}`;
     }
 };
 
+/**
+ * 설문기간 설정 다이얼로그가 켜지거나 꺼질때, 기존에 선택했던 값으로 초기화
+ */
 watch(showDatePickerDialog, (show) => {
     if (show) {
         if (date.value) {
@@ -378,6 +401,9 @@ watch(isTimeMenuOpen, (isOpen) => {
     }
 });
 
+/**
+ * 설문 항목을 추가하는 함수
+ */
 const addComponent = () => {
     const lastIndex = totalComponent.value.length > 0
         ? totalComponent.value[totalComponent.value.length - 1].id
@@ -389,6 +415,9 @@ const addComponent = () => {
     scrollToBottom();
 }
 
+/**
+ * 설문 항목이 추가된만큼 스크롤 높이 조절
+ */
 const scrollToBottom = () => {
     // nextTick으로 DOM 업데이트 후에 스크롤 이동
     nextTick(() => {
@@ -399,16 +428,29 @@ const scrollToBottom = () => {
     });
 };
 
+/**
+ * 설문 항목을 삭제하는 함수
+ * 해당 항목의 id를 추적하여 필터링
+ * @param id 
+ */
 const removeComponent = (id) => {
     if (totalComponent.value.length === 1)
         return;
     totalComponent.value = totalComponent.value.filter(item => item.id !== id);
 };
 
+/**
+ * 히스토리 -1만큼 이동하는 함수
+ */
 const stepBack = () => {
     router.back();
 }
 
+/**
+ * 오후 10:00 -> 22:00:00
+ * 시간 포맷 변환 함수
+ * @param timeStr 만료시간 문자열
+ */
 const parseTime = (timeStr) => {
     if (!timeStr) return null;
     const [ampm, time] = timeStr.split(' ');
@@ -424,6 +466,9 @@ const parseTime = (timeStr) => {
     return `${hour.toString().padStart(2, '0')}:${minutes}:00`;
 }
 
+/**
+ * 세션 만료 시, 로그인 화면으로 보내는 함수
+ */
 const goLogin = () => {
     dialogs.value.defaultDialog.isVisible = true;
     const currentPath = router.currentRoute.value.path;
@@ -433,8 +478,10 @@ const goLogin = () => {
     router.replace({ path: '/login', query: { redirect: currentPath } })
 }
 
+/**
+ * 설문 생성을 위해 항목의 값들을 json 형태로 만들어 API 요청
+ */
 const handleSubmit = () => {
-    // survey-item의 모든 값을 가져오기
     const title = surveyTitle.value.trim();
     const description = surveyDescription.value.trim();
     let valid = true;
@@ -452,7 +499,7 @@ const handleSubmit = () => {
         dialogs.value.confirmDialog.isVisible = false;
     }
 
-    const values = surveyItems.value.map((item) => item.getValue()); // getValue()는 각 survey-item이 갖고있는 값을 반환하는 메서드
+    const values = surveyItems.value.map((item) => item.getValue());
 
     const jsonData = { title: title, description: description, questionList: values }
 
@@ -462,8 +509,7 @@ const handleSubmit = () => {
 
     /**
      * 비어있는 경로가 questionList 안에서 발견되는 것이 아니면 통과
-     * 제목이나 날짜 입력이 안됐으면,
-     * 질문 항목들 중에 빈 값이 있나 확인하고 스타일 적용 및 다이얼로그 띄우고 바로 리턴
+     * 질문 항목들 중에 빈 값이 있나 확인하고 스타일 적용 및 다이얼로그
      * 
      */
     if (isExistQuestionList.length > 0 || !valid) {

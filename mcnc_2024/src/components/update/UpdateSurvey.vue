@@ -189,6 +189,7 @@ const isTimeMenuOpen = ref(false);
 
 const successModify = ref(false);
 
+/** 페이지 새로고침 혹은 종료 전에 경고 메시지를 표시 */
 const handleBeforeUnload = (event) => {
     event.preventDefault();
     return '';
@@ -273,7 +274,10 @@ const goMySurvey = () => {
     }, 100);
 }
 
-
+/**
+ *  취소 버튼 -> 설문기간 설정 다이얼로그 끄는 함수
+ *  선택했던 날짜, 시간값이 있으면 초기화
+ */
 const datePickerCancel = () => {
     showDatePickerDialog.value = false;
 
@@ -289,6 +293,9 @@ const datePickerCancel = () => {
     }
 };
 
+/**
+ * 설문기간 설정 시 유효성 검사
+ */
 const datePickerConfirm = () => {
     if (selectedDate.value === null) {
         isDateError.value = true;
@@ -326,6 +333,11 @@ const datePickerConfirm = () => {
     }
 };
 
+/**
+ * type : Boolean
+ * 타임피커 컴포넌트 닫힐 때 선택한 시간 포맷팅
+ * @param value 
+ */
 const onTimePickerClose = (value) => {
     if (!value) {
         selectedTime.value = `${selectedAmPm.value} ${String(selectedHour.value).padStart(2, '0')}:${String(selectedMinute.value).padStart(2, '0')}`;
@@ -370,6 +382,10 @@ watch(isTimeMenuOpen, (isOpen) => {
     }
 });
 
+/**
+ * 설문 항목을 추가하는 함수,
+ * API 응답 형태(객체)로 포맷팅하여 생성
+ */
 const addComponent = () => {
     const lastIndex = totalComponent.value.length > 0
         ? totalComponent.value[totalComponent.value.length - 1].id
@@ -398,6 +414,9 @@ const addComponent = () => {
     scrollToBottom();
 }
 
+/**
+ * 설문 항목이 추가된만큼 스크롤 높이 조절
+ */
 const scrollToBottom = () => {
     nextTick(() => {
         window.scrollTo({
@@ -407,12 +426,22 @@ const scrollToBottom = () => {
     });
 };
 
+/**
+ * 설문 항목을 삭제하는 함수
+ * 해당 항목의 id를 추적하여 필터링
+ * @param id 
+ */
 const removeComponent = (id) => {
     if (totalComponent.value.length === 1)
         return;
     totalComponent.value = totalComponent.value.filter(item => item.id !== id);
 };
 
+/**
+ * 오후 10:00 -> 22:00:00
+ * 시간 포맷 변환 함수
+ * @param timeStr 만료시간 문자열
+ */
 const parseTime = (timeStr) => {
     if (!timeStr) return null;
     const [ampm, time] = timeStr.split(' ');
@@ -428,6 +457,9 @@ const parseTime = (timeStr) => {
     return `${hour.toString().padStart(2, '0')}:${minutes}:00`;
 }
 
+/**
+ * 설문 수정을 위해 항목의 값들을 json 형태로 만들어 API 요청
+ */
 const handleSubmit = () => {
     // survey-item의 모든 값을 가져오기
     const title = surveyTitle.value.trim();
@@ -461,9 +493,7 @@ const handleSubmit = () => {
 
     /**
      * 비어있는 경로가 questionList 안에서 발견되는 것이 아니면 통과
-     * 제목이나 날짜 입력이 안됐으면,
-     * 질문 항목들 중에 빈 값이 있나 확인하고 스타일 적용 및 경고창 준 뒤에 바로 리턴
-     * jsonData는 보내지 않음
+     * 질문 항목들 중에 빈 값이 있나 확인하고 스타일 적용 및 다이얼로그
      * 
      */
     if (isExistQuestionList.length > 0 || !valid) {
@@ -497,6 +527,11 @@ const handleSubmit = () => {
     }
 };
 
+
+/**
+ * 호출 실패 상태 코드에 따른 다이얼로그 반환
+ * @param error api 호출 실패 error 객체
+ */
 const handleError = (error) => {
     switch (error.status) {
         case 400: // 해당 설문이 존재하지 않음
