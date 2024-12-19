@@ -31,7 +31,6 @@
 </template>
 
 <script setup>
-/* eslint-disable */
 import { ref, computed } from 'vue'
 import { useSignUpStore } from '@/stores/SignUpStore';
 import { encrypt } from '@/utils/crypto';

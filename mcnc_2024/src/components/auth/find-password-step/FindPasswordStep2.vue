@@ -13,7 +13,8 @@
         </div>
 
         <default-dialog v-model="dialogs.defaultDialog.isVisible" :message="dialogs.defaultDialog.message"
-            :isPersistent=true @confirm="dialogs.defaultDialog.isVisible = false" />
+            :isPersistent="dialogs.defaultDialog.isPersistent" @confirm="dialogConfirm(dialogs.defaultDialog)" />
+
         <progress-dialog v-model="dialogs.progressDialog.isVisible" :message="dialogs.progressDialog.message" />
     </div>
 </template>
@@ -36,16 +37,30 @@ const dialogs = ref({
     defaultDialog: {
         isVisible: false,
         message: "",
+        isPersistent: false,
+        callback: null
     },
     progressDialog: {
         isVisible: false,
         message: "",
+        isPersistent: false,
+        callback: null
     }
 })
 
-const showDialog = (type, message) => {
-    dialogs.value[type].message = message;
-    dialogs.value[type].isVisible = true;
+const showDialog = (dialog, message, isPersistent = false, callback = null) => {
+    dialog.isVisible = true
+    dialog.message = message;
+    dialog.isPersistent = isPersistent;
+    dialog.callback = callback;
+}
+
+const dialogConfirm = (dialog) => {
+    if (dialog.callback) {
+        dialog.callback();
+    }
+
+    dialog.isVisible = false;
 }
 
 const isEmailSending = ref(false);
@@ -53,13 +68,13 @@ const isEmailSending = ref(false);
 const verifyCode = () => {
     if (!email.value) {
         isEmailError.value = true;
-        showDialog('defaultDialog', '이메일을 입력해주세요.');
+        showDialog(dialogs.value.defaultDialog, "이메일을 입력해주세요.", false, null);
         return;
     }
 
     if (!email.value.match(/^[_A-Za-z0-9-+]+(\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\.[A-Za-z0-9]+)*(\.[A-Za-z]{2,})$/)) {
         isEmailError.value = true;
-        showDialog('defaultDialog', '이메일 형식이 올바르지 않습니다.');
+        showDialog(dialogs.value.defaultDialog, "이메일 형식이 올바르지 않습니다.", false, null);
         return;
     }
 
@@ -69,18 +84,18 @@ const verifyCode = () => {
     }
 
     isEmailSending.value = true;
-    showDialog('progressDialog', '인증번호 발송 중...');
+    showDialog(dialogs.value.progressDialog, '인증번호 발송 중...', true, null);
 
     // 인증번호 발송 API 호출
     axios.post(`/auth/password/send`, JSON.stringify(requestBody))
         .then(() => {
-            showDialog('defaultDialog', '인증번호가 발송되었습니다.');
+            showDialog(dialogs.value.defaultDialog, "인증번호가 발송되었습니다.", false, null);
         })
         .catch((error) => {
             if (error?.response?.data?.errorMessage) {
-                showDialog('defaultDialog', error.response.data.errorMessage);
+                showDialog(dialogs.value.defaultDialog, error.response.data.errorMessage, false, null);
             } else {
-                showDialog('defaultDialog', "오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+                showDialog(dialogs.value.defaultDialog, "오류가 발생했습니다. 잠시 후 다시 시도해주세요.", false, null);
             }
         })
         .finally(() => {
@@ -92,7 +107,7 @@ const verifyCode = () => {
 const nextStep = () => {
     if (!code.value) {
         isCodeError.value = true;
-        showDialog('defaultDialog', '인증번호를 입력해주세요.');
+        showDialog(dialogs.value.defaultDialog, "인증번호를 입력해주세요.", false, null);
         return;
     }
 
@@ -104,14 +119,16 @@ const nextStep = () => {
     // 인증번호 확인 API 호출
     axios.post(`/auth/password/check`, JSON.stringify(requestBody))
         .then(() => {
-            store.nextStep();
+            showDialog(dialogs.value.defaultDialog, "이메일 인증이 완료되었습니다.", true, () => {
+                store.nextStep();
+            });
         })
         .catch((error) => {
             if (error?.response?.data?.errorMessage) {
                 isCodeError.value = true;
-                showDialog('defaultDialog', error.response.data.errorMessage);
+                showDialog(dialogs.value.defaultDialog, error.response.data.errorMessage, false, null);
             } else {
-                showDialog('defaultDialog', "오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+                showDialog(dialogs.value.defaultDialog, "오류가 발생했습니다. 잠시 후 다시 시도해주세요.", false, null);
             }
         });
 }

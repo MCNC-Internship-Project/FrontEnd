@@ -53,6 +53,13 @@ export const useSignUpStore = defineStore('signUp', {
             if (this.step > 1)
                 this.step--;
         },
+        stepTo1() {
+            this.email = '';
+            this.code = '';
+            this.userIdVerified = false;
+            this.emailVerified = false;
+            this.step = 1;
+        },
         reset() {
             this.userId = '';
             this.email = '';

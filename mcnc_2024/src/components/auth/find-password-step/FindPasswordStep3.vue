@@ -16,9 +16,7 @@
         </form>
 
         <default-dialog v-model="dialogs.defaultDialog.isVisible" :message="dialogs.defaultDialog.message"
-            @confirm="changePasswordSuccess" />
-        <default-dialog v-model="dialogs.errorDialog.isVisible" :message="dialogs.errorDialog.message"
-            @confirm="dialogs.errorDialog.isVisible = false" />
+            :isPersistent="dialogs.defaultDialog.isPersistent" @confirm="dialogConfirm(dialogs.defaultDialog)" />
     </div>
 </template>
 
@@ -43,17 +41,6 @@ const passwordConfirmInputType = ref("password");
 
 const emit = defineEmits("changePassword");
 
-const dialogs = ref({
-    defaultDialog: {
-        isVisible: false,
-        message: "",
-    },
-    errorDialog: {
-        isVisible: false,
-        message: "",
-    }
-})
-
 const changePasswordInputType = () => {
     passwordInputType.value = passwordInputType.value === "password" ? "text" : "password";
 }
@@ -70,27 +57,46 @@ const passwordConfirmIcon = computed(() => {
     return passwordConfirmInputType.value === "password" ? imgEyeClose : imgEyeOpen;
 });
 
-const showDialog = (type, message) => {
-    dialogs.value[type].message = message;
-    dialogs.value[type].isVisible = true;
+const dialogs = ref({
+    defaultDialog: {
+        isVisible: false,
+        message: "",
+        isPersistent: false,
+        callback: null
+    }
+})
+
+const showDialog = (dialog, message, isPersistent = false, callback = null) => {
+    dialog.isVisible = true
+    dialog.message = message;
+    dialog.isPersistent = isPersistent;
+    dialog.callback = callback;
+}
+
+const dialogConfirm = (dialog) => {
+    if (dialog.callback) {
+        dialog.callback();
+    }
+
+    dialog.isVisible = false;
 }
 
 const changePassword = () => {
     if (!password.value) {
         isPasswordError.value = true;
-        showDialog('errorDialog', '비밀번호를 입력해주세요.');
+        showDialog(dialogs.value.defaultDialog, "비밀번호를 입력해주세요.", false, null);
         return;
     }
 
     if (!password.value.match(/^(?=.*[A-Za-z])(?=.*[0-9])(?=.*[!@#$%^&*()_+]).{8,}$/)) {
         isPasswordError.value = true;
-        showDialog('errorDialog', '비밀번호는 최소 8자, 숫자, 특수문자 및 대소문자를 포함해야 합니다.');
+        showDialog(dialogs.value.defaultDialog, "비밀번호는 최소 8자, 숫자, 특수문자 및 대소문자를 포함해야 합니다.", false, null);
         return;
     }
 
     if (password.value !== passwordConfirm.value) {
         isPasswordConfirmError.value = true;
-        showDialog('errorDialog', '비밀번호가 일치하지 않습니다.');
+        showDialog(dialogs.value.defaultDialog, "비밀번호가 일치하지 않습니다.", false, null);
         return;
     }
 
@@ -102,21 +108,23 @@ const changePassword = () => {
     // 비밀번호 변경 API 호출
     axios.post(`/account/modify/password`, JSON.stringify(requestBody))
         .then(() => {
-            showDialog('defaultDialog', '비밀번호가 변경되었습니다.');
+            showDialog(dialogs.value.defaultDialog, '비밀번호가 변경되었습니다.', true, () => {
+                emit("changePassword");
+            });
         })
         .catch((error) => {
+            if (error.status === 403) {
+                showDialog(dialogs.value.defaultDialog, "유효시간이 만료되었습니다. 다시 시도해주세요.", true, () => {
+                    store.stepTo1();
+                });
+            }
+
             if (error?.response?.data?.errorMessage) {
-                showDialog('errorDialog', error.response.data.errorMessage);
+                showDialog(dialogs.value.defaultDialog, error.response.data.errorMessage, false, null);
             } else {
-                showDialog('errorDialog', "오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+                showDialog(dialogs.value.defaultDialog, "오류가 발생했습니다. 잠시 후 다시 시도해주세요.", false, null);
             }
         });
-}
-
-// 비밀번호 변경 성공
-const changePasswordSuccess = () => {
-    dialogs.value.defaultDialog.isVisible = false;
-    emit("changePassword");
 }
 </script>
 
