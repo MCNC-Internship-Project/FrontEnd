@@ -2,7 +2,7 @@
     <div class="root-container">
         <header class="toolbar">
             <img class="back" src="@/assets/images/icon_arrow_left.svg" alt="back" @click="stepBack">
-            <button class="submit-btn" @click="showDialog(dialogs.showSaveDialog, '저장하시겠습니까?')" v-ripple>저장</button>
+            <button class="submit-btn" @click="showDialog(dialogs.confirmDialog, '저장하시겠습니까?', false, handleSubmit)" v-ripple>저장</button>
         </header>
 
         <div class="survey-container">
@@ -155,17 +155,11 @@
             </v-card>
         </v-dialog>
 
-        <default-dialog v-model="dialogs.showDefaultDialog.isVisible" :message="dialogs.showDefaultDialog.message"
-            @confirm="dialogs.showDefaultDialog.isVisible = false" />
+        <default-dialog v-model="dialogs.defaultDialog.isVisible" :message="dialogs.defaultDialog.message"
+            :isPersistent="dialogs.defaultDialog.isPersistent" @confirm="defaultDialogConfirm" />
 
-        <default-dialog v-model="dialogs.showInvalidSessionDialog.isVisible" :message="dialogs.showInvalidSessionDialog.message"
-            @confirm="redirectionToLogin"/>
-
-        <confirm-dialog v-model="dialogs.showSaveDialog.isVisible" :message="dialogs.showSaveDialog.message"
-            @confirm="handleSubmit" />
-
-        <default-dialog v-model="dialogs.showSuccessDialog.isVisible" :message="dialogs.showSuccessDialog.message"
-            @confirm="redirectionToMySurvey" :isPersistent="true" />
+        <confirm-dialog v-model="dialogs.confirmDialog.isVisible" :message="dialogs.confirmDialog.message"
+            :isPersistent="dialogs.confirmDialog.isPersistent" @confirm="handleSubmit" />
     </div>
 </template>
 
@@ -201,27 +195,33 @@ const isDateMenuOpen = ref(false);
 const isTimeMenuOpen = ref(false);
 
 const dialogs = ref({
-    showDefaultDialog: {
+    defaultDialog: {
         isVisible: false,
         message: "",
+        isPersistent: false,
+        callback: null
     },
-    showSuccessDialog: {
+    confirmDialog: {
         isVisible: false,
         message: "",
-    },
-    showSaveDialog: {
-        isVisible: false,
-        message: "",
-    },
-    showInvalidSessionDialog: {
-        isVisible: false,
-        message: "",
-    },
+        isPersistent: false,
+        callback: null
+    }
 })
 
-const showDialog = (dialog, message) => {
-    dialog.message = message
+const showDialog = (dialog, message, isPersistent = false, callback = null) => {
+    dialog.message = message;
+    dialog.isPersistent = isPersistent;
+    dialog.callback = callback;
     dialog.isVisible = true
+}
+
+const defaultDialogConfirm = () => {
+    if (dialogs.value.defaultDialog.callback) {
+        dialogs.value.defaultDialog.callback();
+    }
+
+    dialogs.value.defaultDialog.isVisible = false;
 }
 
 const ampmList = ref(['오전', '오후']);
@@ -237,9 +237,10 @@ const selectedMinute = ref('00');
 const date = ref(null);
 const time = ref(null);
 
+/** 페이지 새로고침 혹은 종료 전에 경고 메시지를 표시 */
 const handleBeforeUnload = (event) => {
   event.preventDefault();
-  return ''; // 페이지 새로고침 혹은 종료 전에 경고 메시지를 표시하려면 이렇게 설정합니다.
+  return '';
 };
 
 onMounted(() => {
@@ -250,12 +251,33 @@ onBeforeUnmount(() => {
     window.removeEventListener('beforeunload', handleBeforeUnload);
 })
 
-// 라우터를 떠나기 전에 확인
+/**
+ * 호출 실패 상태 코드에 따른 다이얼로그 반환
+ * @param error api 호출 실패 error 객체
+ */
+const handleError = (error) => {
+    switch (error.status) {
+        case 401: // 세션이 만료됨
+            isSessionValid.value = false;
+            showDialog(dialogs.value.defaultDialog, "세션이 만료되었습니다. 다시 로그인 해주세요.", true, goLogin);
+            break;
+        default: // 그 외
+            if (error?.response?.data?.errorMessage)
+                showDialog(dialogs.value.defaultDialog, error?.response?.data?.errorMessage, false, null);
+            else
+                showDialog(dialogs.value.defaultDialog, "설문조사 생성 중 오류가 발생했습니다.", false, null);
+    }
+};
+
+/** 라우터를 떠나기 전에 확인 */
 onBeforeRouteLeave((to, from, next) => {
+    // 세션이 만료됐으면 경고 메세지 출력x
     if(!isSessionValid.value){
         next();
         return;
     }
+
+    // 설문을 생성, 수정에 성공하지 않았을 때
     if (!saveStore.isSaved) {
         const confirmationMessage = '정말 나가시겠습니까? 변경사항이 저장되지 않을 수 있습니다.';
         if (window.confirm(confirmationMessage)) {
@@ -268,6 +290,10 @@ onBeforeRouteLeave((to, from, next) => {
     }
 });
 
+/**
+ *  설문기간 설정 다이얼로그 끄는 함수
+ *  선택했던 날짜, 시간값이 있으면 초기화
+ */
 const cancel = () => {
     showDatePickerDialog.value = false;
 
@@ -283,6 +309,9 @@ const cancel = () => {
     }
 };
 
+/**
+ * 설문기간 설정 시 유효성 검사
+ */
 const confirm = () => {
     if (selectedDate.value === null) {
         isDateError.value = true;
@@ -320,12 +349,20 @@ const confirm = () => {
     }
 };
 
+/**
+ * type : Boolean
+ * 타임피커 컴포넌트 닫힐 때 선택한 시간 포맷팅
+ * @param value 
+ */
 const onTimePickerClose = (value) => {
     if (!value) {
         selectedTime.value = `${selectedAmPm.value} ${String(selectedHour.value).padStart(2, '0')}:${String(selectedMinute.value).padStart(2, '0')}`;
     }
 };
 
+/**
+ * 설문기간 설정 다이얼로그가 켜지거나 꺼질때, 기존에 선택했던 값으로 초기화
+ */
 watch(showDatePickerDialog, (show) => {
     if (show) {
         if (date.value) {
@@ -364,6 +401,9 @@ watch(isTimeMenuOpen, (isOpen) => {
     }
 });
 
+/**
+ * 설문 항목을 추가하는 함수
+ */
 const addComponent = () => {
     const lastIndex = totalComponent.value.length > 0
         ? totalComponent.value[totalComponent.value.length - 1].id
@@ -375,6 +415,9 @@ const addComponent = () => {
     scrollToBottom();
 }
 
+/**
+ * 설문 항목이 추가된만큼 스크롤 높이 조절
+ */
 const scrollToBottom = () => {
     // nextTick으로 DOM 업데이트 후에 스크롤 이동
     nextTick(() => {
@@ -385,16 +428,29 @@ const scrollToBottom = () => {
     });
 };
 
+/**
+ * 설문 항목을 삭제하는 함수
+ * 해당 항목의 id를 추적하여 필터링
+ * @param id 
+ */
 const removeComponent = (id) => {
     if (totalComponent.value.length === 1)
         return;
     totalComponent.value = totalComponent.value.filter(item => item.id !== id);
 };
 
+/**
+ * 히스토리 -1만큼 이동하는 함수
+ */
 const stepBack = () => {
     router.back();
 }
 
+/**
+ * 오후 10:00 -> 22:00:00
+ * 시간 포맷 변환 함수
+ * @param timeStr 만료시간 문자열
+ */
 const parseTime = (timeStr) => {
     if (!timeStr) return null;
     const [ampm, time] = timeStr.split(' ');
@@ -410,8 +466,11 @@ const parseTime = (timeStr) => {
     return `${hour.toString().padStart(2, '0')}:${minutes}:00`;
 }
 
-const redirectionToLogin = () => {
-    dialogs.value.showInvalidSessionDialog.isVisible = true;
+/**
+ * 세션 만료 시, 로그인 화면으로 보내는 함수
+ */
+const goLogin = () => {
+    dialogs.value.defaultDialog.isVisible = true;
     const currentPath = router.currentRoute.value.path;
 
     window.removeEventListener('beforeunload', handleBeforeUnload);
@@ -419,8 +478,10 @@ const redirectionToLogin = () => {
     router.replace({ path: '/login', query: { redirect: currentPath } })
 }
 
+/**
+ * 설문 생성을 위해 항목의 값들을 json 형태로 만들어 API 요청
+ */
 const handleSubmit = () => {
-    // survey-item의 모든 값을 가져오기
     const title = surveyTitle.value.trim();
     const description = surveyDescription.value.trim();
     let valid = true;
@@ -429,16 +490,16 @@ const handleSubmit = () => {
         titleError.value = true
         surveyTitle.value = "";
         valid = false;
-        dialogs.value.showSaveDialog.isVisible = false;
+        dialogs.value.confirmDialog.isVisible = false;
     }
 
     if (!date.value || !time.value) {
         dateError.value = true
         valid = false;
-        dialogs.value.showSaveDialog.isVisible = false;
+        dialogs.value.confirmDialog.isVisible = false;
     }
 
-    const values = surveyItems.value.map((item) => item.getValue()); // getValue()는 각 survey-item이 갖고있는 값을 반환하는 메서드
+    const values = surveyItems.value.map((item) => item.getValue());
 
     const jsonData = { title: title, description: description, questionList: values }
 
@@ -448,16 +509,15 @@ const handleSubmit = () => {
 
     /**
      * 비어있는 경로가 questionList 안에서 발견되는 것이 아니면 통과
-     * 제목이나 날짜 입력이 안됐으면,
-     * 질문 항목들 중에 빈 값이 있나 확인하고 스타일 적용 및 다이얼로그 띄우고 바로 리턴
+     * 질문 항목들 중에 빈 값이 있나 확인하고 스타일 적용 및 다이얼로그
      * 
      */
     if (isExistQuestionList.length > 0 || !valid) {
-        dialogs.value.showSaveDialog.isVisible = false;
-        showDialog(dialogs.value.showDefaultDialog, '입력되지 않은 항목이 있습니다.');
+        dialogs.value.confirmDialog.isVisible = false;
+        showDialog(dialogs.value.defaultDialog, '입력되지 않은 항목이 있습니다.', false, null);
         return;
     } else {
-        dialogs.value.showSaveDialog.isVisible = false;
+        dialogs.value.confirmDialog.isVisible = false;
 
         const dateFormatted = dayjs(date.value).format('YYYY-MM-DD');
         const timeFormatted = parseTime(time.value);
@@ -469,7 +529,7 @@ const handleSubmit = () => {
 
         if (selectedDateTime.isBefore(currentDateTime)) {
             dateError.value = true;
-            showDialog(dialogs.value.showDefaultDialog, '종료 시간은 현재보다 이전으로 설정할 수 없습니다.');
+            showDialog(dialogs.value.defaultDialog, '종료 시간은 현재보다 이전으로 설정할 수 없습니다.', false, null);
             return;
         }
 
@@ -478,24 +538,10 @@ const handleSubmit = () => {
         axios.post(`/survey/manage/create`, JSON.stringify(jsonData))
             .then(() => {
                 saveStore.setSaved();
-                showDialog(dialogs.value.showSuccessDialog, "설문이 성공적으로 생성되었습니다!");
+                showDialog(dialogs.value.defaultDialog, "설문이 성공적으로 생성되었습니다!", true, goMySurvey);
             })
             .catch((error) => {
-                switch(error?.status) {
-                    case 400:
-                        isSessionValid.value = false;
-                        showDialog(dialogs.value.showInvalidSessionDialog, "해당 아이디의 사용자가 존재하지 않습니다.");
-                        break;
-                    
-                    case 401:
-                        isSessionValid.value = false;
-                        showDialog(dialogs.value.showInvalidSessionDialog, "세션이 만료되었습니다. 다시 로그인해주세요.")
-                        break;
-
-                    default:
-                        showDialog(dialogs.value.showDefaultDialog, "설문조사 생성 중 오류가 발생했습니다.");
-                        break;
-                }
+                handleError(error);
             });
     }
 };
@@ -504,8 +550,8 @@ const handleSubmit = () => {
  * 생성 후 go(-1)의 위치가 / 이면 / 으로 replace,
  * /my 이면 /my로 replace.
  */
-const redirectionToMySurvey = () => {
-    dialogs.value.showSuccessDialog.isVisible = false;
+const goMySurvey = () => {
+    dialogs.value.defaultDialog.isVisible = false;
 
     router.go(-1);
     setTimeout(() => {

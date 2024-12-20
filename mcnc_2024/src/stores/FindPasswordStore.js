@@ -21,6 +21,10 @@ export const useFindPasswordStore = defineStore('findPassword', {
             if (this.step > 1)
                 this.step--;
         },
+        stepTo1() {
+            this.email = '';
+            this.step = 1;
+        },
         reset() {
             this.userId = '';
             this.email = '';

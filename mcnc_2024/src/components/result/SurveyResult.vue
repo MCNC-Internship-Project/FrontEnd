@@ -13,7 +13,7 @@
                 </v-list>
             </v-menu>
 
-            <button v-if="!expireDateBoolean && !isLoaing" class="delete-btn" @click="isDeleteModalVisible = true"
+            <button v-if="!expireDateBoolean && !isLoaing" class="delete-btn" @click="remove"
                 v-ripple>삭제</button>
         </ToolBar>
 
@@ -49,31 +49,16 @@
 
     <survey-removed v-else />
 
-    <!--종료 모달-->
-    <ConfirmDialog v-model="isCloseModalVisible" message="설문을 종료하시겠습니까?" confirmButtonText="종료"
-        confirmButtonColor="#F77D7D" @confirm="handleCloseConfirm" />
+    <default-dialog v-model="dialogs.defaultDialog.isVisible" :message="dialogs.defaultDialog.message"
+        :isPersistent="dialogs.defaultDialog.isPersistent" @confirm="defaultDialogConfirm" />
 
-    <!--삭제 모달-->
-    <ConfirmDialog v-model="isDeleteModalVisible" message="설문을 정말 삭제하시겠습니까?" subMessage="*삭제 후에는 복구가 불가능합니다!"
-        confirmButtonText="삭제" confirmButtonColor="#F77D7D" @confirm="handleDeleteConfirm" />
-
-    <!-- 기본 메세지 표시 다이얼로그 -->
-    <default-dialog v-model="dialogs.showDefaultDialog.isVisible" :message="dialogs.showDefaultDialog.message"
-        @confirm="dialogs.showDefaultDialog.isVisible = false" />
-
-    <!-- 종료,삭제 시 세션 무효 다이얼로그 -->
-    <default-dialog v-model="dialogs.showInvalidSessionDialog.isVisible" :message="dialogs.showInvalidSessionDialog.message"
-        @confirm="redirectionToLogin" />
-
-    <!-- 본인이 생성한 계정이 아닐때 -->
-    <default-dialog v-model="dialogs.showForbidden.isVisible" :message="dialogs.showForbidden.message"
-        @confirm="redirectionToHome" />
-
-    <default-dialog v-model="dialogs.showSuccessDialog.isVisible"
-        :message="dialogs.showSuccessDialog.message" @confirm="confirm" :isPersistent="true" />
+    <confirm-dialog v-model="dialogs.confirmDialog.isVisible" :message="dialogs.confirmDialog.message"
+        :isPersistent="dialogs.confirmDialog.isPersistent" @confirm="confirmDialogConfirm" 
+        :subMessage="dialogs.confirmDialog.subMessage" :confirmButtonText="dialogs.confirmDialog.confirmButtonText" 
+        :confirmButtonColor="dialogs.confirmDialog.confirmButtonColor" />
 
     <share-survey-dialog v-model="dialogs.showShareDialog.isVisible" :surveyId="decrypt(props.id)"
-        @confirm="showDialog(dialogs.showDefaultDialog, '이메일 전송이 완료되었습니다.')" />
+        @confirm="showDialog(dialogs.defaultDialog, '이메일 전송이 완료되었습니다.')" />
 </template>
 
 <script setup>
@@ -94,8 +79,6 @@ const isValid = ref(true);
 const isLoading = ref(true);
 const expireDateBoolean = ref(true);
 const router = useRouter();
-const isDeleteModalVisible = ref(false);
-const isCloseModalVisible = ref(false);
 
 const props = defineProps({
     id: String,
@@ -103,30 +86,77 @@ const props = defineProps({
 
 const dialogs = ref({
     showShareDialog: {
-        isVisible: false
-    },
-    showDefaultDialog: {
         isVisible: false,
-        message: ''
     },
-    showSuccessDialog: {
-        isVisible: false,
-        message: '',
-    },
-    showInvalidSessionDialog: {
+    defaultDialog: {
         isVisible: false,
         message: "",
+        isPersistent: false,
+        callback: null
     },
-    showForbidden: {
+    confirmDialog: {
         isVisible: false,
         message: "",
+        isPersistent: false,
+        callback: null,
+        subMessage: "",
+        confirmButtonText: "",
+        confirmButtonColor: "",
     }
-});
+})
 
-const showDialog = (dialog, message) => {
-    dialog.message = message
-    dialog.isVisible = true
+const showDialog = (dialog, message, isPersistent = false, callback = null,
+                    subMessage = null, confirmButtonText = null, confirmButtonColor = null) =>
+                    {
+    dialog.message = message;
+    dialog.isPersistent = isPersistent;
+    dialog.callback = callback;
+    dialog.isVisible = true;
+    dialog.subMessage = subMessage;
+    dialog.confirmButtonText = confirmButtonText;
+    dialog.confirmButtonColor = confirmButtonColor;
 }
+
+const defaultDialogConfirm = () => {
+    if (dialogs.value.defaultDialog.callback) {
+        dialogs.value.defaultDialog.callback();
+    }
+
+    dialogs.value.defaultDialog.isVisible = false;
+}
+
+const confirmDialogConfirm = () => {
+    if (dialogs.value.confirmDialog.callback) {
+        dialogs.value.confirmDialog.callback();
+    }
+
+    dialogs.value.confirmDialog.isVisible = false;
+}
+
+const handleError = (error) => {
+    switch (error.status) {
+        case 400: // 해당 설문이 존재하지 않음
+            showDialog(dialogs.value.defaultDialog, error.response.data.errorMessage, true, goBack)
+            break;
+        case 401: // 세션이 만료됨
+            showDialog(dialogs.value.defaultDialog, "세션이 만료되었습니다. 다시 로그인 해주세요.", true, redirectionToLogin)
+            break;
+        case 403: // 내 설문이 아님
+            showDialog(dialogs.value.defaultDialog, error.response.data.errorMessage, true, redirectionToHome)
+            break;
+        case 404: // 해당 설문이 존재하지 않음
+            isValid.value = false;
+            break;
+        case 410: // 이미 종료된 설문
+            showDialog(dialogs.value.defaultDialog, error.response.data.errorMessage, true, goReplace)
+            break;
+        default: // 그 외
+            if (error?.response?.data?.errorMessage)
+                showDialog(dialogs.value.defaultDialog, error?.response?.data?.errorMessage, false, null);
+            else
+                showDialog(dialogs.value.defaultDialog, "오류가 발생했습니다.", false, null);
+    }
+};
 
 // 메뉴 버튼 리스트
 const items = [
@@ -148,26 +178,7 @@ async function fetchSurveyData() {
         surveyData.value = response.data;
         expireDateBoolean.value = surveyData.value.expireDateValid;
     } catch (error) {
-        console.error('설문 데이터를 불러오는 중 오류 발생:', error);
-        switch(error?.status) {
-            case 400:
-                showDialog(dialogs.value.showForbidden, error?.response?.data?.errorMessage
-                                                                || "설문 데이터를 불러오는 중 오류가 발생했습니다.");
-                break;
-
-            case 403:
-                showDialog(dialogs.value.showForbidden, error?.response?.data?.errorMessage
-                                                                || "설문 데이터를 불러오는 중 오류가 발생했습니다.");
-                break;
-
-            case 404:
-                isValid.value = false;
-                break;
-
-            default:
-                showDialog(dialogs.value.showDefaultDialog, "설문 데이터를 불러오는 중 오류가 발생했습니다.");
-                break;
-        }
+        handleError(error);
     } finally {
         isLoading.value = false;
     }
@@ -175,7 +186,7 @@ async function fetchSurveyData() {
 
 // 공유 버튼 클릭
 function share() {
-    showDialog(dialogs.value.showShareDialog, '');
+    showDialog(dialogs.value.showShareDialog, '', false, null);
 }
 
 // 수정 버튼 클릭
@@ -190,7 +201,7 @@ function edit() {
 
 // 종료 버튼 클릭
 function close() {
-    isCloseModalVisible.value = true;
+    showDialog(dialogs.value.confirmDialog, "설문을 종료하시겠습니까?", false, handleCloseConfirm, null, "종료", "#F77D7D")
 }
 
 // 설문 종료 api
@@ -198,38 +209,38 @@ async function handleCloseConfirm() {
     try {
         const decryptedId = decrypt(props.id);
         await axios.patch(`/survey/manage/expire/${decryptedId}`, null);
-        showDialog(dialogs.value.showSuccessDialog, "설문이 종료되었습니다.");
+        showDialog(dialogs.value.defaultDialog, "설문이 종료되었습니다.", true, confirm);
     } catch (error) {
-        console.error('설문 종료 실패:', error);
-        if(error.status === 401) {
-            showDialog(dialogs.value.showInvalidSessionDialog, "세션이 만료되었습니다. 다시 로그인 해주세요.");
-        } else {
-            showDialog(dialogs.value.showDefaultDialog, "종료 중 오류가 발생했습니다.");
-        }
+        handleError(error);
     }
 }
 
 // 삭제 버튼 클릭
 function remove() {
-    isDeleteModalVisible.value = true;
+    showDialog(dialogs.value.confirmDialog, "설문을 삭제하시겠습니까?", false, handleDeleteConfirm, "*삭제 후에는 복구가 불가능합니다!", "삭제", "#F77D7D")
 }
 
 const redirectionToHome = () => {
-    dialogs.value.showInvalidSessionDialog.isVisible = true;
+    dialogs.value.defaultDialog.isVisible = false;
 
     router.replace({ path: '/' })
 }
 
 const redirectionToLogin = () => {
-    dialogs.value.showInvalidSessionDialog.isVisible = true;
+    dialogs.value.defaultDialog.isVisible = false;
     const currentPath = router.currentRoute.value.path
 
     router.push({ path: '/login', query: { redirect: currentPath } })
 }
 
+const goReplace = () => {
+    dialogs.value.defaultDialog.isVisible = false;
+    window.location.reload();
+}
+
 
 function confirm() {
-    dialogs.value.showSuccessDialog.value = false;
+    dialogs.value.defaultDialog.value = false;
     router.go(-1);
     setTimeout(() => {
         const currentPath = router.currentRoute.value.path
@@ -247,14 +258,9 @@ async function handleDeleteConfirm() {
     try {
         const decryptedId = decrypt(props.id);
         await axios.delete(`/survey/manage/delete/${decryptedId}`);
-        showDialog(dialogs.value.showSuccessDialog, "성공적으로 삭제되었습니다.");
+        showDialog(dialogs.value.defaultDialog, "설문이 삭제되었습니다.", true, confirm);
     } catch (error) {
-        console.error(error);
-        if(error.status === 401) {
-            showDialog(dialogs.value.showInvalidSessionDialog, "세션이 만료되었습니다. 다시 로그인 해주세요.");
-        } else {
-            showDialog(dialogs.value.showDefaultDialog, "삭제 중 오류가 발생했습니다.");
-        }
+        handleError(error);
     }
 }
 
@@ -454,7 +460,11 @@ function applyDataStyle(sheet, dataStartRow, dataEndRow, dataColumnLength, dataS
 }
 
 function goBack() {
-    router.back();
+    if (window.history.length > 1) {
+        router.back(); // 히스토리가 있으면 뒤로가기
+    } else {
+        router.replace('/'); // 히스토리가 없으면 홈으로 이동
+    }
 }
 
 // YYYY.MM.DD 형식으로 변환하는 함수

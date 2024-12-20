@@ -8,7 +8,7 @@
                         <v-checkbox-btn v-else color="#7796E8" disabled />
                         <input type="text" v-model="item.value" class="item-input" 
                             :placeholder="`항목 ${index + 1}`" maxlength="255"
-                            :disabled="item.id === 'etcId'" :ref="el => itemInputs[index] = el"
+                            :disabled="item.id === 'etcId'"
                             @focus="clearError(index)" @input="handleInput($event, index)" @blur="handleBlur(index)" />
                         <img class="item-icon" src="@/assets/images/icon_x.svg" alt="delete icon"
                             v-show="showDeleteIcon(item.id)" @click="deleteItem(item.id)" />
@@ -29,7 +29,7 @@
 </template>
 
 <script setup>
-import { ref, watchEffect, defineProps, computed, defineExpose } from 'vue';
+import { ref, defineProps, computed, defineExpose } from 'vue';
 
 const props = defineProps({
     surveyType: String,
@@ -39,14 +39,12 @@ const totalItem = ref([
     { id: 0, value: "" },
 ]);
 
-const itemInputs = ref([]);
-
-watchEffect(() => {
-    itemInputs.value = Array(totalItem.value.length).fill(null);
-});
-
 const isExistEtc = ref(false);
 
+/**
+ * 질문 항목 순서 나열
+ * 기타 항목이 가장 하위 순위로 정렬
+ */
 const displayItems = computed(() => {
     const regularItems = totalItem.value.filter(item => item.id !== 'etcId');
     const etcItem = totalItem.value.find(item => item.id === 'etcId');
@@ -57,6 +55,9 @@ const displayItems = computed(() => {
     return regularItems;
 });
 
+/**
+ * 일반 항목 추가, 최대 항목 개수 100개 제한
+ */
 const addItem = () => {
     if (totalItem.value.length >= 100) {
         return;
@@ -77,6 +78,11 @@ const addItem = () => {
     }
 }
 
+/**
+ * 질문 항목을 삭제하는 함수
+ * 해당 항목의 id를 추적하여 필터링
+ * @param id 
+ */
 const deleteItem = (id) => {
     /**
      * 질문 항목이 일반 항목, 기타 항목 1개씩 있을 때는 기타 항목만 삭제 가능
@@ -107,6 +113,9 @@ const deleteItem = (id) => {
     totalItem.value = totalItem.value.filter((item) => item.id !== id);
 }
 
+/**
+ * 기타 항목 추가, 1개만 추가 가능
+ */
 const addEtcItem = () => {
     if (totalItem.value.length >= 100) {
         return;
@@ -118,12 +127,21 @@ const addEtcItem = () => {
     }
 }
 
+/**
+ * 질문 항목 입력 시 IME 카운트 조절, 중복 항목 확인
+ * @param event 
+ * @param index 
+ */
 const handleInput = (event, index) => {
     const newValue = event.target.value;
     totalItem.value[index].value = newValue;
     isDuplicateValue(index);
 };
 
+/**
+ * 질문 항목 index 값으로 해당 index와 중복된 값을 갖는 질문 항목 탐색
+ * @param index 
+ */
 const isDuplicateValue = (index) => {
     const currentValue = totalItem.value[index].value;
     
@@ -147,6 +165,10 @@ const isDuplicateValue = (index) => {
     return isDuplicate;
 }
 
+/**
+ * 포커스 해제될 때 중복확인
+ * @param index 
+ */
 const handleBlur = (index) => {
     // 포커스 해제 시 중복 확인
     if (isDuplicateValue(index)) {
@@ -160,6 +182,9 @@ const handleBlur = (index) => {
     }
 }
 
+/**
+ * 각 항목의 값 유효성 및 반환하는 함수
+ */
 const getValue = () => {
     totalItem.value.forEach(item => item.hasError = false);
 
@@ -185,10 +210,18 @@ const getValue = () => {
     });
 };
 
+/**
+ * 동적 css 제거
+ * @param index 
+ */
 const clearError = (index) => {
     totalItem.value[index].hasError = false;
 };
 
+/**
+ * 질문 항목이 1개일 경우 삭제 아이콘 숨김 처리
+ * @param itemId 
+ */
 const showDeleteIcon = (itemId) => {
     // 기타 항목은 삭제 아이콘 보임
     if (itemId === 'etcId') 

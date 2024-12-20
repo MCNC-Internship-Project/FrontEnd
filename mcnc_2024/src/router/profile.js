@@ -13,9 +13,9 @@ const profileRoutes = [
         meta: { requiresAuth: true },
     },
     {
-        path : "/profile/edit",
-        name : "EditProfile",
-        component : () => import("@/components/home/profile/EditProfile.vue"),
+        path : "/profile/info",
+        name : "MyInfo",
+        component : () => import("@/components/home/profile/MyInfo.vue"),
         meta: { requiresAuth: true },
     }
 ]

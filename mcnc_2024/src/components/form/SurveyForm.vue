@@ -18,7 +18,7 @@
                     <div v-for="question in survey.questionList" :key="question.quesId"
                         class="survey-item-section" :class="{ error: question.hasError }">
                         <!-- 에러 메시지: 주관식 제외 -->
-                        <div v-if="question.hasError && question.questionType !== 'SUBJECTIVE'" class="error-message">
+                        <div v-if="question.hasError && question.questionType !== 'SUBJECTIVE' && !etcAnswers.length" class="error-message">
                             *입력되지 않은 항목이 있습니다.
                         </div>
 
@@ -117,22 +117,12 @@
                 <button class="submit-btn" @click="submitSurvey" v-ripple>제출</button>
             </div>
             </div>
-
-            
-
-            <default-dialog v-model="dialogs.showSuccessDialog.isVisible" :message="dialogs.showSuccessDialog.message"
-                @confirm="redirectionToSubmit" :isPersistent="true" />
-
-            <default-dialog v-model="dialogs.showDefaultDialog.isVisible" :message="dialogs.showDefaultDialog.message"
-                @confirm="dialogs.showDefaultDialog.isVisible = false"/>
-
-            <default-dialog v-model="dialogs.showInvalidSessionDialog.isVisible" :message="dialogs.showInvalidSessionDialog.message"
-                @confirm="redirectionToLogin"/>
-
-            <default-dialog v-model="dialogs.showErrorDialog.isVisible" :message="dialogs.showErrorDialog.message"
-                @confirm="redirectionToExpired" :isPersistent="true"/>
         </div>
     </div>
+
+    <default-dialog v-model="dialogs.defaultDialog.isVisible" :message="dialogs.defaultDialog.message"
+            :isPersistent="dialogs.defaultDialog.isPersistent" @confirm="defaultDialogConfirm" />
+
     <survey-expired :surveyValues="{title : survey.title, description : survey.description,
         createDate : survey.createDate, expireDate : survey.expireDate
     }" v-if="isExpired" />
@@ -161,36 +151,73 @@ const survey = ref({ title: "", description: "", questionList: [] });
 const answers = ref({});
 const etcAnswers = ref({});
 const dialogs = ref({
-    showSuccessDialog: {
+    defaultDialog: {
         isVisible: false,
         message: "",
+        isPersistent: false,
+        callback: null
     },
-    showDefaultDialog: {
+    confirmDialog: {
         isVisible: false,
         message: "",
-    },
-    showErrorDialog: {
-        isVisible: false,
-        message: "",
-    },
-    showInvalidSessionDialog: {
-        isVisible: false,
-        message: "",
-    },
+        isPersistent: false,
+        callback: null
+    }
 })
+
+const showDialog = (dialog, message, isPersistent = false, callback = null) => {
+    dialog.message = message;
+    dialog.isPersistent = isPersistent;
+    dialog.callback = callback;
+    dialog.isVisible = true
+}
+
+const defaultDialogConfirm = () => {
+    if (dialogs.value.defaultDialog.callback) {
+        dialogs.value.defaultDialog.callback();
+    }
+
+    dialogs.value.defaultDialog.isVisible = false;
+}
 
 const isValid = ref(false);
 const isExpired = ref(false);
 const isRemoved = ref(false);
 
-const showDialog = (dialog, message) => {
-    dialog.message = message
-    dialog.isVisible = true
-}
+
+const handleError = (error) => {
+    console.error(error)
+    switch (error.status) {
+        case 400: // 해당 설문이 존재하지 않음
+            isRemoved.value = true;
+            break;
+        case 401: // 세션이 만료됨
+            showDialog(dialogs.value.defaultDialog, "세션이 만료되었습니다. 다시 로그인 해주세요.", true, goLogin);
+            break;
+        case 404: // 해당 설문이 존재하지 않음
+            isRemoved.value = true;
+            break;
+        case 409: // 이미 응답한 설문
+            showDialog(dialogs.value.defaultDialog, error.response.data.errorMessage, true, goRespond);
+            break;
+        case 410: // 이미 종료된 설문
+            showDialog(dialogs.value.defaultDialog, error.response.data.errorMessage, true, goExpired);
+            break;
+        default: // 그 외
+            if (error?.response?.data?.errorMessage)
+                showDialog(dialogs.value.defaultDialog, error?.response?.data?.errorMessage, false, null);
+            else
+                showDialog(dialogs.value.defaultDialog, "오류가 발생했습니다.", false, null);
+    }
+};
 
 // 이전 페이지로 이동
 const goBack = () => {
-    router.back();
+    if (window.history.length > 1) {
+        router.back(); // 히스토리가 있으면 뒤로가기
+    } else {
+        router.replace('/'); // 히스토리가 없으면 홈으로 이동
+    }
 };
 
 // 텍스트 영역 참조
@@ -235,7 +262,7 @@ const fetchSurveyData = async (surveyId) => {
             }),
         };
     } catch (error) {
-        console.error("설문 데이터를 불러오는 데 오류가 발생했습니다.", error);
+        handleError(error);
     }
 };
 
@@ -335,7 +362,7 @@ const submitSurvey = async () => {
         ) {
             question.hasError = true;
             hasUnanswered = true;
-            
+
             // 라디오 버튼의 경우 answers를 초기화하지 않음
             if (question.questionType !== "OBJ_SINGLE") {
                 answers.value[question.quesId] = "";
@@ -352,7 +379,7 @@ const submitSurvey = async () => {
     });
 
     if (hasUnanswered) {
-        showDialog(dialogs.value.showDefaultDialog, "미응답 항목이 있습니다.")
+        showDialog(dialogs.value.defaultDialog, "미응답 항목이 있습니다.")
         return;
     }
 
@@ -422,46 +449,53 @@ const submitSurvey = async () => {
         // 설문 응답 전송
         await axios.post(`/survey/response`, payload);
 
-        showDialog(dialogs.value.showSuccessDialog, "제출되었습니다.")
+        showDialog(dialogs.value.defaultDialog, "제출되었습니다.", true, redirectionToSubmit)
 
     } catch (error) {
-        console.error("설문 제출 중 오류 발생:", error);
-        // 제출 전에 종료된 설문인 경우
-        if(error.status === 400) {
-            showDialog(dialogs.value.showErrorDialog, error.response.data.errorMessage)
-        }
-
-        if(error.status === 401) {
-            showDialog(dialogs.value.showInvalidSessionDialog, "세션이 만료되었습니다. 다시 로그인해주세요.")
-        }
+        handleError(error);
     }
 };
 
 const redirectionToSubmit = () => {
-    dialogs.value.showSuccessDialog.isVisible = false;
+    dialogs.value.defaultDialog.isVisible = false;
 
     router.replace({
         name: "Submit"
     });
 }
 
-const redirectionToExpired = () => {
-    dialogs.value.showErrorDialog.isVisible = false;
+const goLogin = () => {
+    dialogs.value.defaultDialog.isVisible = false;
+    const currentPath = router.currentRoute.value.path
+    
+    router.replace({ path: '/login', query: { redirect: currentPath } })
+}
+
+const goRespond = () => {
+    dialogs.value.defaultDialog.isVisible = false;
+    const id = decrypt(route.params.id);
+
+    router.replace({
+        name: "RespondDetail",
+        params: { id: encrypt(id) }
+    })
+}
+
+const goExpired = () => {
+    dialogs.value.defaultDialog.isVisible = false;
 
     isValid.value = false;
     isRemoved.value = false;
     isExpired.value = true;
 }
 
-const redirectionToLogin = () => {
-    dialogs.value.showInvalidSessionDialog.isVisible = true;
-    const currentPath = router.currentRoute.value.path
-    
-    router.replace({ path: '/login', query: { redirect: currentPath } })
-}
-
 const toggleEtcCheckbox = (quesId) => {
     const question = survey.value.questionList.find((q) => q.quesId === quesId);
+
+    if(question.hasEtcError) { 
+        question.hasEtcError = false;
+    }
+
     if (question) {
         question.isEtcChecked = !question.isEtcChecked;
 
@@ -487,6 +521,7 @@ const toggleEtcCheckbox = (quesId) => {
 
 const handleEtcInputChange = (quesId, sequence, inputText) => {
     const question = survey.value.questionList.find((q) => q.quesId === quesId);
+
     if (question) {
         question.etcAnswer = inputText || "";
 
@@ -516,15 +551,7 @@ onMounted(() => {
             fetchSurveyData(id);
         })
         .catch((error) => {
-            console.error(error)
-            if(error.status === 400 || error.status === 404) {
-                isRemoved.value = true;
-            } else if(error.status === 409) {
-                router.replace({
-                    name: "RespondDetail",
-                    params: { id: encrypt(id) }
-                })
-            }
+            handleError(error);
         })
 
     
@@ -625,7 +652,7 @@ onMounted(() => {
 }
 
 .survey-item-section.error {
-    border: 2px solid #f77d7d;
+    box-shadow: 0 0 0 2px #F77D7D;
 }
 
 .error-message {

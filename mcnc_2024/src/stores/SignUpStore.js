@@ -4,6 +4,9 @@ export const useSignUpStore = defineStore('signUp', {
     state: () => ({
         userId: '',
         email: '',
+        code: '',
+        userIdVerified: false,
+        emailVerified: false,
         password: '',
         passwordConfirm: '',
         name: '',
@@ -17,6 +20,15 @@ export const useSignUpStore = defineStore('signUp', {
         },
         setEmail(email) {
             this.email = email;
+        },
+        setCode(code) {
+            this.code = code;
+        },
+        setUserIdVerified(userIdVerified) {
+            this.userIdVerified = userIdVerified;
+        },
+        setEmailVerified(emailVerified) {
+            this.emailVerified = emailVerified;
         },
         setPassword(password) {
             this.password = password;
@@ -41,9 +53,19 @@ export const useSignUpStore = defineStore('signUp', {
             if (this.step > 1)
                 this.step--;
         },
+        stepTo1() {
+            this.email = '';
+            this.code = '';
+            this.userIdVerified = false;
+            this.emailVerified = false;
+            this.step = 1;
+        },
         reset() {
             this.userId = '';
             this.email = '';
+            this.code = '';
+            this.userIdVerified = false;
+            this.emailVerified = false;
             this.password = '';
             this.passwordConfirm = '';
             this.name = '';

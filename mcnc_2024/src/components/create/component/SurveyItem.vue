@@ -96,6 +96,9 @@ watch(surveyTypeText, (type) => {
     }
 });
 
+/**
+ * 각 항목의 값 유효성 및 반환하는 함수
+ */
 const getValue = () => {
     let isValid = true;
     let values = {};
@@ -107,7 +110,7 @@ const getValue = () => {
         isValid = false;
     }
 
-    // 컴포넌트 타입에 따른 검증 및 데이터 수집
+    // 컴포넌트 타입에 따른 검증 및 값 수집
     if (surveyType.value === 'SUBJECTIVE') {
         values = [];
     } else {
