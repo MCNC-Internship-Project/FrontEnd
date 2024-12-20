@@ -402,8 +402,8 @@ async function downloadExcel() {
                         questionType,
                         question.body,
                         '',
-                        '답변 없음',
                         '',
+                        0,
                     ]);
                 }
                 const subjEnd = questionData.length - 1;
