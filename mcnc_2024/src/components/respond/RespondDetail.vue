@@ -195,8 +195,6 @@ const fetchSurveyResponses = async () => {
     }
 };
 
-
-
 // 뒤로 가기 함수
 const goBack = () => {
     if (window.history.length > 1) {
@@ -248,9 +246,9 @@ const goBack = () => {
     margin-top: 12px;
     position: relative;
     display: inline-block;
-    white-space: pre-wrap; /* 줄바꿈 허용 */
-    word-break: break-word; /* 긴 단어 줄바꿈 */
-    overflow-wrap: break-word; /* 줄바꿈 처리 */
+    white-space: pre-wrap; 
+    word-break: break-word; 
+    overflow-wrap: break-word; 
 }
 
 .underline {
@@ -267,9 +265,9 @@ const goBack = () => {
     font-size: 1rem;
     font-weight: bold;
     color: #868686;
-    white-space: pre-wrap; /* 줄바꿈 허용 */
-    word-break: break-word; /* 긴 단어 줄바꿈 */
-    overflow-wrap: break-word; /* 줄바꿈 처리 */
+    white-space: pre-wrap; 
+    word-break: break-word; 
+    overflow-wrap: break-word; 
 }
 
 .survey-period {
@@ -306,9 +304,9 @@ const goBack = () => {
     background-color: white;
     padding: 8px 12px;
     border-radius: 8px;
-    white-space: pre-wrap; /* 줄바꿈 허용 */
-    word-break: break-word; /* 긴 단어 줄바꿈 */
-    overflow-wrap: break-word; /* 줄바꿈 처리 */
+    white-space: pre-wrap; 
+    word-break: break-word; 
+    overflow-wrap: break-word; 
 }
 
 .answer-options {
@@ -326,7 +324,6 @@ const goBack = () => {
     color: #374957;
 }
 
-/* 라디오 버튼 커스텀 스타일 */
 input[type="radio"] {
     appearance: none;
     -webkit-appearance: none;
@@ -359,7 +356,6 @@ input[type="radio"]:checked::after {
     background-color: #374957;
 }
 
-/* 체크박스 커스텀 스타일 */
 input[type="checkbox"] {
     appearance: none;
     -webkit-appearance: none;
@@ -404,9 +400,7 @@ textarea {
 
 textarea:focus {
     background-color: white;
-    /* 포커스 시 배경색을 흰색으로 유지 */
     outline: none;
-    /* 포커스 시 테두리 스타일을 없앰 */
 }
 
 textarea::-webkit-scrollbar {
