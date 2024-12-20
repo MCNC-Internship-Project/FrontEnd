@@ -31,12 +31,10 @@ import SurveyHeader from '@/components/common/SurveyHeader.vue';
 import SurveyCard from '@/components/common/SurveyCard.vue';
 
 const router = useRouter();
-
 const currentPage = ref(0);
-const size = 10;
-
 const surveyList = ref([]);
 const noResult = ref(false);
+const size = 10;
 
 const goBack = () => {
     router.back();
@@ -46,7 +44,7 @@ const goSearch = () => {
     router.push("/respond/search");
 }
 
-async function api() {
+const api = async () => {
     try {
         const response = await axios.get(`/survey/inquiry/respond`, {
             params: {
@@ -63,7 +61,7 @@ async function api() {
     }
 }
 
-async function load({ done }) {
+const load = async ({ done }) => {
     try {
         const res = await api();
         surveyList.value.push(...res.content);
@@ -81,7 +79,7 @@ async function load({ done }) {
 }
 
 // 설문 상세로 가기
-function goToDetail(surveyId) {
+const goToDetail = (surveyId) => {
     router.push({
         name: "RespondDetail",
         params: { id: encrypt(surveyId) },

@@ -42,19 +42,20 @@ onMounted(() => {
 });
 
 // 보기 개수에 따라 높이를 동적으로 계산
-function getChartHeight(optionCount) {
+const getChartHeight = (optionCount) => {
     const baseHeight = 50;
     const minHeight = 300;
     return Math.max(optionCount * baseHeight, minHeight);
 }
 
 // tooltip 줄바꿈
-function wrapText(text, maxLineLength) {
+const wrapText = (text, maxLineLength) => {
     const regex = new RegExp(`.{1,${maxLineLength}}`, "g");
     return text.match(regex).join("\n");
 }
 
-function createChart(chartElement, question) {
+// 객관식 막대 그래프 생성성
+const createChart = (chartElement, question) => {
     const labels = question.selectionList.map((option) => option.body);
     const data = question.selectionList.map((option) => option.responseCount);
 
@@ -154,7 +155,6 @@ function createChart(chartElement, question) {
     });
 }
 </script>
-
 
 <style scoped>
 .question-container {

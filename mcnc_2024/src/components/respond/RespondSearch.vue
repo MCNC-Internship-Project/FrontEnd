@@ -14,7 +14,6 @@
     </div>
 </template>
 
-
 <script setup>
 import { useRouter } from 'vue-router';
 import { ref, onMounted } from 'vue';
@@ -40,7 +39,7 @@ onMounted(() => {
     }
 });
 
-async function searchSurvey() {
+const searchSurvey = async () => {
     if (!searchQuery.value) {
         return;
     }
@@ -56,7 +55,7 @@ async function searchSurvey() {
     await loadSurveys({ done: () => { } });
 }
 
-async function loadSurveys({ done }) {
+const loadSurveys = async ({ done }) => {
     try {
         const response = await axios.get(`/survey/inquiry/search/respond`, {
             params: {
@@ -89,14 +88,14 @@ async function loadSurveys({ done }) {
 }
 
 // 설문 상세로 가기
-function goToDetail(surveyId) {
+const goToDetail = (surveyId) => {
     router.push({
         name: "RespondDetail",
         params: { id: encrypt(surveyId) },
     });
 }
 
-function goBack() {
+const goBack = () => {
     router.back();
 }
 </script>
