@@ -70,15 +70,15 @@ import * as XLSX from 'xlsx-js-style';
 import ToolBar from '@/components/common/ToolBar.vue'
 import AgeChart from './AgeChart.vue';
 import GenderChart from './GenderChart.vue';
-import ResultRenderer from '@/components/result/ResultRenderer.vue';
+import ResultRenderer from './ResultRenderer.vue';
 import ShareSurveyDialog from './ShareSurveyDialog.vue';
 import SurveyRemoved from '../form/SurveyRemoved.vue';
 
+const router = useRouter();
 const surveyData = ref("");
 const isValid = ref(true);
 const isLoading = ref(true);
 const expireDateBoolean = ref(true);
-const router = useRouter();
 
 const props = defineProps({
     id: String,
@@ -158,20 +158,12 @@ const handleError = (error) => {
     }
 };
 
-// 메뉴 버튼 리스트
-const items = [
-    { title: '공유', action: share },
-    { title: '수정', action: edit },
-    { title: '종료', action: close },
-    { title: '삭제', action: remove }
-];
-
 onMounted(() => {
     fetchSurveyData();
 });
 
 // 설문 데이터 가져오기 api
-async function fetchSurveyData() {
+const fetchSurveyData = async () => {
     try {
         const decryptedId = decrypt(props.id);
         const response = await axios.get(`/survey/response/result/${decryptedId}`);
@@ -185,12 +177,12 @@ async function fetchSurveyData() {
 }
 
 // 공유 버튼 클릭
-function share() {
+const share = () => {
     showDialog(dialogs.value.showShareDialog, '', false, null);
 }
 
 // 수정 버튼 클릭
-function edit() {
+const edit = () => {
     const decryptedId = decrypt(props.id)
 
     router.push({
@@ -200,12 +192,12 @@ function edit() {
 }
 
 // 종료 버튼 클릭
-function close() {
+const close = () => {
     showDialog(dialogs.value.confirmDialog, "설문을 종료하시겠습니까?", false, handleCloseConfirm, null, "종료", "#F77D7D")
 }
 
 // 설문 종료 api
-async function handleCloseConfirm() {
+const handleCloseConfirm = async () => {
     try {
         const decryptedId = decrypt(props.id);
         await axios.patch(`/survey/manage/expire/${decryptedId}`, null);
@@ -216,7 +208,7 @@ async function handleCloseConfirm() {
 }
 
 // 삭제 버튼 클릭
-function remove() {
+const remove = () => {
     showDialog(dialogs.value.confirmDialog, "설문을 삭제하시겠습니까?", false, handleDeleteConfirm, "*삭제 후에는 복구가 불가능합니다!", "삭제", "#F77D7D")
 }
 
@@ -238,7 +230,6 @@ const goReplace = () => {
     window.location.reload();
 }
 
-
 function confirm() {
     dialogs.value.defaultDialog.value = false;
     router.go(-1);
@@ -254,7 +245,7 @@ function confirm() {
 }
 
 // 설문 삭제 api
-async function handleDeleteConfirm() {
+const handleDeleteConfirm = async () => {
     try {
         const decryptedId = decrypt(props.id);
         await axios.delete(`/survey/manage/delete/${decryptedId}`);
@@ -264,8 +255,16 @@ async function handleDeleteConfirm() {
     }
 }
 
+// 메뉴 버튼 리스트
+const items = [
+    { title: '공유', action: share },
+    { title: '수정', action: edit },
+    { title: '종료', action: close },
+    { title: '삭제', action: remove }
+];
+
 // excel 다운로드
-async function downloadExcel() {
+const downloadExcel = async () => {
     try {
         // 설문 데이터를 API로부터 가져오기
         const decryptedId = decrypt(props.id);
@@ -402,8 +401,8 @@ async function downloadExcel() {
                         questionType,
                         question.body,
                         '',
-                        '답변 없음',
                         '',
+                        0,
                     ]);
                 }
                 const subjEnd = questionData.length - 1;
@@ -438,7 +437,7 @@ async function downloadExcel() {
 }
 
 // 헤더 스타일 적용 함수
-function applyHeaderStyle(sheet, headerRowLength, headerStyle) {
+const applyHeaderStyle = (sheet, headerRowLength, headerStyle) => {
     for (let col = 0; col < headerRowLength; col++) {
         const cellAddress = XLSX.utils.encode_cell({ r: 0, c: col });
         if (sheet[cellAddress]) {
@@ -448,7 +447,7 @@ function applyHeaderStyle(sheet, headerRowLength, headerStyle) {
 }
 
 // 데이터 스타일 적용 함수
-function applyDataStyle(sheet, dataStartRow, dataEndRow, dataColumnLength, dataStyle) {
+const applyDataStyle = (sheet, dataStartRow, dataEndRow, dataColumnLength, dataStyle) => {
     for (let row = dataStartRow; row <= dataEndRow; row++) {
         for (let col = 0; col < dataColumnLength; col++) {
             const cellAddress = XLSX.utils.encode_cell({ r: row, c: col });
@@ -459,7 +458,7 @@ function applyDataStyle(sheet, dataStartRow, dataEndRow, dataColumnLength, dataS
     }
 }
 
-function goBack() {
+const goBack = () => {
     if (window.history.length > 1) {
         router.back(); // 히스토리가 있으면 뒤로가기
     } else {
@@ -468,7 +467,7 @@ function goBack() {
 }
 
 // YYYY.MM.DD 형식으로 변환하는 함수
-function formatDateToYMD(date) {
+const formatDateToYMD = (date) => {
     const d = new Date(date);
     const year = d.getFullYear();
     const month = String(d.getMonth() + 1).padStart(2, "0");
@@ -477,7 +476,7 @@ function formatDateToYMD(date) {
 }
 
 // 설문 기간 포맷 함수
-function formatPeriod(startDate, endDate) {
+const formatPeriod = (startDate, endDate) => {
     return `${formatDateToYMD(startDate)} - ${formatDateToYMD(endDate)}`;
 }
 </script>
@@ -606,141 +605,5 @@ function formatPeriod(startDate, endDate) {
     font-weight: bold;
     font-size: 1rem;
     padding-left: 4px;
-}
-
-.v-card {
-    padding: 0;
-    border-radius: 16px !important;
-}
-
-.dialog-background {
-    background-color: #FAF8F8;
-    border: 1px solid #EFF0F6;
-}
-
-.dialog-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 12px 32px 20px 32px;
-}
-
-.dialog-error-message {
-    margin: 32px 0 16px 0;
-    font-size: 1.125rem;
-    font-weight: bold;
-    color: #757576;
-}
-
-.v-card-actions {
-    padding: 20px;
-}
-
-.v-card {
-    padding: 0;
-    border-radius: 16px !important;
-}
-
-.dialog-background {
-    background-color: #FAF8F8;
-    border: 1px solid #EFF0F6;
-}
-
-.dialog-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 12px 32px 20px 32px;
-}
-
-.dialog-error-message {
-    margin: 32px 0 16px 0;
-    font-size: 1.125rem;
-    font-weight: bold;
-    color: #757576;
-}
-
-.v-card-actions {
-    padding: 20px;
-}
-
-.v-card-actions .v-btn {
-    width: 100%;
-    margin: 0;
-    color: #FFFFFF !important;
-    background-color: var(--primary);
-    border-radius: 16px;
-    height: 48px;
-    font-size: 0.875rem;
-}
-
-.v-card {
-    padding: 0;
-    border-radius: 16px !important;
-}
-
-.dialog-background {
-    background-color: #FAF8F8;
-    border: 1px solid #EFF0F6;
-}
-
-.dialog-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 12px 32px 20px 32px;
-}
-
-.dialog-error-message {
-    margin: 32px 0 16px 0;
-    font-size: 1.125rem;
-    font-weight: bold;
-    color: #757576;
-}
-
-.v-card-actions {
-    padding: 20px;
-}
-
-.v-card {
-    padding: 0;
-    border-radius: 16px !important;
-}
-
-.dialog-background {
-    background-color: #FAF8F8;
-    border: 1px solid #EFF0F6;
-}
-
-.dialog-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 12px 32px 20px 32px;
-}
-
-.dialog-error-message {
-    margin: 32px 0 16px 0;
-    font-size: 1.125rem;
-    font-weight: bold;
-    color: #757576;
-}
-
-.v-card-actions {
-    padding: 20px;
-}
-
-.v-card-actions .v-btn {
-    width: 100%;
-    margin: 0;
-    color: #FFFFFF !important;
-    background-color: var(--primary);
-    border-radius: 16px;
-    height: 48px;
-    font-size: 0.875rem;
 }
 </style>
