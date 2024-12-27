@@ -59,12 +59,6 @@ const SurveyRoutes = [
         component: () => import("@/components/form/SurveyForm.vue"),
         props: true,
         meta: { requiresAuth: true },
-    },      
-    {
-        path: '/form/submit',  
-        name: 'Submit',
-        component: () => import("@/components/form/SurveySubmit.vue"),
-        meta: { requiresAuth: true },
     },
 ]
 

@@ -128,6 +128,7 @@
     }" v-if="isExpired" />
 
     <survey-removed v-if="isRemoved"/>
+    <survey-submit v-if="isSubmit" />
 </template>
 
 <script setup>
@@ -139,6 +140,7 @@ import dayjs from "dayjs";
 import ToolBar from "../common/ToolBar.vue";
 import SurveyExpired from "./SurveyExpired.vue";
 import SurveyRemoved from "./SurveyRemoved.vue";
+import SurveySubmit from "./SurveySubmit.vue";
 
 // 라우터 사용
 const router = useRouter();
@@ -183,6 +185,7 @@ const defaultDialogConfirm = () => {
 const isValid = ref(false);
 const isExpired = ref(false);
 const isRemoved = ref(false);
+const isSubmit = ref(false);
 
 
 const handleError = (error) => {
@@ -458,10 +461,9 @@ const submitSurvey = async () => {
 
 const redirectionToSubmit = () => {
     dialogs.value.defaultDialog.isVisible = false;
-
-    router.replace({
-        name: "Submit"
-    });
+    
+    isValid.value = false;
+    isSubmit.value = true;
 }
 
 const goLogin = () => {
