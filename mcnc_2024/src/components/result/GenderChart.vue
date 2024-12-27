@@ -35,7 +35,8 @@ onMounted(() => {
     }
 });
 
-function createGenderChart(chartElement, data) {
+// 성별 파이 차트 생성
+const createGenderChart = (chartElement, data) => {
     new Chart(chartElement, {
         type: "pie",
         data: {
@@ -78,11 +79,11 @@ function createGenderChart(chartElement, data) {
                         if (value === 0) {
                             return ""; 
                         }
-                        const data = context.chart.data.datasets[0].data; // 데이터 배열
-                        const total = data.reduce((sum, val) => sum + val, 0); // 전체 합계 계산
-                        const percentage = ((value / total) * 100).toFixed(1); // 비율 계산 (소수점 1자리)
+                        const data = context.chart.data.datasets[0].data; 
+                        const total = data.reduce((sum, val) => sum + val, 0); 
+                        const percentage = ((value / total) * 100).toFixed(1); 
 
-                        return `${value}명 (${percentage}%)`; // 퍼센트 값 출력
+                        return `${value}명 (${percentage}%)`; 
                     },
                     display: (context) => context.dataset.data.some((value) => value > 0),
                 },
@@ -93,7 +94,8 @@ function createGenderChart(chartElement, data) {
     });
 }
 
-function createNoResponseChart(chartElement) {
+// 응답자가 없는 경우 파이 차트트
+const createNoResponseChart = (chartElement) => {
     new Chart(chartElement, {
         type: "pie",
         data: {
@@ -141,7 +143,6 @@ function createNoResponseChart(chartElement) {
         },
     });
 }
-
 </script>
 
 <style scoped>

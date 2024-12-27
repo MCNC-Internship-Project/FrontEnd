@@ -616,9 +616,9 @@ onMounted(() => {
     text-decoration: underline;
     text-underline-position: under;
     margin: 12px 16px 0px;
-    word-break: break-word; /* 긴 단어 줄바꿈 */
-    overflow-wrap: break-word; /* 긴 단어 줄바꿈 */
-    white-space: pre-wrap; /* 줄바꿈 허용 */
+    word-break: break-word; 
+    overflow-wrap: break-word; 
+    white-space: pre-wrap; 
 }
 
 .survey-description {
@@ -626,9 +626,9 @@ onMounted(() => {
     font-weight: bold;
     color: #C1C3C5;
     margin: 12px 16px 0px;
-    word-break: break-word; /* 긴 단어 줄바꿈 */
-    overflow-wrap: break-word; /* 긴 단어 줄바꿈 */
-    white-space: pre-wrap; /* 줄바꿈 허용 */
+    word-break: break-word; 
+    overflow-wrap: break-word; 
+    white-space: pre-wrap; 
 }
 
 .survey-period {
@@ -670,7 +670,6 @@ onMounted(() => {
 
 .survey-item-section.error .answer-options textarea {
     border-color: #f77d7d;
-    /* 주관식 입력창의 테두리는 기존 색상 */
 }
 
 .char-counter {
@@ -686,9 +685,9 @@ onMounted(() => {
     background-color: white;
     padding: 8px 12px;
     border-radius: 8px;
-    white-space: pre-wrap; /* 줄바꿈 허용 */
-    word-break: break-word; /* 긴 단어 줄바꿈 */
-    overflow-wrap: break-word; /* 줄바꿈 처리 */
+    white-space: pre-wrap; 
+    word-break: break-word; 
+    overflow-wrap: break-word; 
 }
 
 .answer-options {

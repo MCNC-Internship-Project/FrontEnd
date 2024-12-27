@@ -25,7 +25,8 @@ onMounted(() => {
     }
 });
 
-function createChart(chartElement, ageCountList) {
+// 나이 막대 그래프 생성성
+const createChart = (chartElement, ageCountList) => {
     const labels = ageCountList.map((item) => item.age);
     const data = ageCountList.map((item) => item.count);
 
@@ -78,9 +79,9 @@ function createChart(chartElement, ageCountList) {
                         if (value === 0) {
                             return ""; 
                         }
-                        const data = context.chart.data.datasets[0].data; // 데이터 배열
-                        const total = data.reduce((sum, val) => sum + val, 0); // 전체 합계 계산
-                        const percentage = ((value / total) * 100).toFixed(1); // 비율 계산 (소수점 1자리)
+                        const data = context.chart.data.datasets[0].data; 
+                        const total = data.reduce((sum, val) => sum + val, 0); 
+                        const percentage = ((value / total) * 100).toFixed(1); 
 
                         return `${value}명 (${percentage}%)`; // 퍼센트 값 출력
                     },

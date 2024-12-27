@@ -11,7 +11,6 @@
       <p class="survey-period">{{ dayjs(surveyValues.createDate).format("YYYY.MM.DD") }} ~ {{ dayjs(surveyValues.expireDate).format("YYYY.MM.DD") }}</p>
     </div>
 
-    <!-- 참여 완료 메시지 -->
     <p class="completion-message">이 설문조사는 종료되었습니다.</p>
     <p class="p1">참여해 주셔서 감사합니다!</p>
 
