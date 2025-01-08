@@ -1,13 +1,9 @@
 <template>
-    <div id="root-container">
-        <router-view></router-view>
-    </div>
+      <router-view></router-view>
 </template>
 
 <script setup>
-
 </script>
 
 <style scoped>
-
-</style>
+</style>  
