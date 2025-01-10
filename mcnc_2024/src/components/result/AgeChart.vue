@@ -1,3 +1,7 @@
+<!--
+    - 설문통계: 연령 그래프
+    - @author 김은수
+-->
 <template>
     <div class="chart-wrapper">
         <canvas ref="ageChartCanvas"></canvas>
@@ -25,7 +29,7 @@ onMounted(() => {
     }
 });
 
-// 나이 막대 그래프 생성성
+// 나이 막대 그래프 생성
 const createChart = (chartElement, ageCountList) => {
     const labels = ageCountList.map((item) => item.age);
     const data = ageCountList.map((item) => item.count);

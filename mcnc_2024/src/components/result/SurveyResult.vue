@@ -1,3 +1,7 @@
+<!--
+    - 설문통계
+    - @author 김은수
+-->
 <template>
     <div class="root-container" v-if="isValid">
         <ToolBar @goBack="goBack" backgroundColor="#fff" zIndex="1000">

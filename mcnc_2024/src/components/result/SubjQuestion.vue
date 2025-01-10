@@ -1,3 +1,7 @@
+<!--
+    - 설문통계: 주관식 항목 그래프
+    - @author 김은수
+-->
 <template>
     <div class="question-container">
         <h3 class="question-title">{{ question.body }}</h3>

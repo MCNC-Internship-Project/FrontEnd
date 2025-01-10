@@ -1,7 +1,11 @@
+<!--
+    - 툴바
+    - @author 김은수
+-->
 <template>
     <div class="toolbar" :style="{ backgroundColor: backgroundColor || 'transparent', zIndex: zIndex || 1000 }">
         <img class="back" src="../../assets/images/icon_arrow_left.svg" alt="back" @click="$emit('goBack')" />
-        <slot></slot> <!--SurveyHeader-->
+        <slot></slot>
     </div>
 </template>
 

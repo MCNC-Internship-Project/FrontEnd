@@ -1,3 +1,7 @@
+<!--
+    - 설문조사 검색 결과 컴포넌트
+    - @author 김은수
+-->
 <template>
     <div class="survey-container">
         <!-- 초기 상태에서 로고 표시 -->

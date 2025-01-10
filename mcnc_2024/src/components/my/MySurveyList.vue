@@ -1,3 +1,7 @@
+<!--
+    - 내 설문조사 리스트 조회
+    - @author 김은수
+-->
 <template>
     <div class="root-container">
         <div class="background"></div>

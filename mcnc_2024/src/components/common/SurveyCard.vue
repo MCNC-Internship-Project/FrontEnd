@@ -1,3 +1,7 @@
+<!--
+    - 설문 목록 내 설문카드 컴포넌트
+    - @author 김은수
+-->
 <template>
     <div class="item-container" v-ripple>
         <div class="item-header-container">

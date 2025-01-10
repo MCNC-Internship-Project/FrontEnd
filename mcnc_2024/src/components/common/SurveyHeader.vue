@@ -1,3 +1,7 @@
+<!--
+    - 설문 목록 타이틀 헤더 컴포넌트
+    - @author 김은수
+-->
 <template>
     <div class="header">
         <div class="title">{{ title }}</div>

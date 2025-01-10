@@ -1,3 +1,7 @@
+<!--
+    - 설문통계: 나이 그래프
+    - @author 김은수
+-->
 <template>
     <div class="chart-wrapper">
         <canvas ref="genderChartCanvas"></canvas>
