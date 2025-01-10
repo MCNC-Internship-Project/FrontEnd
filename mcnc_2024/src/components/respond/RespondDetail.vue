@@ -1,5 +1,5 @@
 <template>
-    <ToolBar @goBack="goBack" backgroundColor="#fff" zIndex="1000" v-if="isValid"/>
+    <ToolBar @goBack="goBack" backgroundColor="#fff" zIndex="1000" v-if="isValid" />
     <div id="survey-detail" v-if="isValid">
         <div class="survey-section">
             <div class="survey-title-section">
@@ -7,12 +7,13 @@
                     <h1 class="survey-title">{{ survey.title }}</h1>
                     <p class="survey-description">{{ survey.description }}</p>
                 </div>
-                <p class="survey-period">설문기간 &nbsp; {{ `${dayjs(survey.startDate).format("YYYY.MM.DD")} ~ ${dayjs(survey.endDate).format("YYYY.MM.DD")}` }}</p>
+                <p class="survey-period">설문기간 &nbsp; {{ `${dayjs(survey.startDate).format("YYYY.MM.DD")} ~
+                    ${dayjs(survey.endDate).format("YYYY.MM.DD")}` }}</p>
             </div>
 
             <div class="survey-item-container">
                 <div v-for="(question, index) in survey.questions" :key="question.quesId" class="survey-item-section"
-                    :class="{'last-item' : index === survey.questions.length - 1}">
+                    :class="{ 'last-item': index === survey.questions.length - 1 }">
                     <div class="question-title">{{ question.body }}</div>
                     <div class="response">
                         <!-- 객관식 단일 선택 (라디오 버튼) -->
@@ -31,7 +32,8 @@
                                     </div>
 
                                     <div class="answer-text"
-                                        v-if="option.isEtc && question.objAnswerList.includes(option.selectionId.sequence)" style="white-space: pre-wrap;">
+                                        v-if="option.isEtc && question.objAnswerList.includes(option.selectionId.sequence)"
+                                        style="white-space: pre-wrap;">
                                         {{ question.etcAnswer }}
                                     </div>
 
@@ -73,12 +75,12 @@
                 </div>
             </div>
         </div>
-
-        <default-dialog v-model="dialogs.defaultDialog.isVisible" :message="dialogs.defaultDialog.message"
-            @confirm="defaultDialogConfirm" :isPersistent="dialogs.defaultDialog.isPersistent"/>
     </div>
 
-    <survey-removed v-else/>
+    <survey-removed v-if="isRemoved" />
+
+    <default-dialog v-model="dialogs.defaultDialog.isVisible" :message="dialogs.defaultDialog.message"
+        @confirm="defaultDialogConfirm" :isPersistent="dialogs.defaultDialog.isPersistent" />
 </template>
 
 <script setup>
@@ -101,7 +103,8 @@ const props = defineProps({
 // survey 객체와 사용자 답변 객체
 const survey = ref({});
 const userAnswers = ref({});
-const isValid = ref(true);
+const isValid = ref(false);
+const isRemoved = ref(false);
 
 const dialogs = ref({
     defaultDialog: {
@@ -127,73 +130,68 @@ const defaultDialogConfirm = () => {
     dialogs.value.defaultDialog.isVisible = false;
 }
 
-const handleError = (error) => {
-    switch (error.status) {
-        case 400: // 해당 설문이 존재하지 않음
-            showDialog(dialogs.value.defaultDialog, error?.response?.data?.errorMessage, true, goBack);
-            break;
-        case 404:  // 해당 설문이 존재하지 않음
-            isValid.value = false;
-            break;
-        default: // 그 외
-            if (error?.response?.data?.errorMessage)
-                showDialog(dialogs.value.defaultDialog, error?.response?.data?.errorMessage, false, null);
-            else
-                showDialog(dialogs.value.defaultDialog, "설문 데이터를 불러오는 중 오류가 발생했습니다.", false, null);
-    }
-};
-
 // 컴포넌트가 마운트되면 API 호출
-onMounted(async () => {
-    await fetchSurveyResponses();
-});
+onMounted(() => {
+    const decryptedId = decrypt(props.id);
+    axios.get(`/survey/response/${decryptedId}`)
+        .then((response) => {
+            const data = response.data;
 
-const fetchSurveyResponses = async () => {
-    try {
-        const decryptedId = decrypt(props.id);
-        const response = await axios.get(`/survey/response/${decryptedId}`);
-        const data = response.data;
+            // 설문 데이터 매핑
+            survey.value = {
+                title: data.title,
+                description: data.description,
+                startDate: data.createDate,
+                endDate: data.expireDate,
+                creatorId: data.creatorId,
+                isExpired: !data.expireDateValid,
+                questions: data.questionList.map((question) => ({
+                    quesId: question.quesId,
+                    body: question.body,
+                    questionType: question.questionType,
+                    subjAnswer: question.subjAnswer,
+                    etcAnswer: question.etcAnswer,
+                    objAnswerList: question.objAnswerList,
+                    selectionList: question.selectionList.map((selection, seqIdx) => ({
+                        selectionId: {
+                            quesId: question.quesId,
+                            sequence: seqIdx,
+                        },
+                        body: selection.body,
+                        isEtc: selection.isEtc || false,
+                    })) || [], // selectionList가 없으면 빈 배열로 처리
+                })),
+            };
 
-        // 설문 데이터 매핑
-        survey.value = {
-            title: data.title,
-            description: data.description,
-            startDate: data.createDate,
-            endDate: data.expireDate,
-            creatorId: data.creatorId,
-            isExpired: !data.expireDateValid,
-            questions: data.questionList.map((question) => ({
-                quesId: question.quesId,
-                body: question.body,
-                questionType: question.questionType,
-                subjAnswer: question.subjAnswer,
-                etcAnswer: question.etcAnswer,
-                objAnswerList: question.objAnswerList,
-                selectionList: question.selectionList.map((selection, seqIdx) => ({
-                    selectionId: {
-                        quesId: question.quesId,
-                        sequence: seqIdx,
-                    },
-                    body: selection.body,
-                    isEtc: selection.isEtc || false,
-                })) || [], // selectionList가 없으면 빈 배열로 처리
-            })),
-        };
+            // 사용자 답변 매핑
+            data.questionList.forEach((question) => {
+                if (question.questionType === 'OBJ_MULTI') {
+                    userAnswers.value[question.quesId] = question.objAnswerList || [];
+                } else if (question.questionType === 'OBJ_SINGLE') {
+                    userAnswers.value[question.quesId] = question.objAnswerList?.[0] || null;
+                } else if (question.questionType === 'SUBJECTIVE') {
+                    userAnswers.value[question.quesId] = question.subjAnswer || '';
+                }
+            });
 
-        // 사용자 답변 매핑
-        data.questionList.forEach((question) => {
-            if (question.questionType === 'OBJ_MULTI') {
-                userAnswers.value[question.quesId] = question.objAnswerList || [];
-            } else if (question.questionType === 'OBJ_SINGLE') {
-                userAnswers.value[question.quesId] = question.objAnswerList?.[0] || null;
-            } else if (question.questionType === 'SUBJECTIVE') {
-                userAnswers.value[question.quesId] = question.subjAnswer || '';
+            isValid.value = true;
+        })
+        .catch((error) => {
+            switch (error.status) {
+                case 400: // 해당 설문이 존재하지 않음
+                    showDialog(dialogs.value.defaultDialog, error?.response?.data?.errorMessage, true, goBack);
+                    break;
+                case 404:  // 해당 설문이 존재하지 않음
+                    isRemoved.value = true;
+                    break;
+                default: // 그 외
+                    if (error?.response?.data?.errorMessage)
+                        showDialog(dialogs.value.defaultDialog, error?.response?.data?.errorMessage, false, null);
+                    else
+                        showDialog(dialogs.value.defaultDialog, "설문 데이터를 불러오는 중 오류가 발생했습니다.", false, null);
             }
         });
-    } catch (error) {
-        handleError(error);
-    }
-};
+});
 
 // 뒤로 가기 함수
 const goBack = () => {
@@ -246,9 +244,9 @@ const goBack = () => {
     margin-top: 12px;
     position: relative;
     display: inline-block;
-    white-space: pre-wrap; 
-    word-break: break-word; 
-    overflow-wrap: break-word; 
+    white-space: pre-wrap;
+    word-break: break-word;
+    overflow-wrap: break-word;
 }
 
 .underline {
@@ -265,9 +263,9 @@ const goBack = () => {
     font-size: 1rem;
     font-weight: bold;
     color: #868686;
-    white-space: pre-wrap; 
-    word-break: break-word; 
-    overflow-wrap: break-word; 
+    white-space: pre-wrap;
+    word-break: break-word;
+    overflow-wrap: break-word;
 }
 
 .survey-period {
@@ -293,7 +291,7 @@ const goBack = () => {
 }
 
 .survey-item-section.last-item {
-    margin-bottom : 20px;
+    margin-bottom: 20px;
 }
 
 .question-title {
@@ -304,9 +302,9 @@ const goBack = () => {
     background-color: white;
     padding: 8px 12px;
     border-radius: 8px;
-    white-space: pre-wrap; 
-    word-break: break-word; 
-    overflow-wrap: break-word; 
+    white-space: pre-wrap;
+    word-break: break-word;
+    overflow-wrap: break-word;
 }
 
 .answer-options {
@@ -412,8 +410,8 @@ textarea::-webkit-scrollbar {
 }
 
 .option-section {
-    display : flex;
-    margin-bottom : 8px;
+    display: flex;
+    margin-bottom: 8px;
 }
 
 .btn-container {
@@ -439,8 +437,8 @@ textarea::-webkit-scrollbar {
 .answer-text {
     background-color: #fff;
     border-radius: 8px;
-    border : solid 1px #d9d9d9;
-    padding : 8px 12px;
+    border: solid 1px #d9d9d9;
+    padding: 8px 12px;
     font-size: 0.875rem;
     white-space: pre-wrap;
 }
