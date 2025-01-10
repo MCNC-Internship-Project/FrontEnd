@@ -173,33 +173,33 @@ import SurveyItem from './component/SurveyItem.vue';
 import TimePickerComponent from './component/TimePickerComponent.vue';
 import { useSaveStatusStore } from '@/stores/saveStatusStore';
 
-const saveStore = useSaveStatusStore();             // 생성 창에서 생성될 설문의 저장 상태를 관리하는 변수
-const router = useRouter();                         // 라우터 인스턴스 주입
-const isSessionValid = ref(true);                   // 생성 창에서 페이지의 이동이 이루어질때, 현재 상태에서 세션값의 유효성을 담는 변수
+const saveStore = useSaveStatusStore();
+const router = useRouter();
+const isSessionValid = ref(true);
 const totalComponent = ref([{ id: 0 },]);           // 설문 항목들을 담는 배열
 const surveyItems = ref([]);                        // 각 survey-item 컴포넌트를 참조하여 해당 컴포넌트의 값들을 담는 변수
-const surveyTitle = ref("");                        // 설문 제목
-const titlePlaceholderVisible = ref(true);          // 설문 제목 placeholder를 보일지에 대한 값
-const titleError = ref(false);                      // 설문 제목 요소에 대한 error 클래스 핸들링 변수
-const surveyDescription = ref("");                  // 설문 설명
-const descriptionPlaceholderVisible = ref(true);    // 설문 설명 palceholder를 보일지에 대한 값
-const dateError = ref(false);                       // 설문 마감 기한 요소에 대한 error 클래스 핸들링 변수
-const isDateError = ref(false);                     // 설문 마감 기한 다이얼로그 내부에서 선택한 날짜 요소에 대한 error 클래스 핸들링 변수
-const isTimeError = ref(false);                     // 설문 마감 기한 다이얼로그 내부에서 선택한 시간 요소에 대한 error 클래스 핸들링 변수
-const isTimeBeforeNowError = ref(false);            // 설정한 설문 마감 기한이 설문 생성 시점보다 지났을 경우에 대한 error 클래스 핸들링 변수
-const showDatePickerDialog = ref(false);            // 설문 마감 기한 다이얼로그를 보일지에 대한 값
-const isDateMenuOpen = ref(false);                  // 설문 마감 기한 다이얼로그 내부의 데이트 피커를 보일지에 대한 값
-const isTimeMenuOpen = ref(false);                  // 설문 마감 기한 다이얼로그 내부의 타임 피커를 보일지에 대한 값
-const ampmList = ref(['오전', '오후']);              // 타임 피커 시간대
-const hourList = ref(['12', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11']);     // 타임 피커 시간
-const minuteList = ref(['00', '05', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55']);   // 타임 피커 분
-const selectedDate = ref(null);                     // 설문 마감 기한 다이얼로그 내부에서 선택한 날짜값
-const selectedTime = ref(null);                     // 설문 마감 기한 다이얼로그 내부에서 선택한 시간 문자열 값
-const selectedAmPm = ref('오전');                   // 타임 피커에서 선택한 시간대 값
-const selectedHour = ref('12');                     // 타임 피커에서 선택한 시간
-const selectedMinute = ref('00');                   // 타임 피커에서 선택한 분
-const date = ref(null);                             // 설문 마감 기한 다이얼로그에서 설정된 설문 생성 마감 날짜 값
-const time = ref(null);                             // 설문 마감 기한 다이얼로그에서 설정된 설문 생성 마감 시간 값
+const surveyTitle = ref("");                        
+const titlePlaceholderVisible = ref(true);
+const titleError = ref(false);
+const surveyDescription = ref("");
+const descriptionPlaceholderVisible = ref(true);
+const dateError = ref(false);
+const isDateError = ref(false);
+const isTimeError = ref(false);
+const isTimeBeforeNowError = ref(false);
+const showDatePickerDialog = ref(false);
+const isDateMenuOpen = ref(false);
+const isTimeMenuOpen = ref(false);
+const ampmList = ref(['오전', '오후']);
+const hourList = ref(['12', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11']);
+const minuteList = ref(['00', '05', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55']);
+const selectedDate = ref(null);
+const selectedTime = ref(null);
+const selectedAmPm = ref('오전');
+const selectedHour = ref('12');
+const selectedMinute = ref('00');
+const date = ref(null);
+const time = ref(null);
 
 // showDialog 함수 호출 시 컴포넌트의 설정값을 담는 다이얼로그 바인딩 변수
 const dialogs = ref({
