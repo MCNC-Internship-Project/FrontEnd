@@ -37,9 +37,13 @@ const props = defineProps({
 })
 
 const totalItem = ref([]);
-
 const isExistEtc = ref(false);
 
+/**
+ * 질문 항목들이 변경(마운트 될때)되면,
+ * 화면에 질문 항목들이 렌더링 되도록 반응형 데이터에 주입
+ * @author 김원재
+ */
 watch(
     () => props.selectionList,
     (newVal) => {
@@ -67,6 +71,7 @@ watch(
 /**
  * 질문 항목 순서 나열
  * 기타 항목이 가장 하위 순위로 정렬
+ * @author 김원재
  */
 const displayItems = computed(() => {
     const regularItems = totalItem.value.filter(item => item.id !== 'etcId');
@@ -80,6 +85,7 @@ const displayItems = computed(() => {
 
 /**
  * 일반 항목 추가, 최대 항목 개수 100개 제한
+ * @author 김원재
  */
 const addItem = () => {
     if (totalItem.value.length >= 100) {
@@ -93,10 +99,10 @@ const addItem = () => {
 
     const newObj = { id: lastIndex + 1, value: "" };
 
-    if (isExistEtc.value) {
+    if (isExistEtc.value) { // 기타 항목이 있으면 최하위로 정렬
         const etcItem = totalItem.value.find(item => item.id === 'etcId');
         totalItem.value = [...regularItems, newObj, etcItem];
-    } else {
+    } else { // 없으면 배열에 push
         totalItem.value.push(newObj);
     }
 }
@@ -104,6 +110,7 @@ const addItem = () => {
 /**
  * 질문 항목을 삭제하는 함수
  * 해당 항목의 id를 추적하여 필터링
+ * @author 김원재
  * @param id 
  */
 const deleteItem = (id) => {
@@ -119,7 +126,7 @@ const deleteItem = (id) => {
     }
 
     /**
-     * 질문 항목에 기타 항목이 있지만, length가 2 이상일때(일반 항목이 여러 개)는 선택한 항목이 뭐든 삭제 가능
+     * 질문 항목에 기타 항목이 있지만, length가 2 이상일때(일반 항목이 여러 개)는 선택한 항목 삭제 가능
      */
     if (totalItem.value.length > 2 && totalItem.value.some((item) => item.id === "etcId")) {
         if (id === "etcId") {
@@ -130,7 +137,7 @@ const deleteItem = (id) => {
         return;
     }
 
-     // 항목이 아예 사라지면 화면 뒤틀리는 김에 항목이 1개 이하로는 삭제 안되는 로직
+     // 항목이 1개 이하로는 리턴
     if (totalItem.value.length === 1) { return; }
 
     totalItem.value = totalItem.value.filter((item) => item.id !== id);
@@ -138,6 +145,7 @@ const deleteItem = (id) => {
 
 /**
  * 기타 항목 추가, 1개만 추가 가능
+ * @author 김원재
  */
 const addEtcItem = () => {
     if (totalItem.value.length >= 100) {
@@ -152,8 +160,9 @@ const addEtcItem = () => {
 
 /**
  * 질문 항목 입력 시 IME 카운트 조절, 중복 항목 확인
- * @param event 
- * @param index 
+ * @author 김원재
+ * @param event 입력이 발생한 이벤트 객체
+ * @param index 질문 항목 배열 인덱스
  */
 const handleInput = (event, index) => {
     const newValue = event.target.value;
@@ -163,6 +172,7 @@ const handleInput = (event, index) => {
 
 /**
  * 질문 항목 index 값으로 해당 index와 중복된 값을 갖는 질문 항목 탐색
+ * @author 김원재
  * @param index 
  */
 const isDuplicateValue = (index) => {
@@ -190,6 +200,7 @@ const isDuplicateValue = (index) => {
 
 /**
  * 포커스 해제될 때 중복확인
+ * @author 김원재
  * @param index 
  */
 const handleBlur = (index) => {
@@ -197,16 +208,17 @@ const handleBlur = (index) => {
     if (isDuplicateValue(index)) {
         totalItem.value[index].value = ''; // 값을 비움
         totalItem.value[index].hasError = false;
-        totalItem.value[index].isDuplicated = false; // 중복 상태 유지
+        totalItem.value[index].isDuplicated = false;
     } else {
         // 중복이 아니면 공백 제거
         totalItem.value[index].value = totalItem.value[index].value.trim();
-        totalItem.value[index].isDuplicated = false; // 중복 상태 초기화
+        totalItem.value[index].isDuplicated = false;
     }
 }
 
 /**
  * 각 항목의 값 유효성 및 반환하는 함수
+ * @author 김원재
  */
 const getValue = () => {
     totalItem.value.forEach(item => item.hasError = false);
@@ -234,7 +246,8 @@ const getValue = () => {
 };
 
 /**
- * 동적 css 제거
+ * 바인딩 클래스 제거
+ * @author 김원재
  * @param index 
  */
 const clearError = (index) => {
@@ -243,6 +256,7 @@ const clearError = (index) => {
 
 /**
  * 질문 항목이 1개일 경우 삭제 아이콘 숨김 처리
+ * @author 김원재
  * @param itemId 
  */
 const showDeleteIcon = (itemId) => {
@@ -260,6 +274,10 @@ const showDeleteIcon = (itemId) => {
     return true;
 }
 
+/**
+ * UpdateSurveyItem의 objComponentRef에서 호출하는 자식 컴포넌트의 getValue 함수를 접근 가능하게 함
+ * @author 김원재
+ */
 defineExpose({
     getValue,
 })

@@ -59,28 +59,6 @@ import iconSingle from '@/assets/images/icon_single.svg';
 import iconMulti from '@/assets/images/icon_multi.svg';
 import iconSubj from '@/assets/images/icon_subj.svg';
 
-const selectionList = ref([]);
-
-const subjComponentRef = ref(null);
-const objComponentRef = ref(null);
-
-const surveyTitle = ref("");
-const titlePlaceholderVisible = ref(true);
-const surveyTypes = ["OBJ_SINGLE", "OBJ_MULTI", "SUBJECTIVE"];
-const surveyTypeTexts = ["단일 선택", "다중 선택", "주관식"];
-const surveyType = ref(surveyTypes[0]);
-const surveyTypeText = ref(surveyTypeTexts[0]);
-const surveyTypeIcon = ref(iconSingle);
-const surveyTypeMenuOptions = [
-    { text: surveyTypeTexts[0], icon: iconSingle },
-    { text: surveyTypeTexts[1], icon: iconMulti },
-    { text: surveyTypeTexts[2], icon: iconSubj },
-]
-
-const showTypeMenu = ref(false);
-
-const titleError = ref(false);
-
 const props = defineProps({
     isSingle: {
         type: Boolean,
@@ -95,6 +73,30 @@ const props = defineProps({
     }
 });
 
+const emit = defineEmits(['delete-item']);
+const selectionList = ref([]);
+const subjComponentRef = ref(null);
+const objComponentRef = ref(null);
+const surveyTitle = ref("");
+const titlePlaceholderVisible = ref(true);
+const showTypeMenu = ref(false);
+const titleError = ref(false);
+const surveyTypes = ["OBJ_SINGLE", "OBJ_MULTI", "SUBJECTIVE"];
+const surveyTypeTexts = ["단일 선택", "다중 선택", "주관식"];
+const surveyType = ref(surveyTypes[0]);
+const surveyTypeText = ref(surveyTypeTexts[0]);
+const surveyTypeIcon = ref(iconSingle);
+const surveyTypeMenuOptions = [
+    { text: surveyTypeTexts[0], icon: iconSingle },
+    { text: surveyTypeTexts[1], icon: iconMulti },
+    { text: surveyTypeTexts[2], icon: iconSubj },
+]
+
+/**
+ * 해당 컴포넌트가 마운트될 때,
+ * UpdateSurvey에서 props넘긴 값 받아오기
+ * @author 김원재
+ */
 onMounted(() => {
     surveyTitle.value = props.questionList.body;
     const typeIdx = surveyTypes.indexOf(props.questionList.questionType)
@@ -112,6 +114,11 @@ onMounted(() => {
     surveyTypeText.value = surveyTypeTexts[surveyTypesIdx];
 })
 
+/**
+ * 설문 항목들이 변경(마운트 될때)되면,
+ * 화면에 설문 항목의 제목들이 렌더링 되도록 반응형 데이터에 주입
+ * @author 김원재
+ */
 watch(
     () => props.questionList, 
     (newVal) => {
@@ -125,7 +132,10 @@ watch(
     { immediate: true } // 즉시 실행
 );
 
-
+/**
+ * 선택한 타입 값이 바뀌면 이미지와 텍스트도 변경
+ * @author 김원재
+ */
 watch(surveyTypeText, (type) => {
     switch (type) {
         case surveyTypeTexts[0]:
@@ -144,7 +154,8 @@ watch(surveyTypeText, (type) => {
 });
 
 /**
- * 각 항목의 값 유효성 및 반환하는 함수
+ * 각 설문 항목의 값 유효성 및 반환하는 함수
+ * @author 김원재
  */
 const getValue = () => {
     let isValid = true;
@@ -180,14 +191,21 @@ const getValue = () => {
     };
 };
 
-const emit = defineEmits(['delete-item']);
-
+/**
+ * 설문 항목이 2개 이상일 때
+ * 설문 항목을 지우는 함수
+ * @author 김원재
+ */
 const deleteItem = () => {
     if (!props.isSingle) {
         emit('delete-item');
     }
 }
 
+/**
+ * UreteSurvey의 surveyItems에서 호출하는 자식 컴포넌트의 getValue 함수를 접근 가능하게 함
+ * @author 김원재
+ */
 defineExpose({
     getValue,
 })
