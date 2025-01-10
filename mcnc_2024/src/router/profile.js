@@ -1,8 +1,8 @@
 /**
  * 사용자 프로필 전용 라우터
- * profile -> update-profile
- * profile -> my-surveys
- * profile -> my-participations
+ * /profile         (프로필)
+ * /profile/info    (내 정보)
+ * @author 김원재
  */
 
 const profileRoutes = [

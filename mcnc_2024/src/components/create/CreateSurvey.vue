@@ -148,8 +148,8 @@
                     <div class="error-text" v-if="isTimeBeforeNowError">*종료 시간은 현재보다 이전으로 설정할 수 없습니다.</div>
 
                     <div class="dialog-actions">
-                        <v-btn class="dialog-cancel-btn" @click="cancel">취소</v-btn>
-                        <v-btn class="dialog-confirm-btn" color="#7796E8" @click="confirm">확인</v-btn>
+                        <v-btn class="dialog-cancel-btn" @click="datePickerCancel">취소</v-btn>
+                        <v-btn class="dialog-confirm-btn" color="#7796E8" @click="datePickerConfirm">확인</v-btn>
                     </div>
                 </div>
             </v-card>
@@ -165,7 +165,7 @@
 
 <script setup>
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
-import { ref, nextTick, watch, onMounted, onBeforeUnmount } from 'vue';
+import { ref, nextTick, watch, onMounted, onUnmounted } from 'vue';
 import axios from '@/utils/axiosInstance';
 import dayjs from 'dayjs'
 import { checkEmptyValues } from '@/utils/checkEmptyValues';
@@ -176,30 +176,38 @@ import { useSaveStatusStore } from '@/stores/saveStatusStore';
 const saveStore = useSaveStatusStore();
 const router = useRouter();
 const isSessionValid = ref(true);
-const totalComponent = ref([{ id: 0 },]);
-const surveyItems = ref([]);
-
-const surveyTitle = ref("");
+const totalComponent = ref([{ id: 0 },]);           // 설문 항목들을 담는 배열
+const surveyItems = ref([]);                        // 각 survey-item 컴포넌트를 참조하여 해당 컴포넌트의 값들을 담는 변수
+const surveyTitle = ref("");                        
 const titlePlaceholderVisible = ref(true);
 const titleError = ref(false);
 const surveyDescription = ref("");
 const descriptionPlaceholderVisible = ref(true);
-
 const dateError = ref(false);
 const isDateError = ref(false);
 const isTimeError = ref(false);
 const isTimeBeforeNowError = ref(false);
-
 const showDatePickerDialog = ref(false);
 const isDateMenuOpen = ref(false);
 const isTimeMenuOpen = ref(false);
+const ampmList = ref(['오전', '오후']);
+const hourList = ref(['12', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11']);
+const minuteList = ref(['00', '05', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55']);
+const selectedDate = ref(null);
+const selectedTime = ref(null);
+const selectedAmPm = ref('오전');
+const selectedHour = ref('12');
+const selectedMinute = ref('00');
+const date = ref(null);
+const time = ref(null);
 
+// showDialog 함수 호출 시 컴포넌트의 설정값을 담는 다이얼로그 바인딩 변수
 const dialogs = ref({
     defaultDialog: {
-        isVisible: false,
-        message: "",
-        isPersistent: false,
-        callback: null
+        isVisible: false,       // 화면 상에 보이는지
+        message: "",            // 다이얼로그 메세지
+        isPersistent: false,    // 다이얼로그 외부 클릭 무시(true)
+        callback: null          // 다이얼로그 확인 버튼을 누를 때 호출할 콜백함수
     },
     confirmDialog: {
         isVisible: false,
@@ -209,6 +217,15 @@ const dialogs = ref({
     }
 })
 
+/**
+ * dialogs에 정의된 다이얼로그 객체의 isVisible을 true로 전환
+ * 메세지와 콜백함수를 설정하는 함수
+ * @author 김원재
+ * @param dialog        // 다이얼로그 종류
+ * @param message       // 다이얼로그 메세지
+ * @param isPersistent  // 다이얼로그 외부 클릭 무시
+ * @param callback      // 확인 버튼 클릭 후 콜백함수 호출
+ */
 const showDialog = (dialog, message, isPersistent = false, callback = null) => {
     dialog.message = message;
     dialog.isPersistent = isPersistent;
@@ -216,6 +233,11 @@ const showDialog = (dialog, message, isPersistent = false, callback = null) => {
     dialog.isVisible = true
 }
 
+/**
+ * defaluit-dialog에서 확인 버튼을 눌렀을때,
+ * 콜백함수가 있으면 콜백을 실행하고 화면 상에서 다이얼로그 제거
+ * @author 김원재
+ */
 const defaultDialogConfirm = () => {
     if (dialogs.value.defaultDialog.callback) {
         dialogs.value.defaultDialog.callback();
@@ -224,35 +246,35 @@ const defaultDialogConfirm = () => {
     dialogs.value.defaultDialog.isVisible = false;
 }
 
-const ampmList = ref(['오전', '오후']);
-const hourList = ref(['12', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11']);
-const minuteList = ref(['00', '05', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55']);
-
-const selectedDate = ref(null);
-const selectedTime = ref(null);
-const selectedAmPm = ref('오전');
-const selectedHour = ref('12');
-const selectedMinute = ref('00');
-
-const date = ref(null);
-const time = ref(null);
-
-/** 페이지 새로고침 혹은 종료 전에 경고 메시지를 표시 */
+/** 
+ * 페이지 새로고침 혹은 종료 전에 경고 메시지를 표시
+ * @author 김원재
+ */
 const handleBeforeUnload = (event) => {
   event.preventDefault();
   return '';
 };
 
+/**
+ * 생성 창이 마운트 될 때, 새로고침에 대한 이벤트 리스닝,
+ * 새로고침 -> 페이지를 새로고치겠냐는 경고창 띄우기 위한 목적
+ * @author 김원재
+ */
 onMounted(() => {
     window.addEventListener('beforeunload', handleBeforeUnload);
 })
 
-onBeforeUnmount(() => {
+/**
+ * 생성 창이 언마운트 될 때, 새로고침에 대한 이벤트 제거
+ * @author 김원재
+ */
+ onUnmounted(() => {
     window.removeEventListener('beforeunload', handleBeforeUnload);
 })
 
 /**
  * 호출 실패 상태 코드에 따른 다이얼로그 반환
+ * @author 김원재
  * @param error api 호출 실패 error 객체
  */
 const handleError = (error) => {
@@ -269,32 +291,37 @@ const handleError = (error) => {
     }
 };
 
-/** 라우터를 떠나기 전에 확인 */
+/**
+ * 설문 생성에서 라우터가 이동할 때 수행
+ * @author 김원재
+ */
 onBeforeRouteLeave((to, from, next) => {
-    // 세션이 만료됐으면 경고 메세지 출력x
+    // 세션이 만료됐으면 경고 메세지 출력하지 않음
     if(!isSessionValid.value){
         next();
         return;
     }
 
-    // 설문을 생성, 수정에 성공하지 않았을 때
-    if (!saveStore.isSaved) {
+    // 설문을 생성하지 않았을 때
+    if (!saveStore.isSaved) { 
         const confirmationMessage = '정말 나가시겠습니까? 변경사항이 저장되지 않을 수 있습니다.';
         if (window.confirm(confirmationMessage)) {
             next(); // 저장하지 않고 나갈 경우, 라우팅을 진행
         } else {
             next(false); // 이동을 취소
         }
-    } else {
-        next(); // 이미 저장된 경우, 그냥 이동
+    } else { // 설문이 생성된 경우, saveStore의 isSaved값을 초기화 후 이동
+        saveStore.resetStatus();
+        next();
     }
 });
 
 /**
- *  설문기간 설정 다이얼로그 끄는 함수
- *  선택했던 날짜, 시간값이 있으면 초기화
+ *  설문 마감 기간 설정 다이얼로그 닫기
+ *  다이얼로그 내부에서 선택했던 날짜, 시간값이 있으면 초기화
+ * @author 김원재
  */
-const cancel = () => {
+const datePickerCancel = () => {
     showDatePickerDialog.value = false;
 
     if (selectedDate.value !== null) {
@@ -310,9 +337,10 @@ const cancel = () => {
 };
 
 /**
- * 설문기간 설정 시 유효성 검사
+ * 설문기간 설정 시 마감 기한의 유효성 검사
+ * @author 김원재
  */
-const confirm = () => {
+const datePickerConfirm = () => {
     if (selectedDate.value === null) {
         isDateError.value = true;
     }
@@ -350,9 +378,10 @@ const confirm = () => {
 };
 
 /**
- * type : Boolean
- * 타임피커 컴포넌트 닫힐 때 선택한 시간 포맷팅
- * @param value 
+ * 설문 마감 기간 다이얼로그의 타임 피커를 닫을 때
+ * selectedAmPm, selectedHour, selectedMinute 저장
+ * @author 김원재
+ * @param value isTimeMenuOpen 값의 변경에 따라 전달되는 값 : 메뉴가 열릴 때 -> true, 닫힐 때 -> false
  */
 const onTimePickerClose = (value) => {
     if (!value) {
@@ -361,7 +390,9 @@ const onTimePickerClose = (value) => {
 };
 
 /**
- * 설문기간 설정 다이얼로그가 켜지거나 꺼질때, 기존에 선택했던 값으로 초기화
+ * 설문기간 설정 다이얼로그가 켜지거나 꺼질때
+ * 기존에 설정된 date, time값이 있으면 해당 값으로 초기화
+ * @author 김원재
  */
 watch(showDatePickerDialog, (show) => {
     if (show) {
@@ -386,14 +417,21 @@ watch(showDatePickerDialog, (show) => {
     }
 });
 
+/**
+ * 데이트피커를 열 때, 에러 전용 바인딩 클래스를 false로 전환
+ * @author 김원재
+ */
 watch(isDateMenuOpen, (isOpen) => {
     if (isOpen) {
         isDateError.value = false;
-
         isTimeBeforeNowError.value = false;
     }
 });
 
+/**
+ * 타임피커를 열 때, 에러 전용 바인딩 클래스를 false로 전환
+ * @author 김원재
+ */
 watch(isTimeMenuOpen, (isOpen) => {
     if (isOpen) {
         isTimeError.value = false;
@@ -403,6 +441,7 @@ watch(isTimeMenuOpen, (isOpen) => {
 
 /**
  * 설문 항목을 추가하는 함수
+ * @author 김원재
  */
 const addComponent = () => {
     const lastIndex = totalComponent.value.length > 0
@@ -417,6 +456,7 @@ const addComponent = () => {
 
 /**
  * 설문 항목이 추가된만큼 스크롤 높이 조절
+ * @author 김원재
  */
 const scrollToBottom = () => {
     // nextTick으로 DOM 업데이트 후에 스크롤 이동
@@ -431,7 +471,8 @@ const scrollToBottom = () => {
 /**
  * 설문 항목을 삭제하는 함수
  * 해당 항목의 id를 추적하여 필터링
- * @param id 
+ * @author 김원재
+ * @param id 삭제버튼을 클릭한 항목 id
  */
 const removeComponent = (id) => {
     if (totalComponent.value.length === 1)
@@ -440,7 +481,8 @@ const removeComponent = (id) => {
 };
 
 /**
- * 히스토리 -1만큼 이동하는 함수
+ * 이전으로 돌아가는 함수
+ * @author 김원재
  */
 const stepBack = () => {
     router.back();
@@ -448,8 +490,9 @@ const stepBack = () => {
 
 /**
  * 오후 10:00 -> 22:00:00
- * 시간 포맷 변환 함수
- * @param timeStr 만료시간 문자열
+ * 서버에 전송하기 위한 시간 포맷 변환 함수
+ * @author 김원재
+ * @param timeStr 설문 만료시간 문자열
  */
 const parseTime = (timeStr) => {
     if (!timeStr) return null;
@@ -468,6 +511,7 @@ const parseTime = (timeStr) => {
 
 /**
  * 세션 만료 시, 로그인 화면으로 보내는 함수
+ * @author 김원재
  */
 const goLogin = () => {
     dialogs.value.defaultDialog.isVisible = true;
@@ -480,6 +524,7 @@ const goLogin = () => {
 
 /**
  * 설문 생성을 위해 항목의 값들을 json 형태로 만들어 API 요청
+ * @author 김원재
  */
 const handleSubmit = () => {
     const title = surveyTitle.value.trim();
@@ -499,18 +544,21 @@ const handleSubmit = () => {
         dialogs.value.confirmDialog.isVisible = false;
     }
 
+    /**
+     * survey-item 컴포넌트에 참조를 걸어
+     * 생성된 각 설문 항목에 대한 제목, 항목값 가져오는 함수
+     * @author 김원재
+     */
     const values = surveyItems.value.map((item) => item.getValue());
-
     const jsonData = { title: title, description: description, questionList: values }
 
     const emptyPath = checkEmptyValues(jsonData);
-
     const isExistQuestionList = emptyPath.filter((path) => path.includes("questionList"))
 
     /**
      * 비어있는 경로가 questionList 안에서 발견되는 것이 아니면 통과
-     * 질문 항목들 중에 빈 값이 있나 확인하고 스타일 적용 및 다이얼로그
-     * 
+     * 설문 항목들 중에 빈 값이 있나 확인하고 에러 클래스 적용 및 다이얼로그 반환
+     * @author 김원재
      */
     if (isExistQuestionList.length > 0 || !valid) {
         dialogs.value.confirmDialog.isVisible = false;
@@ -547,12 +595,16 @@ const handleSubmit = () => {
 };
 
 /**
- * 생성 후 go(-1)의 위치가 / 이면 / 으로 replace,
- * /my 이면 /my로 replace.
+ * 생성 후 go(-1)의 url에 따라 replace
+ * @author 김원재
  */
 const goMySurvey = () => {
     dialogs.value.defaultDialog.isVisible = false;
 
+    /**
+     * 히스토리 중복 이슈로 인한
+     * 히스토리 이전으로 이동 후 이동한 페이지에서 replace 수행
+     */
     router.go(-1);
     setTimeout(() => {
         const currentPath = router.currentRoute.value.path;

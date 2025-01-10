@@ -1,7 +1,9 @@
 /**
  * 홈 화면 전용 라우터
- * home -> notice
- * home -> search
+ * /home    (홈)
+ * /search  (검색창)
+ * 
+ * @author 김원재
  */
 
 const HomeRoutes = [

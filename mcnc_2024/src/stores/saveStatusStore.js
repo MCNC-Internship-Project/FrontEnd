@@ -1,9 +1,12 @@
-// stores/saveStatusStore.js
+/**
+ * 생성, 수정 화면 이동 시 저장 결과의 유무를 저장하는 상태 관리
+ * @author 김원재
+ */
 import { defineStore } from 'pinia';
 
 export const useSaveStatusStore = defineStore('saveStatus', {
   state: () => ({
-    isSaved: false,  // 저장 상태 (저장되었는지 여부)
+    isSaved: false,  // 저장 상태
   }),
 
   actions: {

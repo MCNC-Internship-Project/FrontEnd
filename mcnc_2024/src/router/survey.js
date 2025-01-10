@@ -1,5 +1,12 @@
 /**
  * 설문조사 관련 전용 라우터
+ * /create   (생성)
+ * /update   (수정)
+ * /my       (생성한 설문)
+ * /result   (생성한 설문 결과)
+ * /form     (응답)
+ * /respond  (응답 결과)
+ * @author 김원재
  */
 const SurveyRoutes = [
     {

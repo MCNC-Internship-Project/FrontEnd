@@ -160,14 +160,15 @@ import UpdateSurveyItem from './component/UpdateSurveyItem.vue';
 import TimePickerComponent from './component/TimePickerComponent.vue';
 // eslint-disable-next-line no-unused-vars
 import SurveyRemoved from '../form/SurveyRemoved.vue';
+import { useSaveStatusStore } from '@/stores/saveStatusStore';
 
-const router = useRouter();
-const isValid = ref(false);
+const saveStore = useSaveStatusStore()
 const props = defineProps({
     id: String,
 })
+const router = useRouter();
+const isValid = ref(false);
 const surveyRemoved = ref(false);
-
 const totalComponent = ref([]);
 const surveyItems = ref([]);
 const surveyId = ref("");
@@ -177,24 +178,23 @@ const titlePlaceholderVisible = ref(true);
 const titleError = ref(false);
 const surveyDescription = ref("")
 const descriptionPlaceholderVisible = ref(true);
-
 const dateError = ref(false);
 const isDateError = ref(false);
 const isTimeError = ref(false);
 const isTimeBeforeNowError = ref(false);
-
 const showDatePickerDialog = ref(false);
 const isDateMenuOpen = ref(false);
 const isTimeMenuOpen = ref(false);
-
-const successModify = ref(false);
-
-/** 페이지 새로고침 혹은 종료 전에 경고 메시지를 표시 */
-const handleBeforeUnload = (event) => {
-    event.preventDefault();
-    return '';
-};
-
+const ampmList = ref(['오전', '오후']);
+const hourList = ref(['12', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11']);
+const minuteList = ref(['00', '05', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55']);
+const selectedDate = ref(null);
+const selectedTime = ref(null);
+const selectedAmPm = ref('오전');
+const selectedHour = ref('12');
+const selectedMinute = ref('00');
+const date = ref(null);
+const time = ref(null);
 const dialogs = ref({
     defaultDialog: {
         isVisible: false,
@@ -210,6 +210,24 @@ const dialogs = ref({
     }
 })
 
+/** 
+ * 페이지 새로고침 혹은 종료 전에 경고 메시지를 표시 
+ * @author 김원재
+ */
+const handleBeforeUnload = (event) => {
+    event.preventDefault();
+    return '';
+};
+
+/**
+ * dialogs에 정의된 다이얼로그 객체의 isVisible을 true로 전환
+ * 메세지와 콜백함수를 설정하는 함수
+ * @author 김원재
+ * @param dialog        // 다이얼로그 종류
+ * @param message       // 다이얼로그 메세지
+ * @param isPersistent  // 다이얼로그 외부 클릭 무시
+ * @param callback      // 확인 버튼 클릭 후 콜백함수 호출
+ */
 const showDialog = (dialog, message, isPersistent = false, callback = null) => {
     dialog.message = message;
     dialog.isPersistent = isPersistent;
@@ -217,6 +235,11 @@ const showDialog = (dialog, message, isPersistent = false, callback = null) => {
     dialog.isVisible = true
 }
 
+/**
+ * defaluit-dialog에서 확인 버튼을 눌렀을때,
+ * 콜백함수가 있으면 콜백을 실행하고 화면 상에서 다이얼로그 제거
+ * @author 김원재
+ */
 const defaultDialogConfirm = () => {
     if (dialogs.value.defaultDialog.callback) {
         dialogs.value.defaultDialog.callback();
@@ -225,20 +248,11 @@ const defaultDialogConfirm = () => {
     dialogs.value.defaultDialog.isVisible = false;
 }
 
-const ampmList = ref(['오전', '오후']);
-const hourList = ref(['12', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11']);
-const minuteList = ref(['00', '05', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55']);
-
-const selectedDate = ref(null);
-const selectedTime = ref(null);
-const selectedAmPm = ref('오전');
-const selectedHour = ref('12');
-const selectedMinute = ref('00');
-
-const date = ref(null);
-const time = ref(null);
-
-// 응답한 사람이 있어 수정 불가능, 이미 종료된 설문, 뒤로가기 버튼 클릭 시
+/**
+ * 뒤로 갈 때 isValid의 값에 따라 이벤트를 해제하고 이동
+ * isValid(Ref<Boolean>) 수정 가능 여부
+ * @author 김원재
+ */
 const goBack = () => {
     if (!isValid.value) {
         window.removeEventListener('beforeunload', handleBeforeUnload);
@@ -247,23 +261,35 @@ const goBack = () => {
     router.back();
 }
 
-// 세션이 만료되었을 경우 로그인 페이지로 이동
+/**
+ * 세션이 만료되었을 경우 로그인 페이지로 이동
+ * @author 김원재
+ */
 const goLogin = () => {
-    // window.removeEventListener('beforeunload', handleBeforeUnload);
     const currentPath = router.currentRoute.value.path;
     router.replace({ path: '/login', query: { redirect: currentPath } })
 }
 
-// 내 설문조사가 아닌 경우 홈으로 이동
+/**
+ * 내 설문조사가 아닌 경우 홈으로 이동
+ * @author 김원재
+ */
 const goHome = () => {
     window.removeEventListener('beforeunload', handleBeforeUnload);
     router.replace({ name: 'Home' });
 }
 
-// 수정 완료 후 통계 페이지로 이동
+/**
+ * 수정 완료 후 통계 페이지로 이동
+ * @author 김원재
+ */
 const goMySurvey = () => {
     window.removeEventListener('beforeunload', handleBeforeUnload);
 
+    /**
+     * 히스토리 중복 이슈로 인한
+     * 히스토리 이전으로 이동 후 이동한 페이지에서 replace 수행
+     */
     router.go(-1);
 
     setTimeout(() => {
@@ -277,6 +303,7 @@ const goMySurvey = () => {
 /**
  *  취소 버튼 -> 설문기간 설정 다이얼로그 끄는 함수
  *  선택했던 날짜, 시간값이 있으면 초기화
+ *  @author 김원재
  */
 const datePickerCancel = () => {
     showDatePickerDialog.value = false;
@@ -294,7 +321,8 @@ const datePickerCancel = () => {
 };
 
 /**
- * 설문기간 설정 시 유효성 검사
+ * 설문기간 설정 시 마감 기한의 유효성 검사
+ * @author 김원재
  */
 const datePickerConfirm = () => {
     if (selectedDate.value === null) {
@@ -334,9 +362,10 @@ const datePickerConfirm = () => {
 };
 
 /**
- * type : Boolean
- * 타임피커 컴포넌트 닫힐 때 선택한 시간 포맷팅
- * @param value 
+ * 설문 마감 기간 다이얼로그의 타임 피커를 닫을 때
+ * selectedAmPm, selectedHour, selectedMinute 저장
+ * @author 김원재
+ * @param value isTimeMenuOpen 값의 변경에 따라 전달되는 값 : 메뉴가 열릴 때 -> true, 닫힐 때 -> false
  */
 const onTimePickerClose = (value) => {
     if (!value) {
@@ -344,6 +373,11 @@ const onTimePickerClose = (value) => {
     }
 };
 
+/**
+ * 설문기간 설정 다이얼로그가 켜지거나 꺼질때
+ * 기존에 설정된 date, time값이 있으면 해당 값으로 초기화
+ * @author 김원재
+ */
 watch(showDatePickerDialog, (isVisible) => {
     if (isVisible) {
         if (date.value) {
@@ -367,6 +401,10 @@ watch(showDatePickerDialog, (isVisible) => {
     }
 });
 
+/**
+ * 데이트피커를 열 때, 에러 전용 바인딩 클래스를 false로 전환
+ * @author 김원재
+ */
 watch(isDateMenuOpen, (isOpen) => {
     if (isOpen) {
         isDateError.value = false;
@@ -375,6 +413,10 @@ watch(isDateMenuOpen, (isOpen) => {
     }
 });
 
+/**
+ * 타임피커를 열 때, 에러 전용 바인딩 클래스를 false로 전환
+ * @author 김원재
+ */
 watch(isTimeMenuOpen, (isOpen) => {
     if (isOpen) {
         isTimeError.value = false;
@@ -385,13 +427,18 @@ watch(isTimeMenuOpen, (isOpen) => {
 /**
  * 설문 항목을 추가하는 함수,
  * API 응답 형태(객체)로 포맷팅하여 생성
+ * @author 김원재
  */
 const addComponent = () => {
     const lastIndex = totalComponent.value.length > 0
         ? totalComponent.value[totalComponent.value.length - 1].id
         : -1;
 
-    // 새로운 빈 질문 객체 생성
+    /**
+     * 새로운 빈 질문 객체 생성
+     * 수정 객체는 API 응답 형태에 맞춰 생성
+     * @author 김원재
+     */
     const newQuestionData = {
         body: "",
         questionType: "OBJ_SINGLE", // 기본값으로 객관식(단일) 설정
@@ -409,13 +456,12 @@ const addComponent = () => {
     }
 
     totalComponent.value.push(newObj);
-
-    // surveyItems.value = surveyItems.value.slice();
     scrollToBottom();
 }
 
 /**
- * 설문 항목이 추가된만큼 스크롤 높이 조절
+ * 설문 항목이 추가된만큼 DOM 업데이트 이후 스크롤 높이 조절
+ * @author 김원재
  */
 const scrollToBottom = () => {
     nextTick(() => {
@@ -429,6 +475,7 @@ const scrollToBottom = () => {
 /**
  * 설문 항목을 삭제하는 함수
  * 해당 항목의 id를 추적하여 필터링
+ * @author 김원재
  * @param id 
  */
 const removeComponent = (id) => {
@@ -439,8 +486,9 @@ const removeComponent = (id) => {
 
 /**
  * 오후 10:00 -> 22:00:00
- * 시간 포맷 변환 함수
- * @param timeStr 만료시간 문자열
+ * 서버에 전송하기 위한 시간 포맷 변환 함수
+ * @author 김원재
+ * @param timeStr 설문 만료시간 문자열
  */
 const parseTime = (timeStr) => {
     if (!timeStr) return null;
@@ -458,10 +506,11 @@ const parseTime = (timeStr) => {
 }
 
 /**
- * 설문 수정을 위해 항목의 값들을 json 형태로 만들어 API 요청
+ * 설문 생성을 위해 항목의 값들을 json 형태로 만들어 API 요청
+ * @author 김원재
  */
 const handleSubmit = () => {
-    // survey-item의 모든 값을 가져오기
+    // udpate-survey-item의 모든 값을 가져오기
     const title = surveyTitle.value.trim();
     const description = surveyDescription.value.trim();
     let valid = true;
@@ -479,7 +528,12 @@ const handleSubmit = () => {
         dialogs.value.showSaveDialog.isVisible = false;
     }
 
-    const values = surveyItems.value.map((item) => item.getValue()); // getValue()는 각 survey-item에서 필요한 값을 반환하는 메서드
+    /**
+     * update-survey-item 컴포넌트에 참조를 걸어
+     * 생성된 각 설문 항목에 대한 제목, 항목값 가져오는 함수
+     * @author 김원재
+     */
+    const values = surveyItems.value.map((item) => item.getValue());
 
     const jsonData = {
         surveyId: surveyId.value, title: title,
@@ -493,8 +547,8 @@ const handleSubmit = () => {
 
     /**
      * 비어있는 경로가 questionList 안에서 발견되는 것이 아니면 통과
-     * 질문 항목들 중에 빈 값이 있나 확인하고 스타일 적용 및 다이얼로그
-     * 
+     * 설문 항목들 중에 빈 값이 있나 확인하고 에러 클래스 적용 및 다이얼로그 반환
+     * @author 김원재
      */
     if (isExistQuestionList.length > 0 || !valid) {
         showDialog(dialogs.value.defaultDialog, "입력되지 않은 항목이 있습니다.", false, null);
@@ -518,7 +572,7 @@ const handleSubmit = () => {
 
         axios.post(`/survey/manage/modify`, JSON.stringify(jsonData))
             .then(() => {
-                successModify.value = true;
+                saveStore.setSaved();
                 showDialog(dialogs.value.defaultDialog, "설문조사가 수정되었습니다.", true, goMySurvey);
             })
             .catch((error) => {
@@ -530,6 +584,7 @@ const handleSubmit = () => {
 
 /**
  * 호출 실패 상태 코드에 따른 다이얼로그 반환
+ * @author 김원재
  * @param error api 호출 실패 error 객체
  */
 const handleError = (error) => {
@@ -561,32 +616,36 @@ const handleError = (error) => {
     }
 };
 
-// 라우터를 떠나기 전에 확인
+/**
+ * 설문 수정에서 라우터가 이동할 때 수행
+ * @author 김원재
+ */
 onBeforeRouteLeave((to, from, next) => {
+    // 수정이 무효할 경우 새로고침 이벤트 해제
     if (!isValid.value) {
         window.removeEventListener('beforeunload', handleBeforeUnload);
         next();
         return;
     }
 
-    if (successModify.value) {
+    // 설문을 수정하지 않았을 때
+    if (!saveStore.isSaved) { 
+        const confirmationMessage = '정말 나가시겠습니까? 변경사항이 저장되지 않을 수 있습니다.';
+        if (window.confirm(confirmationMessage)) {
+            next(); // 저장하지 않고 나갈 경우, 라우팅을 진행
+        } else {
+            next(false); // 이동을 취소
+        }
+    } else { // 설문이 수정된 경우, saveStore의 isSaved값을 초기화 후 이동
+        saveStore.resetStatus();
         next();
-        return;
-    }
-
-    const confirmAlert = window.confirm("정말 나가시겠습니까? 변경사항이 저장되지 않을 수 있습니다.");
-    if (confirmAlert) {
-        next(); // 저장하지 않고 나갈 경우, 라우팅을 진행
-    } else {
-        next(false); // 이동을 취소
     }
 });
 
-onUnmounted(() => {
-    // 컴포넌트가 제거될 때 beforeunload 이벤트 제거
-    window.removeEventListener('beforeunload', handleBeforeUnload);
-})
-
+/**
+ * 수정 창이 마운트될 때 설문 값 요청
+ * @author 김원재
+ */
 onMounted(() => {
     surveyId.value = decrypt(props.id);
 
@@ -622,6 +681,14 @@ onMounted(() => {
         .catch((error) => {
             handleError(error);
         });
+})
+
+/**
+ * 수정 창이 언마운트될 때 새로고침 이벤트 제거
+ * @author 김원재
+ */
+ onUnmounted(() => {
+    window.removeEventListener('beforeunload', handleBeforeUnload);
 })
 </script>
 
