@@ -1,3 +1,9 @@
+<!--
+    - 로그인 컴포넌트
+    
+    - @author 반명우
+-->
+
 <template>
     <div class="root-container">
         <div class="logo-container">

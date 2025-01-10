@@ -1,3 +1,9 @@
+/**
+ * Axios 인스턴스를 생성하고, 중복 요청을 방지하는 로직을 추가한 파일
+ *
+ * @author 반명우
+ */
+
 import axios from "axios";
 
 const baseUrl = process.env.VUE_APP_API_URL;

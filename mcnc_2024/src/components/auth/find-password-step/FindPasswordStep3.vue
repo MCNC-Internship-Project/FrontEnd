@@ -1,3 +1,9 @@
+<!--
+    - 비밀번호 찾기 컴포넌트 세 번째 단계 컴포넌트
+    
+    - @author 반명우
+-->
+
 <template>
     <div class="root-container">
         <form class="form-container" novalidate @submit.prevent="changePassword">

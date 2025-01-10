@@ -1,3 +1,9 @@
+<!--
+    - 홈 컴포넌트 내 내가 생성한 설문조사 컴포넌트
+    
+    - @author 반명우
+-->
+
 <template>
     <div class="root-container">
         <div class="title-container">

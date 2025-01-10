@@ -1,3 +1,10 @@
+/**
+ * vue 기본 설정파일
+ *
+ * @author 반명우
+ * @author 김원재
+ */
+
 import { createApp } from "vue";
 import App from "./App.vue";
 import router from "./router";
@@ -14,6 +21,7 @@ import DefaultDialog from './components/common/DefaultDialog.vue';
 import ConfirmDialog from "./components/common/ConfirmDialog.vue";
 import ProgressDialog from "./components/common/ProgressDialog.vue";
 
+// 모바일에서 URL 입력부분 제외한 화면 높이 계산
 function setScreenSize() {
   let vh = window.innerHeight * 0.01;
   document.documentElement.style.setProperty("--vh", `${vh}px`);

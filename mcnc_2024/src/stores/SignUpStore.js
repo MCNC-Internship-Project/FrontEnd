@@ -1,3 +1,9 @@
+/**
+ * 회원가입시 입력한 값을 임시로 저장하는 pinia store
+ *
+ * @author 반명우
+ */
+
 import { defineStore } from 'pinia';
 
 export const useSignUpStore = defineStore('signUp', {

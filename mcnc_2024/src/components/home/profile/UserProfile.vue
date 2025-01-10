@@ -1,3 +1,9 @@
+<!--
+    - 프로필 컴포넌튼
+    
+    - @author 반명우
+-->
+
 <template>
     <div class="root-container">
         <header class="toolbar">

@@ -1,3 +1,9 @@
+/**
+ * vuetify 설정
+ *
+ * @author 반명우
+ */
+
 import '@mdi/font/css/materialdesignicons.css'
 import 'vuetify/styles'
 import { createVuetify } from 'vuetify'

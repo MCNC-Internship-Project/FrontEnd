@@ -1,3 +1,10 @@
+/**
+ * 암호화 및 복호화 유틸리티
+ *
+ * @author 반명우
+ */
+
+
 import CryptoJS from 'crypto-js';
 
 const secretKey = process.env.VUE_APP_API_KEY;

@@ -1,3 +1,9 @@
+<!--
+    - 프로그레스바가 있는 다이얼로그 컴포넌트
+    
+    - @author 반명우
+-->
+
 <template>
     <v-dialog v-model="isVisible" max-width="400" persistent>
         <v-card>

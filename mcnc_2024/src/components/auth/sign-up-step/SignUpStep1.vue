@@ -1,3 +1,9 @@
+<!--
+    - 회원가입 컴포넌트 내 첫 번째 단계 컴포넌트
+    
+    - @author 반명우
+-->
+
 <template>
     <div class="root-container">
         <div class="form-container">

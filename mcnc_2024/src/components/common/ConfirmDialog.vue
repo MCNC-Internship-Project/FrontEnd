@@ -1,3 +1,9 @@
+<!--
+    - 확인/취소 버튼이 있는 다이얼로그 컴포넌트
+    
+    - @author 반명우
+-->
+
 <template>
     <v-dialog v-model="isVisible" :persistent="isPersistent" max-width="400" @keydown.enter="onConfirm">
         <v-card>

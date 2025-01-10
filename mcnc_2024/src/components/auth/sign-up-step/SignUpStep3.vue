@@ -1,3 +1,9 @@
+<!--
+    - 회원가입 컴포넌트 내 세 번째 단계 컴포넌트
+    
+    - @author 반명우
+-->
+
 <template>
     <div class="root-container">
         <v-container>

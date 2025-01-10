@@ -1,3 +1,9 @@
+<!--
+    - 타임피커 컴포넌트
+    
+    - @author 반명우
+-->
+
 <template>
     <div class="number-picker-container" @touchstart.prevent="handleTouchStart" @touchmove.prevent="handleTouchMove"
         @touchend.prevent="handleTouchEnd" @wheel.prevent="handleWheel">

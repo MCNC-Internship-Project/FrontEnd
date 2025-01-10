@@ -1,3 +1,9 @@
+<!--
+    - 홈 컴포넌트 내 내가 참여한 설문조사 컴포넌트
+    
+    - @author 반명우
+-->
+
 <template>
     <div class="root-container">
 
