@@ -1,3 +1,7 @@
+<!--
+    - 종료된 설문
+    - @author 성지혜
+-->
 <template>
   <div class="survey-completion">
     <!-- 설문 정보 섹션 추가 -->

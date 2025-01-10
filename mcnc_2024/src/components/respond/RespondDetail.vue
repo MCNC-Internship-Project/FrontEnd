@@ -1,3 +1,7 @@
+<!--
+    - 참여한 설문 상세
+    - @author 성지혜
+-->
 <template>
     <ToolBar @goBack="goBack" backgroundColor="#fff" zIndex="1000" v-if="isValid" />
     <div id="survey-detail" v-if="isValid">

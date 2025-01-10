@@ -1,3 +1,7 @@
+<!--
+    - 설문 참여 완료
+    - @author 성지혜
+-->
 <template>
   <div class="survey-completion">
 
