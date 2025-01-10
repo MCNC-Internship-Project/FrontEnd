@@ -1,3 +1,7 @@
+<!--
+    - 설문 참여
+    - @author 성지혜
+-->
 <template>
     <div v-if="isValid">
         <ToolBar @goBack="goBack" backgroundColor="#fff" zIndex="1000" />
@@ -5,7 +9,6 @@
             <div class="survey-section">
                 <div class="survey-title-section">
                     <div>
-                        <!-- 제목이 없으면 기본 메시지 표시 -->
                         <h1 class="survey-title">{{ survey.title || " " }}</h1>
 
                         <!-- 설명이 없으면 빈칸으로 표시 -->
