@@ -1,9 +1,3 @@
-<!--
-    - 회원가입 전체 컴포넌트
-    
-    - @author 반명우
--->
-
 <template>
     <div class="root-container">
         <header class="toolbar">
@@ -33,6 +27,15 @@
 </template>
 
 <script setup>
+/**
+ * @fileoverview 회원가입 컴포넌트
+ * @author 김원재 (kimwonjae@mcnc.co.kr)
+ * @author 반명우 (banmyungwoo@mcnc.co.kr)
+ * @date 2024-11-05
+ * @lastModified 2024-12-12
+ * @description 회원가입 화면
+ */
+
 import { ref, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useSignUpStore } from '@/stores/SignUpStore';

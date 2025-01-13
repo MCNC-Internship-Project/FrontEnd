@@ -1,9 +1,3 @@
-<!--
-    - 홈 컴포넌트 내 내가 참여한 설문조사 컴포넌트
-    
-    - @author 반명우
--->
-
 <template>
     <div class="root-container">
 
@@ -42,6 +36,14 @@
 </template>
 
 <script setup>
+/**
+ * @fileoverview 홈 컴포넌트 내에 있는 내가 응답한 설문조사 리스트 컴포넌트
+ * @author 반명우 (banmyungwoo@mcnc.co.kr)
+ * @date 2024-11-12
+ * @lastModified 2024-12-13
+ * @description 내가 응답한 설문조사 리스트 화면
+ */
+
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router';
 import { encrypt } from '@/utils/crypto';

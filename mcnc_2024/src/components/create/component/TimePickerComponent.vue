@@ -1,9 +1,3 @@
-<!--
-    - 타임피커 컴포넌트
-    
-    - @author 반명우
--->
-
 <template>
     <div class="number-picker-container" @touchstart.prevent="handleTouchStart" @touchmove.prevent="handleTouchMove"
         @touchend.prevent="handleTouchEnd" @wheel.prevent="handleWheel">
@@ -19,6 +13,14 @@
 </template>
 
 <script setup>
+/**
+ * @fileoverview 타임피커 컴포넌트
+ * @author 반명우 (banmyungwoo@mcnc.co.kr)
+ * @date 2024-11-14
+ * @lastModified 2024-11-19
+ * @description 배열을 받아 마우스 휠로 스크롤 또는 터치로 특정 값을 선택
+ */
+
 import { ref, computed, onMounted, defineProps, defineEmits } from 'vue';
 
 const props = defineProps({

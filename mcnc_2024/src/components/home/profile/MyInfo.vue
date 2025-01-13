@@ -1,9 +1,3 @@
-<!--
-    - 내 정보 컴포넌트
-    
-    - @author 반명우
--->
-
 <template>
     <div class="root-container">
         <header class="toolbar">
@@ -77,6 +71,14 @@
 </template>
 
 <script setup>
+/**
+ * @fileoverview 내 정보 컴포넌트
+ * @author 반명우 (banmyungwoo@mcnc.co.kr)
+ * @date 2024-11-08
+ * @lastModified 2024-12-19
+ * @description 내 정보 화면 화면
+ */
+
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from '@/utils/axiosInstance';

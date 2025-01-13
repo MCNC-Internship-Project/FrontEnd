@@ -1,9 +1,3 @@
-<!--
-    - 로그인 컴포넌트
-    
-    - @author 반명우
--->
-
 <template>
     <div class="root-container">
         <div class="logo-container">
@@ -32,6 +26,15 @@
 </template>
 
 <script setup>
+/**
+ * @fileoverview 로그인 컴포넌트
+ * @author 김원재 (kimwonjae@mcnc.co.kr)
+ * @author 반명우 (banmyungwoo@mcnc.co.kr)
+ * @date 2024-11-04
+ * @lastModified 2024-12-16
+ * @description 로그인 화면
+ */
+
 import { ref, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { encrypt } from '@/utils/crypto';

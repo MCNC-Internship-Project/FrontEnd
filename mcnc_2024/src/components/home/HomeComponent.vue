@@ -1,9 +1,3 @@
-<!--
-    - 홈 컴포넌트
-    
-    - @author 반명우
--->
-
 <template>
     <div class="root-container">
         <header class="toolbar">
@@ -26,6 +20,14 @@
 </template>
 
 <script setup>
+/**
+ * @fileoverview 홈 컴포넌트
+ * @author 반명우 (banmyungwoo@mcnc.co.kr)
+ * @date 2024-11-05
+ * @lastModified 2024-12-12
+ * @description 홈 화면
+ */
+
 import { useRouter } from 'vue-router'
 import MySurvey from './survey-list/MySurvey.vue';
 import RespondSurvey from './survey-list/RespondSurvey.vue';

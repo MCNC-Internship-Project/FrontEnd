@@ -1,9 +1,3 @@
-<!--
-    - 비밀번호 찾기 컴포넌트
-    
-    - @author 반명우
--->
-
 <template>
     <div class="root-container">
         <header class="toolbar">
@@ -31,6 +25,14 @@
 </template>
 
 <script setup>
+/**
+ * @fileoverview 비밀번호 찾기 컴포넌트
+ * @author 반명우 (banmyungwoo@mcnc.co.kr)
+ * @date 2024-11-27
+ * @lastModified 2024-12-04
+ * @description 비밀번호 찾기 화면
+ */
+
 import { onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useFindPasswordStore } from '@/stores/FindPasswordStore';

@@ -1,9 +1,3 @@
-<!--
-    - 비밀번호 찾기 컴포넌트 세 번째 단계 컴포넌트
-    
-    - @author 반명우
--->
-
 <template>
     <div class="root-container">
         <form class="form-container" novalidate @submit.prevent="changePassword">
@@ -27,6 +21,16 @@
 </template>
 
 <script setup>
+/**
+ * @fileoverview 비밀번호 찾기 3단계 컴포넌트
+ * @author 반명우 (banmyungwoo@mcnc.co.kr)
+ * @date 2024-11-27
+ * @lastModified 2024-12-19
+ * @description 비밀번호 찾기 3단계
+ * @details
+ * - 비밀번호 변경
+ */
+
 import { ref, defineEmits, computed } from 'vue'
 import { useFindPasswordStore } from '@/stores/FindPasswordStore';
 import { encrypt } from '@/utils/crypto';
@@ -47,10 +51,12 @@ const passwordConfirmInputType = ref("password");
 
 const emit = defineEmits("changePassword");
 
+// 눈 아이콘으로 비밀번호 보기/숨기기
 const changePasswordInputType = () => {
     passwordInputType.value = passwordInputType.value === "password" ? "text" : "password";
 }
 
+// 눈 아이콘으로 비밀번호 확인 보기/숨기기
 const changePasswordConfirmInputType = () => {
     passwordConfirmInputType.value = passwordConfirmInputType.value === "password" ? "text" : "password";
 }
@@ -87,6 +93,7 @@ const dialogConfirm = (dialog) => {
     dialog.isVisible = false;
 }
 
+// 비밀번호 변경
 const changePassword = () => {
     if (!password.value) {
         isPasswordError.value = true;

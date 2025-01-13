@@ -1,9 +1,3 @@
-<!--
-    - 확인/취소 버튼이 있는 다이얼로그 컴포넌트
-    
-    - @author 반명우
--->
-
 <template>
     <v-dialog v-model="isVisible" :persistent="isPersistent" max-width="400" @keydown.enter="onConfirm">
         <v-card>
@@ -18,6 +12,14 @@
 </template>
 
 <script setup>
+/**
+ * @fileoverview 확인/취소 버튼이 있는 다이얼로그 컴포넌트
+ * @author 반명우 (banmyungwoo@mcnc.co.kr)
+ * @date 2024-12-03
+ * @lastModified 2024-12-04
+ * @description 확인 버튼과 취소 버튼이 있는 다이얼로그
+ */
+
 import { defineProps, defineEmits, computed } from 'vue';
 
 const props = defineProps({

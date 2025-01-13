@@ -1,7 +1,9 @@
 /**
- * 암호화 및 복호화 유틸리티
- *
- * @author 반명우
+ * @fileoverview 암호화 및 복호화 유틸리티
+ * @author 반명우 (banmyungwoo@mcnc.co.kr)
+ * @date 2024-12-05
+ * @lastModified 2024-12-06
+ * @description 서버와 암호화 및 복호화 방식 통일
  */
 
 

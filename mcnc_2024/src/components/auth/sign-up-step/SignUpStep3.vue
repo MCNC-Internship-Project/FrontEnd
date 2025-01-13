@@ -1,9 +1,3 @@
-<!--
-    - 회원가입 컴포넌트 내 세 번째 단계 컴포넌트
-    
-    - @author 반명우
--->
-
 <template>
     <div class="root-container">
         <v-container>
@@ -56,6 +50,18 @@
 </template>
 
 <script setup>
+/**
+ * @fileoverview 회원가입 3단계 컴포넌트
+ * @author 김원재 (kimwonjae@mcnc.co.kr)
+ * @author 반명우 (banmyungwoo@mcnc.co.kr)
+ * @date 2024-11-06
+ * @lastModified 2024-12-19
+ * @description 회원가입 3단계
+ * @details
+ * - 생년월일 선택
+ * - 성별 선택
+ */
+
 import { ref, defineEmits, watch } from 'vue'
 import { useSignUpStore } from '@/stores/SignUpStore';
 import { encrypt } from '@/utils/crypto';
@@ -110,6 +116,7 @@ const selectGender = (value) => {
     isGenderError.value = false;
 }
 
+// 회원가입
 const goToSignUp = () => {
     if (!birth.value) {
         isBirthError.value = true;

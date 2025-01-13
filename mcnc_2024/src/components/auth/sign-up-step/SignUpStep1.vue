@@ -1,9 +1,3 @@
-<!--
-    - 회원가입 컴포넌트 내 첫 번째 단계 컴포넌트
-    
-    - @author 반명우
--->
-
 <template>
     <div class="root-container">
         <div class="form-container">
@@ -37,6 +31,18 @@
 </template>
 
 <script setup>
+/**
+ * @fileoverview 회원가입 1단계 컴포넌트
+ * @author 김원재 (kimwonjae@mcnc.co.kr)
+ * @author 반명우 (banmyungwoo@mcnc.co.kr)
+ * @date 2024-11-06
+ * @lastModified 2024-12-19
+ * @description 회원가입 1단계
+ * @details
+ * - 아이디 중복 확인
+ * - 이메일 인증
+ */
+
 import { ref, computed } from 'vue'
 import { useSignUpStore } from '@/stores/SignUpStore';
 import { encrypt } from '@/utils/crypto';

@@ -1,9 +1,3 @@
-<!--
-    - 프로그레스바가 있는 다이얼로그 컴포넌트
-    
-    - @author 반명우
--->
-
 <template>
     <v-dialog v-model="isVisible" max-width="400" persistent>
         <v-card>
@@ -16,6 +10,14 @@
 </template>
 
 <script setup>
+/**
+ * @fileoverview 프로그레스바 다이얼로그 컴포넌트
+ * @author 반명우 (banmyungwoo@mcnc.co.kr)
+ * @date 2024-12-03
+ * @lastModified 2024-12-03
+ * @description 프로그레스바로 로딩 중임을 보여주는 다이얼로그
+ */
+
 import { defineProps, defineEmits, computed } from 'vue';
 
 const props = defineProps({

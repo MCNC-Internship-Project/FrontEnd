@@ -1,9 +1,3 @@
-<!--
-    - 설문조사 검색 컴포넌트
-    
-    - @author 반명우
--->
-
 <template>
     <div class="root-container">
         <header class="toolbar">
@@ -48,6 +42,15 @@
 </template>
 
 <script setup>
+/**
+ * @fileoverview 설문조사 검색 컴포넌트
+ * @author 김원재 (kimwonjae@mcnc.co.kr)
+ * @author 반명우 (banmyungwoo@mcnc.co.kr)
+ * @date 2024-11-08
+ * @lastModified 2024-12-16
+ * @description 전체 설문조사를 검색하는 화면
+ */
+
 import { ref, onMounted } from 'vue'
 import axios from '@/utils/axiosInstance';
 import { useRouter } from 'vue-router';

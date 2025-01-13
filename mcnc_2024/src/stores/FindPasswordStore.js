@@ -1,7 +1,9 @@
 /**
- * 비밀번호 찾기시 입력한 값을 임시로 저장하는 pinia store
- *
- * @author 반명우
+ * @fileoverview 비밀번호 찾기 컴포넌트에서 사용하는 pinia store
+ * @author 반명우 (banmyungwoo@mcnc.co.kr)
+ * @date 2024-12-03
+ * @lastModified 2024-12-19
+ * @description 비밀번호 찾기 시 값을 임시로 저장
  */
 
 import { defineStore } from 'pinia';

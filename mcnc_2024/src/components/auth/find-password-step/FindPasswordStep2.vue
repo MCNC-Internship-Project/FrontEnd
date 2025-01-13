@@ -1,9 +1,3 @@
-<!--
-    - 비밀번호 찾기 컴포넌트 두 번째 단계 컴포넌트
-    
-    - @author 반명우
--->
-
 <template>
     <div class="root-container">
         <div class="form-container">
@@ -26,6 +20,16 @@
 </template>
 
 <script setup>
+/**
+ * @fileoverview 비밀번호 찾기 2단계 컴포넌트
+ * @author 반명우 (banmyungwoo@mcnc.co.kr)
+ * @date 2024-11-27
+ * @lastModified 2024-12-19
+ * @description 비밀번호 찾기 2단계
+ * @details
+ * - 이메일 인증
+ */
+
 import { ref } from 'vue'
 import { useFindPasswordStore } from '@/stores/FindPasswordStore';
 import { encrypt } from '@/utils/crypto';
@@ -71,6 +75,7 @@ const dialogConfirm = (dialog) => {
 
 const isEmailSending = ref(false);
 
+// 인증번호 메일 전송
 const verifyCode = () => {
     if (!email.value) {
         isEmailError.value = true;
@@ -110,6 +115,7 @@ const verifyCode = () => {
         });
 }
 
+// 인증번호 확인 및 다음 단계로 이동
 const nextStep = () => {
     if (!code.value) {
         isCodeError.value = true;
@@ -139,7 +145,7 @@ const nextStep = () => {
         });
 }
 
-// 이메일 주소 가리기
+// 이메일 주소 가리기 (a****@b****.com 형식으로 표시)
 const hideEmail = (email) => {
     if (!email)
         return '';

@@ -1,9 +1,12 @@
 /**
- * vue 기본 설정파일
- *
- * @author 반명우
- * @author 김원재
+ * @fileoverview Vue.js 설정 파일
+ * @author 김원재 (kimwonjae@mcnc.co.kr)
+ * @author 반명우 (banmyungwoo@mcnc.co.kr)
+ * @date 2024-11-04
+ * @lastModified 2024-12-05
+ * @description 전역 설정 및 라이브러리 등록
  */
+
 
 import { createApp } from "vue";
 import App from "./App.vue";

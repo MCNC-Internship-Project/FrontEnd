@@ -1,9 +1,3 @@
-<!--
-    - 회원가입 컴포넌트 내 두 번째 단계 컴포넌트
-    
-    - @author 반명우
--->
-
 <template>
     <div class="root-container">
         <form class="form-container" novalidate @submit.prevent="nextStep">
@@ -30,6 +24,18 @@
 </template>
 
 <script setup>
+/**
+ * @fileoverview 회원가입 2단계 컴포넌트
+ * @author 김원재 (kimwonjae@mcnc.co.kr)
+ * @author 반명우 (banmyungwoo@mcnc.co.kr)
+ * @date 2024-11-06
+ * @lastModified 2024-12-16
+ * @description 회원가입 2단계
+ * @details
+ * - 사용자명 입력
+ * - 비밀번호 입력
+ */
+
 import { ref, computed } from 'vue'
 import { useSignUpStore } from '@/stores/SignUpStore';
 
@@ -59,10 +65,12 @@ const showDialog = (message) => {
     dialog.value.isVisible = true;
 }
 
+// 눈 아이콘으로 비밀번호 보기/숨기기
 const changePasswordInputType = () => {
     passwordInputType.value = passwordInputType.value === "password" ? "text" : "password";
 }
 
+// 눈 아이콘으로 비밀번호 확인 보기/숨기기
 const changePasswordConfirmInputType = () => {
     passwordConfirmInputType.value = passwordConfirmInputType.value === "password" ? "text" : "password";
 }
@@ -75,6 +83,7 @@ const passwordConfirmIcon = computed(() => {
     return passwordConfirmInputType.value === "password" ? imgEyeClose : imgEyeOpen;
 });
 
+// 다음 단계로 이동
 const nextStep = () => {
     if (!userName.value) {
         isUserNameError.value = true;

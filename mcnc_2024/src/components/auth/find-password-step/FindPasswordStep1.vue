@@ -1,9 +1,3 @@
-<!--
-    - 비밀번호 찾기 컴포넌트 첫 번째 단계 컴포넌트
-    
-    - @author 반명우
--->
-
 <template>
     <div class="root-container">
         <form class="form-container" novalidate @submit.prevent="nextStep">
@@ -17,6 +11,16 @@
 </template>
 
 <script setup>
+/**
+ * @fileoverview 비밀번호 찾기 1단계 컴포넌트
+ * @author 반명우 (banmyungwoo@mcnc.co.kr)
+ * @date 2024-11-27
+ * @lastModified 2024-12-16
+ * @description 비밀번호 찾기 1단계
+ * @details
+ * - 아이디 확인
+ */
+
 import { ref } from 'vue'
 import { useFindPasswordStore } from '@/stores/FindPasswordStore';
 import { decrypt } from '@/utils/crypto';
