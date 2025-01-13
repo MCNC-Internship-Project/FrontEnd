@@ -1,7 +1,3 @@
-<!--
-    - 설문 참여
-    - @author 성지혜
--->
 <template>
     <div v-if="isValid">
         <ToolBar @goBack="goBack" backgroundColor="#fff" zIndex="1000" />
@@ -135,8 +131,16 @@
 </template>
 
 <script setup>
+/**
+ * @fileoverview 설문 참여 컴포넌트
+ * @author 성지혜 (seongjihye@mcnc.co.kr)
+ * @date 2024-11-15
+ * @lastModified 2025-12-27
+ * @description 설문 참여 화면
+ */
+ 
 import { ref, onMounted } from "vue";
-import { useRouter, useRoute } from "vue-router"; // 라우터 추가
+import { useRouter, useRoute } from "vue-router"; 
 import { encrypt, decrypt } from "@/utils/crypto";
 import axios from '@/utils/axiosInstance';
 import dayjs from "dayjs";
