@@ -1,7 +1,3 @@
-<!--
-    - 설문 참여 완료
-    - @author 성지혜
--->
 <template>
   <div class="survey-completion">
 
@@ -15,6 +11,14 @@
 </template>
 
 <script setup>
+/**
+ * @fileoverview 설문 참여 완료 컴포넌트
+ * @author 성지혜 (seongjihye@mcnc.co.kr)
+ * @date 2025-11-15
+ * @lastModified 2025-12-16
+ * @description 설문 참여 완료 화면
+ */
+ 
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
