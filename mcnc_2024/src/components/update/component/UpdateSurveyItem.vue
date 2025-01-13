@@ -50,11 +50,16 @@
 </template>
 
 <script setup>
+/**
+ * @fileoverview 설문 수정 파트의 설문 항목 컴포넌트
+ * @author 김원재 (kimwonjae@mcnc.co.kr)
+ * @date 2024-11-25
+ * @lastModified 2024-12-19
+ * @description 수정 파트 질문 항목에 대한 화면 구현.
+ */
 import { ref, watch, defineExpose, defineEmits, defineProps, onMounted } from 'vue';
-
 import UpdateObjComponent from './UpdateObjComponent.vue'
 import UpdateSubjComponent from './UpdateSubjComponent.vue'
-
 import iconSingle from '@/assets/images/icon_single.svg';
 import iconMulti from '@/assets/images/icon_multi.svg';
 import iconSubj from '@/assets/images/icon_subj.svg';

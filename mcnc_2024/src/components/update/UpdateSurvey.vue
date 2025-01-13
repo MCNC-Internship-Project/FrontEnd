@@ -150,6 +150,13 @@
 </template>
 
 <script setup>
+/**
+ * @fileoverview 설문 수정 컴포넌트
+ * @author 김원재 (kimwonjae@mcnc.co.kr)
+ * @date 2024-11-25
+ * @lastModified 2024-12-19
+ * @description 설문 수정에 대한 화면 구현.
+ */
 import { ref, nextTick, watch, defineProps, onMounted, onUnmounted } from 'vue';
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
 import { decrypt, encrypt } from '@/utils/crypto';

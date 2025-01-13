@@ -5,6 +5,13 @@
 </template>
 
 <script setup>
+/**
+ * @fileoverview  설문 항목의 타입별(주관식) 질문 항목 컴포넌트
+ * @author 김원재 (kimwonjae@mcnc.co.kr)
+ * @date 2024-11-08
+ * @lastModified 2024-12-10
+ * @description 질문 항목에 대한 화면 구현.
+ */
 import { defineExpose } from 'vue';
 
 const getValue = () => {
