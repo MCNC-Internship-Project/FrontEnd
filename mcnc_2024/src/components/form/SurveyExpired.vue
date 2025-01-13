@@ -1,7 +1,3 @@
-<!--
-    - 종료된 설문
-    - @author 성지혜
--->
 <template>
   <div class="survey-completion">
     <!-- 설문 정보 섹션 추가 -->
@@ -25,6 +21,14 @@
 </template>
 
 <script setup>
+/**
+ * @fileoverview 설문 완료 컴포넌트
+ * @author 성지혜 (seongjihye@mcnc.co.kr)
+ * @date 2025-11-15
+ * @lastModified 2025-12-17
+ * @description 설문 완료 화면
+ */
+
 import { useRouter } from 'vue-router';
 import { defineProps } from 'vue';
 import dayjs from 'dayjs';
