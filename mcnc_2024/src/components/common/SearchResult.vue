@@ -1,7 +1,3 @@
-<!--
-    - 설문조사 검색 결과 컴포넌트
-    - @author 김은수
--->
 <template>
     <div class="survey-container">
         <!-- 초기 상태에서 로고 표시 -->
@@ -24,6 +20,15 @@
 </template>
 
 <script setup>
+/**
+ * @fileoverview 설문조사 검색 결과 화면 컴포넌트
+ * @author 김은수 (kimeunsu@mcnc.co.kr)
+ * @date 2024-11-20
+ * @lastModified 2024-12-12
+ * @description 설문조사 검색 결과를 표시하는 화면을 구현. 
+ * 초기 상태 로고 표시, 검색 결과 렌더링, 결과 없음 처리, 무한 스크롤 기능 포함.
+ */
+
 import { defineProps } from 'vue';
 import SurveyCard from './SurveyCard.vue';
 

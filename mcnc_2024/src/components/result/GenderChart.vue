@@ -1,7 +1,3 @@
-<!--
-    - 설문통계: 나이 그래프
-    - @author 김은수
--->
 <template>
     <div class="chart-wrapper">
         <canvas ref="genderChartCanvas"></canvas>
@@ -9,6 +5,14 @@
 </template>
 
 <script setup>
+/**
+ * @fileoverview 설문통계 - 성별 그래프 컴포넌트
+ * @author 김은수
+ * @date 2024-12-10
+ * @lastModified 2024-12-20
+ * @description 설문 응답자의 성별 분포를 시각화하는 파이 차트 컴포넌트.
+ */
+
 import { ref, onMounted, defineProps } from "vue";
 import { Chart } from "chart.js/auto";
 import ChartDataLabels from "chartjs-plugin-datalabels";

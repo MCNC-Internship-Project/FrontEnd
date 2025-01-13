@@ -1,7 +1,3 @@
-<!--
-    - 설문 목록 타이틀 헤더 컴포넌트
-    - @author 김은수
--->
 <template>
     <div class="header">
         <div class="title">{{ title }}</div>
@@ -10,6 +6,14 @@
 </template>
 
 <script setup>
+/**
+ * @fileoverview 설문 목록 타이틀 헤더 컴포넌트
+ * @author 김은수 (kimeunsu@mcnc.co.kr)
+ * @date 2024-11-20
+ * @lastModified 2024-12-09
+ * @description 설문 목록 제목과 검색 버튼을 표시하는 헤더 컴포넌트.
+ */
+
 import { defineEmits, defineProps } from 'vue';
 
 defineProps({

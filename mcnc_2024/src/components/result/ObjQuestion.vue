@@ -1,7 +1,3 @@
-<!--
-    - 설문통계: 객관식 항목 그래프
-    - @author 김은수
--->
 <template>
     <div class="question-container">
         <h3 class="question-title">{{ question.body }}</h3>
@@ -24,6 +20,14 @@
 </template>
 
 <script setup>
+/**
+ * @fileoverview 설문통계 - 객관식 항목 그래프 컴포넌트
+ * @author 김은수
+ * @date 2025-12-10
+ * @lastModified 2024-12-20
+ * @description 설문 응답에서 객관식 선택 항목의 통계를 가로 막대 그래프로 시각화하고, 기타 응답 내용을 표시하는 컴포넌트.
+ */
+
 import { ref, onMounted, defineProps } from "vue";
 import { Chart } from "chart.js/auto";
 import ChartDataLabels from "chartjs-plugin-datalabels";

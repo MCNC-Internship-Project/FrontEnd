@@ -1,7 +1,3 @@
-<!--
-    - 설문통계: 연령 그래프
-    - @author 김은수
--->
 <template>
     <div class="chart-wrapper">
         <canvas ref="ageChartCanvas"></canvas>
@@ -9,6 +5,14 @@
 </template>
 
 <script setup>
+/**
+ * @fileoverview 설문통계 - 연령 그래프 컴포넌트
+ * @author 김은수 (kimeunsu@mcnc.co.kr)
+ * @date 2024-12-10
+ * @lastModified 2024-12-20
+ * @description 설문 응답자의 연령 분포를 시각화하는 가로 막대형 그래프 컴포넌트.
+ */
+
 import { ref, onMounted, defineProps } from "vue";
 import { Chart } from "chart.js/auto";
 import ChartDataLabels from "chartjs-plugin-datalabels";

@@ -1,7 +1,3 @@
-<!--
-    - 툴바
-    - @author 김은수
--->
 <template>
     <div class="toolbar" :style="{ backgroundColor: backgroundColor || 'transparent', zIndex: zIndex || 1000 }">
         <img class="back" src="../../assets/images/icon_arrow_left.svg" alt="back" @click="$emit('goBack')" />
@@ -9,8 +5,15 @@
     </div>
 </template>
 
-
 <script setup>
+/**
+ * @fileoverview 툴바 컴포넌트
+ * @author 김은수 (kimeunsu@mcnc.co.kr)
+ * @date 2024-11-20
+ * @lastModified 2024-11-26
+ * @description 고정된 툴바로 뒤로가기 버튼과 콘텐츠 슬롯을 제공하는 컴포넌트.
+ */
+
 import { defineProps } from 'vue'
 defineProps({
     backgroundColor: {

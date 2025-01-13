@@ -1,7 +1,3 @@
-<!--
-    - 설문 목록 내 설문카드 컴포넌트
-    - @author 김은수
--->
 <template>
     <div class="item-container" v-ripple>
         <div class="item-header-container">
@@ -22,6 +18,15 @@
 </template>
 
 <script setup>
+/**
+ * @fileoverview 설문 목록 내 설문카드 컴포넌트
+ * @author 김은수 (kimeunsu@mcnc.co.kr)
+ * @date 2024-11-20
+ * @lastModified 2024-12-12
+ * @description 개별 설문 정보를 카드 형태로 표시. 설문 제목, 설명, 생성일, 만료일, 응답자 수 등 정보 제공.
+ * 진행 상태와 프로필 정보 표시 포함.
+ */
+
 import { defineProps } from 'vue'
 import dayjs from 'dayjs'
 

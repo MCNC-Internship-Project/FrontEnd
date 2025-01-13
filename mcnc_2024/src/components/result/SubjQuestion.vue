@@ -1,7 +1,3 @@
-<!--
-    - 설문통계: 주관식 항목 그래프
-    - @author 김은수
--->
 <template>
     <div class="question-container">
         <h3 class="question-title">{{ question.body }}</h3>
@@ -17,6 +13,14 @@
 </template>
 
 <script setup>
+/**
+ * @fileoverview 설문통계 - 주관식 항목 렌더링 컴포넌트
+ * @author 김은수 (kimeunsu@mcnc.co.kr)
+ * @date 2024-12-10
+ * @lastModified 2024-12-16
+ * @description 설문 주관식 응답을 목록 형태로 렌더링하고, 응답이 없을 경우 메시지를 표시하는 컴포넌트.
+ */
+
 import { defineProps } from 'vue';
 defineProps({
     question: Object,

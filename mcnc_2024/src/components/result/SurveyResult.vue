@@ -1,7 +1,3 @@
-<!--
-    - 설문통계
-    - @author 김은수
--->
 <template>
     <div class="root-container" v-if="isValid">
         <ToolBar @goBack="goBack" backgroundColor="#fff" zIndex="1000">
@@ -66,6 +62,14 @@
 </template>
 
 <script setup>
+/**
+ * @fileoverview 설문통계 화면 컴포넌트
+ * @author 김은수 (kimeunsu@mcnc.co.kr)
+ * @date 2024-12-10
+ * @lastModified 2024-12-20
+ * @description 설문 통계를 성별, 연령, 질문별 결과로 구분하여 시각화하고, Excel 다운로드 및 설문 관리 기능을 제공하는 화면 컴포넌트.
+ */
+
 import { useRouter } from 'vue-router';
 import { ref, defineProps, onMounted } from 'vue';
 import { decrypt, encrypt } from '@/utils/crypto';

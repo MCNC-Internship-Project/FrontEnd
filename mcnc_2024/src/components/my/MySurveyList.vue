@@ -1,7 +1,3 @@
-<!--
-    - 내 설문조사 리스트 조회
-    - @author 김은수
--->
 <template>
     <div class="root-container">
         <div class="background"></div>
@@ -28,6 +24,14 @@
 </template>
 
 <script setup>
+/**
+ * @fileoverview 내 설문조사 리스트 조회 화면 컴포넌트
+ * @author 김은수 (kimeunsu@mcnc.co.kr)
+ * @date 2024-12-10
+ * @lastModified 2024-12-20
+ * @description 사용자가 생성한 설문조사 목록을 조회 및 관리할 수 있는 컴포넌트.
+ */
+
 import { ref } from 'vue'
 import { useRouter } from 'vue-router';
 import { encrypt } from '@/utils/crypto';

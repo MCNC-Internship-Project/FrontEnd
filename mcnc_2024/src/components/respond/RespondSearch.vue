@@ -1,7 +1,3 @@
-<!--
-    - 참여한 설문조사 검색
-    - @author 김은수
--->
 <template>
     <div class="root-container">
         <div class="background"></div>
@@ -19,6 +15,14 @@
 </template>
 
 <script setup>
+/**
+ * @fileoverview 참여한 설문조사 검색 화면 컴포넌트
+ * @author 김은수 (kimeunsu@mcnc.co.kr)
+ * @date 2024-12-10
+ * @lastModified 2024-12-20
+ * @description 사용자가 참여한 설문조사를 제목으로 검색할 수 있는 화면 컴포넌트.
+ */
+
 import { useRouter } from 'vue-router';
 import { ref, onMounted } from 'vue';
 import { encrypt } from '@/utils/crypto';
