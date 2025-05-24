@@ -2,7 +2,7 @@
 
 모빌씨앤씨 인턴쉽 프로젝트 프론트엔드 레포지토리  
 Link : [Survwey](http://218.55.79.80)  
-ID : kimwonjae  
+ID : tester  
 PW : qwer1234!  
 
 ## Rules
