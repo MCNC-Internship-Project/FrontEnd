@@ -1,9 +1,7 @@
-# FrontEnd
+## 🎨 디자인 시안 (Figma)
 
-모빌씨앤씨 인턴쉽 프로젝트 프론트엔드 레포지토리  
-Link : [Survwey](http://218.55.79.80)  
-ID : tester  
-PW : qwer1234!
+[Figma 디자인 보기](https://www.figma.com/design/AZVBg5lAmHjqzpfr24GmKG/%EC%84%A4%EB%AC%B8%EC%A1%B0%EC%82%AC?node-id=0-1&p=f&t=6g3gA9iTb1fccqhC-0)
+
 
 ## 메인 화면
 
